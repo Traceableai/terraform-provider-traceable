@@ -9,7 +9,7 @@ terraform {
 
 provider "example" {
   platform_url="https://api-dev.traceable.ai/graphql"
-  api_token="OGFhOWY4NjAtYTNhNS00YmJmLTgwMzctOWRjNzExNzBmMWZk"
+  api_token=""
 }
 
 resource "example_ip_range_rule" "my_ip_range" {
