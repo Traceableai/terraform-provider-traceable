@@ -20,8 +20,6 @@ func Provider() *schema.Provider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"example_ip_range_rule": resourceIpRangeRule(),
-			// "example_api_abuse_rule": resourceApiAbuseRule(),
-			// Add more resources here as needed
 		},
 		ConfigureFunc: graphqlConfigure,
 	}
@@ -32,7 +30,7 @@ type graphqlProviderConfig struct {
 	ApiToken     string
 }
 
-func graphqlConfigure( d *schema.ResourceData) (interface{}, error) {
+func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := &graphqlProviderConfig{
 		GQLServerUrl: d.Get("platform_url").(string),
 		ApiToken:     d.Get("api_token").(string),
