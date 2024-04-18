@@ -20,7 +20,6 @@ func Provider() *schema.Provider {
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"example_ip_range_rule": resourceIpRangeRule(),
-			// Add more resources here as needed
 		},
 		ConfigureFunc: graphqlConfigure,
 	}
