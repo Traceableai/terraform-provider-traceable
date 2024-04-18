@@ -71,11 +71,6 @@ func resourceIpRangeRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	envList := toStringSlice(d.Get("environment").(*schema.Set).List())
 
-	allEnv := false
-	if len(envList) == 0 {
-		allEnv = true
-	}
-
 	queryInput := map[string]string{
 		"name":               Name,
 		"eventSeverity":      eventSeverity,
@@ -90,7 +85,7 @@ func resourceIpRangeRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	env := ""
 	for key, value := range queryInput {
 		if value != "" {
-			if key == "environmentScope" && !allEnv {
+			if key == "environmentScope" {
 				env = fmt.Sprintf(`ruleScope: {%s:{environmentIds:[%s]}}`, key, value)
 			} else {
 				if key == "rawIpRangeData" {

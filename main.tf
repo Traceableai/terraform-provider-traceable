@@ -13,14 +13,14 @@ provider "example" {
 }
 
 resource "example_ip_range_rule" "my_ip_range" {
-    name     = "first_rule_2"
+    name     = "first_rule_3"
     rule_action     = "RULE_ACTION_ALLOW"
     event_severity     = "LOW"
     raw_ip_range_data = [
         "1.1.1.1",
         "3.3.3.3"
     ]
-    environment = ["meghana-mock-env"]
+    environment = []
     # expiration = "PT600S"
     description="rule created from custom provider"
 }
