@@ -71,6 +71,15 @@ func resourceIpRangeRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	envList := toStringSlice(d.Get("environment").(*schema.Set).List())
 
+	var allEnv bool
+	allEnv = false
+	for _, env := range envList {
+		if env == "" {
+			allEnv = true
+			break
+		}
+	}
+
 	queryInput := map[string]string{
 		"name":               Name,
 		"eventSeverity":      eventSeverity,
@@ -84,7 +93,7 @@ func resourceIpRangeRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	query := "mutation { createIpRangeRule( create:{ ruleDetails:{"
 	env := ""
 	for key, value := range queryInput {
-		if value != "" {
+		if value != "" && !allEnv {
 			if key == "environmentScope" {
 				env = fmt.Sprintf(`ruleScope: {%s:{environmentIds:[%s]}}`, key, value)
 			} else {
