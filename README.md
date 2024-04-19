@@ -7,17 +7,14 @@
 
 ## Building the provider
 
-First make the correct directory, cd to it, and checkout the repo.
+Clone the repo
 ```markdown
 git clone https://github.com/Traceableai/traceable-terraform-provider.git
 cd traceable-terraform-provider
 ```
 
-Convert the existing Go project to use modules by setting up a new module by creating the `go.mod` file that describes the module's properties including its name and dependencies.
-Clean up the module by adding missing and removing unused modules so that the `go.mod` file matches the source code in the module
-Compile the Go program in the current directory into a binary
+Install packages and build
 ```markdown
-go mod init
 go mod tidy
 go build -o terraform-provider-example
 ```
@@ -37,9 +34,6 @@ provider "example" {
 
 - `platform_url`: The platform url to be used
 - `api_token`: API token for accessing the platform
-
-##### Optional:
-- none
 
 ## Resources
 
@@ -72,35 +66,23 @@ resource "example_ip_range_rule" "my_ip_range" {
 - `environment`: (set of string) list of the env for which the rule would be applicable
 
 ##### Optional:
-- `expiration`: (string) expiration of the rule
+- `expiration`: (string) expiration time of the rule (this attribute don't apply on `RULE_ACTION_ALERT`)
 - `description`: (string) description of the rule
 
 ## Plugin set up (to run locally)
 
-cd into the `.terraform.d` directory under root - this directory is used by Terraform to store global configurations and data, including custom provider plugins.
+Inside `~/.terraform.d` directory
+
 Create a new directory path for a custom Terraform provider, where Terraform will look for local provider plugins.
 
 ```markdown
 mkdir -p plugins/terraform.local/local/example/0.0.1/darwin_amd64/
 ```
 
-- `terraform.local/local/example` simulates a local namespace for the provider.
-- `0.0.1` is the version of the provider.
-- `darwin_amd64` indicates the build is for macOS architecture, which is common for Mac users (darwin stands for macOS, and amd64 indicates the 64-bit architecture).
+Move provider binary `terraform-provider-example` to this directory ```plugins/terraform.local/local/example/0.0.1/darwin_amd64/```
 
-Move the compiled Terraform provider binary to the directory within `.terraform.d` that was created above
 
-```markdown
-mv /Users/<USER>/Desktop/traceable-terraform-provider/terraform-provider-example .terraform.d/plugins/terraform.local/local/example/0.0.1/darwin_amd64/
-```
-
-Create a file .terraformrc that is used to configure various behaviors of Terraform, including provider installation paths and methods. This one Specifies custom provider installation settings for Terraform.
-The of these settings is to have Terraform look locally in /Users/<USER>/.terraform.d/plugins for any provider plugins before checking online, and to specifically avoid online checks for any providers that are intended to be managed locally (as indicated by the namespace pattern terraform.local/*/*).
-
-```markdown
-vi .terraformrc
-```
-paste the following in the file:
+Add provider binary path to your `.terraformrc` (if not exist create and paste below lines) to run it locally
 
 ```markdown
 provider_installation {
@@ -113,7 +95,7 @@ provider_installation {
 }
 ```
 
-Initialize a Terraform working directory and Apply the changes required to reach the desired state of the configuration
+Initialize a Terraform working directory and Apply the changes.
 
 ```markdown
 terraform init
