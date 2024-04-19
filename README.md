@@ -62,11 +62,11 @@ resource "example_ip_range_rule" "my_ip_range" {
 - `name`: (string) name of the rule
 - `rule_action`: (string) type of action of the rule to be created [RULE_ACTION_BLOCK, RULE_ACTION_ALERT, RULE_ACTION_ALLOW]
 - `event_severity`: (string) severity of the rule [LOW, MEDIUM, HIGH]
-- `raw_ip_range_data`: (set of string) list of the ips that the rule would apply on
+- `raw_ip_range_data`: (set of string) list of the ip addresses(IPv4 or IPv6), cidr ranges that the rule would apply on
 - `environment`: (set of string) list of the env for which the rule would be applicable
 
 ##### Optional:
-- `expiration`: (string) expiration time of the rule (this attribute don't apply on `RULE_ACTION_ALERT`)
+- `expiration`: (string) expiration time of the rule (this attribute don't apply on `RULE_ACTION_ALERT`, don't pass this attribute if we need to block or allow indefinetly)
 - `description`: (string) description of the rule
 
 ## Plugin set up (to run locally)
