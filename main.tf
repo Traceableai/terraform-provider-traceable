@@ -17,7 +17,7 @@ terraform {
 }
 
 data "aws_secretsmanager_secret_version" "api_token" {
-  secret_id = "arn:aws:secretsmanager:us-west-2:909318933178:secret:dev_stating_automation_api_token-SeHhxg"
+  secret_id = "you secret manager arn"
 }
 
 output "api_token" {
@@ -39,7 +39,7 @@ resource "example_ip_range_rule" "my_ip_range" {
         "1.1.1.1",
         "3.3.3.3"
     ]
-    
+    environment=[]
     expiration = "PT600S"
     description="rule created from custom provider"
 }
