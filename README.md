@@ -57,7 +57,6 @@ resource "example_ip_range_rule" "my_ip_range" {
         "3.3.3.3"
     ]
     environment=[]
-    expiration = "PT600S"
     description="rule created from custom provider"
 }
 ```
