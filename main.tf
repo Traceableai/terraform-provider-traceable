@@ -26,8 +26,8 @@ output "api_token" {
 }
 
 provider "example" {
-  platform_url="https://api-dev.traceable.ai/graphql"
-  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+  platform_url="cluster_url"
+  api_token="your api token"
 }
 
 
