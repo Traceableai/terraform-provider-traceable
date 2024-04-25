@@ -23,7 +23,7 @@ go build -o terraform-provider-example
 
 #### Example usage:
 ```markdown
-provider "example" {
+provider "traceable" {
   platform_url=""
   api_token=""
 }
