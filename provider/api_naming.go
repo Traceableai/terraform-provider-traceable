@@ -65,28 +65,40 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 
 	var spanFilters []string
 
-	// Checking if service name list is (empty -> all services case)
-	if len(serviceNames) > 0 && serviceNames[0] != "" {
-		spanFilters = append(spanFilters, fmt.Sprintf(`
-		{
-			relationalSpanFilter: {
-				field: SERVICE_NAME
-				relationalOperator: IN
-				value: %s
-			}
-		}`, jsonifyList(serviceNames)))
+	// Checking if env name list is (empty -> all env case)
+	environmentNames, ok := d.Get("environment_names").([]interface{})
+	if !ok {
+		fmt.Println("environment_names is not a valid []interface{} type")
+	}
+	if len(environmentNames) > 0 {
+		firstElement, ok := environmentNames[0].(string) // Proper type assertion
+		if ok && firstElement != "" {
+			fmt.Println("The first environment name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: ENVIRONMENT_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		} else {
+			fmt.Println("The first environment name is empty or not a string")
+		}
+	} else {
+		fmt.Println("The environment_names list is empty")
 	}
 
-	// Checling if env name list is (empty -> all env case)
-	if len(environmentNames) > 0 && environmentNames[0] != "" {
-		spanFilters = append(spanFilters, fmt.Sprintf(`
-		{
-			relationalSpanFilter: {
-				field: ENVIRONMENT_NAME
-				relationalOperator: IN
-				value: %s
-			}
-		}`, jsonifyList(environmentNames)))
+	// Checking if service name list is (empty -> all services case)
+	serviceNames, ok2 := d.Get("service_names").([]interface{})
+	if !ok2 {
+		fmt.Println("service_names is not a valid []interface{} type")
+	}
+	if len(serviceNames) > 0 {
+		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
+		if ok2 && firstElement != "" {
+			fmt.Println("The first service name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		} else {
+			fmt.Println("The first service name is empty or not a string")
+		}
+	} else {
+		fmt.Println("The service_names list is empty")
 	}
 
 	// spanFilter part of the query willbe empty in case of all env and all services
@@ -97,37 +109,14 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 		spanFilterQueryPart = "spanFilters: []" // No filters to apply
 	}
 
-	query := fmt.Sprintf(`
-mutation {
-  createApiNamingRule(
-    input: {
-      name: "%s"
-      disabled: %t
-      apiNamingRuleConfig: {
-        apiNamingRuleConfigType: SEGMENT_MATCHING
-        segmentMatchingBasedRuleConfig: {
-          regexes: %s
-          values: %s
-        }
-      }
-      spanFilter: {
-        logicalSpanFilter: {
-          logicalOperator: AND
-          %s
-        }
-      }
-    }
-  ) {
-    id
-  }
-}`, name, disabled, jsonifyList(regexes), jsonifyList(values), spanFilterQueryPart)
+	query := fmt.Sprintf(`mutation{createApiNamingRule(input:{name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, name, disabled, jsonifyList(regexes), jsonifyList(values), spanFilterQueryPart)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		log.Printf("Error while executing GraphQL query: %s", err)
-		return err
+		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+
 	}
 
 	log.Printf("GraphQL response: %s", responseStr)
@@ -135,7 +124,6 @@ mutation {
 	if response["data"] != nil && response["data"].(map[string]interface{})["createApiNamingRule"] != nil {
 		id := response["data"].(map[string]interface{})["createApiNamingRule"].(map[string]interface{})["id"].(string)
 		d.SetId(id)
-		log.Printf(query)
 	} else {
 		return fmt.Errorf("could not create API naming rule, no ID returned")
 	}
@@ -143,52 +131,15 @@ mutation {
 	return nil
 }
 
-// function to convert a list of strings to a GraphQL-compatible string list
-func jsonifyList(list []interface{}) string {
-	var strList []string
-	for _, item := range list {
-		strList = append(strList, fmt.Sprintf(`"%s"`, item))
-	}
-	return "[" + strings.Join(strList, ", ") + "]"
-}
-
 func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id() // Get the resource ID set during creation
 
 	// GraphQL query to read the API Naming Rule details
-	query := `{
-        apiNamingRules {
-            results {
-                id
-                name
-                disabled
-                apiNamingRuleConfig {
-                    apiNamingRuleConfigType
-                    segmentMatchingBasedRuleConfig {
-                        regexes
-                        values
-                    }
-                }
-                spanFilter {
-                    logicalSpanFilter {
-                        logicalOperator
-                        spanFilters {
-                            relationalSpanFilter {
-                                field
-                                relationalOperator
-                                value
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }`
+	query := `{apiNamingRules{results{id name disabled apiNamingRuleConfig{apiNamingRuleConfigType segmentMatchingBasedRuleConfig{regexes values}}spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{field relationalOperator value}}}}}}}`
 
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		log.Printf("Error while executing GraphQL query: %s", err)
-		return err
+		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
 
 	var response map[string]interface{}
@@ -224,56 +175,62 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 	disabled := d.Get("disabled").(bool)
 	regexes := jsonifyList(d.Get("regexes").([]interface{}))
 	values := jsonifyList(d.Get("values").([]interface{}))
-	serviceNames := jsonifyList(d.Get("service_names").([]interface{}))
-	environmentNames := jsonifyList(d.Get("environment_names").([]interface{}))
+	serviceNames := d.Get("service_names").([]interface{})
+	environmentNames := d.Get("environment_names").([]interface{})
 
-	query := fmt.Sprintf(`
-mutation {
-  updateApiNamingRule(
-    input: {
-      id: "%s"
-      name: "%s"
-      disabled: %t
-      apiNamingRuleConfig: {
-        apiNamingRuleConfigType: SEGMENT_MATCHING
-        segmentMatchingBasedRuleConfig: {
-          regexes: %s
-          values: %s
-        }
-      }
-      spanFilter: {
-        logicalSpanFilter: {
-          logicalOperator: AND
-          spanFilters: [
-            {
-              relationalSpanFilter: {
-                field: SERVICE_NAME
-                relationalOperator: IN
-                value: %s
-              }
-            },
-            {
-              relationalSpanFilter: {
-                field: ENVIRONMENT_NAME
-                relationalOperator: IN
-                value: %s
-              }
-            }
-          ]
-        }
-      }
-    }
-  ) {
-    id
-  }
-}`, id, name, disabled, regexes, values, serviceNames, environmentNames)
+	var spanFilters []string
 
+	// Checking if env name list is (empty -> all env case)
+	environmentNames, ok := d.Get("environment_names").([]interface{})
+	if !ok {
+		fmt.Println("environment_names is not a valid []interface{} type")
+	}
+	if len(environmentNames) > 0 {
+		firstElement, ok := environmentNames[0].(string) // Proper type assertion
+		if ok && firstElement != "" {
+			fmt.Println("The first environment name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: ENVIRONMENT_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		} else {
+			fmt.Println("The first environment name is empty or not a string")
+		}
+	} else {
+		fmt.Println("The environment_names list is empty")
+	}
+
+	// Checking if service name list is (empty -> all services case)
+	serviceNames, ok2 := d.Get("service_names").([]interface{})
+	if !ok2 {
+		fmt.Println("service_names is not a valid []interface{} type")
+	}
+	if len(serviceNames) > 0 {
+		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
+		if ok2 && firstElement != "" {
+			fmt.Println("The first service name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		} else {
+			fmt.Println("The first service name is empty or not a string")
+		}
+	} else {
+		fmt.Println("The service_names list is empty")
+	}
+
+	spanFilterQueryPart := ""
+	if len(spanFilters) > 0 {
+		spanFilterQueryPart = fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
+	} else {
+		spanFilterQueryPart = "spanFilters: []" // No filters to apply
+	}
+
+	query := fmt.Sprintf(`mutation{updateApiNamingRule(input:{id:"%s" name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, id, name, disabled, regexes, values, spanFilterQueryPart)
+
+	log.Printf((query))
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		log.Printf("Error while executing GraphQL query: %s", err)
-		return err
+		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
 
 	log.Printf("GraphQL response: %s", responseStr)
@@ -291,18 +248,12 @@ func resourceApiNamingRuleDelete(d *schema.ResourceData, meta interface{}) error
 	id := d.Id() // Retrieve the ID of the resource to delete
 
 	query := fmt.Sprintf(`
-mutation {
-  deleteApiNamingRule(input: { id: "%s" }) {
-    success
-    __typename
-  }
-}`, id)
+mutation {deleteApiNamingRule(input: { id: "%s" }) {success,__typename}}`, id)
 
 	// Execute the GraphQL mutation
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		log.Printf("Error while executing GraphQL query: %s", err)
-		return err
+		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
 
 	log.Printf("GraphQL response: %s", responseStr)

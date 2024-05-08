@@ -26,15 +26,16 @@ terraform {
 # }
 
 provider "example" {
-  platform_url=""
-  api_token=""
+  platform_url="cluster_url"
+  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
+
 
 resource "example_api_naming_rule" "example_naming_rule" {
   name             = "meg-test-rule-all-env"
-  disabled         = false
-  regexes          = ["hello", "test", "123"]
-  values           = ["hello", "test", "number"]
+  disabled         = true
+  regexes          = ["hello", "test", "123467"]
+  values           = ["hello", "test", "testing"]
   service_names    = [""]
   environment_names = [""]
 }
