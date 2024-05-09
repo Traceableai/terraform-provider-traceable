@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func executeQuery(query string,meta interface{}) (string, error) {
+func executeQuery(query string, meta interface{}) (string, error) {
 	url := meta.(*graphqlProviderConfig).GQLServerUrl
 	api_token := meta.(*graphqlProviderConfig).ApiToken
 
@@ -25,7 +25,7 @@ func executeQuery(query string,meta interface{}) (string, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", api_token)
+	req.Header.Set("Authorization", "Bearer "+api_token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -45,4 +45,3 @@ func executeQuery(query string,meta interface{}) (string, error) {
 
 	return string(body), nil
 }
-

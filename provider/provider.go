@@ -19,7 +19,8 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"example_ip_range_rule": resourceIpRangeRule(),
+			"example_ip_range_rule":      resourceIpRangeRule(),
+			"example_api_exclusion_rule": resourceApiExclusionRule(),
 		},
 		ConfigureFunc: graphqlConfigure,
 	}

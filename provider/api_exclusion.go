@@ -27,26 +27,22 @@ func resourceApiExclusionRule() *schema.Resource {
 				Description: "Flag to enable or disable the rule",
 				Required:    true,
 			},
-			"span_filters": &schema.Schema{
-				Type:        schema.TypeList,
-				Description: "List of span filters for the exclusion rule",
+			"regexes": &schema.Schema{
+				Type:        schema.TypeString,
+				Description: "http path regex pattern for the rule",
 				Required:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"field": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"relational_operator": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"value": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
+			},
+			"service_names": &schema.Schema{
+				Type:        schema.TypeList,
+				Description: "List of service names to apply the rule",
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"environment_names": &schema.Schema{
+				Type:        schema.TypeList,
+				Description: "List of environment names to apply the rule",
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -54,24 +50,52 @@ func resourceApiExclusionRule() *schema.Resource {
 func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
-	spanFilters := parseSpanFilters(d.Get("span_filters").([]interface{}))
+	regexes := d.Get("regexes").(string)
+	serviceNames := d.Get("service_names").([]interface{})
+	environmentNames := d.Get("environment_names").([]interface{})
 
-	// Build the spanFilters GraphQL part based on provided filter data
-	var graphqlSpanFilters string
-	if len(spanFilters) > 0 {
-		graphqlSpanFilters = fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ", "))
-	} else {
-		// Default filter focusing on URL if no specific environment or service filters are provided
-		graphqlSpanFilters = `spanFilters: [
-            {
-              relationalSpanFilter: {
-                field: URL
-                relationalOperator: REGEX_MATCH
-                value: "hello\\test"
-              }
-            }
-        ]`
+	var spanFilters []string
+
+	// Checking if env name list is (empty -> all env case)
+	environmentNames, ok := d.Get("environment_names").([]interface{})
+	if !ok {
+		fmt.Println("environment_names is not a valid []interface{} type")
 	}
+	if len(environmentNames) > 0 {
+		firstElement, ok := environmentNames[0].(string) // Proper type assertion
+		if ok && firstElement != "" {
+			fmt.Println("The first environment name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: ENVIRONMENT_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		} else {
+			fmt.Println("The first environment name is empty or not a string")
+		}
+	} else {
+		fmt.Println("The environment_names list is empty")
+	}
+
+	// Checking if service name list is (empty -> all services case)
+	serviceNames, ok2 := d.Get("service_names").([]interface{})
+	if !ok2 {
+		fmt.Println("service_names is not a valid []interface{} type")
+	}
+	if len(serviceNames) > 0 {
+		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
+		if ok2 && firstElement != "" {
+			fmt.Println("The first service name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(serviceNames)))
+		} else {
+			fmt.Println("The first service name is empty or not a string")
+		}
+	} else {
+		fmt.Println("The service_names list is empty")
+	}
+
+	spanFilters = append(spanFilters, fmt.Sprintf(`
+        {relationalSpanFilter: {field: URL,relationalOperator: REGEX_MATCH,value: "%s"}}`, regexes))
+
+	spanFilterQueryPart := fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
 
 	query := fmt.Sprintf(`
 mutation {
@@ -90,13 +114,15 @@ mutation {
     id
     __typename
   }
-}`, name, disabled, graphqlSpanFilters)
+}`, name, disabled, spanFilterQueryPart)
+
+	log.Printf(query)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		log.Printf("Error while executing GraphQL query: %s", err)
+		fmt.Errorf("Error while executing GraphQL query: %s", err)
 		return err
 	}
 
@@ -104,94 +130,53 @@ mutation {
 		id := response["data"].(map[string]interface{})["createExcludeSpanRule"].(map[string]interface{})["id"].(string)
 		d.SetId(id)
 	} else {
-		return fmt.Errorf("could not create API exclusion rule, no ID returned")
+		return fmt.Errorf(responseStr)
 	}
 
 	return nil
 }
 
-func parseSpanFilters(filters []interface{}) []string {
-	var filterStrs []string
-	for _, item := range filters {
-		f := item.(map[string]interface{})
-		// Check if value is not just an empty string or an array with an empty string
-		values, ok := f["value"].([]interface{})
-		if ok && len(values) > 0 && values[0] != "" {
-			filterStr := fmt.Sprintf(`{
-				relationalSpanFilter: {
-					field: "%s"
-					relationalOperator: %s
-					value: %s
-				}
-			}`, f["field"].(string), f["relational_operator"].(string), jsonifyList(values))
-			filterStrs = append(filterStrs, filterStr)
-		}
-	}
-	return filterStrs
-}
-
-func jsonifySpanFilters(filters []interface{}) string {
-	var filterStrs []string
-	for _, item := range filters {
-		f := item.(map[string]interface{})
-		filterStr := fmt.Sprintf(`{
-			relationalSpanFilter: {
-				field: "%s"
-				relationalOperator: %s
-				value: "%s"
-			}
-		}`, f["field"].(string), f["relational_operator"].(string), f["value"].(string))
-		filterStrs = append(filterStrs, filterStr)
-	}
-	return "[" + strings.Join(filterStrs, ", ") + "]"
-}
-
 func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) error {
-
+	// Construct the GraphQL query
 	query := `
-{
-  excludeSpanRules {
-    results {
-      id
-      name
-      creationTime
-      lastUpdatedTime
-      disabled
-      spanFilter {
-        logicalSpanFilter {
-          logicalOperator
-          spanFilters {
-            relationalSpanFilter {
-              relationalOperator
-              key
-              value
-              field
-              __typename
+    {
+      excludeSpanRules {
+        results {
+          id
+          name
+          creationTime
+          lastUpdatedTime
+          disabled
+          spanFilter {
+            logicalSpanFilter {
+              logicalOperator
+              spanFilters {
+                relationalSpanFilter {
+                  relationalOperator
+                  key
+                  value
+                  field
+                }
+              }
             }
-            __typename
           }
-          __typename
         }
-        __typename
       }
-      __typename
-    }
-    __typename
-  }
-}
-`
+    }`
+
+	// Execute the GraphQL query
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		log.Printf("Error while executing GraphQL query: %s", err)
-		return err
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
 
+	// Parse the JSON response
 	var response map[string]interface{}
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		log.Printf("Error parsing JSON response: %s", err)
-		return err
+		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
+	log.Printf(responseStr)
 
 	// Navigate through the response to find the rule with the matching ID
 	results := response["excludeSpanRules"].(map[string]interface{})["results"].([]interface{})
@@ -200,92 +185,95 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 		if rule["id"].(string) == d.Id() {
 			d.Set("name", rule["name"].(string))
 			d.Set("disabled", rule["disabled"].(bool))
+			d.Set("creation_time", rule["creationTime"].(string))
+			d.Set("last_updated_time", rule["lastUpdatedTime"].(string))
 
-			// Extract spanFilter details if they exist
-			if spanFilter, ok := rule["spanFilter"].(map[string]interface{}); ok {
-				logicalSpanFilter := spanFilter["logicalSpanFilter"].(map[string]interface{})
-				d.Set("logical_operator", logicalSpanFilter["logicalOperator"].(string))
-
-				// Process each relationalSpanFilter and collect span filter details
-				var spanFilters []interface{}
-				for _, span := range logicalSpanFilter["spanFilters"].([]interface{}) {
-					filter := span.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
-					spanFilters = append(spanFilters, map[string]interface{}{
-						"relational_operator": filter["relationalOperator"].(string),
-						"key":                 filter["key"].(string),
-						"value":               filter["value"].(string),
-						"field":               filter["field"].(string),
-					})
-				}
-				if err := d.Set("span_filters", spanFilters); err != nil {
-					log.Printf("Error setting span_filters: %s", err)
-					return err
+			// Process the span filters
+			if spanFilterMap, ok := rule["spanFilter"].(map[string]interface{}); ok {
+				if logicalSpanFilterMap, ok := spanFilterMap["logicalSpanFilter"].(map[string]interface{}); ok {
+					spanFilters := logicalSpanFilterMap["spanFilters"].([]interface{})
+					filters := make([]interface{}, len(spanFilters))
+					for i, f := range spanFilters {
+						filter := f.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
+						filters[i] = map[string]interface{}{
+							"relational_operator": filter["relationalOperator"].(string),
+							"key":                 filter["key"].(string),
+							"value":               filter["value"].(string),
+							"field":               filter["field"].(string),
+						}
+					}
+					d.Set("span_filters", filters)
 				}
 			}
-
 			return nil
 		}
 	}
 
-	log.Printf("No rule found with ID %s", d.Id())
-	return fmt.Errorf("no rule found with ID %s", d.Id())
+	return fmt.Errorf("no exclusion rule found with ID %s", d.Id())
 }
 
 func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id() // Retrieve the ID of the resource
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
-	spanFiltersInterface := d.Get("span_filters").([]interface{})
+	regexes := d.Get("regexes").(string)
+	serviceNames := d.Get("service_names").([]interface{})
+	environmentNames := d.Get("environment_names").([]interface{})
 
-	spanFilters := make([]string, 0)
-	for _, filter := range spanFiltersInterface {
-		f := filter.(map[string]interface{})
-		field := f["field"].(string)
-		relationalOperator := f["relational_operator"].(string)
-		value := f["value"].(string)
+	var spanFilters []string
 
-		// Handling empty lists for specific filters like service or environment
-		if field == "SERVICE_NAME" || field == "ENVIRONMENT_NAME" {
-			values := strings.Split(value, ",")
-			if len(values) == 1 && values[0] == "" {
-				continue // Skip adding this filter if the list is effectively empty
-			}
+	// Checking if env name list is (empty -> all env case)
+	environmentNames, ok := d.Get("environment_names").([]interface{})
+	if !ok {
+		fmt.Println("environment_names is not a valid []interface{} type")
+	}
+	if len(environmentNames) > 0 {
+		firstElement, ok := environmentNames[0].(string) // Proper type assertion
+		if ok && firstElement != "" {
+			fmt.Println("The first environment name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: ENVIRONMENT_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		} else {
+			fmt.Println("The first environment name is empty or not a string")
 		}
-
-		spanFilters = append(spanFilters, fmt.Sprintf(`{
-            relationalSpanFilter: {
-                field: %q
-                relationalOperator: %q
-                value: [%q]
-            }
-        }`, field, relationalOperator, value))
+	} else {
+		fmt.Println("The environment_names list is empty")
 	}
 
-	// Handle case where no valid filters are added
-	if len(spanFilters) == 0 {
-		spanFilters = append(spanFilters, `{
-            relationalSpanFilter: {
-                field: "URL"
-                relationalOperator: "REGEX_MATCH"
-                value: ["hello\\test"]
-            }
-        }`)
+	// Checking if service name list is (empty -> all services case)
+	serviceNames, ok2 := d.Get("service_names").([]interface{})
+	if !ok2 {
+		fmt.Println("service_names is not a valid []interface{} type")
+	}
+	if len(serviceNames) > 0 {
+		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
+		if ok2 && firstElement != "" {
+			fmt.Println("The first service name is:", firstElement)
+			spanFilters = append(spanFilters, fmt.Sprintf(`
+		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(serviceNames)))
+		} else {
+			fmt.Println("The first service name is empty or not a string")
+		}
+	} else {
+		fmt.Println("The service_names list is empty")
 	}
 
-	// Build the spanFilters part of the GraphQL query
-	spanFilterQueryPart := fmt.Sprintf("[%s]", strings.Join(spanFilters, ", "))
+	spanFilters = append(spanFilters, fmt.Sprintf(`
+        {relationalSpanFilter: {field: URL,relationalOperator: REGEX_MATCH,value: "%s"}}`, regexes))
+
+	spanFilterQueryPart := fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
 
 	query := fmt.Sprintf(`
 mutation {
     updateExcludeSpanRule(
         input: {
-            id: %q
-            name: %q
+            id: "%s"
+            name: "%s"
             disabled: %t
             spanFilter: {
                 logicalSpanFilter: {
                     logicalOperator: AND
-                    spanFilters: %s
+                    %s
                 }
             }
         }
@@ -294,6 +282,8 @@ mutation {
         __typename
     }
 }`, id, name, disabled, spanFilterQueryPart)
+
+	log.Printf(query)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
