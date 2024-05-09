@@ -97,33 +97,13 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 
 	spanFilterQueryPart := fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
 
-	query := fmt.Sprintf(`
-mutation {
-  createExcludeSpanRule(
-    input: {
-      name: "%s"
-      disabled: %t
-      spanFilter: {
-        logicalSpanFilter: {
-          logicalOperator: AND
-          %s
-        }
-      }
-    }
-  ) {
-    id
-    __typename
-  }
-}`, name, disabled, spanFilterQueryPart)
-
-	log.Printf(query)
+	query := fmt.Sprintf(`mutation{createExcludeSpanRule(input:{name:"%s" disabled:%t spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id __typename}}`, name, disabled, spanFilterQueryPart)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error while executing GraphQL query: %s", err)
-		return err
+		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
 
 	if response["data"] != nil && response["data"].(map[string]interface{})["createExcludeSpanRule"] != nil {
@@ -137,74 +117,43 @@ mutation {
 }
 
 func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) error {
-	// Construct the GraphQL query
-	query := `
-    {
-      excludeSpanRules {
-        results {
-          id
-          name
-          creationTime
-          lastUpdatedTime
-          disabled
-          spanFilter {
-            logicalSpanFilter {
-              logicalOperator
-              spanFilters {
-                relationalSpanFilter {
-                  relationalOperator
-                  key
-                  value
-                  field
-                }
-              }
-            }
-          }
-        }
-      }
-    }`
 
-	// Execute the GraphQL query
+	query := `{excludeSpanRules{results{id name disabled spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{relationalOperator key value field}}}}}}}`
+
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
 
-	// Parse the JSON response
 	var response map[string]interface{}
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Printf(responseStr)
 
 	// Navigate through the response to find the rule with the matching ID
-	results := response["excludeSpanRules"].(map[string]interface{})["results"].([]interface{})
+	results := response["data"].(map[string]interface{})["excludeSpanRules"].(map[string]interface{})["results"].([]interface{})
 	for _, item := range results {
 		rule := item.(map[string]interface{})
 		if rule["id"].(string) == d.Id() {
+			// Set the Terraform state to match the fetched data
 			d.Set("name", rule["name"].(string))
 			d.Set("disabled", rule["disabled"].(bool))
-			d.Set("creation_time", rule["creationTime"].(string))
-			d.Set("last_updated_time", rule["lastUpdatedTime"].(string))
 
-			// Process the span filters
-			if spanFilterMap, ok := rule["spanFilter"].(map[string]interface{}); ok {
-				if logicalSpanFilterMap, ok := spanFilterMap["logicalSpanFilter"].(map[string]interface{}); ok {
-					spanFilters := logicalSpanFilterMap["spanFilters"].([]interface{})
-					filters := make([]interface{}, len(spanFilters))
-					for i, f := range spanFilters {
-						filter := f.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
-						filters[i] = map[string]interface{}{
-							"relational_operator": filter["relationalOperator"].(string),
-							"key":                 filter["key"].(string),
-							"value":               filter["value"].(string),
-							"field":               filter["field"].(string),
+			// Handle spanFilter data
+			if spanFilter, exists := rule["spanFilter"].(map[string]interface{}); exists {
+				if logicalSpanFilter, exists := spanFilter["logicalSpanFilter"].(map[string]interface{}); exists {
+					if spanFilters, exists := logicalSpanFilter["spanFilters"].([]interface{}); exists {
+						for _, sf := range spanFilters {
+							filter := sf.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
+							if filter["field"].(string) == "URL" {
+								d.Set("regexes", filter["value"].(string))
+							}
 						}
 					}
-					d.Set("span_filters", filters)
 				}
 			}
+
 			return nil
 		}
 	}
@@ -263,39 +212,17 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 
 	spanFilterQueryPart := fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
 
-	query := fmt.Sprintf(`
-mutation {
-    updateExcludeSpanRule(
-        input: {
-            id: "%s"
-            name: "%s"
-            disabled: %t
-            spanFilter: {
-                logicalSpanFilter: {
-                    logicalOperator: AND
-                    %s
-                }
-            }
-        }
-    ) {
-        id
-        __typename
-    }
-}`, id, name, disabled, spanFilterQueryPart)
-
-	log.Printf(query)
+	query := fmt.Sprintf(`mutation{updateExcludeSpanRule(input:{id:"%s" name:"%s" disabled:%t spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id __typename}}`, id, name, disabled, spanFilterQueryPart)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		log.Printf("Error while executing GraphQL query: %s", err)
-		return err
+		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
 
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		log.Printf("Error parsing JSON response from update operation: %s", err)
-		return err
+		return fmt.Errorf("Error parsing JSON response from update operation: %s", err)
 	}
 
 	if response["data"] == nil || response["data"].(map[string]interface{})["updateExcludeSpanRule"] == nil {
@@ -309,24 +236,16 @@ mutation {
 func resourceApiExclusionRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id() // Retrieve the ID of the resource to delete
 
-	query := fmt.Sprintf(`
-mutation {
-  deleteExcludeSpanRule(input: { id: %q }) {
-    success
-    __typename
-  }
-}`, id)
+	query := fmt.Sprintf(`mutation{deleteExcludeSpanRule(input:{id:%q}){success __typename}}`, id)
 
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		log.Printf("Error while executing GraphQL mutation for deletion: %s", err)
-		return err
+		return fmt.Errorf("Error while executing GraphQL mutation for deletion: %s", err)
 	}
 
 	var response map[string]interface{}
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
-		log.Printf("Error parsing JSON response: %s", err)
-		return err
+		return fmt.Errorf("Error parsing JSON response: %s", err)
 	}
 
 	// Check the success field from the response to ensure the deletion was processed correctly
