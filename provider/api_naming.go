@@ -97,7 +97,7 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 		if ok2 && firstElement != "" {
 			fmt.Println("The first service name is:", firstElement)
 			spanFilters = append(spanFilters, fmt.Sprintf(`
-		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(serviceNames)))
 		} else {
 			fmt.Println("The first service name is empty or not a string")
 		}
@@ -216,7 +216,7 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 		if ok2 && firstElement != "" {
 			fmt.Println("The first service name is:", firstElement)
 			spanFilters = append(spanFilters, fmt.Sprintf(`
-		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(environmentNames)))
+		{relationalSpanFilter: {field: SERVICE_NAME,relationalOperator: IN,value: %s}}`, jsonifyList(serviceNames)))
 		} else {
 			fmt.Println("The first service name is empty or not a string")
 		}
