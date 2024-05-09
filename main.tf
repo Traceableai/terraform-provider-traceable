@@ -26,8 +26,8 @@ terraform {
 # }
 
 provider "example" {
-  platform_url="https://api-dev.traceable.ai/graphql"
-  api_token="NWFkNjc5NWItNDA3Ny00MGQwLWE1MjMtZTc4ODYzMWRlMDZm"
+  platform_url="cluster_url"
+  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
 resource "example_label_creation_rule" "example_label_create_rule" {
