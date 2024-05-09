@@ -63,6 +63,10 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 	serviceNames := d.Get("service_names").([]interface{})
 	environmentNames := d.Get("environment_names").([]interface{})
 
+	if len(regexes) != len(values) {
+		return fmt.Errorf("the number of regexes (%d) does not match the number of values (%d)", len(regexes), len(values))
+	}
+
 	var spanFilters []string
 
 	// Checking if env name list is (empty -> all env case)
@@ -173,10 +177,14 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 	id := d.Id()
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
-	regexes := jsonifyList(d.Get("regexes").([]interface{}))
-	values := jsonifyList(d.Get("values").([]interface{}))
+	regexes := d.Get("regexes").([]interface{})
+	values := d.Get("values").([]interface{})
 	serviceNames := d.Get("service_names").([]interface{})
 	environmentNames := d.Get("environment_names").([]interface{})
+
+	if len(regexes) != len(values) {
+		return fmt.Errorf("the number of regexes (%d) does not match the number of values (%d)", len(regexes), len(values))
+	}
 
 	var spanFilters []string
 
@@ -223,7 +231,7 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 		spanFilterQueryPart = "spanFilters: []" // No filters to apply
 	}
 
-	query := fmt.Sprintf(`mutation{updateApiNamingRule(input:{id:"%s" name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, id, name, disabled, regexes, values, spanFilterQueryPart)
+	query := fmt.Sprintf(`mutation{updateApiNamingRule(input:{id:"%s" name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, id, name, disabled, jsonifyList(regexes), jsonifyList(values), spanFilterQueryPart)
 
 	log.Printf((query))
 	var response map[string]interface{}
