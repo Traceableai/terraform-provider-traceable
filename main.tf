@@ -2,7 +2,6 @@ terraform {
   required_providers {
     example = {
       source  = "terraform.local/local/example"
-      version = "0.0.1"
     }
     aws={
       source = "hashicorp/aws"
@@ -17,7 +16,7 @@ terraform {
 }
 
 data "aws_secretsmanager_secret_version" "api_token" {
-  secret_id = "you secret manager arn"
+  secret_id = "arn:aws:secretsmanager:us-west-2:909318933178:secret:dev_stating_automation_api_token-SeHhxg"
 }
 
 output "api_token" {
@@ -26,23 +25,30 @@ output "api_token" {
 }
 
 provider "example" {
-  platform_url="cluster_url"
-  api_token="your api token"
+  platform_url=""
+  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
 
-resource "example_ip_range_rule" "my_ip_range" {
-    name     = "first_rule_2"
-    rule_action     = "RULE_ACTION_ALERT"
-    event_severity     = "LOW"
-    raw_ip_range_data = [
-        "1.1.1.1",
-        "3.3.3.3"
-    ]
-    environment=[]
-    expiration = "PT600S"
-    description="rule created from custom provider"
+# resource "example_ip_range_rule" "my_ip_range" {
+#     name     = "demo-6"
+#     rule_action     = "RULE_ACTION_BLOCK"
+#     event_severity     = "LOW"
+#     raw_ip_range_data = [
+#         "1.1.1.1",
+#         "3.3.3.3"
+#     ]
+#     environment=["agent-test"]
+#     expiration = "PT600S"
+#     description="rule created from custom provider"
+# }
+
+resource "example_user_attribution_rule_basic_auth" "test1" {
+  name = "aditya-2"
+  scope_type = "SYSTEM_WIDE"
 }
+
+
 # resource "example_rate_limit_rule" "my_rate_limit" {
 #     name     = "first_rule_2"
 #     rule_action     = "RULE_ACTION_ALLOW"
