@@ -23,22 +23,22 @@ func resourceIpRangeRule() *schema.Resource {
 			},
 			"description": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "discription of the policy",
+				Description: "description of the policy",
 				Optional:    true,
 			},
 			"rule_action": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "allow block",
+				Description: "Need to provide the action to be performed",
 				Required:    true,
 			},
 			"event_severity": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "low medium high critical",
+				Description: "Generated event severity among LOW,MEDIUM,HIGH,CRITICAL",
 				Required:    true,
 			},
 			"expiration": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "expiration",
+				Description: "expiration for Allow and Block actions",
 				Optional:    true,
 			},
 			"environment": &schema.Schema{
@@ -51,7 +51,7 @@ func resourceIpRangeRule() *schema.Resource {
 			},
 			"raw_ip_range_data": &schema.Schema{
 				Type:        schema.TypeSet,
-				Description: "ip address",
+				Description: "IPV4/V6 range to be Alerted/blcoked/Allowed ",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
