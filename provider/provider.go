@@ -19,8 +19,8 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"example_ip_range_rule": resourceIpRangeRule(),
-			"example_user_attribution_rule_basic_auth": resourceUserAttributionBasicAuthRule(),
+			"traceable_ip_range_rule": resourceIpRangeRule(),
+			"traceable_user_attribution_rule_basic_auth": resourceUserAttributionBasicAuthRule(),
 		},
 		ConfigureFunc: graphqlConfigure,
 	}
