@@ -1,14 +1,12 @@
-
 package provider
 
-import(
-	"strings"
+import (
 	"fmt"
 	"log"
+	"strings"
 )
 
-
-func listToString(stringArray []string) string{
+func listToString(stringArray []string) string {
 	var formattedStrings []string
 	for _, s := range stringArray {
 		formattedStrings = append(formattedStrings, fmt.Sprintf(`"%s"`, s))
@@ -56,3 +54,13 @@ func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{} , ar
 	}
 	return res
 }
+
+// function to convert a list of strings to a GraphQL-compatible string list
+func jsonifyList(list []interface{}) string {
+	var strList []string
+	for _, item := range list {
+		strList = append(strList, fmt.Sprintf(`"%s"`, item))
+	}
+	return "[" + strings.Join(strList, ", ") + "]"
+}
+

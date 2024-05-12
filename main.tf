@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-
 provider "traceable" {
   platform_url="platform graphql url"
   api_token="platform api token"
