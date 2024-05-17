@@ -23,7 +23,7 @@ func resourceUserAttributionRequestHeaderRule() *schema.Resource {
 			"auth_type": &schema.Schema{
 				Type:        schema.TypeString,
 				Description: "auth type of the user attribution rule",
-				Required:    true,
+				Optional:    true,
 			},
 			"scope_type": &schema.Schema{
 				Type:        schema.TypeString,
@@ -154,19 +154,9 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 				userIdLocation: {
 					type: HEADER
 					headerName: "%s"
-					parsingTarget: {
-						type: REGEX_CAPTURE_GROUP
-						regexCaptureGroup: "%s"
-					}
+					%s
 				}
-				roleLocation: {
-					type: HEADER
-					headerName: "%s"
-					parsingTarget: {
-						type: REGEX_CAPTURE_GROUP
-						regexCaptureGroup: "%s"
-					}
-				}
+				%s
 			  },
 			  %s
 			}
@@ -180,7 +170,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 			  }
 			  total
 			}
-		  }`,name,authTypeQuery,user_id_location,user_id_regex_capture_group,user_role_location,role_location_regex_capture_group,scopedQuery)
+		  }`,name,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole,scopedQuery)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
@@ -223,6 +213,10 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"]
 	auth_type:=ruleDetails["requestHeader"].(map[string]interface{})["authentication"]
+	if auth_type!=nil{
+		auth_type=auth_type.(map[string]interface{})["type"]
+		d.Set("auth_type",auth_type)
+	}
 	user_id_location:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"].(map[string]interface{})["headerName"]
 	user_id_regex_capture_group_details,ok:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"]
 	if ok {
@@ -242,24 +236,24 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 
 	
 	d.Set("name",name)
-	d.Set("auth_type",auth_type)
+	
 	d.Set("user_id_location",user_id_location)
 	
 	if scopeType=="SYSTEM_WIDE"{
-		d.Set("scope_type", scopeType)
-		d.Set("url_regex",nil)
-		d.Set("environment",nil)
+		d.Set("scope_type", "SYSTEM_WIDE")
+		// d.Set("url_regex",nil)
+		// d.Set("environment",nil)
 	}else{
 		envScope := ruleDetails["customScope"].(map[string]interface{})["environmentScopes"]
 		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
 		if len(envScope.([]interface{}))==0{
-			d.Set("scopeType",scopeType)
-			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlScopes"])
-			d.Set("environment",nil)
+			d.Set("scope_type","CUSTOM")
+			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+			// d.Set("environment",nil)
 		}else{
-			d.Set("scopeType",scopeType)
+			d.Set("scope_type","CUSTOM")
 			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
-			d.Set("url_regex",nil)
+			// d.Set("url_regex",nil)
 		}
 	}
 
