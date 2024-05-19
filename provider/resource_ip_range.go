@@ -23,22 +23,22 @@ func resourceIpRangeRule() *schema.Resource {
 			},
 			"description": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "discription of the policy",
+				Description: "description of the policy",
 				Optional:    true,
 			},
 			"rule_action": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "allow block",
+				Description: "Need to provide the action to be performed",
 				Required:    true,
 			},
 			"event_severity": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "low medium high critical",
+				Description: "Generated event severity among LOW,MEDIUM,HIGH,CRITICAL",
 				Required:    true,
 			},
 			"expiration": &schema.Schema{
 				Type:        schema.TypeString,
-				Description: "expiration",
+				Description: "expiration for Allow and Block actions",
 				Optional:    true,
 			},
 			"environment": &schema.Schema{
@@ -51,7 +51,7 @@ func resourceIpRangeRule() *schema.Resource {
 			},
 			"raw_ip_range_data": &schema.Schema{
 				Type:        schema.TypeSet,
-				Description: "ip address",
+				Description: "IPV4/V6 range to be Alerted/blcoked/Allowed ",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -144,40 +144,36 @@ func resourceIpRangeRuleRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	ipRangeRules := response["data"].(map[string]interface{})["ipRangeRules"].(map[string]interface{})
-	results := ipRangeRules["results"].([]interface{})
-	for _, rule := range results {
-		ruleData := rule.(map[string]interface{})
-		rule_id := ruleData["id"].(string)
+	ruleData:=getRuleDetailsFromRulesListUsingIdName(response,"ipRangeRules" ,id)
+	ruleDetails := ruleData["ruleDetails"].(map[string]interface{})
+	d.Set("name", ruleDetails["name"].(string))
+	d.Set("description", ruleDetails["description"].(string))
+	d.Set("rule_action", ruleDetails["ruleAction"].(string))
+	event_severity,ok:=ruleDetails["eventSeverity"].(string)
+	if ok {
+		d.Set("event_severity", event_severity)
+	}else{
+		d.Set("event_severity", nil)
+	}
+	d.Set("rule_action", ruleDetails["ruleAction"].(string))
+	expiration, ok := ruleDetails["expiration"].(string)
+	if ok {
+		d.Set("expiration", expiration)
+	} else {
+		d.Set("expiration", nil)
+	}
 
-		if rule_id == id {
-			ruleDetails := ruleData["ruleDetails"].(map[string]interface{})
-			d.Set("name", ruleDetails["name"].(string))
-			d.Set("description", ruleDetails["description"].(string))
-			d.Set("rule_action", ruleDetails["ruleAction"].(string))
-			d.Set("event_severity", ruleDetails["eventSeverity"].(string))
-			d.Set("rule_action", ruleDetails["ruleAction"].(string))
-			expiration, ok := ruleDetails["expiration"].(string)
-			if ok {
-				d.Set("expiration", expiration)
-			} else {
-				d.Set("expiration", nil)
+	rawIpRangeData := ruleDetails["rawIpRangeData"].([]interface{})
+	d.Set("raw_ip_range_data", schema.NewSet(schema.HashString, convertToStringSlice(rawIpRangeData)))
+
+	if ruleScope, ok := ruleData["ruleScope"].(map[string]interface{}); ok {
+		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
+			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
+				d.Set("environment", schema.NewSet(schema.HashString, convertToStringSlice(environmentIds)))
 			}
-
-			rawIpRangeData := ruleDetails["rawIpRangeData"].([]interface{})
-			d.Set("raw_ip_range_data", schema.NewSet(schema.HashString, convertToStringSlice(rawIpRangeData)))
-
-			if ruleScope, ok := ruleData["ruleScope"].(map[string]interface{}); ok {
-				if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
-					if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
-						d.Set("environment", schema.NewSet(schema.HashString, convertToStringSlice(environmentIds)))
-					}
-				}
-			}
-
-			break
 		}
 	}
+	
 	return nil
 }
 
