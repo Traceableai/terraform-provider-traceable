@@ -8,8 +8,8 @@ terraform {
 }
 
 provider "traceable" {
-  platform_url="https://api-dev.traceable.ai/graphql"
-  api_token="ZjRmOGJmNTktYmY4Ni00M2RiLThlNTItYjA5Zjc4ZDgxYWIx"
+  platform_url="platform graphql url"
+  api_token="platform api token"
 }
 
 resource "traceable_label_application_rule" "meg-test1" {
