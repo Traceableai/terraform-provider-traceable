@@ -23,18 +23,18 @@ func toStringSlice(interfaceSlice []interface{}) []string {
 }
 
 func convertToStringSlice(data []interface{}) []interface{} {
-    var result []interface{}
-    for _, v := range data {
-        result = append(result, v.(interface{}))
-    }
-    return result
+	var result []interface{}
+	for _, v := range data {
+		result = append(result, v.(interface{}))
+	}
+	return result
 }
 
-func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{} , arrayJsonKey string,args ...string) map[string]interface{} {
+func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
 	var res map[string]interface{}
 	rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})
 	results := rules["results"].([]interface{})
-	id_name:=args[0]
+	id_name := args[0]
 	log.Println(id_name)
 	for _, rule := range results {
 		ruleData := rule.(map[string]interface{})
@@ -45,9 +45,9 @@ func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{} , ar
 		if rule_name, ok = ruleData["name"].(string); ok {
 			// fmt.Println("Rule Name:", rule_name)
 		} else {
-			rule_name=""
+			rule_name = ""
 		}
-		if rule_id == id_name || rule_name==id_name{
+		if rule_id == id_name || rule_name == id_name {
 			// log.Println("Inside if block %s",rule)
 			return rule.(map[string]interface{})
 		}
@@ -63,4 +63,3 @@ func jsonifyList(list []interface{}) string {
 	}
 	return "[" + strings.Join(strList, ", ") + "]"
 }
-
