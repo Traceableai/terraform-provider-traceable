@@ -1,7 +1,7 @@
 terraform {
   required_providers {
-    example = {
-      source  = "terraform.local/local/example"
+    traceable = {
+      source  = "terraform.local/local/traceable"
     }
     aws={
       source = "hashicorp/aws"
@@ -24,7 +24,7 @@ output "api_token" {
   sensitive = true
 }
 
-provider "example" {
+provider "traceable" {
   platform_url="https://api-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
@@ -83,14 +83,14 @@ resource "traceable_user_attribution_rule_custom_token" "test6" {
 #   disabled         = false
 #   regexes          = ["hello", "test", "123"]
 #   values           = ["hello", "test", "number"]
-#   service_names    = ["example-svc"]
-#   environment_names = ["example-env"]
+#   service_names    = [""]
+#   environment_names = [""]
 # }
 
 # resource "traceable_api_exclusion_rule" "example_exclusion_rule" {
 #   name =  "test-rule-exclusion"
 #   disabled= true
 #   regexes=  "hello/test/6785"
-#   service_names=  ["example-svc"]
-#   environment_names=  ["example-env"]
+#   service_names=  [""]
+#   environment_names=  [""]
 # }
