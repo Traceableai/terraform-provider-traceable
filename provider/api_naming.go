@@ -164,13 +164,39 @@ func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
 				d.Set("values", configType["values"].([]interface{}))
 			}
 
-			// Optionally handle other fields like spanFilter, etc.
-			// ...
-			break
+			// Handle spanFilter data
+			if spanFilter, exists := rule["spanFilter"].(map[string]interface{}); exists {
+				if logicalSpanFilter, exists := spanFilter["logicalSpanFilter"].(map[string]interface{}); exists {
+					if spanFilters, exists := logicalSpanFilter["spanFilters"].([]interface{}); exists {
+						var serviceNames []string
+						var environmentNames []string
+						for _, sf := range spanFilters {
+							filter := sf.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
+							field := filter["field"].(string)
+							value := filter["value"].(string)
+
+							switch field {
+							case "SERVICE_NAME":
+								if err := json.Unmarshal([]byte(value), &serviceNames); err != nil {
+									return fmt.Errorf("error parsing service names: %s", err)
+								}
+							case "ENVIRONMENT_NAME":
+								if err := json.Unmarshal([]byte(value), &environmentNames); err != nil {
+									return fmt.Errorf("error parsing environment names: %s", err)
+								}
+							}
+						}
+						d.Set("service_names", serviceNames)
+						d.Set("environment_names", environmentNames)
+					}
+				}
+			}
+
+			return nil
 		}
 	}
 
-	return nil
+	return fmt.Errorf("no naming rule found with ID %s", d.Id())
 }
 
 func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error {

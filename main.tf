@@ -77,3 +77,20 @@ resource "traceable_user_attribution_rule_custom_token" "test6" {
   location="REQUEST_COOKIE"
   token_name="test"
 }
+
+# resource "traceable_api_naming_rule" "example_naming_rule" {
+#   name             = "test-rule-naming"
+#   disabled         = false
+#   regexes          = ["hello", "test", "123"]
+#   values           = ["hello", "test", "number"]
+#   service_names    = ["example-svc"]
+#   environment_names = ["example-env"]
+# }
+
+# resource "traceable_api_exclusion_rule" "example_exclusion_rule" {
+#   name =  "test-rule-exclusion"
+#   disabled= true
+#   regexes=  "hello/test/6785"
+#   service_names=  ["example-svc"]
+#   environment_names=  ["example-env"]
+# }
