@@ -21,6 +21,11 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"traceable_ip_range_rule":                    resourceIpRangeRule(),
 			"traceable_user_attribution_rule_basic_auth": resourceUserAttributionBasicAuthRule(),
+			"traceable_user_attribution_rule_req_header": resourceUserAttributionRequestHeaderRule(),
+			"traceable_user_attribution_rule_jwt_authentication": resourceUserAttributionJwtAuthRule(),
+			"traceable_user_attribution_rule_response_body": resourceUserAttributionResponseBodyRule(),
+			"traceable_user_attribution_rule_custom_json": resourceUserAttributionCustomJsonRule(),
+			"traceable_user_attribution_rule_custom_token": resourceUserAttributionCustomTokenRule(),
 		},
 		ConfigureFunc: graphqlConfigure,
 	}
