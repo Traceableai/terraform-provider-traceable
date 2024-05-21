@@ -128,16 +128,16 @@ func resourceUserAttributionRuleBasicAuthRead(d *schema.ResourceData, meta inter
 	scopeType:=ruleDetails["scopeType"]
 	d.Set("name",name)
 	if scopeType=="SYSTEM_WIDE"{
-		d.Set("scope_type", scopeType)
+		d.Set("scope_type", "SYSTEM_WIDE")
 	}else{
 		envScope := ruleDetails["customScope"].(map[string]interface{})["environmentScopes"]
 		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
 		if len(envScope.([]interface{}))==0{
-			d.Set("scopeType",scopeType)
-			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlScopes"])
+			d.Set("scope_type","CUSTOM")
+			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
 			
 		}else{
-			d.Set("scopeType",scopeType)
+			d.Set("scope_type","CUSTOM")
 			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
 		}
 	}
