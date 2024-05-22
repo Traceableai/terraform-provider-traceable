@@ -29,6 +29,13 @@ func Provider() *schema.Provider {
 			"traceable_api_naming_rule":                          resourceApiNamingRule(),
 			"traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 		},
+		DataSourcesMap: map[string]*schema.Resource{
+			"traceable_notification_channels": dataSourceNotificationChannel(),
+			"traceable_splunk_integration": dataSourceSplunkIntegration(),
+			"traceable_syslog_integration": dataSourceSyslogIntegration(),
+			"traceable_endpoint_id": dataSourceEndpointId(),
+			"traceable_service_id": dataSourceServiceId(),
+		},
 		ConfigureFunc: graphqlConfigure,
 	}
 }

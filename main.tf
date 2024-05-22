@@ -2,6 +2,7 @@ terraform {
   required_providers {
     traceable = {
       source  = "terraform.local/local/traceable"
+      version = "0.0.1"
     }
     aws={
       source = "hashicorp/aws"
@@ -82,12 +83,12 @@ provider "traceable" {
 #   user_id_json=jsonencode(file("authType.json"))
 # }
 
-# resource "traceable_user_attribution_rule_custom_token" "test6" {
-#   name = "traceable_user_attribution_rule_custom_token"
-#   scope_type="SYSTEM_WIDE"
-#   auth_type="test"
-#   location="REQUEST_COOKIE"
-#   token_name="test"
+# # resource "traceable_user_attribution_rule_custom_token" "test6" {
+# #   name = "traceable_user_attribution_rule_custom_token"
+# #   scope_type="SYSTEM_WIDE"
+# #   auth_type="test"
+# #   location="REQUEST_COOKIE"
+# #   token_name="test"
 # }
 
 # resource "traceable_api_naming_rule" "example_naming_rule" {
@@ -105,4 +106,22 @@ provider "traceable" {
 #   regexes=  "hello/test/6785"
 #   service_names=  [""]
 #   environment_names=  [""]
+# # }
+
+# data "traceable_syslog_integration" "syslog" {
+#   name="prer-test"
 # }
+# data "traceable_endpoint_id" "endpooint" {
+#   name="POST /Unauthenticated_Modification_of_external_APIs"
+#   service_name="nginx-automation-test"
+#   enviroment_name="fintech-1"
+# }
+
+data "traceable_service_id" "endpoint" {
+  service_name="nginx-automation-test"
+  enviroment_name="fintech-1"
+}
+
+output "traceable_service_id" {
+  value = data.traceable_service_id.endpoint.service_id
+}

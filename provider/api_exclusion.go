@@ -234,7 +234,7 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error parsing JSON response from update operation: %s", err)
+		return fmt.Errorf("Error parsing JSON response from update operation: %s", err)	
 	}
 
 	if response["data"] == nil || response["data"].(map[string]interface{})["updateExcludeSpanRule"] == nil {
