@@ -173,30 +173,17 @@ func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
 						for _, sf := range spanFilters {
 							filter := sf.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
 							field := filter["field"].(string)
-							value := filter["value"].([]interface{})
-
-							valueList, err := json.Marshal(value)
-							if err != nil {
-								return fmt.Errorf("error marshaling values: %s", err)
-							}
+							value := filter["value"]
 
 							switch field {
 							case "SERVICE_NAME":
-								var sn []string
-								if err := json.Unmarshal(valueList, &sn); err != nil {
-									return fmt.Errorf("error parsing service names: %s", err)
-								}
-								serviceNames = append(serviceNames, sn...)
+								serviceNames = append(serviceNames, convertToStringSlicetype(value)...)
 							case "ENVIRONMENT_NAME":
-								var en []string
-								if err := json.Unmarshal(valueList, &en); err != nil {
-									return fmt.Errorf("error parsing environment names: %s", err)
-								}
-								environmentNames = append(environmentNames, en...)
+								environmentNames = append(environmentNames, convertToStringSlicetype(value)...)
 							}
 						}
-						d.Set("service_names", serviceNames)
-						d.Set("environment_names", environmentNames)
+						d.Set("service_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(serviceNames)))
+						d.Set("environment_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(environmentNames)))
 					}
 				}
 			}

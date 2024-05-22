@@ -30,6 +30,29 @@ func convertToStringSlice(data []interface{}) []interface{} {
 	return result
 }
 
+func convertToStringSlicetype(input interface{}) []string {
+	var output []string
+	switch v := input.(type) {
+	case string:
+		output = append(output, v)
+	case []interface{}:
+		for _, elem := range v {
+			if str, ok := elem.(string); ok && str != "" {
+				output = append(output, str)
+			}
+		}
+	}
+	return output
+}
+
+func convertToInterfaceSlice(input []string) []interface{} {
+	var output []interface{}
+	for _, elem := range input {
+		output = append(output, elem)
+	}
+	return output
+}
+
 func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
 	var res map[string]interface{}
 	rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})

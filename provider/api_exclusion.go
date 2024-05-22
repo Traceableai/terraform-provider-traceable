@@ -117,6 +117,7 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) error {
+	id := d.Id()
 
 	query := `{excludeSpanRules{results{id name disabled spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{relationalOperator key value field}}}}}}}`
 
@@ -126,8 +127,7 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var response map[string]interface{}
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
+	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
 
@@ -135,7 +135,7 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 	results := response["data"].(map[string]interface{})["excludeSpanRules"].(map[string]interface{})["results"].([]interface{})
 	for _, item := range results {
 		rule := item.(map[string]interface{})
-		if rule["id"].(string) == d.Id() {
+		if rule["id"].(string) == id {
 			// Set the Terraform state to match the fetched data
 			d.Set("name", rule["name"].(string))
 			d.Set("disabled", rule["disabled"].(bool))
@@ -149,32 +149,19 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 						for _, sf := range spanFilters {
 							filter := sf.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
 							field := filter["field"].(string)
+							value := filter["value"]
 
 							switch field {
 							case "URL":
-								d.Set("regexes", filter["value"].(string))
+								d.Set("regexes", value.(string))
 							case "SERVICE_NAME":
-								switch v := filter["value"].(type) {
-								case string:
-									serviceNames = append(serviceNames, v)
-								case []interface{}:
-									for _, svc := range v {
-										serviceNames = append(serviceNames, svc.(string))
-									}
-								}
+								serviceNames = append(serviceNames, convertToStringSlicetype(value)...)
 							case "ENVIRONMENT_NAME":
-								switch v := filter["value"].(type) {
-								case string:
-									environmentNames = append(environmentNames, v)
-								case []interface{}:
-									for _, env := range v {
-										environmentNames = append(environmentNames, env.(string))
-									}
-								}
+								environmentNames = append(environmentNames, convertToStringSlicetype(value)...)
 							}
 						}
-						d.Set("service_names", serviceNames)
-						d.Set("environment_names", environmentNames)
+						d.Set("service_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(serviceNames)))
+						d.Set("environment_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(environmentNames)))
 					}
 				}
 			}

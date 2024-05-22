@@ -29,6 +29,18 @@ provider "traceable" {
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
+# resource "traceable_ip_range_rule" "my_ip_range" {
+#     name     = "first_rule_2"
+#     rule_action     = "RULE_ACTION_ALERT"
+#     event_severity     = "LOW"
+#     raw_ip_range_data = [
+#         "1.1.1.1",
+#         "3.3.3.3"
+#     ]
+#     environment=[] #all env
+#     description="rule created from custom provider"
+# }
+
 # resource "traceable_user_attribution_rule_basic_auth" "test1" {
 #   name = "traceable_user_attribution_rule_basic_auth"
 #   scope_type = "SYSTEM_WIDE"
@@ -70,13 +82,13 @@ provider "traceable" {
 #   user_id_json=jsonencode(file("authType.json"))
 # }
 
-resource "traceable_user_attribution_rule_custom_token" "test6" {
-  name = "traceable_user_attribution_rule_custom_token"
-  scope_type="SYSTEM_WIDE"
-  auth_type="test"
-  location="REQUEST_COOKIE"
-  token_name="test"
-}
+# resource "traceable_user_attribution_rule_custom_token" "test6" {
+#   name = "traceable_user_attribution_rule_custom_token"
+#   scope_type="SYSTEM_WIDE"
+#   auth_type="test"
+#   location="REQUEST_COOKIE"
+#   token_name="test"
+# }
 
 # resource "traceable_api_naming_rule" "example_naming_rule" {
 #   name             = "test-rule-naming"
