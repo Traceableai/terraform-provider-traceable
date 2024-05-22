@@ -1,7 +1,8 @@
 terraform {
   required_providers {
-    example = {
-      source  = "terraform.local/local/example"
+    traceable = {
+      source  = "terraform.local/local/traceable"
+      version = "0.0.1"
     }
     aws={
       source = "hashicorp/aws"
@@ -24,7 +25,7 @@ output "api_token" {
   sensitive = true
 }
 
-provider "example" {
+provider "traceable" {
   platform_url="https://api-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
@@ -70,10 +71,28 @@ provider "example" {
 #   user_id_json=jsonencode(file("authType.json"))
 # }
 
-resource "traceable_user_attribution_rule_custom_token" "test6" {
-  name = "traceable_user_attribution_rule_custom_token"
-  scope_type="SYSTEM_WIDE"
-  auth_type="test"
-  location="REQUEST_COOKIE"
-  token_name="test"
+# resource "traceable_user_attribution_rule_custom_token" "test6" {
+#   name = "traceable_user_attribution_rule_custom_token"
+#   scope_type="SYSTEM_WIDE"
+#   auth_type="test"
+#   location="REQUEST_COOKIE"
+#   token_name="test"
+# }
+
+# data "traceable_syslog_integration" "syslog" {
+#   name="prer-test"
+# }
+# data "traceable_endpoint_id" "endpooint" {
+#   name="POST /Unauthenticated_Modification_of_external_APIs"
+#   service_name="nginx-automation-test"
+#   enviroment_name="fintech-1"
+# }
+
+data "traceable_service_id" "endpoint" {
+  service_name="nginx-automation-test"
+  enviroment_name="fintech-1"
+}
+
+output "traceable_service_id" {
+  value = data.traceable_service_id.endpoint.service_id
 }
