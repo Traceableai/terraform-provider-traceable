@@ -4,31 +4,30 @@ terraform {
       source  = "terraform.local/local/traceable"
       version = "0.0.1"
     }
-    # aws={
-    #   source = "hashicorp/aws"
-    #   version = "5.35.0"
-    # }
+    aws={
+      source = "hashicorp/aws"
+      version = "5.35.0"
+    }
   }
-  #   backend "s3" {
-  #   bucket         = "traceable-provider-store"
-  #   key            = "traceable-provider-store"
-  #   region         = "us-west-2"
-  # }
+    backend "s3" {
+    bucket         = "traceable-provider-store"
+    key            = "traceable-provider-store"
+    region         = "us-west-2"
+  }
 }
 
-# data "aws_secretsmanager_secret_version" "api_token" {
-#   secret_id = "your secret manager arn where api token is stored"
-# }
+data "aws_secretsmanager_secret_version" "api_token" {
+  secret_id = "your secret manager arn where api token is stored"
+}
 
-# output "api_token" {
-#   value=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
-#   sensitive = true
-# }
+output "api_token" {
+  value=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+  sensitive = true
+}
 
 provider "traceable" {
   platform_url="https://api-dev.traceable.ai/graphql"
-  # api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
-  api_token="ZWFhZDc0MTUtYWMxZS00OTExLTk5MTMtYjgzMWM2Yjk1MjVh"
+  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
 # resource "traceable_user_attribution_rule_basic_auth" "test1" {
