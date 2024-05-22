@@ -28,7 +28,11 @@ func Provider() *schema.Provider {
 			"traceable_user_attribution_rule_custom_token": resourceUserAttributionCustomTokenRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"tarceable_notification_channels": dataSourceNotificationChannel(),
+			"traceable_notification_channels": dataSourceNotificationChannel(),
+			"traceable_splunk_integration": dataSourceSplunkIntegration(),
+			"traceable_syslog_integration": dataSourceSyslogIntegration(),
+			"traceable_endpoint_id": dataSourceEndpointId(),
+			"traceable_service_id": dataSourceServiceId(),
 		},
 		ConfigureFunc: graphqlConfigure,
 	}
