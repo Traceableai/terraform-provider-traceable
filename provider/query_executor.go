@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func executeQuery(query string,meta interface{}) (string, error) {
+func executeQuery(query string, meta interface{}) (string, error) {
 	url := meta.(*graphqlProviderConfig).GQLServerUrl
 	api_token := meta.(*graphqlProviderConfig).ApiToken
 
@@ -45,4 +45,3 @@ func executeQuery(query string,meta interface{}) (string, error) {
 
 	return string(body), nil
 }
-
