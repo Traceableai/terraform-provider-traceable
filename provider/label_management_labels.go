@@ -122,6 +122,7 @@ func resourceLabelCreationRuleUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if responseData, ok := response["data"].(map[string]interface{})["updateLabel"].(map[string]interface{}); ok {
+		d.SetId(responseData["id"].(string))
 		d.Set("key", responseData["key"].(string))
 		d.Set("description", responseData["description"].(string))
 		d.Set("color", responseData["color"].(string))
