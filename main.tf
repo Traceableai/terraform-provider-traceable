@@ -4,30 +4,30 @@ terraform {
       source  = "terraform.local/local/traceable"
       version = "0.0.1"
     }
-    aws={
-      source = "hashicorp/aws"
-      version = "5.35.0"
-    }
+    # aws={
+    #   source = "hashicorp/aws"
+    #   version = "5.35.0"
+    # }
   }
-    backend "s3" {
-    bucket         = "traceable-provider-store"
-    key            = "traceable-provider-store"
-    region         = "us-west-2"
-  }
+  #   backend "s3" {
+  #   bucket         = "traceable-provider-store"
+  #   key            = "traceable-provider-store"
+  #   region         = "us-west-2"
+  # }
 }
 
-data "aws_secretsmanager_secret_version" "api_token" {
-  secret_id = "your secret manager arn where api token is stored"
-}
+# data "aws_secretsmanager_secret_version" "api_token" {
+#   secret_id = "your secret manager arn where api token is stored"
+# }
 
-output "api_token" {
-  value=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
-  sensitive = true
-}
+# output "api_token" {
+#   value=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+#   sensitive = true
+# }
 
 provider "traceable" {
   platform_url="https://api-dev.traceable.ai/graphql"
-  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+  api_token="ZjRmOGJmNTktYmY4Ni00M2RiLThlNTItYjA5Zjc4ZDgxYWIx"
 }
 
 # resource "traceable_ip_range_rule" "my_ip_range" {
@@ -108,6 +108,12 @@ provider "traceable" {
 #   environment_names=  [""]
 # # }
 
+resource "traceable_label_creation_rule" "example_label_create_rule" {
+  key="test-rule-create-label-test1"
+  description="test rule to create a label"
+  color="#E295E9"
+}
+
 # data "traceable_syslog_integration" "syslog" {
 #   name="prer-test"
 # }
@@ -117,11 +123,11 @@ provider "traceable" {
 #   enviroment_name="fintech-1"
 # }
 
-data "traceable_service_id" "endpoint" {
-  service_name="nginx-automation-test"
-  enviroment_name="fintech-1"
-}
+# data "traceable_service_id" "endpoint" {
+#   service_name="nginx-automation-test"
+#   enviroment_name="fintech-1"
+# }
 
-output "traceable_service_id" {
-  value = data.traceable_service_id.endpoint.service_id
-}
+# output "traceable_service_id" {
+#   value = data.traceable_service_id.endpoint.service_id
+# }
