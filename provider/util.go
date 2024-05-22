@@ -30,19 +30,47 @@ func convertToStringSlice(data []interface{}) []interface{} {
 	return result
 }
 
+func convertToStringSlicetype(input interface{}) []string {
+	var output []string
+	switch v := input.(type) {
+	case string:
+		output = append(output, v)
+	case []interface{}:
+		for _, elem := range v {
+			if str, ok := elem.(string); ok && str != "" {
+				output = append(output, str)
+			}
+		}
+	}
+	return output
+}
+
+func convertToInterfaceSlice(input []string) []interface{} {
+	var output []interface{}
+	for _, elem := range input {
+		output = append(output, elem)
+	}
+	return output
+}
+
 func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
 	var res map[string]interface{}
 	rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})
 	results := rules["results"].([]interface{})
 	id_name := args[0]
-	log.Println(id_name)
+	if len(args)==1{
+		args = append(args, "id")
+		args = append(args, "name")
+	}
+	// log.Println(id_name)
+	// log.Println(results)
 	for _, rule := range results {
 		ruleData := rule.(map[string]interface{})
-		// log.Println(ruleData)
-		rule_id := ruleData["id"].(string)
+		log.Println(ruleData)
+		rule_id := ruleData[args[1]].(string)
 		var rule_name string
 		var ok bool
-		if rule_name, ok = ruleData["name"].(string); ok {
+		if rule_name, ok = ruleData[args[2]].(string); ok {
 			// fmt.Println("Rule Name:", rule_name)
 		} else {
 			rule_name = ""

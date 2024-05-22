@@ -1,7 +1,8 @@
 terraform {
   required_providers {
-    example = {
-      source  = "terraform.local/local/example"
+    traceable = {
+      source  = "terraform.local/local/traceable"
+      version = "0.0.1"
     }
     aws={
       source = "hashicorp/aws"
@@ -24,10 +25,22 @@ output "api_token" {
   sensitive = true
 }
 
-provider "example" {
+provider "traceable" {
   platform_url="https://api-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
+
+# resource "traceable_ip_range_rule" "my_ip_range" {
+#     name     = "first_rule_2"
+#     rule_action     = "RULE_ACTION_ALERT"
+#     event_severity     = "LOW"
+#     raw_ip_range_data = [
+#         "1.1.1.1",
+#         "3.3.3.3"
+#     ]
+#     environment=[] #all env
+#     description="rule created from custom provider"
+# }
 
 # resource "traceable_user_attribution_rule_basic_auth" "test1" {
 #   name = "traceable_user_attribution_rule_basic_auth"
@@ -70,10 +83,45 @@ provider "example" {
 #   user_id_json=jsonencode(file("authType.json"))
 # }
 
-resource "traceable_user_attribution_rule_custom_token" "test6" {
-  name = "traceable_user_attribution_rule_custom_token"
-  scope_type="SYSTEM_WIDE"
-  auth_type="test"
-  location="REQUEST_COOKIE"
-  token_name="test"
+# # resource "traceable_user_attribution_rule_custom_token" "test6" {
+# #   name = "traceable_user_attribution_rule_custom_token"
+# #   scope_type="SYSTEM_WIDE"
+# #   auth_type="test"
+# #   location="REQUEST_COOKIE"
+# #   token_name="test"
+# }
+
+# resource "traceable_api_naming_rule" "example_naming_rule" {
+#   name             = "test-rule-naming"
+#   disabled         = false
+#   regexes          = ["hello", "test", "123"]
+#   values           = ["hello", "test", "number"]
+#   service_names    = [""]
+#   environment_names = [""]
+# }
+
+# resource "traceable_api_exclusion_rule" "example_exclusion_rule" {
+#   name =  "test-rule-exclusion"
+#   disabled= true
+#   regexes=  "hello/test/6785"
+#   service_names=  [""]
+#   environment_names=  [""]
+# # }
+
+# data "traceable_syslog_integration" "syslog" {
+#   name="prer-test"
+# }
+# data "traceable_endpoint_id" "endpooint" {
+#   name="POST /Unauthenticated_Modification_of_external_APIs"
+#   service_name="nginx-automation-test"
+#   enviroment_name="fintech-1"
+# }
+
+data "traceable_service_id" "endpoint" {
+  service_name="nginx-automation-test"
+  enviroment_name="fintech-1"
+}
+
+output "traceable_service_id" {
+  value = data.traceable_service_id.endpoint.service_id
 }
