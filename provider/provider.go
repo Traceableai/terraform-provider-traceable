@@ -26,6 +26,7 @@ func Provider() *schema.Provider {
 			"traceable_user_attribution_rule_response_body": resourceUserAttributionResponseBodyRule(),
 			"traceable_user_attribution_rule_custom_json": resourceUserAttributionCustomJsonRule(),
 			"traceable_user_attribution_rule_custom_token": resourceUserAttributionCustomTokenRule(),
+			"traceable_notification_channel": resourceNotificationChannelRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"traceable_notification_channels": dataSourceNotificationChannel(),
