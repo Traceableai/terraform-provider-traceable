@@ -28,6 +28,7 @@ func Provider() *schema.Provider {
 			"traceable_user_attribution_rule_custom_token":       resourceUserAttributionCustomTokenRule(),
 			"traceable_api_naming_rule":                          resourceApiNamingRule(),
 			"traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
+			"traceable_label_application_rule":                   resourceLabelApplicationRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"traceable_notification_channels": dataSourceNotificationChannel(),

@@ -284,12 +284,12 @@ func resourceLabelApplicationRuleRead(d *schema.ResourceData, meta interface{}) 
 		}
 	}`)
 
-	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
 
+	var response map[string]interface{}
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		return fmt.Errorf("Error while parsing GraphQL response: %s", err)
@@ -301,11 +301,15 @@ func resourceLabelApplicationRuleRead(d *schema.ResourceData, meta interface{}) 
 			resultMap := result.(map[string]interface{})
 			if resultMap["id"].(string) == id {
 				labelData := resultMap["labelApplicationRuleData"].(map[string]interface{})
-				d.Set("name", labelData["name"])
-				d.Set("description", labelData["description"])
-				d.Set("enabled", labelData["enabled"])
-				d.Set("condition_list", parseConditions(labelData["conditionList"].([]interface{})))
-				d.Set("action", parseAction(labelData["action"].(map[string]interface{})))
+				d.Set("name", labelData["name"].(string))
+				d.Set("description", labelData["description"].(string))
+				d.Set("enabled", labelData["enabled"].(bool))
+
+				conditionList := parseConditions(labelData["conditionList"].([]interface{}))
+				d.Set("condition_list", conditionList)
+
+				action := parseAction(labelData["action"].(map[string]interface{}))
+				d.Set("action", action)
 				break
 			}
 		}
@@ -316,8 +320,8 @@ func resourceLabelApplicationRuleRead(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func parseConditions(conditions []interface{}) []map[string]interface{} {
-	var parsedConditions []map[string]interface{}
+func parseConditions(conditions []interface{}) []interface{} {
+	var parsedConditions []interface{}
 
 	for _, condition := range conditions {
 		conditionMap := condition.(map[string]interface{})["leafCondition"].(map[string]interface{})
@@ -325,16 +329,22 @@ func parseConditions(conditions []interface{}) []map[string]interface{} {
 		valueCondition := conditionMap["valueCondition"].(map[string]interface{})
 
 		parsedCondition := map[string]interface{}{
-			"key":      keyCondition["value"],
-			"operator": keyCondition["operator"],
+			"key":      keyCondition["value"].(string),
+			"operator": keyCondition["operator"].(string),
 		}
 
-		if valueCondition["valueConditionType"] == "STRING_CONDITION" {
-			stringCondition := valueCondition["stringCondition"].(map[string]interface{})
-			if stringCondition["stringConditionValueType"] == "VALUE" {
-				parsedCondition["value"] = stringCondition["value"]
-			} else {
-				parsedCondition["values"] = stringCondition["values"]
+		if valueConditionType, ok := valueCondition["valueConditionType"].(string); ok {
+			switch valueConditionType {
+			case "STRING_CONDITION":
+				stringCondition := valueCondition["stringCondition"].(map[string]interface{})
+				if stringCondition["stringConditionValueType"] == "VALUE" {
+					parsedCondition["value"] = stringCondition["value"].(string)
+				} else if values, exists := stringCondition["values"].([]interface{}); exists && len(values) > 0 {
+					parsedCondition["values"] = convertToStringSlice2(values)
+				}
+			case "UNARY_CONDITION":
+				unaryCondition := valueCondition["unaryCondition"].(map[string]interface{})
+				parsedCondition["operator"] = unaryCondition["operator"].(string)
 			}
 		}
 
@@ -344,20 +354,33 @@ func parseConditions(conditions []interface{}) []map[string]interface{} {
 	return parsedConditions
 }
 
-func parseAction(action map[string]interface{}) []map[string]interface{} {
+func parseAction(action map[string]interface{}) []interface{} {
 	parsedAction := map[string]interface{}{
-		"type":         action["type"],
-		"entity_types": action["entityTypes"],
-		"operation":    action["operation"],
+		"type":         action["type"].(string),
+		"entity_types": convertToStringSlice2(action["entityTypes"].([]interface{})),
+		"operation":    action["operation"].(string),
 	}
 
 	if action["type"] == "DYNAMIC_LABEL_KEY" {
-		parsedAction["dynamic_label_key"] = action["dynamicLabelKey"]
+		parsedAction["dynamic_label_key"] = action["dynamicLabelKey"].(string)
 	} else if action["type"] == "STATIC_LABELS" {
-		parsedAction["static_labels"] = action["staticLabels"].(map[string]interface{})["ids"]
+		staticLabels := action["staticLabels"].(map[string]interface{})["ids"].([]interface{})
+		if len(staticLabels) > 0 {
+			parsedAction["static_labels"] = convertToStringSlice2(staticLabels)
+		}
 	}
 
-	return []map[string]interface{}{parsedAction}
+	return []interface{}{parsedAction}
+}
+
+func convertToStringSlice2(input []interface{}) []string {
+	var output []string
+	for _, item := range input {
+		if str, ok := item.(string); ok {
+			output = append(output, str)
+		}
+	}
+	return output
 }
 
 func resourceLabelApplicationRuleUpdate(d *schema.ResourceData, meta interface{}) error {
