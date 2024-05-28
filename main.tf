@@ -117,11 +117,37 @@ provider "traceable" {
 #   enviroment_name="fintech-1"
 # }
 
-data "traceable_service_id" "endpoint" {
-  service_name="nginx-automation-test"
-  enviroment_name="fintech-1"
+# data "traceable_service_id" "endpoint" {
+#   service_name="nginx-automation-test"
+#   enviroment_name="fintech-1"
+# }
+
+# output "traceable_service_id" {
+#   value = data.traceable_service_id.endpoint.service_id
+# }
+
+# resource "traceable_agent_token" "example" {
+#   name = "tf-provider-token-testing"
+# }
+
+# output "agent_token" {
+#   value = traceable_agent_token.example.token
+#   sensitive = true
+# }
+
+# output "agent_token_creation_timestamp" {
+#   value = traceable_agent_token.example.creation_timestamp
+# }
+
+data "traceable_agent_token" "example" {
+  name = "tf-provider-token-testing"
 }
 
-output "traceable_service_id" {
-  value = data.traceable_service_id.endpoint.service_id
+output "agent_token" {
+  value = data.traceable_agent_token.example.token
+  sensitive = true
+}
+
+output "agent_token_creation_timestamp" {
+  value = data.traceable_agent_token.example.creation_timestamp
 }
