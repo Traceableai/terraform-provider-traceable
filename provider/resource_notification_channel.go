@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"reflect"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -251,8 +250,8 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		fmt.Errorf("Error:", err)
 	}
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		fmt.Errorf("Error:", err)
@@ -309,15 +308,15 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		fmt.Errorf("Error:", err)
 	}
-	log.Println("This is the graphql query %s", readQuery)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", readQuery)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		fmt.Errorf("Error:", err)
 	}
 	id:=d.Id()
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationChannels" ,id,"channelId","channelName")
-	log.Println("channels %s",ruleDetails)
+	log.Printf("channels %s",ruleDetails)
 
 	channelName:=ruleDetails["channelName"]
 	d.Set("channel_name",channelName)
@@ -328,7 +327,7 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 	if len(splunkIntegrationChannelConfigs)>0{
 
 		splunk_id:=splunkIntegrationChannelConfigs[0].(map[string]interface{})["splunkIntegrationId"]
-		log.Println("this is splunkkkk %s",splunk_id)
+		log.Printf("this is splunkkkk %s",splunk_id)
 		d.Set("splunk_id",splunk_id)
 	}
 
@@ -336,14 +335,14 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 	if len(syslogIntegrationChannelConfigs)>0{
 
 		syslog_id:=syslogIntegrationChannelConfigs[0].(map[string]interface{})["syslogIntegrationId"]
-		log.Println("this is syslogkkk %s",syslog_id)
+		log.Printf("this is syslogkkk %s",syslog_id)
 		d.Set("syslog_id",syslog_id)
 	}
 
 	slackWebhookChannelConfigs:=notificationChannelConfig["slackWebhookChannelConfigs"].([]interface{})
 	if len(slackWebhookChannelConfigs)>0{
 		slack_url:=slackWebhookChannelConfigs[0].(map[string]interface{})["url"]
-		log.Println("this is slack_webhookkk %s",slack_url)
+		log.Printf("this is slack_webhookkk %s",slack_url)
 		d.Set("slack_webhook",slack_url)
 	}
 
@@ -382,16 +381,44 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 			"webhook_url":            customWebhook["url"],
 			"custom_webhook_headers": headerData,
 		}
-		d.Set("custom_webhook", schema.NewSet(schema.HashString,[]interface{}{customWebhookData}))
-		d.Set("custom_webhook", schema.NewSet(schema.HashString,[]interface{}{customWebhookData}))
-		log.Printf("type 1 %s",reflect.TypeOf(d.Get("custom_webhook")))
-		log.Printf("type 2 %s",reflect.TypeOf(customWebhookData))
+		var myCustomWebhookSchema = &schema.Schema{
+			Type:     schema.TypeList,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"webhook_url": {
+						Type:     schema.TypeString,
+						Required: true,
+					},
+					"custom_webhook_headers": {
+						Type:     schema.TypeList,
+						Required: true,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"key": {
+									Type:     schema.TypeString,
+									Required: true,
+								},
+								"value": {
+									Type:     schema.TypeString,
+									Required: true,
+								},
+								"is_secret": {
+									Type:     schema.TypeBool,
+									Required: true,
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+		customWebhookDataSet := []interface{}{customWebhookData}
+
+		d.Set("custom_webhook",schema.NewSet(schema.HashSchema(myCustomWebhookSchema),customWebhookDataSet))
 	}
 	return nil
 }
 
-
-func test(tmp map[string]interface{}) 
 func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{}) error {
 	channel_id := d.Id()
 	channelName := d.Get("channel_name").(string)
@@ -533,8 +560,8 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		fmt.Errorf("Error:", err)
 	}
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		fmt.Errorf("Error:", err)
