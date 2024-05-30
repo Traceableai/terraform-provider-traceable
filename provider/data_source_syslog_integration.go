@@ -12,12 +12,12 @@ func dataSourceSyslogIntegration() *schema.Resource {
 		Read:   dataSourceSyslogIntegrationRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the integration",
 				Required:    true,
 			},
-			"syslog_id": &schema.Schema{
+			"syslog_id": {
 				Type:        schema.TypeString,
 				Description: "Id of syslog integration",
 				Computed:    true,
@@ -49,13 +49,13 @@ func dataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Println("this is the gql response %s",response)
+	log.Printf("this is the gql response %s",response)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"syslogServerIntegrations" ,name)
 	if len(ruleDetails)==0{
 		return fmt.Errorf("No rules found with name %s",name)
 	}
 	syslogId:=ruleDetails["id"].(string)
-	log.Println("Rule found with name %s",syslogId)
+	log.Printf("Rule found with name %s",syslogId)
 	d.Set("syslog_id",syslogId)
 	d.SetId(syslogId)
 	return nil

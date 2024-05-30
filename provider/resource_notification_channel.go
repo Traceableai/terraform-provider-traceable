@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -15,12 +16,12 @@ func resourceNotificationChannelRule() *schema.Resource {
 		Delete: resourceNotificationChannelDelete,
 
 		Schema: map[string]*schema.Schema{
-			"channel_name": &schema.Schema{
+			"channel_name": {
 				Type:        schema.TypeString,
 				Description: "Name of the notification channel",
 				Required:    true,
 			},
-			"email": &schema.Schema{
+			"email": {
 				Type:        schema.TypeSet,
 				Description: "Email address for notification channel",
 				Optional:    true,
@@ -28,23 +29,23 @@ func resourceNotificationChannelRule() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"slack_webhook": &schema.Schema{
+			"slack_webhook": {
 				Type:        schema.TypeString,
 				Description: "Slack webhook config for notification channel",
 				Optional:    true,
 			},
-			"splunk_id": &schema.Schema{
+			"splunk_id": {
 				Type:        schema.TypeString,
 				Description: "Your splunk integration id",
 				Optional:    true,
 			},
-			"syslog_id": &schema.Schema{
+			"syslog_id": {
 				Type:        schema.TypeString,
 				Description: "Your syslog integration id",
 				Optional:    true,
 			},
-			"custom_webhook": &schema.Schema{
-				Type: schema.TypeSet,	
+			"custom_webhook": {
+				Type: schema.TypeList,	
 				Description: "Your custom webhook url",
 				Optional: true,
 				MaxItems:    1,
@@ -55,8 +56,8 @@ func resourceNotificationChannelRule() *schema.Resource {
 							Description: "Url of custom webhook",
 							Required: true,
 						},
-						"custom_webhook_headers": &schema.Schema{
-							Type:        schema.TypeList,
+						"custom_webhook_headers": {
+							Type:        schema.TypeSet,
 							Description: "Headers for custom webhook",
 							Optional:    true,
 							Elem: &schema.Resource{
@@ -82,7 +83,7 @@ func resourceNotificationChannelRule() *schema.Resource {
 					},
 				},
 			},
-			"s3_webhook": &schema.Schema{
+			"s3_webhook": {
 				Type:        schema.TypeSet,
 				Description: "S3 bucket configuration for notification channel",
 				Optional:    true,
@@ -126,15 +127,16 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 	syslogID := d.Get("syslog_id").(string)
 
 	var customWebhookURL string
-    var customWebhookHeaders []map[string]interface{}
+	var customWebhookHeaders []map[string]interface{}
+
 	if v, ok := d.GetOk("custom_webhook"); ok {
-		customWebhook := v.(*schema.Set).List()[0].(map[string]interface{})
+		customWebhook := v.([]interface{})[0].(map[string]interface{})
 		customWebhookURL = customWebhook["webhook_url"].(string)
 
 		log.Println(customWebhook["custom_webhook_headers"])
 		if headers, ok := customWebhook["custom_webhook_headers"]; ok {
-			if headersSlice, ok := headers.([]interface{}); ok {
-				for _, header := range headersSlice {
+			if headersSet, ok := headers.(*schema.Set); ok {
+				for _, header := range headersSet.List() {
 					h := header.(map[string]interface{})
 					customWebhookHeader := make(map[string]interface{})
 					customWebhookHeader["key"] = h["key"].(string)
@@ -248,13 +250,13 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error:%s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error:%s", err)
 	}
 	rules := response["data"].(map[string]interface{})["createNotificationChannel"].(map[string]interface{})
 	log.Println(rules)
@@ -306,13 +308,13 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 	var response map[string]interface{}
 	responseStr, err := executeQuery(readQuery, meta)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error:%s", err)
 	}
 	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error:%s", err)
 	}
 	id:=d.Id()
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationChannels" ,id,"channelId","channelName")
@@ -377,44 +379,12 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 				"is_secret": headerMap["isSecret"],
 			}
 		}
+		
 		customWebhookData := map[string]interface{}{
 			"webhook_url":            customWebhook["url"],
 			"custom_webhook_headers": headerData,
 		}
-		var myCustomWebhookSchema = &schema.Schema{
-			Type:     schema.TypeList,
-			Elem: &schema.Resource{
-				Schema: map[string]*schema.Schema{
-					"webhook_url": {
-						Type:     schema.TypeString,
-						Required: true,
-					},
-					"custom_webhook_headers": {
-						Type:     schema.TypeList,
-						Required: true,
-						Elem: &schema.Resource{
-							Schema: map[string]*schema.Schema{
-								"key": {
-									Type:     schema.TypeString,
-									Required: true,
-								},
-								"value": {
-									Type:     schema.TypeString,
-									Required: true,
-								},
-								"is_secret": {
-									Type:     schema.TypeBool,
-									Required: true,
-								},
-							},
-						},
-					},
-				},
-			},
-		}
-		customWebhookDataSet := []interface{}{customWebhookData}
-
-		d.Set("custom_webhook",schema.NewSet(schema.HashSchema(myCustomWebhookSchema),customWebhookDataSet))
+		d.Set("custom_webhook",[]interface{}{customWebhookData})
 	}
 	return nil
 }
@@ -435,15 +405,16 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 	syslogID := d.Get("syslog_id").(string)
 
 	var customWebhookURL string
-    var customWebhookHeaders []map[string]interface{}
+	var customWebhookHeaders []map[string]interface{}
+
 	if v, ok := d.GetOk("custom_webhook"); ok {
-		customWebhook := v.(*schema.Set).List()[0].(map[string]interface{})
+		customWebhook := v.([]interface{})[0].(map[string]interface{})
 		customWebhookURL = customWebhook["webhook_url"].(string)
 
 		log.Println(customWebhook["custom_webhook_headers"])
 		if headers, ok := customWebhook["custom_webhook_headers"]; ok {
-			if headersSlice, ok := headers.([]interface{}); ok {
-				for _, header := range headersSlice {
+			if headersSet, ok := headers.(*schema.Set); ok {
+				for _, header := range headersSet.List() {
 					h := header.(map[string]interface{})
 					customWebhookHeader := make(map[string]interface{})
 					customWebhookHeader["key"] = h["key"].(string)
@@ -558,13 +529,13 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error:%s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error:%s", err)
 	}
 	rules := response["data"].(map[string]interface{})["updateNotificationChannel"].(map[string]interface{})
 	log.Println(rules)
@@ -577,7 +548,7 @@ func resourceNotificationChannelDelete(d *schema.ResourceData, meta interface{})
 	id := d.Id()
 	query := fmt.Sprintf(`mutation {
 		deleteNotificationChannel(
-		  input: {channelId: \"%s\"}
+		  input: {channelId: "%s"}
 		) {
 		  success
 		  
@@ -588,6 +559,7 @@ func resourceNotificationChannelDelete(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
+	log.Println(query)
 	d.SetId("")
 	return nil
 }
