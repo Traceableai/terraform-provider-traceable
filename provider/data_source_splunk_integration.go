@@ -12,12 +12,12 @@ func dataSourceSplunkIntegration() *schema.Resource {
 		Read:   dataSourceSplunkIntegrationRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the integration",
 				Required:    true,
 			},
-			"splunk_id": &schema.Schema{
+			"splunk_id": {
 				Type:        schema.TypeString,
 				Description: "Id of splunk integration",
 				Computed:    true,
@@ -49,13 +49,13 @@ func dataSourceSplunkIntegrationRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Println("this is the gql response %s",response)
+	log.Printf("this is the gql response %s",response)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"splunkIntegrations" ,name)
 	if len(ruleDetails)==0{
 		return fmt.Errorf("No rules found with name %s",name)
 	}
 	splunkId:=ruleDetails["id"].(string)
-	log.Println("Rule found with name %s",splunkId)
+	log.Printf("Rule found with name %s",splunkId)
 	d.Set("splunk_id",splunkId)
 	d.SetId(splunkId)
 	return nil
