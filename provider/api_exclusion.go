@@ -117,6 +117,7 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) error {
+	id := d.Id()
 
 	query := `{excludeSpanRules{results{id name disabled spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{relationalOperator key value field}}}}}}}`
 
@@ -126,8 +127,7 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	var response map[string]interface{}
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
+	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
 
@@ -135,7 +135,7 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 	results := response["data"].(map[string]interface{})["excludeSpanRules"].(map[string]interface{})["results"].([]interface{})
 	for _, item := range results {
 		rule := item.(map[string]interface{})
-		if rule["id"].(string) == d.Id() {
+		if rule["id"].(string) == id {
 			// Set the Terraform state to match the fetched data
 			d.Set("name", rule["name"].(string))
 			d.Set("disabled", rule["disabled"].(bool))
@@ -144,12 +144,24 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 			if spanFilter, exists := rule["spanFilter"].(map[string]interface{}); exists {
 				if logicalSpanFilter, exists := spanFilter["logicalSpanFilter"].(map[string]interface{}); exists {
 					if spanFilters, exists := logicalSpanFilter["spanFilters"].([]interface{}); exists {
+						var serviceNames []string
+						var environmentNames []string
 						for _, sf := range spanFilters {
 							filter := sf.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
-							if filter["field"].(string) == "URL" {
-								d.Set("regexes", filter["value"].(string))
+							field := filter["field"].(string)
+							value := filter["value"]
+
+							switch field {
+							case "URL":
+								d.Set("regexes", value.(string))
+							case "SERVICE_NAME":
+								serviceNames = append(serviceNames, convertToStringSlicetype(value)...)
+							case "ENVIRONMENT_NAME":
+								environmentNames = append(environmentNames, convertToStringSlicetype(value)...)
 							}
 						}
+						d.Set("service_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(serviceNames)))
+						d.Set("environment_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(environmentNames)))
 					}
 				}
 			}
@@ -231,6 +243,12 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 
 	log.Printf("Updated API Exclusion Rule: %s", responseStr)
+	if response["data"] != nil && response["data"].(map[string]interface{})["updateExcludeSpanRule"] != nil {
+		updatedId := response["data"].(map[string]interface{})["updateExcludeSpanRule"].(map[string]interface{})["id"].(string)
+		d.SetId(updatedId)
+	} else {
+		return fmt.Errorf("could not update API exclusion rule, response data is incomplete")
+	}
 	return nil
 }
 func resourceApiExclusionRuleDelete(d *schema.ResourceData, meta interface{}) error {
