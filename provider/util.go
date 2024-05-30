@@ -37,7 +37,44 @@ func isCustomThreatEvent(event_type string) bool{
     } 
 	return false
 }
-
+func findThreatByCrsId(crsid string) string{
+	crsToThreatType := map[string]string{
+		"bola":                      "bola",
+		"userIdBola":                "userIdBola",
+		"bfla":                      "bfla",
+		"sessionv":                  "sesionVoilation",
+		"volumetricApiCallSpike":    "volumetricApiCallSpike",
+		"credentialStuffing":        "credentialStuffing",
+		"contentSize":               "contentSize",
+		"contentType":               "contentType",
+		"httpStatus":                "httpStatus",
+		"contentExplosion":          "contentExplosion",
+		"device":                    "unexpectedUserAgent",
+		"enum":                      "invalidEnumerations",
+		"unknownParam":              "unknownParam",
+		"missingParam":              "missingParam",
+		"specialCharacter":          "specialCharacter",
+		"type":                      "typeAnomaly",
+		"integer":                   "valueOutofRange",
+		"crs_941":                   "XSS",
+		"crs_930":                   "LFI",
+		"crs_931":                   "RFI",
+		"crs_921":                   "HTTPProtocolAttack",
+		"crs_934":                   "NodeJsInjection",
+		"crs_942":                   "SQLInjection",
+		"crs_102":                   "XMLInjection",
+		"crs_944":                   "JavaAppAttack",
+		"crs_932":                   "RCE",
+		"crs_943":                   "SessionFixation",
+		"crs_101":                   "SSRF",
+		"ssrf":                      "ssrf",
+		"crs_103":                   "BasicAuthenticationViolation",
+		"jwt":                       "jwt",
+		"crs_913":                   "Scanner Detection",
+		"crs_104":                   "GraphQLAttacks",
+	}
+	return crsToThreatType[crsid]
+}
 func isPreDefinedThreatEvent(event_type string) (bool,string){
 	preDefinedThreatActivities := map[string]string{
 		"bola":  "bola",

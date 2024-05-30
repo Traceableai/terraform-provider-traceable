@@ -26,7 +26,7 @@ output "api_token" {
 }
 
 provider "traceable" {
-  platform_url="https://api-dev.traceable.ai/graphql"
+  platform_url="https://app-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
@@ -137,4 +137,17 @@ resource "traceable_notification_channel" "testchannel" {
     region      = "us-west-2"
     bucket_arn  = "arn:aws:s3:::your-s3-bucket"
   }
+}
+
+data "traceable_notification_channels" "mychannel"{
+  name = "example_channel1"
+}
+resource "traceable_notification_rule_logged_threat_activity" "rule1" {
+  name                    = "example_notification_rule"
+  environments            = []
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  threat_types            = ["SQLInjection","bola"]
+  severities              = ["HIGH", "MEDIUM","LOW","CRITICAL"]
+  impact                  = ["LOW", "HIGH"]
+  confidence              = ["HIGH", "MEDIUM"]
 }

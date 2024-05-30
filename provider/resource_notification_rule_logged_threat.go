@@ -25,6 +25,9 @@ func resourceNotificationRuleLoggedThreatActivity() *schema.Resource {
 				Type:        schema.TypeSet,
 				Description: "Environments where rule will be applicable",
 				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"channel_id": {
 				Type:        schema.TypeString,
@@ -35,25 +38,37 @@ func resourceNotificationRuleLoggedThreatActivity() *schema.Resource {
 				Type:        schema.TypeSet,
 				Description: "Threat types for which you want notification",
 				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"severities": {
 				Type:        schema.TypeSet,
-				Description: "Severites of threat events you want to notify",
+				Description: "Severites of threat events you want to notify (LOW,MEDIUM,HIGH,CRITICAL)",
 				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"impact": {
 				Type:        schema.TypeSet,
-				Description: "Impact of threat events you want to notify",
+				Description: "Impact of threat events you want to notify (LOW,MEDIUM,HIGH)",
 				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"confidence": {
 				Type:        schema.TypeSet,
-				Description: "Confidence of threat events you want to notify",
+				Description: "Confidence of threat events you want to notify (LOW,MEDIUM,HIGH)",
 				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 			"notification_frequency": {
 				Type:        schema.TypeString,
-				Description: "No more than one notification every configured notification_frequency",
+				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
 		},
@@ -70,7 +85,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 	confidence := d.Get("confidence").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 
-	severitiesString:="["
+	severitiesString:="severities: ["
 	for _,v := range severities{
 		severitiesString+=v.(string)
 		severitiesString+=","
@@ -81,7 +96,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 		severitiesString=""
 	}
 
-	impactString:="["
+	impactString:="impactLevels: ["
 	for _,v := range impact{
 		impactString+=v.(string)
 		impactString+=","
@@ -92,7 +107,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 		impactString=""
 	}
 
-	confidenceString:="["
+	confidenceString:="confidenceLevels: ["
 	for _,v := range confidence{
 		confidenceString+=v.(string)
 		confidenceString+=","
@@ -114,8 +129,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 		}else if ok,val:=isPreDefinedThreatEvent(v.(string));ok{
 			str=fmt.Sprintf(`{
 				detectedThreatActivityConditionType: PRE_DEFINED
-				'
-				': { anomalyRuleId: %s }
+				preDefinedDetectionCondition: { anomalyRuleId: "%s" }
 			}`,val)
 		}
 		if str==""{
@@ -226,7 +240,47 @@ func resourceNotificationRuleLoggedThreatActivityRead(d *schema.ResourceData, me
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
+	eventConditions:=ruleDetails["eventConditions"]
+	log.Printf("logss %s",eventConditions)
+	detectedSecurityEventCondition:=eventConditions.(map[string]interface{})["detectedSecurityEventCondition"]
 
+	severities:=detectedSecurityEventCondition.(map[string]interface{})["severities"].([]interface{})
+	if len(severities)==0{
+		d.Set("severities",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH","CRITICAL"}))
+	}else{
+		d.Set("severities",schema.NewSet(schema.HashString,severities))
+	}
+
+	impact:=detectedSecurityEventCondition.(map[string]interface{})["impactLevels"].([]interface{})
+	if len(impact)==0{
+		d.Set("impact",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH"}))
+	}else{
+		d.Set("impact",schema.NewSet(schema.HashString,impact))
+	}
+
+	confidence:=detectedSecurityEventCondition.(map[string]interface{})["confidenceLevels"].([]interface{})
+	if len(confidence)==0{
+		d.Set("confidence",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH"}))
+	}else{
+		d.Set("confidence",schema.NewSet(schema.HashString,confidence))
+	}
+
+	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
+		d.Set("notification_frequency",val)
+	}
+	var threat_types []interface{}
+	detectedThreatActivityConditions:=detectedSecurityEventCondition.(map[string]interface{})["detectedThreatActivityConditions"].([]interface{})
+	for _,val := range detectedThreatActivityConditions{
+		isCustom:=val.(map[string]interface{})["detectedThreatActivityConditionType"]	
+		if isCustom=="CUSTOM"{
+			customDetectionType:=val.(map[string]interface{})["customDetectionCondition"].(map[string]interface{})["customDetectionType"]
+			threat_types=append(threat_types, customDetectionType.(string))
+		}else{
+			preDefinedDetectionCondition:=val.(map[string]interface{})["preDefinedDetectionCondition"].(map[string]interface{})["anomalyRuleId"]
+			threat_types=append(threat_types, findThreatByCrsId(preDefinedDetectionCondition.(string)))
+		}
+	}
+	d.Set("threat_types",schema.NewSet(schema.HashString,threat_types))
 	return nil
 }
 
@@ -241,7 +295,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 	confidence := d.Get("confidence").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 
-	severitiesString:="["
+	severitiesString:="severities: ["
 	for _,v := range severities{
 		severitiesString+=v.(string)
 		severitiesString+=","
@@ -252,7 +306,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 		severitiesString=""
 	}
 
-	impactString:="["
+	impactString:="impactLevels: ["
 	for _,v := range impact{
 		impactString+=v.(string)
 		impactString+=","
@@ -263,7 +317,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 		impactString=""
 	}
 
-	confidenceString:="["
+	confidenceString:="confidenceLevels: ["
 	for _,v := range confidence{
 		confidenceString+=v.(string)
 		confidenceString+=","
@@ -285,7 +339,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 		}else if ok,val:=isPreDefinedThreatEvent(v.(string));ok{
 			str=fmt.Sprintf(`{
 				detectedThreatActivityConditionType: PRE_DEFINED
-				preDefinedDetectionCondition: { anomalyRuleId: %s }
+				preDefinedDetectionCondition: { anomalyRuleId: "%s" }
 			}`,val)
 		}
 		if str==""{
@@ -347,6 +401,17 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 }
 
 func resourceNotificationRuleLoggedThreatActivityDelete(d *schema.ResourceData, meta interface{}) error {
-	
+	id := d.Id()
+	query := fmt.Sprintf(`mutation {
+		deleteNotificationRule(input: {ruleId: "%s"}) {
+		  success
+		}
+	  }`, id)
+	_, err := executeQuery(query, meta)
+	if err != nil {
+		return err
+	}
+	log.Println(query)
+	d.SetId("")
 	return nil
 }
