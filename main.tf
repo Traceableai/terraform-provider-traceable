@@ -93,6 +93,7 @@ data "traceable_endpoint_id" "endpoint" {
   enviroment_name="fintech-1"
 }
 
+
 data "traceable_service_id" "endpoint" {
   service_name="nginx-automation-test"
   enviroment_name="fintech-1"

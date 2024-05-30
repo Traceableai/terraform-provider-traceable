@@ -164,13 +164,35 @@ func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
 				d.Set("values", configType["values"].([]interface{}))
 			}
 
-			// Optionally handle other fields like spanFilter, etc.
-			// ...
-			break
+			// Handle spanFilter data
+			if spanFilter, exists := rule["spanFilter"].(map[string]interface{}); exists {
+				if logicalSpanFilter, exists := spanFilter["logicalSpanFilter"].(map[string]interface{}); exists {
+					if spanFilters, exists := logicalSpanFilter["spanFilters"].([]interface{}); exists {
+						var serviceNames []string
+						var environmentNames []string
+						for _, sf := range spanFilters {
+							filter := sf.(map[string]interface{})["relationalSpanFilter"].(map[string]interface{})
+							field := filter["field"].(string)
+							value := filter["value"]
+
+							switch field {
+							case "SERVICE_NAME":
+								serviceNames = append(serviceNames, convertToStringSlicetype(value)...)
+							case "ENVIRONMENT_NAME":
+								environmentNames = append(environmentNames, convertToStringSlicetype(value)...)
+							}
+						}
+						d.Set("service_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(serviceNames)))
+						d.Set("environment_names", schema.NewSet(schema.HashString, convertToInterfaceSlice(environmentNames)))
+					}
+				}
+			}
+
+			return nil
 		}
 	}
 
-	return nil
+	return fmt.Errorf("no naming rule found with ID %s", d.Id())
 }
 
 func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
