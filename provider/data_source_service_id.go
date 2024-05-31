@@ -13,17 +13,17 @@ func dataSourceServiceId() *schema.Resource {
 		Read:   dataSourceServiceIdRead,
 
 		Schema: map[string]*schema.Schema{
-			"service_name": &schema.Schema{
+			"service_name": {
 				Type:        schema.TypeString,
 				Description: "name of the service",
 				Required:    true,
 			},
-			"enviroment_name": &schema.Schema{
+			"enviroment_name": {
 				Type:        schema.TypeString,
 				Description: "Environement of the service name",
 				Required:    true,
 			},
-			"service_id": &schema.Schema{
+			"service_id": {
 				Type:        schema.TypeString,
 				Description: "Id of the service",
 				Computed:    true,
@@ -81,13 +81,13 @@ func dataSourceServiceIdRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Println("this is the gql response %s",response)
+	log.Printf("this is the gql response %s",response)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"entities",service_name)
 	if len(ruleDetails)==0{
 		return fmt.Errorf("No services found with name %s",service_name)
 	}
 	service_id:=ruleDetails["id"].(string)
-	log.Println("Service found with name %s",service_id)
+	log.Printf("Service found with name %s",service_id)
 	d.Set("service_id",service_id)
 	d.SetId(service_id)
 	return nil

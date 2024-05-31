@@ -17,35 +17,35 @@ func resourceApiNamingRule() *schema.Resource {
 		Delete: resourceApiNamingRuleDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "The name of the API naming rule",
 				Required:    true,
 			},
-			"disabled": &schema.Schema{
+			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
 				Required:    true,
 			},
-			"regexes": &schema.Schema{
+			"regexes": {
 				Type:        schema.TypeList,
 				Description: "List of regex patterns for the rule",
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"values": &schema.Schema{
+			"values": {
 				Type:        schema.TypeList,
 				Description: "Corresponding values for the regex patterns",
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"service_names": &schema.Schema{
+			"service_names": {
 				Type:        schema.TypeList,
 				Description: "List of service names to apply the rule",
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"environment_names": &schema.Schema{
+			"environment_names": {
 				Type:        schema.TypeList,
 				Description: "List of environment names to apply the rule",
 				Required:    true,

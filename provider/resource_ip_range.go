@@ -16,32 +16,32 @@ func resourceIpRangeRule() *schema.Resource {
 		Delete: resourceIpRangeRuleDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "name of the policy",
 				Required:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:        schema.TypeString,
 				Description: "description of the policy",
 				Optional:    true,
 			},
-			"rule_action": &schema.Schema{
+			"rule_action": {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed",
 				Required:    true,
 			},
-			"event_severity": &schema.Schema{
+			"event_severity": {
 				Type:        schema.TypeString,
 				Description: "Generated event severity among LOW,MEDIUM,HIGH,CRITICAL",
 				Required:    true,
 			},
-			"expiration": &schema.Schema{
+			"expiration": {
 				Type:        schema.TypeString,
 				Description: "expiration for Allow and Block actions",
 				Optional:    true,
 			},
-			"environment": &schema.Schema{
+			"environment": {
 				Type:        schema.TypeSet,
 				Description: "environment where it will be applied",
 				Required:    true,
@@ -49,7 +49,7 @@ func resourceIpRangeRule() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"raw_ip_range_data": &schema.Schema{
+			"raw_ip_range_data": {
 				Type:        schema.TypeSet,
 				Description: "IPV4/V6 range to be Alerted/blcoked/Allowed ",
 				Required:    true,
@@ -119,8 +119,8 @@ func resourceIpRangeRuleCreate(d *schema.ResourceData, meta interface{}) error {
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -228,8 +228,8 @@ func resourceIpRangeRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		fmt.Println("Error:", err)

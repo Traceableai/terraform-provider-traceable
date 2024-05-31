@@ -15,62 +15,62 @@ func resourceUserAttributionJwtAuthRule() *schema.Resource {
 		Delete: resourceUserAttributionRuleJwtAuthDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "name of the user attribution rule",
 				Required:    true,
 			},
-			"auth_type": &schema.Schema{
+			"auth_type": {
 				Type:        schema.TypeString,
 				Description: "auth type of the user attribution rule",
 				Optional:    true,
 			},
-			"scope_type": &schema.Schema{
+			"scope_type": {
 				Type:        schema.TypeString,
 				Description: "system wide, environment, url regex",
 				Required:    true,
 			},
-			"environment": &schema.Schema{
+			"environment": {
 				Type:        schema.TypeString,
 				Description: "environment",
 				Optional:    true,
 			},
-			"url_regex": &schema.Schema{
+			"url_regex": {
 				Type:        schema.TypeString,
 				Description: "url regex",
 				Optional:    true,
 			},
-			"jwt_location": &schema.Schema{
+			"jwt_location": {
 				Type:        schema.TypeString,
 				Description: "header or cookie",
 				Required:    true,
 			},
-			"jwt_key": &schema.Schema{
+			"jwt_key": {
 				Type:        schema.TypeString,
 				Description: "header name for jwt in header or cookie",
 				Required:    true,
 			},
-			"token_capture_group": &schema.Schema{
+			"token_capture_group": {
 				Type:        schema.TypeString,
 				Description: "token capture group",
 				Optional:    true,
 			},
-			"user_id_location_json_path": &schema.Schema{
+			"user_id_location_json_path": {
 				Type:        schema.TypeString,
 				Description: "user id location json path",
 				Optional:    true,
 			},
-			"user_id_claim": &schema.Schema{
+			"user_id_claim": {
 				Type:        schema.TypeString,
 				Description: "user id claim",
 				Required:    true,
 			},
-			"user_role_location_json_path": &schema.Schema{
+			"user_role_location_json_path": {
 				Type:        schema.TypeString,
 				Description: "user role location json path",
 				Optional:    true,
 			},
-			"user_role_claim": &schema.Schema{
+			"user_role_claim": {
 				Type:        schema.TypeString,
 				Description: "user role claim",
 				Optional:    true,
@@ -200,13 +200,13 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
 	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response,"createUserAttributionRule",name)
 	log.Println(ruleDetails)
@@ -217,7 +217,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 
 func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	log.Println("Id from read ", id)
+	log.Printf("Id from read %s", id)
 	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName __typename} urlScopes{urlMatchRegex __typename} __typename} jwt{authentication{type __typename} location{type headerName cookieName parsingTarget{regexCaptureGroup type __typename} __typename} roleClaim userIdClaim userIdLocation{type jsonPath __typename} roleLocation{type jsonPath __typename} __typename}}}}"
 	responseStr, err := executeQuery(readQuery, meta)
 	if err != nil {
@@ -232,7 +232,7 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 	if len(ruleDetails)==0{
 		return nil
 	}
-	log.Println("fetching from read %s",ruleDetails)
+	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"]
 	auth_type:=ruleDetails["jwt"].(map[string]interface{})["authentication"]
@@ -285,7 +285,7 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
 		if len(envScope.([]interface{}))==0{
 			d.Set("scope_type","CUSTOM")
-			log.Println("adityaaa %s",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+			log.Printf("adityaaa %s",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
 			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
 			// d.Set("environment",nil)
 		}else{
@@ -433,16 +433,16 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
 	rules := response["data"].(map[string]interface{})["updateUserAttributionRule"].(map[string]interface{})
-	// log.Println(ruleDetails)
+	// log.Printf(ruleDetails)
 	updatedId:=rules["id"].(string)
 	d.SetId(updatedId)
 	return nil

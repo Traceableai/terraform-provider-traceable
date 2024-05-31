@@ -12,12 +12,12 @@ func dataSourceNotificationChannel() *schema.Resource {
 		Read:   dataSourceNotificationChannelRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the channel",
 				Required:    true,
 			},
-			"channel_id": &schema.Schema{
+			"channel_id": {
 				Type:        schema.TypeString,
 				Description: "Id of notification channel",
 				Computed:    true,
@@ -47,13 +47,13 @@ func dataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Println("this is the gql response %s",response)
+	log.Printf("this is the gql response %s",response)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationChannels" ,name,"channelId","channelName")
 	if len(ruleDetails)==0{
 		return fmt.Errorf("No rules found with name %s",name)
 	}
 	channelId:=ruleDetails["channelId"].(string)
-	log.Println("Rule found with name %s",channelId)
+	log.Printf("Rule found with name %s",channelId)
 	d.Set("channel_id",channelId)
 	d.SetId(channelId)
 	return nil
