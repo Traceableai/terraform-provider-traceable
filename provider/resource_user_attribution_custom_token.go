@@ -15,37 +15,37 @@ func resourceUserAttributionCustomTokenRule() *schema.Resource {
 		Delete: resourceUserAttributionRuleCustomTokenDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "name of the user attribution rule",
 				Required:    true,
 			},
-			"scope_type": &schema.Schema{
+			"scope_type": {
 				Type:        schema.TypeString,
 				Description: "system wide, environment, url regex",
 				Required:    true,
 			},
-			"url_regex": &schema.Schema{
+			"url_regex": {
 				Type:        schema.TypeString,
 				Description: "url regex",
 				Optional:    true,
 			},
-			"environment": &schema.Schema{
+			"environment": {
 				Type:        schema.TypeString,
 				Description: "environement of rule",
 				Optional:    true,
 			},
-			"auth_type": &schema.Schema{
+			"auth_type": {
 				Type:        schema.TypeString,
 				Description: "auth type",
 				Required:    true,
 			},
-			"location": &schema.Schema{
+			"location": {
 				Type:        schema.TypeString,
 				Description: "custom token location (REQUEST_HEADER or REQUEST_BODY or REQUEST_COOKIE)",
 				Required:    true,
 			},
-			"token_name": &schema.Schema{
+			"token_name": {
 				Type:        schema.TypeString,
 				Description: "token name",
 				Required:    true,
@@ -121,13 +121,13 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
 	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response,"createUserAttributionRule",name)
 	log.Println(ruleDetails)
@@ -138,7 +138,7 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 
 func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	log.Println("Id from read ", id)
+	log.Printf("Id from read %s", id)
 	readQuery:="{ userAttributionRules { results { id scopeType rank name type disabled customScope { environmentScopes { environmentName __typename } urlScopes { urlMatchRegex __typename } __typename } customToken { authentication { type __typename } customTokenLocation requestBodyLocation { jsonPath type __typename } requestHeaderLocation { cookieName headerName type __typename } __typename } } } }"
 	responseStr, err := executeQuery(readQuery, meta)
 	if err != nil {
@@ -153,7 +153,7 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 	if len(ruleDetails)==0{
 		return nil
 	}
-	log.Println("fetching from read %s",ruleDetails)
+	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"].(string)
 	d.Set("name",name)
@@ -282,16 +282,16 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
-	log.Println("This is the graphql query %s", query)
-	log.Println("This is the graphql response %s", responseStr)
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Errorf("Error:", err)
+		return fmt.Errorf("Error: %s", err)
 	}
 	rules := response["data"].(map[string]interface{})["updateUserAttributionRule"].(map[string]interface{})
-	// log.Println(ruleDetails)
+	// log.Printf(ruleDetails)
 	updatedId:=rules["id"].(string)
 	d.SetId(updatedId)
 	return nil

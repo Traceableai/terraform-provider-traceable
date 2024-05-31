@@ -17,28 +17,28 @@ func resourceApiExclusionRule() *schema.Resource {
 		Delete: resourceApiExclusionRuleDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "The name of the API exclusion rule",
 				Required:    true,
 			},
-			"disabled": &schema.Schema{
+			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
 				Required:    true,
 			},
-			"regexes": &schema.Schema{
+			"regexes": {
 				Type:        schema.TypeString,
 				Description: "http path regex pattern for the rule",
 				Required:    true,
 			},
-			"service_names": &schema.Schema{
+			"service_names": {
 				Type:        schema.TypeList,
 				Description: "List of service names to apply the rule",
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"environment_names": &schema.Schema{
+			"environment_names": {
 				Type:        schema.TypeList,
 				Description: "List of environment names to apply the rule",
 				Required:    true,

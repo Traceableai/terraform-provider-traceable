@@ -13,22 +13,22 @@ func dataSourceEndpointId() *schema.Resource {
 		Read:   dataSourceEndpointIdRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the endpoint",
 				Required:    true,
 			},
-			"service_name": &schema.Schema{
+			"service_name": {
 				Type:        schema.TypeString,
 				Description: "service of the endpoint",
 				Required:    true,
 			},
-			"enviroment_name": &schema.Schema{
+			"enviroment_name": {
 				Type:        schema.TypeString,
 				Description: "environment of the endpoint",
 				Required:    true,
 			},
-			"endpoint_id": &schema.Schema{
+			"endpoint_id": {
 				Type:        schema.TypeString,
 				Description: "Id of the endpoint",
 				Computed:    true,
@@ -95,13 +95,13 @@ func dataSourceEndpointIdRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Println("this is the gql response %s",response)
+	log.Printf("this is the gql response %s",response)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"entities",name)
 	if len(ruleDetails)==0{
 		return fmt.Errorf("No endpoints found with name %s",name)
 	}
 	endpoint_id:=ruleDetails["id"].(string)
-	log.Println("endpoint found with name %s",endpoint_id)
+	log.Printf("endpoint found with name %s",endpoint_id)
 	d.Set("endpoint_id",endpoint_id)
 	d.SetId(endpoint_id)
 	return nil
