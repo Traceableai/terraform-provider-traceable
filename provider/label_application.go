@@ -429,7 +429,10 @@ func resourceLabelApplicationRuleUpdate(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error while parsing GraphQL response: %s", err)
 	}
 
-	if response["data"] == nil {
+	if response["data"] != nil && response["data"].(map[string]interface{})["updateLabelApplicationRule"] != nil {
+		updatedId := response["data"].(map[string]interface{})["updateLabelApplicationRule"].(map[string]interface{})["id"].(string)
+		d.SetId(updatedId)
+	} else {
 		return fmt.Errorf("could not update Label Application Rule, no data returned")
 	}
 
