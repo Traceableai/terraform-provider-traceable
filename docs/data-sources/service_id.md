@@ -17,11 +17,10 @@ description: |-
 
 ### Required
 
-- `enviroment_name` (String) environment of the endpoint
-- `name` (String) Name of the endpoint
-- `service_name` (String) service of the endpoint
+- `enviroment_name` (String) Environement of the service name
+- `service_name` (String) name of the service
 
 ### Read-Only
 
-- `endpoint_id` (String) Id of the endpoint
 - `id` (String) The ID of this resource.
+- `service_id` (String) Id of the service
