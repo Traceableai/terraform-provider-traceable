@@ -143,10 +143,11 @@ func resourceAgentTokenUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error while parsing GraphQL response: %s", err)
 	}
 
-	if data, ok := response["data"].(map[string]interface{})["updateAgentTokenMetadata"].(map[string]interface{}); ok {
-		d.Set("name", data["name"].(string))
+	if response["data"] != nil && response["data"].(map[string]interface{})["updateAgentTokenMetadata"] != nil {
+		updatedId := response["data"].(map[string]interface{})["updateAgentTokenMetadata"].(map[string]interface{})["id"].(string)
+		d.SetId(updatedId)
 	} else {
-		return fmt.Errorf("Could not update agent token, no data returned")
+		return fmt.Errorf("could not update Agent Token, no data returned")
 	}
 
 	return nil
