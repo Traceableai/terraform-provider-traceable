@@ -202,6 +202,7 @@ resource "traceable_notification_rule_logged_threat_activity" "rule1" {
   confidence              = ["HIGH", "MEDIUM"]
 }
 
+
 resource "traceable_label_application_rule" "meg-test1" {
   name        = "newtest-label-app-tf"
   description = "optional desc"
@@ -243,5 +244,35 @@ resource "traceable_label_application_rule" "meg-test1" {
     dynamic_label_key = "hellotest"
   }
 
-  
+
+resource "traceable_label_creation_rule" "example_label_create_rule" {
+  key="test-rule-create-label-test1"
+  description="test rule to create a label"
+  color="#E295E9"
+
+resource "traceable_agent_token" "example" {
+  name = "tf-provider-token-testing"
+}
+
+output "agent_token" {
+  value = traceable_agent_token.example.token
+  sensitive = true
+}
+
+output "agent_token_creation_timestamp" {
+  value = traceable_agent_token.example.creation_timestamp
+}
+
+data "traceable_agent_token" "example" {
+  name = "tf-provider-token-testing"
+}
+
+output "agent_token" {
+  value = data.traceable_agent_token.example.token
+  sensitive = true
+}
+
+output "agent_token_creation_timestamp" {
+  value = data.traceable_agent_token.example.creation_timestamp
+
 }
