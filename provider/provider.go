@@ -30,6 +30,7 @@ func Provider() *schema.Provider {
 			"traceable_notification_rule_logged_threat_activity": resourceNotificationRuleLoggedThreatActivity(),
 			"traceable_api_naming_rule":                          resourceApiNamingRule(),
 			"traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
+			"traceable_label_application_rule":                   resourceLabelApplicationRule(),
 			"traceable_label_creation_rule":                      resourceLabelCreationRule(),
 			"traceable_agent_token":                              resourceAgentToken(),
 
