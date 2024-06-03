@@ -18,16 +18,16 @@ description: |-
 ### Required
 
 - `channel_id` (String) Reporting channel for this notification rule
-- `confidence` (Set of String) Confidence of threat events you want to notify
+- `confidence` (Set of String) Confidence of threat events you want to notify (LOW,MEDIUM,HIGH)
 - `environments` (Set of String) Environments where rule will be applicable
-- `impact` (Set of String) Impact of threat events you want to notify
+- `impact` (Set of String) Impact of threat events you want to notify (LOW,MEDIUM,HIGH)
 - `name` (String) Name of the notification rule
-- `severities` (Set of String) Severites of threat events you want to notify
+- `severities` (Set of String) Severites of threat events you want to notify (LOW,MEDIUM,HIGH,CRITICAL)
 - `threat_types` (Set of String) Threat types for which you want notification
 
 ### Optional
 
-- `notification_frequency` (String) No more than one notification every configured notification_frequency
+- `notification_frequency` (String) No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)
 
 ### Read-Only
 
