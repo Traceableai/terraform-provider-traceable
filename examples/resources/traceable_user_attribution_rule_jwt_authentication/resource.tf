@@ -4,5 +4,5 @@ resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
   url_regex="sfdsf"
   jwt_location = "COOKIE"
   jwt_key = "abcd"
-  user_id_claim = "aditya"
+  user_id_claim = "testuser"
 }

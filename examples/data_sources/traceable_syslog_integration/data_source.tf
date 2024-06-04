@@ -1,7 +1,7 @@
 data "traceable_syslog_integration" "syslog" {
-  name="prer-test"
+  name="test-name1"
 }
 
 data "traceable_splunk_integration" "splunk" {
-  name="aditya"
+  name="test-name2"
 }
