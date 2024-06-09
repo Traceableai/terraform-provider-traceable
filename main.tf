@@ -26,7 +26,7 @@ output "api_token" {
 }
 
 provider "traceable" {
-  platform_url="https://api-dev.traceable.ai/graphql"
+  platform_url="https://app-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
@@ -184,3 +184,42 @@ output "agent_token_creation_timestamp" {
   value = data.traceable_agent_token.example.creation_timestamp
 
 }
+
+resource "traceable_session_identification_request_rule" "example" {
+  name             = "example-session-rule-3"
+  description      = "This is an example session identification rule"
+  environment_names = ["dev", "prod"]
+  service_names     = ["service1", "service2"]
+  url_match_regexes = ["^/api/.*$", "^/internal/.*$"]
+
+  token_extraction_condition_list {
+    condition_request_header {
+      key      = "X-Example-Header"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
+  }
+
+  session_token_details {
+    token_request_header {
+      token_key = "Authorization"
+      operator  = "MATCHES_REGEX"
+    }
+  }
+
+  obfuscation       = true
+  expiration_type   = "JWT"
+
+  token_value_transformation_list {
+    json_path             = "$.token"
+  }
+}
+
+
+
+
+
+
+
+
+
