@@ -230,7 +230,7 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 	log.Printf("Response from read %s",responseStr)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
-		return nil
+		return resourceUserAttributionRuleJwtAuthCreate(d,meta)
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)

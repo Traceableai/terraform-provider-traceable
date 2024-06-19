@@ -318,6 +318,9 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 	}
 	id:=d.Id()
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationChannels" ,id,"channelId","channelName")
+	if len(ruleDetails)==0{
+		return resourceNotificationChannelCreate(d,meta)
+	}
 	log.Printf("channels %s",ruleDetails)
 
 	channelName:=ruleDetails["channelName"]

@@ -207,7 +207,7 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 	}
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
-		return nil
+		return resourceUserAttributionRuleRequestHeaderCreate(d,meta)
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
