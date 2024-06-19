@@ -98,7 +98,7 @@ func resourceLabelCreationRuleRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	return resourceLabelCreationRuleCreate(d,meta)
+	return fmt.Errorf("no label found with ID %s", d.Id())
 }
 
 func resourceLabelCreationRuleUpdate(d *schema.ResourceData, meta interface{}) error {

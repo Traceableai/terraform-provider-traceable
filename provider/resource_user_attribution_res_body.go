@@ -121,7 +121,7 @@ func resourceUserAttributionRuleResponseBodyRead(d *schema.ResourceData, meta in
 	log.Printf("Response from read %s",responseStr)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
-		return resourceUserAttributionRuleResponseBodyCreate(d,meta)
+		return nil
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)

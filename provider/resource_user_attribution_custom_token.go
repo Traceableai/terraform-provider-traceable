@@ -55,7 +55,6 @@ func resourceUserAttributionCustomTokenRule() *schema.Resource {
 }
 
 func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta interface{}) error {
-	log.Println("This is Create")
 	name := d.Get("name").(string)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
@@ -138,7 +137,6 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 }
 
 func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta interface{}) error {
-	log.Println("This is read")
 	id := d.Id()
 	log.Printf("Id from read %s", id)
 	readQuery:="{ userAttributionRules { results { id scopeType rank name type disabled customScope { environmentScopes { environmentName __typename } urlScopes { urlMatchRegex __typename } __typename } customToken { authentication { type __typename } customTokenLocation requestBodyLocation { jsonPath type __typename } requestHeaderLocation { cookieName headerName type __typename } __typename } } } }"
@@ -153,7 +151,7 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 	log.Printf("Response from read %s",responseStr)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
-		return resourceUserAttributionRuleCustomTokenCreate(d,meta)
+		return nil
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
@@ -205,7 +203,6 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 
 func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
-	log.Println("This is update")
 	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
 	readQueryResStr, err := executeQuery(readQuery, meta)
 	if err != nil {
@@ -301,7 +298,6 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 }
 
 func resourceUserAttributionRuleCustomTokenDelete(d *schema.ResourceData, meta interface{}) error {
-	log.Println("This is delete")
 	id := d.Id()
 	query := fmt.Sprintf(" mutation { deleteUserAttributionRule(input: {id: \"%s\"}) { results { id scopeType rank name type disabled } } }", id)
 	_, err := executeQuery(query, meta)

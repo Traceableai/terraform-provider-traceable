@@ -145,7 +145,7 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 	log.Printf("Response from read %s",responseStr)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
-		return resourceUserAttributionRuleCustomJsonCreate(d,meta)
+		return nil
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
