@@ -236,6 +236,10 @@ func resourceNotificationRuleLoggedThreatActivityRead(d *schema.ResourceData, me
 		_=fmt.Errorf("Error:%s", err)
 	}
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationRules" ,id,"ruleId","ruleName")
+	if len(ruleDetails)==0{
+		d.SetId("")
+		return nil
+	}
 	d.Set("name",ruleDetails["ruleName"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]

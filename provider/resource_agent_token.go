@@ -112,7 +112,8 @@ func resourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
 				return nil
 			}
 		}
-		return fmt.Errorf("No agent token found with ID %s", id)
+		d.SetId("")
+		return nil
 	}
 
 	return nil
