@@ -314,7 +314,8 @@ func resourceLabelApplicationRuleRead(d *schema.ResourceData, meta interface{}) 
 			}
 		}
 	} else {
-		return fmt.Errorf("could not read Label Application Rule, no data returned")
+		d.SetId("")
+		return nil
 	}
 
 	return nil
