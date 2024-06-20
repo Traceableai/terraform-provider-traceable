@@ -8,7 +8,13 @@ description: |-
 
 # traceable_syslog_integration (Data Source)
 
+## Example Usage
 
+```terraform
+data "traceable_syslog_integration" "syslog" {
+  name="prer-test"
+}
+```
 
 
 
