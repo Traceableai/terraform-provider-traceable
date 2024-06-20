@@ -25,7 +25,7 @@ func resourceAgentToken() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The agent token value",
 				Computed:    true,
-				Sensitive:   true,
+				// Sensitive:   true,
 			},
 			"created_by": &schema.Schema{
 				Type:        schema.TypeString,
