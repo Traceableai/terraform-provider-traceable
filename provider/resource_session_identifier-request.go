@@ -554,6 +554,10 @@ func resourceSessionIdentificationRequestRuleRead(d *schema.ResourceData, meta i
 
 	id := d.Id()
 	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response, "sessionIdentificationRulesV2", id, "id", "name")
+	if len(ruleDetails) == 0 {
+		d.SetId("")
+		return nil
+	}
 	log.Printf("Session Identification Rule: %s", ruleDetails)
 
 	d.Set("name", ruleDetails["name"])
