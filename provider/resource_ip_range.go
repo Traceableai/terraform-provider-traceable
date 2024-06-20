@@ -145,6 +145,10 @@ func resourceIpRangeRuleRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	ruleData:=getRuleDetailsFromRulesListUsingIdName(response,"ipRangeRules" ,id)
+	if len(ruleData)==0{
+		d.SetId("")
+		return nil
+	}
 	ruleDetails := ruleData["ruleDetails"].(map[string]interface{})
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("description", ruleDetails["description"].(string))
