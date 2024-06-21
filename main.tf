@@ -187,8 +187,8 @@ output "agent_token_creation_timestamp" {
 resource "traceable_session_identification_response_rule" "example" {
   name             = "example-session-rule-23"
   description      = "This is an example session identification rule"
-  environment_names = ["dev", "prod"]
-  service_names     = ["service1", "service2"]
+  environment_names = ["ast_perf", "debug"]
+  service_names     = []
   url_match_regexes = ["^/api/.*$", "^/internal/.*$"]
 
   token_extraction_condition_list {
@@ -201,7 +201,7 @@ resource "traceable_session_identification_response_rule" "example" {
 
   session_token_details {
     token_response_header {
-      token_key = "Authorization"
+      token_key = "Author"
       operator  = "MATCHES_REGEX"
     }
   }

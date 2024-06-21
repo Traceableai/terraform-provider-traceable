@@ -309,35 +309,28 @@ func resourceSessionIdentificationResponseRuleCreate(d *schema.ResourceData, met
 	}
 
 	responseAttributeKeyLocationStr := ""
+	tokenMatchConditionStr := ""
 	if v, ok := d.GetOk("session_token_details"); ok {
 		sessionTokenDetails := v.([]interface{})[0].(map[string]interface{})
 
-		if tokenresponseHeader, ok := sessionTokenDetails["token_response_header"]; ok {
-			if len(tokenresponseHeader.(*schema.Set).List()) > 0 {
+		if tokenResponseHeader, ok := sessionTokenDetails["token_response_header"]; ok {
+			if len(tokenResponseHeader.(*schema.Set).List()) > 0 {
 				responseAttributeKeyLocationStr = "HEADER"
+				tokenResponseHeaderList := tokenResponseHeader.(*schema.Set).List()
+				tokenKey := tokenResponseHeaderList[0].(map[string]interface{})["token_key"].(string)
+				operator := tokenResponseHeaderList[0].(map[string]interface{})["operator"].(string)
+				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
 			}
-		} else if tokenresponseCookie, ok := sessionTokenDetails["token_response_cookie"]; ok {
-			if len(tokenresponseCookie.(*schema.Set).List()) > 0 {
+		} else if tokenResponseCookie, ok := sessionTokenDetails["token_response_cookie"]; ok {
+			if len(tokenResponseCookie.(*schema.Set).List()) > 0 {
 				responseAttributeKeyLocationStr = "COOKIE"
+				tokenResponseCookieList := tokenResponseCookie.(*schema.Set).List()
+				tokenKey := tokenResponseCookieList[0].(map[string]interface{})["token_key"].(string)
+				operator := tokenResponseCookieList[0].(map[string]interface{})["operator"].(string)
+				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
 			}
-		} else if tokenresponseBody, ok := sessionTokenDetails["token_response_body"].(bool); ok && tokenresponseBody {
+		} else if tokenResponseBody, ok := sessionTokenDetails["token_response_body"].(bool); ok && tokenResponseBody {
 			responseAttributeKeyLocationStr = "BODY"
-		}
-	}
-
-	tokenMatchConditionStr := ""
-	if responseAttributeKeyLocationStr != "BODY" && responseAttributeKeyLocationStr != "" {
-		if v, ok := d.GetOk("session_token_details"); ok {
-			sessionTokenDetails := v.([]interface{})[0].(map[string]interface{})
-			if tokenresponseHeader, ok := sessionTokenDetails["token_response_header"].([]interface{}); ok && len(tokenresponseHeader) > 0 {
-				tokenKey := tokenresponseHeader[0].(map[string]interface{})["token_key"].(string)
-				operator := tokenresponseHeader[0].(map[string]interface{})["operator"].(string)
-				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
-			} else if tokenresponseCookie, ok := sessionTokenDetails["token_response_cookie"].([]interface{}); ok && len(tokenresponseCookie) > 0 {
-				tokenKey := tokenresponseCookie[0].(map[string]interface{})["token_key"].(string)
-				operator := tokenresponseCookie[0].(map[string]interface{})["operator"].(string)
-				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
-			}
 		}
 	}
 
