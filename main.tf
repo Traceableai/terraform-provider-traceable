@@ -232,7 +232,7 @@ resource "traceable_notification_rule_exclude_rule" "exclude_rule" {
     name = "traceable_notification_rule_exclude_rule"
     channel_id = data.traceable_notification_channels.mychannel.channel_id
     event_types = ["CREATE"]
-    # notification_frequency = "PT1H"
+    notification_frequency = "PT1H"
 }
 
 output "agent_token" {
