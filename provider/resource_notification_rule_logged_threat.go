@@ -243,7 +243,13 @@ func resourceNotificationRuleLoggedThreatActivityRead(d *schema.ResourceData, me
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	detectedSecurityEventCondition:=eventConditions.(map[string]interface{})["detectedSecurityEventCondition"]
-
+	if detectedSecurityEventCondition==nil{
+		d.Set("severities",schema.NewSet(schema.HashString,[]interface{}{""}))
+		d.Set("impact",schema.NewSet(schema.HashString,[]interface{}{""}))
+		d.Set("confidence",schema.NewSet(schema.HashString,[]interface{}{""}))
+		d.Set("threat_types",schema.NewSet(schema.HashString,[]interface{}{""}))
+		return nil
+	}
 	severities:=detectedSecurityEventCondition.(map[string]interface{})["severities"].([]interface{})
 	if len(severities)==0{
 		d.Set("severities",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH","CRITICAL"}))

@@ -9,5 +9,4 @@ output "agent_token" {
 
 output "agent_token_creation_timestamp" {
   value = data.traceable_agent_token.example.creation_timestamp
-
 }
