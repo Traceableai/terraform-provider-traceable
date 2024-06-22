@@ -175,6 +175,10 @@ func resourceNotificationRuleBlockedThreatActivityRead(d *schema.ResourceData, m
 		_=fmt.Errorf("Error:%s", err)
 	}
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationRules" ,id,"ruleId","ruleName")
+	if len(ruleDetails)==0{
+		d.SetId("")
+		return nil
+	}
 	d.Set("name",ruleDetails["ruleName"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
@@ -182,7 +186,9 @@ func resourceNotificationRuleBlockedThreatActivityRead(d *schema.ResourceData, m
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	blockedSecurityEventCondition:=eventConditions.(map[string]interface{})["blockedEventCondition"]
-
+	if blockedSecurityEventCondition==nil{
+		d.Set("threat_types",schema.NewSet(schema.HashString,[]interface{}{""}))
+	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)

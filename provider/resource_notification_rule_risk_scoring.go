@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotificationRuleActorSeverityChange() *schema.Resource {
+func resourceNotificationRuleRiskScoring() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleActorSeverityChangeCreate,
-		Read:   resourceNotificationRuleActorSeverityChangeRead,
-		Update: resourceNotificationRuleActorSeverityChangeUpdate,
-		Delete: resourceNotificationRuleActorSeverityChangeDelete,
+		Create: resourceNotificationRuleRiskScoringCreate,
+		Read:   resourceNotificationRuleRiskScoringRead,
+		Update: resourceNotificationRuleRiskScoringUpdate,
+		Delete: resourceNotificationRuleRiskScoringDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,17 +34,9 @@ func resourceNotificationRuleActorSeverityChange() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"actor_severities": {
+			"event_types": {
 				Type:        schema.TypeSet,
-				Description: "Threat types for which you want notification",
-				Required:    true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"actor_ip_reputation_levels": {
-				Type:        schema.TypeSet,
-				Description: "Severites of threat events you want to notify (LOW,MEDIUM,HIGH,CRITICAL)",
+				Description: "Operation for which you want notification",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -59,41 +51,12 @@ func resourceNotificationRuleActorSeverityChange() *schema.Resource {
 	}
 }
 
-func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleRiskScoringCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_severities := d.Get("actor_severities").(*schema.Set).List()
-	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
+	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
-
-	actorSeveritiesString:="["
-	for _,v := range actor_severities{
-		actorSeveritiesString+=v.(string)
-		actorSeveritiesString+=","
-	}
-	if len(actorSeveritiesString)>1{
-		actorSeveritiesString=actorSeveritiesString[:len(actorSeveritiesString)-1]
-	}
-	
-	actorSeveritiesString+="]"
-	if len(actor_severities)==4{
-		actorSeveritiesString=""
-	}
-
-	actorIpRepString:="["
-	for _,v := range actor_ip_reputation_levels{
-		actorIpRepString+=v.(string)
-		actorIpRepString+=","
-	}
-	if len(actorIpRepString)>1{
-		actorIpRepString=actorIpRepString[:len(actorIpRepString)-1]
-	}
-	
-	actorIpRepString+="]"
-	if len(actor_ip_reputation_levels)==4{
-		actorIpRepString=""
-	}
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -114,12 +77,11 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: ACTOR_SEVERITY_STATE_CHANGE_EVENT
+				category: SECURITY_CONFIG_CHANGE_EVENT
 				ruleName: "%s"
 				eventConditions: {
-					actorSeverityStateChangeEventCondition: {
-						actorSeverities: %s
-						actorIpReputationLevels: %s
+					riskScoringConfigChangeEventCondition: {
+						riskScoringConfigChangeTypes: %s
 					}
 				}
 				channelId: "%s"
@@ -129,7 +91,7 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 		) {
 			ruleId
 		}
-	}`,name,actorSeveritiesString,actorIpRepString,channel_id,frequencyString,envString)
+	}`,name,event_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -142,33 +104,32 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleRiskScoringRead(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
 	readQuery:=`{
-		notificationRules {
-		  results {
+	notificationRules {
+		results {
 			ruleId
 			ruleName
 			environmentScope {
-			  environments
+				environments
 			}
 			channelId
 			integrationTarget {
-			  type
-			  integrationId
+				type
+				integrationId
 			}
 			category
 			eventConditions {
-			  actorSeverityStateChangeEventCondition {
-				actorSeverities
-				actorIpReputationLevels 
-			  }
+				riskScoringConfigChangeEventCondition {
+				riskScoringConfigChangeTypes
+				}
 			}
 			rateLimitIntervalDuration
-		  }
+			}
 		}
-	  }
-	  `
+	}
+	`
 	var response map[string]interface{}
 	responseStr, err := executeQuery(readQuery, meta)
 	if err != nil {
@@ -191,57 +152,31 @@ func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, met
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
-	actorSeverityStateChangeEventCondition:=eventConditions.(map[string]interface{})["actorSeverityStateChangeEventCondition"]
-	if actorSeverityStateChangeEventCondition==nil{
-		d.Set("actor_severities",schema.NewSet(schema.HashString,[]interface{}{""}))
-		d.Set("actor_ip_reputation_levels",schema.NewSet(schema.HashString,[]interface{}{""}))
+	riskScoringConfigChangeEventCondition:=eventConditions.(map[string]interface{})["riskScoringConfigChangeEventCondition"]
+	if riskScoringConfigChangeEventCondition==nil{
+		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{""}))
+		return nil
 	}
-	actorSeverities:=actorSeverityStateChangeEventCondition.(map[string]interface{})["actorSeverities"].([]interface{})
-	d.Set("actor_severities",schema.NewSet(schema.HashString,actorSeverities))
-	
+	riskScoringConfigChangeTypes:=riskScoringConfigChangeEventCondition.(map[string]interface{})["riskScoringConfigChangeTypes"].([]interface{})
+	if len(riskScoringConfigChangeTypes)==0{
+		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{}))
+	}else{
+		d.Set("event_types",schema.NewSet(schema.HashString,riskScoringConfigChangeTypes))
+	}
 
-	actorIpReputationLevels:=actorSeverityStateChangeEventCondition.(map[string]interface{})["actorIpReputationLevels"].([]interface{})
-	d.Set("actor_ip_reputation_levels",schema.NewSet(schema.HashString,actorIpReputationLevels))
-	
-
-	
+	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
+		d.Set("notification_frequency",val)
+	}
 	return nil
 }
 
-func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleRiskScoringUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId:=d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_severities := d.Get("actor_severities").(*schema.Set).List()
-	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
+	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
-
-	actorSeveritiesString:="["
-	for _,v := range actor_severities{
-		actorSeveritiesString+=v.(string)
-		actorSeveritiesString+=","
-	}
-	if len(actorSeveritiesString)>1{
-		actorSeveritiesString=actorSeveritiesString[:len(actorSeveritiesString)-1]
-	}
-	actorSeveritiesString+="]"
-	if len(actor_severities)==4{
-		actorSeveritiesString=""
-	}
-
-	actorIpRepString:="["
-	for _,v := range actor_ip_reputation_levels{
-		actorIpRepString+=v.(string)
-		actorIpRepString+=","
-	}
-	if len(actorIpRepString)>1{
-		actorIpRepString=actorIpRepString[:len(actorIpRepString)-1]
-	}
-	actorIpRepString+="]"
-	if len(actor_ip_reputation_levels)==4{
-		actorIpRepString=""
-	}
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -262,13 +197,12 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
+				category: SECURITY_CONFIG_CHANGE_EVENT
 				ruleId: "%s"
-				category: ACTOR_SEVERITY_STATE_CHANGE_EVENT
 				ruleName: "%s"
 				eventConditions: {
-					actorSeverityStateChangeEventCondition: {
-						actorSeverities: %s
-						actorIpReputationLevels: %s
+					riskScoringConfigChangeEventCondition: {
+						riskScoringConfigChangeTypes: %s
 					}
 				}
 				channelId: "%s"
@@ -278,7 +212,7 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 		) {
 			ruleId
 		}
-	}`,ruleId,name,actorSeveritiesString,actorIpRepString,channel_id,frequencyString,envString)
+	}`,ruleId,name,event_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -292,7 +226,7 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 	return nil
 }
 
-func resourceNotificationRuleActorSeverityChangeDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleRiskScoringDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(`mutation {
 		deleteNotificationRule(input: {ruleId: "%s"}) {
