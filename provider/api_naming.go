@@ -191,8 +191,8 @@ func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 	}
-
-	return fmt.Errorf("no naming rule found with ID %s", d.Id())
+	d.SetId("")
+	return nil
 }
 
 func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
