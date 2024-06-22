@@ -152,6 +152,10 @@ func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData,
 		_=fmt.Errorf("Error:%s", err)
 	}
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationRules" ,id,"ruleId","ruleName")
+	if len(ruleDetails)==0{
+		d.SetId("")
+		return nil
+	}
 	d.Set("name",ruleDetails["ruleName"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
@@ -159,7 +163,9 @@ func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData,
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	threatActorStateChangeEventCondition:=eventConditions.(map[string]interface{})["threatActorStateChangeEventCondition"]
-
+	if threatActorStateChangeEventCondition==nil{
+		d.Set("actor_states",schema.NewSet(schema.HashString,[]interface{}{""}))
+	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)

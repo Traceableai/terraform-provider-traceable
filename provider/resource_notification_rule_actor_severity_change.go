@@ -181,6 +181,10 @@ func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, met
 		_=fmt.Errorf("Error:%s", err)
 	}
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationRules" ,id,"ruleId","ruleName")
+	if len(ruleDetails)==0{
+		d.SetId("")
+		return nil
+	}
 	d.Set("name",ruleDetails["ruleName"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
@@ -188,7 +192,10 @@ func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, met
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	actorSeverityStateChangeEventCondition:=eventConditions.(map[string]interface{})["actorSeverityStateChangeEventCondition"]
-
+	if actorSeverityStateChangeEventCondition==nil{
+		d.Set("actor_severities",schema.NewSet(schema.HashString,[]interface{}{""}))
+		d.Set("actor_ip_reputation_levels",schema.NewSet(schema.HashString,[]interface{}{""}))
+	}
 	actorSeverities:=actorSeverityStateChangeEventCondition.(map[string]interface{})["actorSeverities"].([]interface{})
 	d.Set("actor_severities",schema.NewSet(schema.HashString,actorSeverities))
 	
