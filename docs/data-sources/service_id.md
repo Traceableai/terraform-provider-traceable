@@ -12,8 +12,8 @@ description: |-
 
 ```terraform
 data "traceable_service_id" "endpoint" {
-  service_name="nginx-automation-test"
-  enviroment_name="fintech-1"
+  service_name="test-svc"
+  enviroment_name="test-env"
 }
 
 output "traceable_service_id" {

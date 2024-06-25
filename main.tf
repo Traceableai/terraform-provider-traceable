@@ -80,7 +80,7 @@ resource "traceable_user_attribution_rule_custom_token" "test6" {
 }
 
 data "traceable_syslog_integration" "syslog" {
-  name="prer-test"
+  name="test"
 }
 
 data "traceable_splunk_integration" "splunk" {
@@ -89,13 +89,13 @@ data "traceable_splunk_integration" "splunk" {
 
 data "traceable_endpoint_id" "endpoint" {
   name="POST /Unauthenticated_Modification_of_external_APIs"
-  service_name="automation-test"
-  enviroment_name="fintech-1"
+  service_name="test-service"
+  enviroment_name="test-env"
 }
 
 data "traceable_service_id" "endpoint" {
-  service_name="automation-test"
-  enviroment_name="fintech-1"
+  service_name="test-service"
+  enviroment_name="test-env"
 }
 
 output "traceable_service_id" {

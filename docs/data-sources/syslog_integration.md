@@ -12,7 +12,7 @@ description: |-
 
 ```terraform
 data "traceable_syslog_integration" "syslog" {
-  name="prer-test"
+  name="test"
 }
 ```
 

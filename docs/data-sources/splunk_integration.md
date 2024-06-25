@@ -12,7 +12,7 @@ description: |-
 
 ```terraform
 data "traceable_splunk_integration" "splunk" {
-  name="aditya"
+  name="test"
 }
 ```
 
