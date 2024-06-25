@@ -35,6 +35,7 @@ resource "traceable_user_attribution_rule_custom_token" "test6" {
 
 ### Optional
 
+- `disabled` (Boolean) Flag to enable or disable the rule
 - `environment` (String) environement of rule
 - `url_regex` (String) url regex
 

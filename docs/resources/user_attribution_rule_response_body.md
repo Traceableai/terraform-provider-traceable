@@ -34,6 +34,7 @@ resource "traceable_user_attribution_rule_response_body" "test4" {
 ### Optional
 
 - `auth_type` (String) auth type of the user attribution rule
+- `disabled` (Boolean) Flag to enable or disable the rule
 - `user_role_location_json_path` (String) user role location json path
 
 ### Read-Only
