@@ -8,7 +8,13 @@ description: |-
 
 # traceable_splunk_integration (Data Source)
 
+## Example Usage
 
+```terraform
+data "traceable_splunk_integration" "splunk" {
+  name="test"
+}
+```
 
 
 
