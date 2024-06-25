@@ -169,8 +169,8 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 			return nil
 		}
 	}
-
-	return fmt.Errorf("no exclusion rule found with ID %s", d.Id())
+	d.SetId("")
+	return nil
 }
 
 func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) error {

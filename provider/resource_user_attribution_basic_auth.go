@@ -121,6 +121,7 @@ func resourceUserAttributionRuleBasicAuthRead(d *schema.ResourceData, meta inter
 	}
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
+		d.SetId("")
 		return nil
 	}
 	log.Printf("fetching from read %s",ruleDetails)
