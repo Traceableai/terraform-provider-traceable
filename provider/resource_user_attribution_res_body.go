@@ -40,6 +40,12 @@ func resourceUserAttributionResponseBodyRule() *schema.Resource {
 				Description: "user role location json path",
 				Optional:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -127,6 +133,8 @@ func resourceUserAttributionRuleResponseBodyRead(d *schema.ResourceData, meta in
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	d.Set("name",name)
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
 	d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
 	
@@ -182,6 +190,7 @@ func resourceUserAttributionRuleResponseBodyUpdate(d *schema.ResourceData, meta 
 	user_role_location_json_path:=d.Get("user_role_location_json_path").(string)
 	user_id_location_json_path:=d.Get("user_id_location_json_path").(string)
 	auth_type:=d.Get("auth_type").(string)
+	disabled := d.Get("disabled").(bool)
 
 	authTypeQuery:=""
 	if auth_type!=""{
@@ -197,7 +206,8 @@ func resourceUserAttributionRuleResponseBodyUpdate(d *schema.ResourceData, meta 
 		updateUserAttributionRule(
 		  rule: {
 		  id: "%s",
-		  rank: %d
+		  rank: %d,
+		  disabled: %t,
 		  name: "%s", 
 		  type: RESPONSE_BODY, 
 		  scopeType: CUSTOM, 
@@ -215,7 +225,7 @@ func resourceUserAttributionRuleResponseBodyUpdate(d *schema.ResourceData, meta 
 			name
 			type
 		}
-	  }`,id,rank,name,authTypeQuery,user_id_location_json_path,roleLocationString,url_regex)
+	  }`,id,rank,disabled,name,authTypeQuery,user_id_location_json_path,roleLocationString,url_regex)
 	
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)

@@ -50,6 +50,12 @@ func resourceUserAttributionCustomJsonRule() *schema.Resource {
 				Description: "user role json",
 				Optional:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -152,7 +158,8 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"].(string)
 	d.Set("name",name)
-	
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
 		// d.Set("url_regex",nil)
@@ -207,6 +214,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 	rank:=int(readRuleDetails["rank"].(float64))
 
 	name := d.Get("name").(string)
+	disabled := d.Get("disabled").(bool)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
 	url_regex:=d.Get("url_regex").(string)
@@ -247,6 +255,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 			id:"%s",
 			rank:%d
 			name: "%s", 
+			disabled: %t,
 			type: CUSTOM_JSON, 
 			scopeType: %s, 
 			%s
@@ -259,7 +268,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 			name
 			type
 		}
-	  }`,id,rank,name,scope_type,customJsonString,customScopeString)
+	  }`,id,rank,name,disabled,scope_type,customJsonString,customScopeString)
 	
 	
 	var response map[string]interface{}

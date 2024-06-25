@@ -60,6 +60,12 @@ func resourceUserAttributionRequestHeaderRule() *schema.Resource {
 				Description: "user role location regex capture group",
 				Optional:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -213,6 +219,8 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	d.Set("name",name)
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	scopeType:=ruleDetails["scopeType"]
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
@@ -270,6 +278,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 	id:=d.Id()
 	name := d.Get("name").(string)
 	scopeType:=d.Get("scope_type").(string)
+	disabled := d.Get("disabled").(bool)
 	user_id_location:=d.Get("user_id_location").(string)
 	user_id_regex_capture_group:=d.Get("user_id_regex_capture_group").(string)
 	user_role_location:=d.Get("user_role_location").(string)
@@ -328,6 +337,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 				name: "%s", 
 				type: REQUEST_HEADER,
 				id:"%s",
+				disabled: %t,
 				rank:%d, 
 				scopeType: %s,
 				requestHeader: {
@@ -346,7 +356,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 				rank
 				name
 			}
-		  }`,name,id,rank,scopeType,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
+		  }`,name,id,disabled,rank,scopeType,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
 	} else if scopeType== "CUSTOM" {
 		environment:=d.Get("environment").(string)
 		url_regex:=d.Get("url_regex").(string)
@@ -364,6 +374,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 			  rule: {name: "%s", 
 			  type: REQUEST_HEADER,
 			  id:"%s",
+			  disabled: %t,
 			  rank:%d, 
 			  scopeType: CUSTOM, 
 			  %s,
@@ -384,7 +395,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 				name
 				type
 			}
-		  }`,name,id,rank,scopedQuery,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
+		  }`,name,id,disabled,rank,scopedQuery,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}

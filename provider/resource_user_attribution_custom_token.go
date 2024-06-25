@@ -50,6 +50,12 @@ func resourceUserAttributionCustomTokenRule() *schema.Resource {
 				Description: "token name",
 				Required:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -158,7 +164,8 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"].(string)
 	d.Set("name",name)
-	
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
 		// d.Set("url_regex",nil)
@@ -233,7 +240,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 	auth_type := d.Get("auth_type").(string)
 	location:=d.Get("location").(string)
 	token_name:=d.Get("token_name").(string)
-
+	disabled := d.Get("disabled").(bool)
 	if scope_type!="SYSTEM_WIDE" && scope_type!="CUSTOM"{
 		return fmt.Errorf("scope_type supported string is SYSTEM_WIDE or CUSTOM")
 	}
@@ -270,6 +277,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 			id:"%s",
 			rank:%d
 			name: "%s", 
+			disabled: %t,
 			type: CUSTOM_TOKEN, 
 			scopeType: %s,
 			customToken:{
@@ -286,7 +294,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 			name
 			type
 		}
-	  }`,id,rank,name,scope_type,auth_type,location,tokenLocationString,customScopeString)
+	  }`,id,rank,name,disabled,scope_type,auth_type,location,tokenLocationString,customScopeString)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)

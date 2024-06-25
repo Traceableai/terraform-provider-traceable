@@ -35,6 +35,12 @@ func resourceUserAttributionBasicAuthRule() *schema.Resource {
 				Description: "url regex",
 				Optional:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -126,6 +132,8 @@ func resourceUserAttributionRuleBasicAuthRead(d *schema.ResourceData, meta inter
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	scopeType:=ruleDetails["scopeType"]
 	d.Set("name",name)
 	if scopeType=="SYSTEM_WIDE"{
@@ -154,6 +162,7 @@ func resourceUserAttributionRuleBasicAuthRead(d *schema.ResourceData, meta inter
 func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
 	name := d.Get("name").(string)
+	disabled := d.Get("disabled").(bool)
 	scopeType:=d.Get("scope_type").(string)
 	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
 	readQueryResStr, err := executeQuery(readQuery, meta)
@@ -173,14 +182,14 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 	if scopeType == "SYSTEM_WIDE" {
 		query = fmt.Sprintf(`mutation {
 			updateUserAttributionRule(
-			  rule: {name: "%s", type: BASIC_AUTH,id:"%s",rank:%d, scopeType: %s}
+			  rule: {name: "%s", type: BASIC_AUTH,id:"%s",rank:%d,disabled: %t, scopeType: %s}
 			) {
 				id
 				scopeType
 				rank
 				name
 			}
-		  }`,name,id,rank,scopeType)
+		  }`,name,id,rank,disabled,scopeType)
 	} else if scopeType== "CUSTOM" {
 		environment:=d.Get("environment").(string)
 		url_regex:=d.Get("url_regex").(string)
@@ -195,7 +204,7 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 		}
 		query = fmt.Sprintf(`mutation {
 			updateUserAttributionRule(
-			  rule: {name: "%s", type: BASIC_AUTH,id:"%s",rank:%d, scopeType: CUSTOM, %s}
+			  rule: {name: "%s", type: BASIC_AUTH,id:"%s",rank:%d,disabled: %t scopeType: CUSTOM, %s}
 			) {
 				id
 				scopeType
@@ -203,7 +212,7 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 				name
 				type
 			}
-		  }`,name,id,rank,scopedQuery)
+		  }`,name,id,rank,disabled,scopedQuery)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}

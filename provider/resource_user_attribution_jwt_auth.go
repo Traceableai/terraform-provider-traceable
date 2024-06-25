@@ -75,6 +75,12 @@ func resourceUserAttributionJwtAuthRule() *schema.Resource {
 				Description: "user role claim",
 				Optional:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
 		},
 	}
 }
@@ -236,6 +242,8 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	d.Set("name",name)
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	scopeType:=ruleDetails["scopeType"]
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
@@ -339,7 +347,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 	user_role_location_json_path:=d.Get("user_role_location_json_path").(string)
 	user_id_location_json_path:=d.Get("user_id_location_json_path").(string)
 	auth_type:=d.Get("auth_type").(string)
-
+	disabled := d.Get("disabled").(bool)
 	var scopedQuery string
 	
 	if environment!="" && url_regex=="" {
@@ -381,6 +389,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 				id:"%s",
 			  	rank:%d, 
 				name: "%s",
+				disabled: %t,
 				type: JWT,
 				scopeType: %s,
 				jwt: {
@@ -402,7 +411,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 				rank
 				name
 			}
-		  }`,id,rank,name,scopeType,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim)
+		  }`,id,rank,name,disabled,scopeType,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim)
 	} else if scopeType== "CUSTOM" {
 		
 		if scopedQuery==""{
