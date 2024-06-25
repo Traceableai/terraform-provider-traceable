@@ -46,7 +46,7 @@ func resourceSessionIdentificationResponseRule() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"token_extraction_condition_list": {
-				Type:        schema.TypeList,
+				Type:        schema.TypeSet,
 				Description: "Conditions to satisfy for extracting Session Token",
 				Optional:    true,
 				Elem: &schema.Resource{
@@ -119,7 +119,7 @@ func resourceSessionIdentificationResponseRule() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"token_key": {
 										Type:        schema.TypeString,
-										Description: "Test header key",
+										Description: "response header key",
 										Required:    true,
 									},
 									"operator": {
@@ -139,7 +139,7 @@ func resourceSessionIdentificationResponseRule() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"token_key": {
 										Type:        schema.TypeString,
-										Description: "Test cookie key",
+										Description: "response cookie key",
 										Required:    true,
 									},
 									"operator": {
@@ -171,32 +171,64 @@ func resourceSessionIdentificationResponseRule() *schema.Resource {
 				Optional:    true,
 			},
 			"token_value_transformation_list": {
-				Type:        schema.TypeList,
-				Description: "Conditions to satisfy for extracting Session Token",
+				Type:        schema.TypeSet,
+				Description: "List of value transformations for the session token",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"json_path": {
-							Type:             schema.TypeString,
-							Description:      "the json path group for value transformation",
+							Type: schema.TypeSet,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"value": {
+										Type:        schema.TypeString,
+										Description: "The json path value for transformation",
+										Required:    true,
+									},
+								},
+							},
 							Optional:         true,
 							DiffSuppressFunc: suppressValueTransformationListDiff,
 						},
 						"regex_capture_group": {
-							Type:             schema.TypeString,
-							Description:      "the regex capture group for value transformation",
+							Type: schema.TypeSet,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"value": {
+										Type:        schema.TypeString,
+										Description: "The regex capture group value for transformation",
+										Required:    true,
+									},
+								},
+							},
 							Optional:         true,
 							DiffSuppressFunc: suppressValueTransformationListDiff,
 						},
 						"jwt_payload_claim": {
-							Type:             schema.TypeString,
-							Description:      "the jwt payload claim for value transformation",
+							Type: schema.TypeSet,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"value": {
+										Type:        schema.TypeString,
+										Description: "The jwt payload claim value for transformation",
+										Required:    true,
+									},
+								},
+							},
 							Optional:         true,
 							DiffSuppressFunc: suppressValueTransformationListDiff,
 						},
 						"base64": {
-							Type:             schema.TypeBool,
-							Description:      "whether we use the base64 value transformation",
+							Type: schema.TypeSet,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"value": {
+										Type:        schema.TypeBool,
+										Description: "Whether the base64 value transformation is used",
+										Required:    true,
+									},
+								},
+							},
 							Optional:         true,
 							DiffSuppressFunc: suppressValueTransformationListDiff,
 						},
@@ -272,7 +304,7 @@ func resourceSessionIdentificationResponseRuleCreate(d *schema.ResourceData, met
 
 	conditionListStr := ""
 	if v, ok := d.GetOk("token_extraction_condition_list"); ok {
-		conditions := v.([]interface{})
+		conditions := v.(*schema.Set).List()
 		if len(conditions) > 0 {
 			conditionListStr = `predicate: { predicateType: LOGICAL, logicalPredicate: { operator: AND, children: [`
 
@@ -336,30 +368,49 @@ func resourceSessionIdentificationResponseRuleCreate(d *schema.ResourceData, met
 
 	valueProjectionsStr := ""
 	if v, ok := d.GetOk("token_value_transformation_list"); ok {
-		valueTransformations := v.([]interface{})
+		valueTransformations := v.(*schema.Set).List()
 		var valueProjections []string
 		for _, transformation := range valueTransformations {
 			transformationMap := transformation.(map[string]interface{})
-			if jsonPath, ok := transformationMap["json_path"].(string); ok && jsonPath != "" {
-				valueProjections = append(valueProjections, fmt.Sprintf(`{
-				valueProjectionType: JSON_PATH,
-				jsonPathProjection: { path: "%s" }
-			}`, jsonPath))
+			if jsonPathSet, ok := transformationMap["json_path"].(*schema.Set); ok {
+				for _, jsonPath := range jsonPathSet.List() {
+					jsonPathMap := jsonPath.(map[string]interface{})
+					value := jsonPathMap["value"].(string)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: JSON_PATH,
+					jsonPathProjection: { path: "%s" }
+				}`, value))
+				}
 			}
-			if regexCaptureGroup, ok := transformationMap["regex_capture_group"].(string); ok && regexCaptureGroup != "" {
-				valueProjections = append(valueProjections, fmt.Sprintf(`{
-				valueProjectionType: REGEX_CAPTURE_GROUP,
-				regexCaptureGroupProjection: { regexCaptureGroup: "%s" }
-			}`, regexCaptureGroup))
+			if regexCaptureGroupSet, ok := transformationMap["regex_capture_group"].(*schema.Set); ok {
+				for _, regexCaptureGroup := range regexCaptureGroupSet.List() {
+					regexCaptureGroupMap := regexCaptureGroup.(map[string]interface{})
+					value := regexCaptureGroupMap["value"].(string)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: REGEX_CAPTURE_GROUP,
+					regexCaptureGroupProjection: { regexCaptureGroup: "%s" }
+				}`, value))
+				}
 			}
-			if jwtPayloadClaim, ok := transformationMap["jwt_payload_claim"].(string); ok && jwtPayloadClaim != "" {
-				valueProjections = append(valueProjections, fmt.Sprintf(`{
-				valueProjectionType: JWT_PAYLOAD_CLAIM,
-				jwtPayloadClaimProjection: { claim: "%s" }
-			}`, jwtPayloadClaim))
+			if jwtPayloadClaimSet, ok := transformationMap["jwt_payload_claim"].(*schema.Set); ok {
+				for _, jwtPayloadClaim := range jwtPayloadClaimSet.List() {
+					jwtPayloadClaimMap := jwtPayloadClaim.(map[string]interface{})
+					value := jwtPayloadClaimMap["value"].(string)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: JWT_PAYLOAD_CLAIM,
+					jwtPayloadClaimProjection: { claim: "%s" }
+				}`, value))
+				}
 			}
-			if base64, ok := transformationMap["base64"].(bool); ok && base64 {
-				valueProjections = append(valueProjections, `{ valueProjectionType: BASE64 }`)
+			if base64Set, ok := transformationMap["base64"].(*schema.Set); ok {
+				for _, base64 := range base64Set.List() {
+					base64Map := base64.(map[string]interface{})
+					value := base64Map["value"].(bool)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: BASE64,
+					base64: %t
+				}`, value))
+				}
 			}
 		}
 		if len(valueProjections) > 0 {
@@ -401,7 +452,6 @@ func resourceSessionIdentificationResponseRuleCreate(d *schema.ResourceData, met
 	`, name, descriptionStr, scopeStr, conditionListStr, responseAttributeKeyLocationStr, expirationTypeStr, obfuscationStr, tokenMatchConditionStr, valueProjectionsStr)
 
 	var response map[string]interface{}
-	log.Printf(query)
 	responseStr, err := executeQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
@@ -419,64 +469,10 @@ func resourceSessionIdentificationResponseRuleCreate(d *schema.ResourceData, met
 	}
 
 	return nil
-
-}
-
-func buildStringArray(input []string) string {
-	if len(input) == 0 {
-		return "[]"
-	}
-	output := "["
-	for _, v := range input {
-		output += fmt.Sprintf(`"%s",`, v)
-	}
-	output = output[:len(output)-1] // Remove trailing comma
-	output += "]"
-	return output
-}
-
-func interfaceSliceToStringSlice(input []interface{}) []string {
-	var output []string
-	for _, v := range input {
-		output = append(output, v.(string))
-	}
-	return output
-}
-
-func buildConditionList(attributeType string, conditions []interface{}) string {
-	conditionStr := ""
-	for _, condition := range conditions {
-		conditionMap := condition.(map[string]interface{})
-		key := conditionMap["key"].(string)
-		operator := conditionMap["operator"].(string)
-		value := conditionMap["value"].(string)
-		conditionStr += fmt.Sprintf(`{
-			predicateType: ATTRIBUTE,
-			attributePredicate: {
-				attributeProjection: {
-					matchCondition: {
-						matchOperator: %s,
-						stringValue: "%s"
-					}
-				},
-				matchCondition: {
-					matchOperator: %s,
-					stringValue: "%s"
-				},
-				attributeKeyLocationType: RESPONSE,
-				responseAttributeKeyLocation: %s
-			}
-		},`, operator, key, operator, value, attributeType)
-	}
-	// Remove trailing comma
-	if len(conditionStr) > 0 {
-		conditionStr = conditionStr[:len(conditionStr)-1]
-	}
-	return conditionStr
 }
 
 func resourceSessionIdentificationResponseRuleRead(d *schema.ResourceData, meta interface{}) error {
-	readQuery := `{sessionIdentificationRulesV2{count results{id scope{environmentNames serviceNames urlMatchRegexes}description name sessionTokenRules{predicate{attributePredicate{attributeKeyLocationType attributeProjection{matchCondition{matchOperator stringValue}valueProjections{jsonPathProjection{path}jwtPayloadClaimProjection{claim}regexCaptureGroupProjection{regexCaptureGroup}valueProjectionType}}matchCondition{matchOperator stringValue}responseAttributeKeyLocation responseAttributeKeyLocation}customProjection{customJson}logicalPredicate{children{attributePredicate{attributeKeyLocationType attributeProjection{matchCondition{matchOperator stringValue}valueProjections{jsonPathProjection{path}jwtPayloadClaimProjection{claim}regexCaptureGroupProjection{regexCaptureGroup}valueProjectionType}}matchCondition{matchOperator stringValue}responseAttributeKeyLocation responseAttributeKeyLocation}predicateType}operator}predicateType}responseSessionTokenDetails{responseAttributeKeyLocation expirationType}responseSessionTokenDetails{attributeExpiration{expirationFormat projectionRoot{attributeProjection{matchCondition{matchOperator stringValue}valueProjections{jsonPathProjection{path}jwtPayloadClaimProjection{claim}regexCaptureGroupProjection{regexCaptureGroup}valueProjectionType}}customProjection{customJson}projectionType}responseAttributeKeyLocation}expirationType responseAttributeKeyLocation}sessionTokenValueRule{obfuscationStrategy projectionRoot{attributeProjection{matchCondition{matchOperator stringValue}valueProjections{jsonPathProjection{path}jwtPayloadClaimProjection{claim}regexCaptureGroupProjection{regexCaptureGroup}valueProjectionType}}customProjection{customJson}projectionType}}tokenType}status{disabled}}total}}`
+	readQuery := `{sessionIdentificationRulesV2{count results{id scope{environmentNames serviceNames urlMatchRegexes}description name sessionTokenRules{predicate{attributePredicate{attributeKeyLocationType attributeProjection{matchCondition{matchOperator stringValue}valueProjections{jsonPathProjection{path}jwtPayloadClaimProjection{claim}regexCaptureGroupProjection{regexCaptureGroup}valueProjectionType}}matchCondition{matchOperator stringValue}responseAttributeKeyLocation}logicalPredicate{children{attributePredicate{attributeKeyLocationType attributeProjection{matchCondition{matchOperator stringValue}valueProjections{jsonPathProjection{path}jwtPayloadClaimProjection{claim}regexCaptureGroupProjection{regexCaptureGroup}valueProjectionType}}matchCondition{matchOperator stringValue}responseAttributeKeyLocation}predicateType}operator}predicateType}responseSessionTokenDetails{responseAttributeKeyLocation expirationType}sessionTokenValueRule{obfuscationStrategy projectionRoot{attributeProjection{matchCondition{matchOperator stringValue}valueProjections{jsonPathProjection{path}jwtPayloadClaimProjection{claim}regexCaptureGroupProjection{regexCaptureGroup}valueProjectionType}}customProjection{customJson}projectionType}}tokenType}status{disabled}}total}}`
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(readQuery, meta)
@@ -515,33 +511,33 @@ func resourceSessionIdentificationResponseRuleRead(d *schema.ResourceData, meta 
 	sessionTokenRules := ruleDetails["sessionTokenRules"].([]interface{})
 	if len(sessionTokenRules) > 0 {
 		sessionTokenRule := sessionTokenRules[0].(map[string]interface{})
-		if predicate, ok := sessionTokenRule["predicate"].(map[string]interface{}); ok {
-			if logicalPredicate, ok := predicate["logicalPredicate"].(map[string]interface{}); ok {
-				if children, ok := logicalPredicate["children"].([]interface{}); ok {
-					for _, child := range children {
-						childMap := child.(map[string]interface{})
-						if attributePredicate, ok := childMap["attributePredicate"].(map[string]interface{}); ok {
-							if attributeProjection, ok := attributePredicate["attributeProjection"].(map[string]interface{}); ok {
-								if matchCondition, ok := attributeProjection["matchCondition"].(map[string]interface{}); ok {
-									d.Set("condition_response_header", map[string]interface{}{
-										"key":      matchCondition["stringValue"].(string),
-										"operator": matchCondition["matchOperator"].(string),
-									})
-								}
-							}
-						}
+		if responseSessionTokenDetails, ok := sessionTokenRule["responseSessionTokenDetails"].(map[string]interface{}); ok {
+			var tokenDetails map[string]interface{}
+			if responseAttributeKeyLocation, ok := responseSessionTokenDetails["responseAttributeKeyLocation"].(string); ok {
+				switch responseAttributeKeyLocation {
+				case "HEADER":
+					if v, ok := responseSessionTokenDetails["token_response_header"]; ok {
+						tokenDetails = v.([]interface{})[0].(map[string]interface{})
 					}
+				case "COOKIE":
+					if v, ok := responseSessionTokenDetails["token_response_cookie"]; ok {
+						tokenDetails = v.([]interface{})[0].(map[string]interface{})
+					}
+
 				}
 			}
-		}
-
-		if responseSessionTokenDetails, ok := sessionTokenRule["responseSessionTokenDetails"].(map[string]interface{}); ok {
-			responseAttributeKeyLocation := responseSessionTokenDetails["responseAttributeKeyLocation"].(string)
-			d.Set("session_token_details", map[string]interface{}{
-				"token_response_header": map[string]interface{}{
-					"responseAttributeKeyLocation": responseAttributeKeyLocation,
-				},
-			})
+			if tokenDetails != nil {
+				d.Set("session_token_details", []interface{}{
+					map[string]interface{}{
+						"token_key": tokenDetails["token_key"],
+						"operator":  tokenDetails["operator"],
+					},
+				})
+			}
+		} else {
+			d.Set("name", "")
+			d.Set("description", "")
+			d.Set("session_token_details", "")
 		}
 
 		if sessionTokenValueRule, ok := sessionTokenRule["sessionTokenValueRule"].(map[string]interface{}); ok {
@@ -555,25 +551,18 @@ func resourceSessionIdentificationResponseRuleRead(d *schema.ResourceData, meta 
 			if projectionRoot, ok := sessionTokenValueRule["projectionRoot"].(map[string]interface{}); ok {
 				if attributeProjection, ok := projectionRoot["attributeProjection"].(map[string]interface{}); ok {
 					if valueProjections, ok := attributeProjection["valueProjections"].([]interface{}); ok {
-						var transformations []interface{}
-						for _, valueProjection := range valueProjections {
-							valueProjectionMap := valueProjection.(map[string]interface{})
-							transformation := make(map[string]interface{})
-							switch valueProjectionMap["valueProjectionType"].(string) {
-							case "JSON_PATH":
-								transformation["json_path"] = valueProjectionMap["jsonPathProjection"].(map[string]interface{})["path"].(string)
-							case "REGEX_CAPTURE_GROUP":
-								transformation["regex_capture_group"] = valueProjectionMap["regexCaptureGroupProjection"].(map[string]interface{})["regexCaptureGroup"].(string)
-							case "JWT_PAYLOAD_CLAIM":
-								transformation["jwt_payload_claim"] = valueProjectionMap["jwtPayloadClaimProjection"].(map[string]interface{})["claim"].(string)
-							case "BASE64":
-								transformation["base64"] = true
-							}
-							transformations = append(transformations, transformation)
-						}
-						d.Set("token_value_transformation_list", transformations)
+						d.Set("token_value_transformation_list", valueProjections)
+					} else {
+						// If valueProjections is not present or empty, clear the token_value_transformation_list
+						d.Set("token_value_transformation_list", nil)
 					}
+				} else {
+					// If attributeProjection is not present, clear the token_value_transformation_list
+					d.Set("token_value_transformation_list", nil)
 				}
+			} else {
+				// If projectionRoot is not present, clear the token_value_transformation_list
+				d.Set("token_value_transformation_list", nil)
 			}
 		}
 	}
@@ -617,7 +606,7 @@ func resourceSessionIdentificationResponseRuleUpdate(d *schema.ResourceData, met
 
 	conditionListStr := ""
 	if v, ok := d.GetOk("token_extraction_condition_list"); ok {
-		conditions := v.([]interface{})
+		conditions := v.(*schema.Set).List()
 		if len(conditions) > 0 {
 			conditionListStr = `predicate: { predicateType: LOGICAL, logicalPredicate: { operator: AND, children: [`
 
@@ -653,73 +642,78 @@ func resourceSessionIdentificationResponseRuleUpdate(d *schema.ResourceData, met
 	}
 
 	responseAttributeKeyLocationStr := ""
+	tokenMatchConditionStr := ""
 	if v, ok := d.GetOk("session_token_details"); ok {
 		sessionTokenDetails := v.([]interface{})[0].(map[string]interface{})
 
-		if tokenresponseHeader, ok := sessionTokenDetails["token_response_header"]; ok {
-			if len(tokenresponseHeader.(*schema.Set).List()) > 0 {
+		if tokenResponseHeader, ok := sessionTokenDetails["token_response_header"]; ok {
+			if len(tokenResponseHeader.(*schema.Set).List()) > 0 {
 				responseAttributeKeyLocationStr = "HEADER"
+				tokenResponseHeaderList := tokenResponseHeader.(*schema.Set).List()
+				tokenKey := tokenResponseHeaderList[0].(map[string]interface{})["token_key"].(string)
+				operator := tokenResponseHeaderList[0].(map[string]interface{})["operator"].(string)
+				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
 			}
-		} else if tokenresponseCookie, ok := sessionTokenDetails["token_response_cookie"]; ok {
-			if len(tokenresponseCookie.(*schema.Set).List()) > 0 {
+		} else if tokenResponseCookie, ok := sessionTokenDetails["token_response_cookie"]; ok {
+			if len(tokenResponseCookie.(*schema.Set).List()) > 0 {
 				responseAttributeKeyLocationStr = "COOKIE"
+				tokenResponseCookieList := tokenResponseCookie.(*schema.Set).List()
+				tokenKey := tokenResponseCookieList[0].(map[string]interface{})["token_key"].(string)
+				operator := tokenResponseCookieList[0].(map[string]interface{})["operator"].(string)
+				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
 			}
-		} else if tokenresponseBody, ok := sessionTokenDetails["token_response_body"].(bool); ok && tokenresponseBody {
+		} else if tokenResponseBody, ok := sessionTokenDetails["token_response_body"].(bool); ok && tokenResponseBody {
 			responseAttributeKeyLocationStr = "BODY"
-		}
-	}
-
-	tokenMatchConditionStr := ""
-	if responseAttributeKeyLocationStr != "BODY" && responseAttributeKeyLocationStr != "" {
-		if v, ok := d.GetOk("session_token_details"); ok {
-			sessionTokenDetails := v.([]interface{})[0].(map[string]interface{})
-
-			if tokenresponseHeader, ok := sessionTokenDetails["token_response_header"].([]interface{}); ok && len(tokenresponseHeader) > 0 {
-				tokenKey := tokenresponseHeader[0].(map[string]interface{})["token_key"].(string)
-				operator := tokenresponseHeader[0].(map[string]interface{})["operator"].(string)
-				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
-			} else if tokenresponseCookie, ok := sessionTokenDetails["token_response_cookie"].([]interface{}); ok && len(tokenresponseCookie) > 0 {
-				tokenKey := tokenresponseCookie[0].(map[string]interface{})["token_key"].(string)
-				operator := tokenresponseCookie[0].(map[string]interface{})["operator"].(string)
-				tokenMatchConditionStr = fmt.Sprintf(`matchCondition: { matchOperator: %s, stringValue: "%s" },`, operator, tokenKey)
-			}
 		}
 	}
 
 	valueProjectionsStr := ""
 	if v, ok := d.GetOk("token_value_transformation_list"); ok {
-		valueTransformations := v.([]interface{})
+		valueTransformations := v.(*schema.Set).List()
 		var valueProjections []string
-
 		for _, transformation := range valueTransformations {
 			transformationMap := transformation.(map[string]interface{})
-
-			if jsonPath, ok := transformationMap["json_path"].(string); ok && jsonPath != "" {
-				valueProjections = append(valueProjections, fmt.Sprintf(`{
-				valueProjectionType: JSON_PATH,
-				jsonPathProjection: { path: "%s" }
-			}`, jsonPath))
+			if jsonPathSet, ok := transformationMap["json_path"].(*schema.Set); ok {
+				for _, jsonPath := range jsonPathSet.List() {
+					jsonPathMap := jsonPath.(map[string]interface{})
+					value := jsonPathMap["value"].(string)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: JSON_PATH,
+					jsonPathProjection: { path: "%s" }
+				}`, value))
+				}
 			}
-
-			if regexCaptureGroup, ok := transformationMap["regex_capture_group"].(string); ok && regexCaptureGroup != "" {
-				valueProjections = append(valueProjections, fmt.Sprintf(`{
-				valueProjectionType: REGEX_CAPTURE_GROUP,
-				regexCaptureGroupProjection: { regexCaptureGroup: "%s" }
-			}`, regexCaptureGroup))
+			if regexCaptureGroupSet, ok := transformationMap["regex_capture_group"].(*schema.Set); ok {
+				for _, regexCaptureGroup := range regexCaptureGroupSet.List() {
+					regexCaptureGroupMap := regexCaptureGroup.(map[string]interface{})
+					value := regexCaptureGroupMap["value"].(string)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: REGEX_CAPTURE_GROUP,
+					regexCaptureGroupProjection: { regexCaptureGroup: "%s" }
+				}`, value))
+				}
 			}
-
-			if jwtPayloadClaim, ok := transformationMap["jwt_payload_claim"].(string); ok && jwtPayloadClaim != "" {
-				valueProjections = append(valueProjections, fmt.Sprintf(`{
-				valueProjectionType: JWT_PAYLOAD_CLAIM,
-				jwtPayloadClaimProjection: { claim: "%s" }
-			}`, jwtPayloadClaim))
+			if jwtPayloadClaimSet, ok := transformationMap["jwt_payload_claim"].(*schema.Set); ok {
+				for _, jwtPayloadClaim := range jwtPayloadClaimSet.List() {
+					jwtPayloadClaimMap := jwtPayloadClaim.(map[string]interface{})
+					value := jwtPayloadClaimMap["value"].(string)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: JWT_PAYLOAD_CLAIM,
+					jwtPayloadClaimProjection: { claim: "%s" }
+				}`, value))
+				}
 			}
-
-			if base64, ok := transformationMap["base64"].(bool); ok && base64 {
-				valueProjections = append(valueProjections, `{ valueProjectionType: BASE64 }`)
+			if base64Set, ok := transformationMap["base64"].(*schema.Set); ok {
+				for _, base64 := range base64Set.List() {
+					base64Map := base64.(map[string]interface{})
+					value := base64Map["value"].(bool)
+					valueProjections = append(valueProjections, fmt.Sprintf(`{
+					valueProjectionType: BASE64,
+					base64: %t
+				}`, value))
+				}
 			}
 		}
-
 		if len(valueProjections) > 0 {
 			valueProjectionsStr = fmt.Sprintf("valueProjections: [%s]", strings.Join(valueProjections, ", "))
 		}
@@ -811,4 +805,57 @@ func resourceSessionIdentificationResponseRuleDelete(d *schema.ResourceData, met
 
 	d.SetId("")
 	return nil
+}
+
+func buildStringArray(input []string) string {
+	if len(input) == 0 {
+		return "[]"
+	}
+	output := "["
+	for _, v := range input {
+		output += fmt.Sprintf(`"%s",`, v)
+	}
+	output = output[:len(output)-1] // Remove trailing comma
+	output += "]"
+	return output
+}
+
+func interfaceSliceToStringSlice(input []interface{}) []string {
+	var output []string
+	for _, v := range input {
+		output = append(output, v.(string))
+	}
+	return output
+}
+
+func buildConditionList(attributeType string, conditions []interface{}) string {
+	conditionStr := ""
+	for _, condition := range conditions {
+		conditionMap := condition.(map[string]interface{})
+		key := conditionMap["key"].(string)
+		operator := conditionMap["operator"].(string)
+		value := conditionMap["value"].(string)
+		conditionStr += fmt.Sprintf(`{
+			predicateType: ATTRIBUTE,
+			attributePredicate: {
+				attributeProjection: {
+					matchCondition: {
+						matchOperator: %s,
+						stringValue: "%s"
+					}
+				},
+				matchCondition: {
+					matchOperator: %s,
+					stringValue: "%s"
+				},
+				attributeKeyLocationType: RESPONSE,
+				responseAttributeKeyLocation: %s
+			}
+		},`, operator, key, operator, value, attributeType)
+	}
+	// Remove trailing comma
+	if len(conditionStr) > 0 {
+		conditionStr = conditionStr[:len(conditionStr)-1]
+	}
+	return conditionStr
 }

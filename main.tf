@@ -26,7 +26,7 @@ output "api_token" {
 }
 
 provider "traceable" {
-  platform_url="https://app-dev.traceable.ai/graphql"
+  platform_url="https://api-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
@@ -197,6 +197,16 @@ resource "traceable_session_identification_response_rule" "example" {
       operator = "EQUALS"
       value    = "example-value"
     }
+    condition_response_cookie {
+      key      = "X-Example-cookie"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
+    condition_response_cookie {
+      key      = "X-Example-cookie-2"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
   }
 
   session_token_details {
@@ -210,6 +220,11 @@ resource "traceable_session_identification_response_rule" "example" {
   expiration_type   = "JWT"
 
   token_value_transformation_list {
-    json_path             = "$.token"
+    json_path {
+      value="random"
+    }
+    regex_capture_group{
+      value="(testing)"
+    }
   }
 }
