@@ -52,7 +52,7 @@ resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
   url_regex="sfdsf"
   jwt_location = "COOKIE"
   jwt_key = "abcd"
-  user_id_claim = "aditya"
+  user_id_claim = "testuser"
 }
 
 resource "traceable_user_attribution_rule_response_body" "test4" {
@@ -84,17 +84,17 @@ data "traceable_syslog_integration" "syslog" {
 }
 
 data "traceable_splunk_integration" "splunk" {
-  name="aditya"
+  name="test"
 }
 
 data "traceable_endpoint_id" "endpoint" {
   name="POST /Unauthenticated_Modification_of_external_APIs"
-  service_name="nginx-automation-test"
+  service_name="automation-test"
   enviroment_name="fintech-1"
 }
 
 data "traceable_service_id" "endpoint" {
-  service_name="nginx-automation-test"
+  service_name="automation-test"
   enviroment_name="fintech-1"
 }
 
@@ -164,7 +164,6 @@ resource "traceable_agent_token" "example" {
 
 output "agent_token" {
   value = traceable_agent_token.example.token
-  sensitive = true
 }
 
 output "agent_token_creation_timestamp" {
