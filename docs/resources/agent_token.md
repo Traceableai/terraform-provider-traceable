@@ -40,4 +40,4 @@ output "agent_token_creation_timestamp" {
 - `creation_timestamp` (String) The creation timestamp of the agent token
 - `id` (String) The ID of this resource.
 - `last_used_timestamp` (String) The last used timestamp of the agent token
-- `token` (String) The agent token value
+- `token` (String, Sensitive) The agent token value

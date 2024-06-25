@@ -33,7 +33,6 @@ resource "traceable_user_attribution_rule_custom_json" "test5" {
 
 ### Optional
 
-- `disabled` (Boolean) Flag to enable or disable the rule
 - `environment` (String) environement of rule
 - `url_regex` (String) url regex
 - `user_id_json` (String) user id json

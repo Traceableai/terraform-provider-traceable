@@ -30,7 +30,6 @@ resource "traceable_user_attribution_rule_basic_auth" "test1" {
 
 ### Optional
 
-- `disabled` (Boolean) Flag to enable or disable the rule
 - `environment` (String) environment
 - `url_regex` (String) url regex
 

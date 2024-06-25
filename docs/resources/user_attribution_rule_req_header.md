@@ -36,7 +36,6 @@ resource "traceable_user_attribution_rule_req_header" "test2" {
 ### Optional
 
 - `auth_type` (String) auth type of the user attribution rule
-- `disabled` (Boolean) Flag to enable or disable the rule
 - `environment` (String) environment
 - `role_location_regex_capture_group` (String) user role location regex capture group
 - `url_regex` (String) url regex

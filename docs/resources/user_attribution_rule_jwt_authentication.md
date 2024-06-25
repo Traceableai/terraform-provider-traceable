@@ -37,7 +37,6 @@ resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
 ### Optional
 
 - `auth_type` (String) auth type of the user attribution rule
-- `disabled` (Boolean) Flag to enable or disable the rule
 - `environment` (String) environment
 - `token_capture_group` (String) token capture group
 - `url_regex` (String) url regex
