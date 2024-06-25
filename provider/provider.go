@@ -41,6 +41,7 @@ func Provider() *schema.Provider {
 			"traceable_notification_rule_label_configuration": resourceNotificationRuleLabelConfiguration(),
 			"traceable_notification_rule_notification_configuration": resourceNotificationRuleNotificationConfiguration(),
 			"traceable_notification_rule_data_class_configuration": resourceNotificationRuleDataClassificationConfig(),
+			"traceable_notification_rule_posture_events": resourceNotificationRulePostureEvents(),
 			"traceable_api_naming_rule":                          resourceApiNamingRule(),
 			"traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 			"traceable_label_creation_rule":                      resourceLabelCreationRule(),
