@@ -126,12 +126,25 @@ func resourceUserAttributionRuleResponseBodyRead(d *schema.ResourceData, meta in
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
+	d.Set("name",name)
+	urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
+	d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+	
+	if ruleDetails["type"].(string)!="RESPONSE_BODY"{
+		d.Set("auth_type",nil)
+		d.Set("user_id_location_json_path",nil)
+		d.Set("user_role_location_json_path",nil)
+		return nil
+	}
+
 	auth_type:=ruleDetails["responseBody"].(map[string]interface{})["authentication"]
 	if auth_type!=nil{
 		auth_type=auth_type.(map[string]interface{})["type"]
 		d.Set("auth_type",auth_type)
+	}else{
+		d.Set("auth_type",nil)
 	}
-	d.Set("name",name)
+	
 	
 	userIdLocationDetails:=ruleDetails["responseBody"].(map[string]interface{})["userIdLocation"]
 	if userIdLocationDetails!=nil{
@@ -144,10 +157,6 @@ func resourceUserAttributionRuleResponseBodyRead(d *schema.ResourceData, meta in
 		user_role_location_json_path:=userRoleLocationDetails.(map[string]interface{})["jsonPath"]
 		d.Set("user_role_location_json_path",user_role_location_json_path)
 	}
-	
-	urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
-	d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
-
 	return nil
 }
 

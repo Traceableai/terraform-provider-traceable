@@ -235,13 +235,44 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
+	d.Set("name",name)
 	scopeType:=ruleDetails["scopeType"]
+	if scopeType=="SYSTEM_WIDE"{
+		d.Set("scope_type", "SYSTEM_WIDE")
+		// d.Set("url_regex",nil)
+		// d.Set("environment",nil)
+	}else{
+		envScope := ruleDetails["customScope"].(map[string]interface{})["environmentScopes"]
+		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
+		if len(envScope.([]interface{}))==0{
+			d.Set("scope_type","CUSTOM")
+			log.Printf("adityaaa %s",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+			// d.Set("environment",nil)
+		}else{
+			d.Set("scope_type","CUSTOM")
+			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
+			// d.Set("url_regex",nil)
+		}
+	}
+	if ruleDetails["type"].(string)!="JWT"{
+		d.Set("auth_type",nil)
+		d.Set("jwt_location",nil)
+		d.Set("jwt_key",nil)
+		d.Set("token_capture_group",nil)
+		d.Set("user_id_location_json_path",nil)
+		d.Set("user_role_location_json_path",nil)
+		d.Set("user_id_claim",nil)
+		d.Set("user_role_claim",nil)
+		return nil
+	}
 	auth_type:=ruleDetails["jwt"].(map[string]interface{})["authentication"]
 	if auth_type!=nil{
 		auth_type=auth_type.(map[string]interface{})["type"]
 		d.Set("auth_type",auth_type)
+	}else{
+		d.Set("auth_type",nil)
 	}
-	d.Set("name",name)
 	
 
 	jwt_location:=ruleDetails["jwt"].(map[string]interface{})["location"].(map[string]interface{})["type"]
@@ -276,25 +307,6 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 	
 	user_role_claim:=ruleDetails["jwt"].(map[string]interface{})["roleClaim"]
 	d.Set("user_role_claim",user_role_claim)
-	
-	if scopeType=="SYSTEM_WIDE"{
-		d.Set("scope_type", "SYSTEM_WIDE")
-		// d.Set("url_regex",nil)
-		// d.Set("environment",nil)
-	}else{
-		envScope := ruleDetails["customScope"].(map[string]interface{})["environmentScopes"]
-		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
-		if len(envScope.([]interface{}))==0{
-			d.Set("scope_type","CUSTOM")
-			log.Printf("adityaaa %s",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
-			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
-			// d.Set("environment",nil)
-		}else{
-			d.Set("scope_type","CUSTOM")
-			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
-			// d.Set("url_regex",nil)
-		}
-	}
 
 	return nil
 }

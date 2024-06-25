@@ -32,7 +32,7 @@ func Provider() *schema.Provider {
 			"traceable_notification_rule_threat_actor_status": resourceNotificationRuleThreatActorStatusChange(),
 			"traceable_notification_rule_actor_severity_change": resourceNotificationRuleActorSeverityChange(),
 			"traceable_api_naming_rule":                          resourceApiNamingRule(),
-			"traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
+			// "traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 			"traceable_label_creation_rule":                      resourceLabelCreationRule(),
 			"traceable_agent_token":                              resourceAgentToken(),
 

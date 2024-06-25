@@ -142,6 +142,12 @@ func resourceUserAttributionRuleBasicAuthRead(d *schema.ResourceData, meta inter
 			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
 		}
 	}
+	if ruleDetails["type"].(string)!="BASIC_AUTH"{
+		d.Set("scope_type",nil)
+		d.Set("url_regex",nil)
+		d.Set("environment",nil)
+		return nil
+	}
 	return nil
 }
 

@@ -176,11 +176,19 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 			// d.Set("url_regex",nil)
 		}
 	}
+	if ruleDetails["type"].(string)!="CUSTOM_TOKEN"{
+		d.Set("auth_type",nil)
+		d.Set("location",nil)
+		d.Set("token_name",nil)
+		return nil
+	}
 	auth_type:=ruleDetails["customToken"].(map[string]interface{})["authentication"]
 	customTokenLocation:=ruleDetails["customToken"].(map[string]interface{})["customTokenLocation"]
 	if auth_type!=nil{
 		auth_type=auth_type.(map[string]interface{})["type"]
 		d.Set("auth_type",auth_type)
+	}else{
+		d.Set("auth_type",nil)
 	}
 	if customTokenLocation=="REQUEST_HEADER"{
 		requestHeaderLocation:=ruleDetails["customToken"].(map[string]interface{})["requestHeaderLocation"]

@@ -171,16 +171,21 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 		}
 	}
 
-	customJsonDetails:=ruleDetails["customJson"].(map[string]interface{})
+	if customJsonDetails,ok:=ruleDetails["customJson"].(map[string]interface{}); ok{
 
-	authTypeJson,err:=json.Marshal(customJsonDetails["authTypeJson"])
-	userIdJson,err:=json.Marshal(customJsonDetails["userIdJson"])
-	userRoleJson,err:=json.Marshal(customJsonDetails["userRoleJson"])
+		authTypeJson,_:=json.Marshal(customJsonDetails["authTypeJson"])
+		userIdJson,_:=json.Marshal(customJsonDetails["userIdJson"])
+		userRoleJson,_:=json.Marshal(customJsonDetails["userRoleJson"])
+		
+		d.Set("auth_type_json",authTypeJson)
+		d.Set("user_id_json",userIdJson)
+		d.Set("user_role_json",userRoleJson)
 	
-	d.Set("auth_type_json",authTypeJson)
-	d.Set("user_id_json",userIdJson)
-	d.Set("user_role_json",userRoleJson)
-
+		return nil
+	}
+	d.Set("auth_type_json",nil)
+	d.Set("user_id_json",nil)
+	d.Set("user_role_json",nil)
 	return nil
 }
 

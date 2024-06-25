@@ -212,34 +212,8 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
-	scopeType:=ruleDetails["scopeType"]
-	auth_type:=ruleDetails["requestHeader"].(map[string]interface{})["authentication"]
-	if auth_type!=nil{
-		auth_type=auth_type.(map[string]interface{})["type"]
-		d.Set("auth_type",auth_type)
-	}
-	user_id_location:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"].(map[string]interface{})["headerName"]
-	user_id_regex_capture_group_details,ok:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"]
-	if ok {
-		if user_id_regex_capture_group,ok:=user_id_regex_capture_group_details.(map[string]interface{})["parsingTarget"]; ok {
-			d.Set("user_id_regex_capture_group",user_id_regex_capture_group)
-		}
-	}
-
-	if user_role_location_details, ok := ruleDetails["requestHeader"].(map[string]interface{})["roleLocation"]; ok && user_role_location_details!=nil{
-		if user_role_location,ok:=user_role_location_details.(map[string]interface{})["headerName"]; ok{
-			d.Set("user_role_location",user_role_location)
-		}
-		if role_location_regex_capture_group:=user_role_location_details.(map[string]interface{})["parsingTarget"]; ok {
-			d.Set("role_location_regex_capture_group",role_location_regex_capture_group)
-		}
-	}
-
-	
 	d.Set("name",name)
-	
-	d.Set("user_id_location",user_id_location)
-	
+	scopeType:=ruleDetails["scopeType"]
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
 		// d.Set("url_regex",nil)
@@ -257,7 +231,38 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 			// d.Set("url_regex",nil)
 		}
 	}
+	if ruleDetails["type"].(string) != "REQUEST_HEADER"{
+		d.Set("auth_type",nil)
+		d.Set("user_id_regex_capture_group",nil)
+		d.Set("user_role_location",nil)
+		d.Set("role_location_regex_capture_group",nil)
+		d.Set("user_id_location",nil)
+		return nil
+	}
+	auth_type:=ruleDetails["requestHeader"].(map[string]interface{})["authentication"]
+	if auth_type!=nil{
+		auth_type=auth_type.(map[string]interface{})["type"]
+		d.Set("auth_type",auth_type)
+	}else{
+		d.Set("auth_type",nil)
+	}
+	user_id_location:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"].(map[string]interface{})["headerName"]
+	user_id_regex_capture_group_details,ok:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"]
+	if ok {
+		if user_id_regex_capture_group,ok:=user_id_regex_capture_group_details.(map[string]interface{})["parsingTarget"]; ok {
+			d.Set("user_id_regex_capture_group",user_id_regex_capture_group)
+		}
+	}
 
+	if user_role_location_details, ok := ruleDetails["requestHeader"].(map[string]interface{})["roleLocation"]; ok && user_role_location_details!=nil{
+		if user_role_location,ok:=user_role_location_details.(map[string]interface{})["headerName"]; ok{
+			d.Set("user_role_location",user_role_location)
+		}
+		if role_location_regex_capture_group:=user_role_location_details.(map[string]interface{})["parsingTarget"]; ok {
+			d.Set("role_location_regex_capture_group",role_location_regex_capture_group)
+		}
+	}
+	d.Set("user_id_location",user_id_location)
 	return nil
 }
 
