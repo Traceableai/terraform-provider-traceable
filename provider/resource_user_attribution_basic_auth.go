@@ -204,7 +204,7 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 		}
 		query = fmt.Sprintf(`mutation {
 			updateUserAttributionRule(
-			  rule: {name: "%s", type: BASIC_AUTH,id:"%s",rank:%d,disabled: %t scopeType: CUSTOM, %s}
+			  rule: {name: "%s", type: BASIC_AUTH,id:"%s",rank:%d,disabled: %t, scopeType: CUSTOM, %s}
 			) {
 				id
 				scopeType

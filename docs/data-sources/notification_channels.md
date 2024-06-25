@@ -8,13 +8,7 @@ description: |-
 
 # traceable_notification_channels (Data Source)
 
-## Example Usage
 
-```terraform
-data "traceable_notification_channels" "mychannel"{
-  name = "example_channel1"
-}
-```
 
 
 
