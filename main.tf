@@ -4,275 +4,265 @@ terraform {
       source  = "terraform.local/local/traceable"
       version = "0.0.1"
     }
-    aws={
-      source = "hashicorp/aws"
-      version = "5.35.0"
-    }
+    # aws={
+    #   source = "hashicorp/aws"
+    #   version = "5.35.0"
+    # }
   }
-    backend "s3" {
-    bucket         = "traceable-provider-store"
-    key            = "traceable-provider-store"
-    region         = "us-west-2"
-  }
+  #   backend "s3" {
+  #   bucket         = "traceable-provider-store"
+  #   key            = "traceable-provider-store"
+  #   region         = "us-west-2"
+  # }
 }
 
-data "aws_secretsmanager_secret_version" "api_token" {
-  secret_id = "your secret manager arn where api token is stored"
-}
+# data "aws_secretsmanager_secret_version" "api_token" {
+#   secret_id = "your secret manager arn where api token is stored"
+# }
 
-output "api_token" {
-  value=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
-  sensitive = true
-}
+# output "api_token" {
+#   value=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+#   sensitive = true
+# }
 
 provider "traceable" {
-  platform_url="https://api-dev.traceable.ai/graphql"
-  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+  platform_url="https://app-dev.traceable.ai/graphql"
+  # api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
-resource "traceable_user_attribution_rule_basic_auth" "test1" {
-  name = "traceable_user_attribution_rule_basic_auth"
-  scope_type = "SYSTEM_WIDE"
-  url_regex = "abcd"
-}
+# resource "traceable_user_attribution_rule_basic_auth" "test1" {
+#   name = "traceable_user_attribution_rule_basic_auth"
+#   scope_type = "SYSTEM_WIDE"
+#   url_regex = "abcd"
+# }
 
-resource "traceable_user_attribution_rule_req_header" "test2" {
-  name = "traceable_user_attribution_rule_req_header"
-  scope_type = "CUSTOM"
-  url_regex = "abcd"
-  auth_type = "test"
-  user_id_location = "test"
-  user_role_location="yes"
-  role_location_regex_capture_group="test"
-}
+# resource "traceable_user_attribution_rule_req_header" "test2" {
+#   name = "traceable_user_attribution_rule_req_header"
+#   scope_type = "CUSTOM"
+#   url_regex = "abcd"
+#   auth_type = "test"
+#   user_id_location = "test"
+#   user_role_location="yes"
+#   role_location_regex_capture_group="test"
+# }
 
-resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
-  name = "jwtauth"
-  scope_type = "CUSTOM"
-  url_regex="sfdsf"
-  jwt_location = "COOKIE"
-  jwt_key = "abcd"
-  user_id_claim = "aditya"
-}
+# resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
+#   name = "jwtauth"
+#   scope_type = "CUSTOM"
+#   url_regex="sfdsf"
+#   jwt_location = "COOKIE"
+#   jwt_key = "abcd"
+#   user_id_claim = "aditya"
+# }
 
-resource "traceable_user_attribution_rule_response_body" "test4" {
-  name = "resbody"
-  url_regex="sfdsf"
-  user_id_location_json_path="test"
-  auth_type="sadsak"
-  user_role_location_json_path="hjasa"
-}
+# resource "traceable_user_attribution_rule_response_body" "test4" {
+#   name = "resbody"
+#   url_regex="sfdsf"
+#   user_id_location_json_path="test"
+#   auth_type="sadsak"
+#   user_role_location_json_path="hjasa"
+# }
 
-resource "traceable_user_attribution_rule_custom_json" "test5" {
-  name = "traceable_user_attribution_rule_custom_json"
-  scope_type="CUSTOM"
-  url_regex="sfdsf"
-  auth_type_json=jsonencode(file("authType.json"))
-  user_id_json=jsonencode(file("authType.json"))
-}
+# resource "traceable_user_attribution_rule_custom_json" "test5" {
+#   name = "traceable_user_attribution_rule_custom_json"
+#   scope_type="CUSTOM"
+#   url_regex="sfdsf"
+#   auth_type_json=jsonencode(file("authType.json"))
+#   user_id_json=jsonencode(file("authType.json"))
+# }
 
-resource "traceable_user_attribution_rule_custom_token" "test6" {
-  name = "traceable_user_attribution_rule_custom_token"
-  scope_type="SYSTEM_WIDE"
-  auth_type="test"
-  location="REQUEST_COOKIE"
-  token_name="test"
-}
+# resource "traceable_user_attribution_rule_custom_token" "test6" {
+#   name = "traceable_user_attribution_rule_custom_token"
+#   scope_type="SYSTEM_WIDE"
+#   auth_type="test"
+#   location="REQUEST_COOKIE"
+#   token_name="test"
+# }
 
-data "traceable_syslog_integration" "syslog" {
-  name="prer-test"
-}
+# data "traceable_syslog_integration" "syslog" {
+#   name="prer-test"
+# }
 
-data "traceable_splunk_integration" "splunk" {
-  name="aditya"
-}
+# data "traceable_splunk_integration" "splunk" {
+#   name="aditya"
+# }
 
-data "traceable_endpoint_id" "endpoint" {
-  name="POST /Unauthenticated_Modification_of_external_APIs"
-  service_name="nginx-automation-test"
-  enviroment_name="fintech-1"
-}
+# data "traceable_endpoint_id" "endpoint" {
+#   name="POST /Unauthenticated_Modification_of_external_APIs"
+#   service_name="nginx-automation-test"
+#   enviroment_name="fintech-1"
+# }
 
-data "traceable_service_id" "endpoint" {
-  service_name="nginx-automation-test"
-  enviroment_name="fintech-1"
-}
+# data "traceable_service_id" "endpoint" {
+#   service_name="nginx-automation-test"
+#   enviroment_name="fintech-1"
+# }
 
-output "traceable_service_id" {
-  value = data.traceable_service_id.endpoint.service_id
-}
+# output "traceable_service_id" {
+#   value = data.traceable_service_id.endpoint.service_id
+# }
 
-resource "traceable_notification_channel" "testchannel" {
-  channel_name = "example_channel1"
+# resource "traceable_notification_channel" "testchannel" {
+#   channel_name = "example_channel1"
 
-  email = [
-    "example4@example.com",
-    "example2@example.com"
-  ]
+#   email = [
+#     "example4@example.com",
+#     "example2@example.com"
+#   ]
 
-  slack_webhook = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
-  splunk_id=data.traceable_splunk_integration.splunk.splunk_id
-  # syslog_id=""
-  custom_webhook  {
-    webhook_url = "https://example.com/webhook"
-    custom_webhook_headers  {
-      key       = "Authorization"
-      value     = "Bearer token123"
-      is_secret = false
-    }
-    custom_webhook_headers  {
-      key       = "Authorization1"
-      value     = "Bearer token1232"
-      is_secret = true
-    }
-    custom_webhook_headers  {
-      key       = "tets"
-      value     = "Bearer"
-      is_secret = false
-    }
-  }
+#   slack_webhook = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+#   splunk_id=data.traceable_splunk_integration.splunk.splunk_id
+#   # syslog_id=""
+#   custom_webhook  {
+#     webhook_url = "https://example.com/webhook"
+#     custom_webhook_headers  {
+#       key       = "Authorization"
+#       value     = "Bearer token123"
+#       is_secret = false
+#     }
+#     custom_webhook_headers  {
+#       key       = "Authorization1"
+#       value     = "Bearer token1232"
+#       is_secret = true
+#     }
+#     custom_webhook_headers  {
+#       key       = "tets"
+#       value     = "Bearer"
+#       is_secret = false
+#     }
+#   }
 
-  s3_webhook  {
-    bucket_name = "your-s3-bucket"
-    region      = "us-west-2"
-    bucket_arn  = "arn:aws:s3:::your-s3-bucket"
-  }
-}
+#   s3_webhook  {
+#     bucket_name = "your-s3-bucket"
+#     region      = "us-west-2"
+#     bucket_arn  = "arn:aws:s3:::your-s3-bucket"
+#   }
+# }
 
-data "traceable_notification_channels" "mychannel"{
-  name = "example_channel1"
-}
-resource "traceable_notification_rule_logged_threat_activity" "rule1" {
-  name                    = "example_notification_rule"
-  environments            = []
-  channel_id              = data.traceable_notification_channels.mychannel.channel_id
-  threat_types            = ["SQLInjection","bola"]
-  severities              = ["HIGH", "MEDIUM","LOW","CRITICAL"]
-  impact                  = ["LOW", "HIGH"]
-  confidence              = ["HIGH", "MEDIUM"]
-}
+# data "traceable_notification_channels" "mychannel"{
+#   name = "example_channel1"
+# }
+# resource "traceable_notification_rule_logged_threat_activity" "rule1" {
+#   name                    = "example_notification_rule"
+#   environments            = []
+#   channel_id              = data.traceable_notification_channels.mychannel.channel_id
+#   threat_types            = ["SQLInjection","bola"]
+#   severities              = ["HIGH", "MEDIUM","LOW","CRITICAL"]
+#   impact                  = ["LOW", "HIGH"]
+#   confidence              = ["HIGH", "MEDIUM"]
+# }
 
-resource "traceable_notification_channel" "testchannel" {
-  channel_name = "example_channel1"
+# resource "traceable_notification_channel" "testchannel" {
+#   channel_name = "example_channel1"
 
-  email = [
-    "example4@example.com",
-    "example2@example.com"
-  ]
+#   email = [
+#     "example4@example.com",
+#     "example2@example.com"
+#   ]
 
-  slack_webhook = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
-  splunk_id=data.traceable_splunk_integration.splunk.splunk_id
-  # syslog_id=""
-  custom_webhook  {
-    webhook_url = "https://example.com/webhook"
-    custom_webhook_headers  {
-      key       = "Authorization"
-      value     = "Bearer token123"
-      is_secret = false
-    }
-    custom_webhook_headers  {
-      key       = "Authorization1"
-      value     = "Bearer token1232"
-      is_secret = true
-    }
-    custom_webhook_headers  {
-      key       = "tets"
-      value     = "Bearer"
-      is_secret = false
-    }
-  }
+#   slack_webhook = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+#   splunk_id=data.traceable_splunk_integration.splunk.splunk_id
+#   # syslog_id=""
+#   custom_webhook  {
+#     webhook_url = "https://example.com/webhook"
+#     custom_webhook_headers  {
+#       key       = "Authorization"
+#       value     = "Bearer token123"
+#       is_secret = false
+#     }
+#     custom_webhook_headers  {
+#       key       = "Authorization1"
+#       value     = "Bearer token1232"
+#       is_secret = true
+#     }
+#     custom_webhook_headers  {
+#       key       = "tets"
+#       value     = "Bearer"
+#       is_secret = false
+#     }
+#   }
 
-  s3_webhook  {
-    bucket_name = "your-s3-bucket"
-    region      = "us-west-2"
-    bucket_arn  = "arn:aws:s3:::your-s3-bucket"
-  }
-}
+#   s3_webhook  {
+#     bucket_name = "your-s3-bucket"
+#     region      = "us-west-2"
+#     bucket_arn  = "arn:aws:s3:::your-s3-bucket"
+#   }
+# }
 
-data "traceable_notification_channels" "mychannel"{
-  name = "example_channel1"
-}
-resource "traceable_notification_rule_logged_threat_activity" "rule1" {
-  name                    = "example_notification_rule"
-  environments            = []
-  channel_id              = data.traceable_notification_channels.mychannel.channel_id
-  threat_types            = ["SQLInjection","bola"]
-  severities              = ["HIGH", "MEDIUM","LOW","CRITICAL"]
-  impact                  = ["LOW", "HIGH"]
-  confidence              = ["HIGH", "MEDIUM"]
-}
+# data "traceable_notification_channels" "mychannel"{
+#   name = "example_channel1"
+# }
+# resource "traceable_notification_rule_logged_threat_activity" "rule1" {
+#   name                    = "example_notification_rule"
+#   environments            = []
+#   channel_id              = data.traceable_notification_channels.mychannel.channel_id
+#   threat_types            = ["SQLInjection","bola"]
+#   severities              = ["HIGH", "MEDIUM","LOW","CRITICAL"]
+#   impact                  = ["LOW", "HIGH"]
+#   confidence              = ["HIGH", "MEDIUM"]
+# }
 
 
-resource "traceable_label_application_rule" "meg-test1" {
-  name        = "newtest-label-app-tf"
-  description = "optional desc"
+resource "traceable_label_application_rule" "example_rule" {
+  name        = "Example Label Application Rule"
+  description = "An example rule for applying labels based on conditions"
   enabled     = true
 
   condition_list {
-    key      = "test1"
+    key      = "request.header.content-type"
     operator = "OPERATOR_EQUALS"
-    value    = "sdfghj"
+    value    = "application/json"
   }
 
   condition_list {
-    key      = "test2"
-    operator = "OPERATOR_MATCHES_REGEX"
-    value    = "sdfg"
-  }
-
-  condition_list {
-    key      = "test3"
+    key      = "request.query.param"
     operator = "OPERATOR_EQUALS"
+    values   = ["value1", "value2"]
   }
 
   condition_list {
-    key      = "test4"
-    operator = "OPERATOR_MATCHES_IPS"
-    values   = ["1.0.0.0", "9.0.8.0"]
-  }
-
-  condition_list {
-    key      = "test5"
-    operator = "OPERATOR_NOT_MATCHES_IPS"
-    values   = ["6.9.3.5", "5.5.6.5"]
+    key      = "response.status"
+    operator = "OPERATOR_EQUALS"
   }
 
   action {
-    type             = "DYNAMIC_LABEL_KEY"
-    entity_types     = ["API", "SERVICE", "BACKEND"]
-    operation        = "OPERATION_MERGE"
-    dynamic_label_key = "hellotest"
+    type         = "DYNAMIC_LABEL_KEY"
+    entity_types = ["request", "response"]
+    operation    = "OPERATION_MERGE"
+    dynamic_label_key = "dynamic_label_key_example"
   }
-
-
-resource "traceable_label_creation_rule" "example_label_create_rule" {
-  key="test-rule-create-label-test1"
-  description="test rule to create a label"
-  color="#E295E9"
-
-resource "traceable_agent_token" "example" {
-  name = "tf-provider-token-testing"
 }
 
-output "agent_token" {
-  value = traceable_agent_token.example.token
-  sensitive = true
-}
 
-output "agent_token_creation_timestamp" {
-  value = traceable_agent_token.example.creation_timestamp
-}
+# resource "traceable_label_creation_rule" "example_label_create_rule" {
+#   key="test-rule-create-label-test1"
+#   description="test rule to create a label"
+#   color="#E295E9"
+# }
 
-data "traceable_agent_token" "example" {
-  name = "tf-provider-token-testing"
-}
+# resource "traceable_agent_token" "example" {
+#   name = "tf-provider-token-testing"
+# }
 
-output "agent_token" {
-  value = data.traceable_agent_token.example.token
-  sensitive = true
-}
+# output "agent_token" {
+#   value = traceable_agent_token.example.token
+#   sensitive = true
+# }
 
-output "agent_token_creation_timestamp" {
-  value = data.traceable_agent_token.example.creation_timestamp
+# output "agent_token_creation_timestamp" {
+#   value = traceable_agent_token.example.creation_timestamp
+# }
 
-}
+# data "traceable_agent_token" "example" {
+#   name = "tf-provider-token-testing"
+# }
+
+# output "agent_token" {
+#   value = data.traceable_agent_token.example.token
+#   sensitive = true
+# }
+
+# output "agent_token_creation_timestamp" {
+#   value = data.traceable_agent_token.example.creation_timestamp
+
+# }

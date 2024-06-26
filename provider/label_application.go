@@ -3,6 +3,7 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -16,44 +17,43 @@ func resourceLabelApplicationRule() *schema.Resource {
 		Delete: resourceLabelApplicationRuleDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "The name of the Label Application Rule",
 				Required:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:        schema.TypeString,
 				Description: "The description of the Label Application Rule",
 				Optional:    true,
 			},
-			"enabled": &schema.Schema{
+			"enabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
 				Required:    true,
 			},
-			"condition_list": &schema.Schema{
-				Type:        schema.TypeList,
+			"condition_list": {
+				Type:        schema.TypeSet,
 				Description: "List of conditions for the rule",
 				Required:    true,
-				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"key": &schema.Schema{
+						"key": {
 							Type:        schema.TypeString,
 							Description: "The key for the condition",
 							Required:    true,
 						},
-						"operator": &schema.Schema{
+						"operator": {
 							Type:        schema.TypeString,
 							Description: "The operator for the condition",
 							Required:    true,
 						},
-						"value": &schema.Schema{
+						"value": {
 							Type:        schema.TypeString,
 							Description: "The value for the condition (if applicable)",
 							Optional:    true,
 						},
-						"values": &schema.Schema{
+						"values": {
 							Type:        schema.TypeList,
 							Description: "The values for the condition (if applicable)",
 							Optional:    true,
@@ -61,36 +61,37 @@ func resourceLabelApplicationRule() *schema.Resource {
 						},
 					},
 				},
+				DiffSuppressFunc: suppressConditionListDiff,
 			},
-			"action": &schema.Schema{
+			"action": {
 				Type:        schema.TypeList,
 				Description: "Action to apply for the rule",
 				Required:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"type": &schema.Schema{
+						"type": {
 							Type:        schema.TypeString,
 							Description: "The type of action (DYNAMIC_LABEL_KEY or STATIC_LABELS)",
 							Required:    true,
 						},
-						"entity_types": &schema.Schema{
+						"entity_types": {
 							Type:        schema.TypeList,
 							Description: "List of entity types",
 							Required:    true,
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
-						"operation": &schema.Schema{
+						"operation": {
 							Type:        schema.TypeString,
 							Description: "The operation to perform",
 							Required:    true,
 						},
-						"dynamic_label_key": &schema.Schema{
+						"dynamic_label_key": {
 							Type:        schema.TypeString,
 							Description: "The dynamic label key (if applicable)",
 							Optional:    true,
 						},
-						"static_labels": &schema.Schema{
+						"static_labels": {
 							Type:        schema.TypeList,
 							Description: "List of static labels (if applicable)",
 							Optional:    true,
@@ -103,11 +104,33 @@ func resourceLabelApplicationRule() *schema.Resource {
 	}
 }
 
+func suppressConditionListDiff(k, old, new string, d *schema.ResourceData) bool {
+	return suppressListDiff(old, new)
+}
+
+func suppressListDiff(old, new string) bool {
+	oldList := strings.FieldsFunc(old, func(r rune) bool { return r == ',' || r == '[' || r == ']' || r == '{' || r == '}' || r == '"' })
+	newList := strings.FieldsFunc(new, func(r rune) bool { return r == ',' || r == '[' || r == ']' || r == '{' || r == '}' || r == '"' })
+	if len(oldList) != len(newList) {
+		return false
+	}
+	oldMap := make(map[string]bool)
+	for _, v := range oldList {
+		oldMap[v] = true
+	}
+	for _, v := range newList {
+		if !oldMap[v] {
+			return false
+		}
+	}
+	return true
+}
+
 func resourceLabelApplicationRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
-	conditionList := d.Get("condition_list").([]interface{})
+	conditionList := d.Get("condition_list").(*schema.Set).List()
 	action := d.Get("action").([]interface{})[0].(map[string]interface{})
 
 	conditionListStr, err := buildConditionList(conditionList)
@@ -134,7 +157,7 @@ func resourceLabelApplicationRuleCreate(d *schema.ResourceData, meta interface{}
 		}
 	}`, name, description, enabled, conditionListStr, actionStr)
 
-	fmt.Println(query)
+	log.Println(query)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
@@ -389,7 +412,7 @@ func resourceLabelApplicationRuleUpdate(d *schema.ResourceData, meta interface{}
 	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	enabled := d.Get("enabled").(bool)
-	conditionList := d.Get("condition_list").([]interface{})
+	conditionList := d.Get("condition_list").(*schema.Set).List()
 	action := d.Get("action").([]interface{})[0].(map[string]interface{})
 
 	conditionListStr, err := buildConditionList(conditionList)
