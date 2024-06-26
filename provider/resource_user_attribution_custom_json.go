@@ -186,12 +186,12 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 			// d.Set("url_regex",nil)
 		}
 	}
+	customJsonDetails:=ruleDetails["customJson"]
+	if customJsonDetails!=nil{
 
-	if customJsonDetails,ok:=ruleDetails["customJson"].(map[string]interface{}); ok{
-
-		authTypeJson,_:=json.Marshal(customJsonDetails["authTypeJson"])
-		userIdJson,_:=json.Marshal(customJsonDetails["userIdJson"])
-		userRoleJson,_:=json.Marshal(customJsonDetails["userRoleJson"])
+		authTypeJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["authTypeJson"])
+		userIdJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["userIdJson"])
+		userRoleJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["userRoleJson"])
 		
 		d.Set("auth_type_json",authTypeJson)
 		d.Set("user_id_json",userIdJson)

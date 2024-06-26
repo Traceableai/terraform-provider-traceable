@@ -140,14 +140,14 @@ func resourceUserAttributionRuleResponseBodyRead(d *schema.ResourceData, meta in
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	d.Set("name",name)
-	category:=ruleDetails["category"].(string)
+	category:=ruleDetails["type"].(string)
 	d.Set("category",category)
 	disabled:=ruleDetails["disabled"].(bool)
 	d.Set("disabled",disabled)
 	urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
 	d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
-
-	if responseBodyDetails,ok := ruleDetails["responseBody"]; ok{
+	responseBodyDetails:= ruleDetails["responseBody"]
+	if responseBodyDetails!=nil{
 
 		auth_type:=responseBodyDetails.(map[string]interface{})["authentication"]
 		if auth_type!=nil{

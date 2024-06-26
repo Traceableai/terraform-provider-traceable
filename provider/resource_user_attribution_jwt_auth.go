@@ -272,7 +272,8 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 			// d.Set("url_regex",nil)
 		}
 	}
-	if jwtDetails,ok:=ruleDetails["jwt"];ok{
+	jwtDetails:=ruleDetails["jwt"]
+	if jwtDetails!=nil{
 		auth_type:=jwtDetails.(map[string]interface{})["authentication"]
 		if auth_type!=nil{
 			auth_type=auth_type.(map[string]interface{})["type"]
@@ -447,7 +448,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 				name
 				type
 			}
-		  }`,id,rank,name,authTypeQuery,category,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim,scopedQuery)
+		  }`,id,rank,name,category,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim,scopedQuery)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}

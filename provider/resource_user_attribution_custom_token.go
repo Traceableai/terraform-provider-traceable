@@ -192,8 +192,9 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 			// d.Set("url_regex",nil)
 		}
 	}
-	if customTokenDetails,ok:=ruleDetails["customToken"] ; ok{
-
+	customTokenDetails:=ruleDetails["customToken"]
+	if customTokenDetails!=nil{
+		log.Printf("This is details %s",customTokenDetails)
 		auth_type:=customTokenDetails.(map[string]interface{})["authentication"]
 		customTokenLocation:=customTokenDetails.(map[string]interface{})["customTokenLocation"]
 		if auth_type!=nil{

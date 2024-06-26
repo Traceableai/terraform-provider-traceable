@@ -248,7 +248,8 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 			// d.Set("url_regex",nil)
 		}
 	}
-	if requestHeaderDetails,ok := ruleDetails["requestHeader"]; ok{
+	requestHeaderDetails:= ruleDetails["requestHeader"]
+	if requestHeaderDetails!=nil{
 		auth_type:=requestHeaderDetails.(map[string]interface{})["authentication"]
 		if auth_type!=nil{
 			auth_type=auth_type.(map[string]interface{})["type"]
