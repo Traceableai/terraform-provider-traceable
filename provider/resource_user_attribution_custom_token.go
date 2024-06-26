@@ -50,6 +50,18 @@ func resourceUserAttributionCustomTokenRule() *schema.Resource {
 				Description: "token name",
 				Required:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of user attribution rule",
+				Optional:    true,
+				Default:     "CUSTOM_TOKEN",
+			},
 		},
 	}
 }
@@ -62,6 +74,7 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 	auth_type := d.Get("auth_type").(string)
 	location:=d.Get("location").(string)
 	token_name:=d.Get("token_name").(string)
+	category:=d.Get("category").(string)
 
 	if scope_type!="SYSTEM_WIDE" && scope_type!="CUSTOM"{
 		return fmt.Errorf("scope_type supported string is SYSTEM_WIDE or CUSTOM")
@@ -97,7 +110,7 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 		createUserAttributionRule(
 		  input: {
 		  name: "%s", 
-		  type: CUSTOM_TOKEN, 
+		  type: %s, 
 		  scopeType: %s,
 		  customToken:{
 			authentication: { type: "%s" }
@@ -116,7 +129,7 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 		  }
 		  total
 		}
-	  }`,name,scope_type,auth_type,location,tokenLocationString,customScopeString)
+	  }`,name,category,scope_type,auth_type,location,tokenLocationString,customScopeString)
 	
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
@@ -158,7 +171,10 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"].(string)
 	d.Set("name",name)
-	
+	category:=ruleDetails["type"].(string)
+	d.Set("category",category)
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
 		// d.Set("url_regex",nil)
@@ -176,27 +192,33 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 			// d.Set("url_regex",nil)
 		}
 	}
-	auth_type:=ruleDetails["customToken"].(map[string]interface{})["authentication"]
-	customTokenLocation:=ruleDetails["customToken"].(map[string]interface{})["customTokenLocation"]
-	if auth_type!=nil{
-		auth_type=auth_type.(map[string]interface{})["type"]
-		d.Set("auth_type",auth_type)
-	}
-	if customTokenLocation=="REQUEST_HEADER"{
-		requestHeaderLocation:=ruleDetails["customToken"].(map[string]interface{})["requestHeaderLocation"]
-		headerType:=requestHeaderLocation.(map[string]interface{})["type"]
-		if headerType=="COOKIE"{
-			d.Set("location","REQUEST_COOKIE")
-			d.Set("token_name",requestHeaderLocation.(map[string]interface{})["cookieName"])
-
+	customTokenDetails:=ruleDetails["customToken"]
+	if customTokenDetails!=nil{
+		log.Printf("This is details %s",customTokenDetails)
+		auth_type:=customTokenDetails.(map[string]interface{})["authentication"]
+		customTokenLocation:=customTokenDetails.(map[string]interface{})["customTokenLocation"]
+		if auth_type!=nil{
+			auth_type=auth_type.(map[string]interface{})["type"]
+			d.Set("auth_type",auth_type)
 		}else{
-			d.Set("location","REQUEST_HEADER")
-			d.Set("token_name",requestHeaderLocation.(map[string]interface{})["headerName"])
+			d.Set("auth_type",nil)
 		}
-	}else{
-		d.Set("location","REQUEST_BODY")
-		requestBodyLocation:=ruleDetails["customToken"].(map[string]interface{})["requestBodyLocation"]
-		d.Set("token_name",requestBodyLocation.(map[string]interface{})["jsonPath"])
+		if customTokenLocation=="REQUEST_HEADER"{
+			requestHeaderLocation:=customTokenDetails.(map[string]interface{})["requestHeaderLocation"]
+			headerType:=requestHeaderLocation.(map[string]interface{})["type"]
+			if headerType=="COOKIE"{
+				d.Set("location","REQUEST_COOKIE")
+				d.Set("token_name",requestHeaderLocation.(map[string]interface{})["cookieName"])
+	
+			}else{
+				d.Set("location","REQUEST_HEADER")
+				d.Set("token_name",requestHeaderLocation.(map[string]interface{})["headerName"])
+			}
+		}else{
+			d.Set("location","REQUEST_BODY")
+			requestBodyLocation:=customTokenDetails.(map[string]interface{})["requestBodyLocation"]
+			d.Set("token_name",requestBodyLocation.(map[string]interface{})["jsonPath"])
+		}
 	}
 
 	return nil
@@ -225,7 +247,8 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 	auth_type := d.Get("auth_type").(string)
 	location:=d.Get("location").(string)
 	token_name:=d.Get("token_name").(string)
-
+	disabled := d.Get("disabled").(bool)
+	category := d.Get("category").(string)
 	if scope_type!="SYSTEM_WIDE" && scope_type!="CUSTOM"{
 		return fmt.Errorf("scope_type supported string is SYSTEM_WIDE or CUSTOM")
 	}
@@ -262,7 +285,8 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 			id:"%s",
 			rank:%d
 			name: "%s", 
-			type: CUSTOM_TOKEN, 
+			disabled: %t,
+			type: %s, 
 			scopeType: %s,
 			customToken:{
 				authentication: { type: "%s" }
@@ -278,7 +302,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 			name
 			type
 		}
-	  }`,id,rank,name,scope_type,auth_type,location,tokenLocationString,customScopeString)
+	  }`,id,rank,name,disabled,category,scope_type,auth_type,location,tokenLocationString,customScopeString)
 
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
