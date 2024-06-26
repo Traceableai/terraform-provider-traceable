@@ -56,12 +56,19 @@ func resourceUserAttributionCustomJsonRule() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of user attribution rule",
+				Optional:    true,
+				Default:     "CUSTOM_JSON",
+			},
 		},
 	}
 }
 
 func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
+	category := d.Get("category").(string)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
 	url_regex:=d.Get("url_regex").(string)
@@ -101,7 +108,7 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 		createUserAttributionRule(
 		  input: {
 		  name: "%s", 
-		  type: CUSTOM_JSON, 
+		  type: %s, 
 		  scopeType: %s, 
 		  %s
 		  %s
@@ -116,7 +123,7 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 		  }
 		  total
 		}
-	  }`,name,scope_type,customJsonString,customScopeString)
+	  }`,name,category,scope_type,customJsonString,customScopeString)
 	
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
@@ -157,6 +164,8 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"].(string)
+	category:=ruleDetails["type"].(string)
+	d.Set("category",category)
 	d.Set("name",name)
 	disabled:=ruleDetails["disabled"].(bool)
 	d.Set("disabled",disabled)
@@ -190,9 +199,6 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 	
 		return nil
 	}
-	d.Set("auth_type_json",nil)
-	d.Set("user_id_json",nil)
-	d.Set("user_role_json",nil)
 	return nil
 }
 
@@ -212,7 +218,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 		return nil
 	}
 	rank:=int(readRuleDetails["rank"].(float64))
-
+	category:=d.Get("category").(string)
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
 	scope_type := d.Get("scope_type").(string)
@@ -256,7 +262,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 			rank:%d
 			name: "%s", 
 			disabled: %t,
-			type: CUSTOM_JSON, 
+			type: %s, 
 			scopeType: %s, 
 			%s
 			%s
@@ -268,7 +274,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 			name
 			type
 		}
-	  }`,id,rank,name,disabled,scope_type,customJsonString,customScopeString)
+	  }`,id,rank,name,disabled,category,scope_type,customJsonString,customScopeString)
 	
 	
 	var response map[string]interface{}

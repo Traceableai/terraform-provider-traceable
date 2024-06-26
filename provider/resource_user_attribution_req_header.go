@@ -66,6 +66,12 @@ func resourceUserAttributionRequestHeaderRule() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of user attribution rule",
+				Optional:    true,
+				Default:     "REQUEST_HEADER",
+			},
 		},
 	}
 }
@@ -75,6 +81,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 	scopeType:=d.Get("scope_type").(string)
 	environment:=d.Get("environment").(string)
 	url_regex:=d.Get("url_regex").(string)
+	category:=d.Get("category").(string)
 	user_id_location:=d.Get("user_id_location").(string)
 	user_id_regex_capture_group:=d.Get("user_id_regex_capture_group").(string)
 	user_role_location:=d.Get("user_role_location").(string)
@@ -123,7 +130,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 			createUserAttributionRule(
 			  input: {
 				name: "%s",
-				type: REQUEST_HEADER,
+				type: %s,
 				scopeType: %s,
 				requestHeader: {
 					%s
@@ -144,7 +151,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 			  }
 			  total
 			}
-		  }`,name,scopeType,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
+		  }`,name,category,scopeType,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
 	} else if scopeType== "CUSTOM" {
 		
 		if scopedQuery==""{
@@ -153,7 +160,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 		query = fmt.Sprintf(`mutation {
 			createUserAttributionRule(
 			  input: {name: "%s", 
-			  type: REQUEST_HEADER, 
+			  type: %s, 
 			  scopeType: CUSTOM, 
 			  requestHeader: {
 				%s
@@ -176,7 +183,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 			  }
 			  total
 			}
-		  }`,name,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole,scopedQuery)
+		  }`,name,category,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole,scopedQuery)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
@@ -221,6 +228,8 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 	d.Set("name",name)
 	disabled:=ruleDetails["disabled"].(bool)
 	d.Set("disabled",disabled)
+	category:=ruleDetails["type"].(string)
+	d.Set("category",category)
 	scopeType:=ruleDetails["scopeType"]
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
@@ -239,38 +248,32 @@ func resourceUserAttributionRuleRequestHeaderRead(d *schema.ResourceData, meta i
 			// d.Set("url_regex",nil)
 		}
 	}
-	if ruleDetails["type"].(string) != "REQUEST_HEADER"{
-		d.Set("auth_type",nil)
-		d.Set("user_id_regex_capture_group",nil)
-		d.Set("user_role_location",nil)
-		d.Set("role_location_regex_capture_group",nil)
-		d.Set("user_id_location",nil)
-		return nil
-	}
-	auth_type:=ruleDetails["requestHeader"].(map[string]interface{})["authentication"]
-	if auth_type!=nil{
-		auth_type=auth_type.(map[string]interface{})["type"]
-		d.Set("auth_type",auth_type)
-	}else{
-		d.Set("auth_type",nil)
-	}
-	user_id_location:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"].(map[string]interface{})["headerName"]
-	user_id_regex_capture_group_details,ok:=ruleDetails["requestHeader"].(map[string]interface{})["userIdLocation"]
-	if ok {
-		if user_id_regex_capture_group,ok:=user_id_regex_capture_group_details.(map[string]interface{})["parsingTarget"]; ok {
-			d.Set("user_id_regex_capture_group",user_id_regex_capture_group)
+	if requestHeaderDetails,ok := ruleDetails["requestHeader"]; ok{
+		auth_type:=requestHeaderDetails.(map[string]interface{})["authentication"]
+		if auth_type!=nil{
+			auth_type=auth_type.(map[string]interface{})["type"]
+			d.Set("auth_type",auth_type)
+		}else{
+			d.Set("auth_type",nil)
 		}
-	}
-
-	if user_role_location_details, ok := ruleDetails["requestHeader"].(map[string]interface{})["roleLocation"]; ok && user_role_location_details!=nil{
-		if user_role_location,ok:=user_role_location_details.(map[string]interface{})["headerName"]; ok{
-			d.Set("user_role_location",user_role_location)
+		user_id_location:=requestHeaderDetails.(map[string]interface{})["userIdLocation"].(map[string]interface{})["headerName"]
+		user_id_regex_capture_group_details,ok:=requestHeaderDetails.(map[string]interface{})["userIdLocation"]
+		if ok {
+			if user_id_regex_capture_group,ok:=user_id_regex_capture_group_details.(map[string]interface{})["parsingTarget"]; ok {
+				d.Set("user_id_regex_capture_group",user_id_regex_capture_group)
+			}
 		}
-		if role_location_regex_capture_group:=user_role_location_details.(map[string]interface{})["parsingTarget"]; ok {
-			d.Set("role_location_regex_capture_group",role_location_regex_capture_group)
+	
+		if user_role_location_details, ok := requestHeaderDetails.(map[string]interface{})["roleLocation"]; ok && user_role_location_details!=nil{
+			if user_role_location,ok:=user_role_location_details.(map[string]interface{})["headerName"]; ok{
+				d.Set("user_role_location",user_role_location)
+			}
+			if role_location_regex_capture_group:=user_role_location_details.(map[string]interface{})["parsingTarget"]; ok {
+				d.Set("role_location_regex_capture_group",role_location_regex_capture_group)
+			}
 		}
+		d.Set("user_id_location",user_id_location)
 	}
-	d.Set("user_id_location",user_id_location)
 	return nil
 }
 
@@ -283,6 +286,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 	user_id_regex_capture_group:=d.Get("user_id_regex_capture_group").(string)
 	user_role_location:=d.Get("user_role_location").(string)
 	role_location_regex_capture_group:=d.Get("role_location_regex_capture_group").(string)
+	category:=d.Get("category").(string)
 	auth_type:=d.Get("auth_type").(string)
 	var authTypeQuery string
 	if auth_type!=""{
@@ -335,7 +339,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 			updateUserAttributionRule(
 			  rule: {
 				name: "%s", 
-				type: REQUEST_HEADER,
+				type: %s,
 				id:"%s",
 				disabled: %t,
 				rank:%d, 
@@ -356,7 +360,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 				rank
 				name
 			}
-		  }`,name,id,disabled,rank,scopeType,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
+		  }`,name,category,id,disabled,rank,scopeType,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
 	} else if scopeType== "CUSTOM" {
 		environment:=d.Get("environment").(string)
 		url_regex:=d.Get("url_regex").(string)
@@ -372,7 +376,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 		query = fmt.Sprintf(`mutation {
 			updateUserAttributionRule(
 			  rule: {name: "%s", 
-			  type: REQUEST_HEADER,
+			  type: %s,
 			  id:"%s",
 			  disabled: %t,
 			  rank:%d, 
@@ -395,7 +399,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 				name
 				type
 			}
-		  }`,name,id,disabled,rank,scopedQuery,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
+		  }`,name,category,id,disabled,rank,scopedQuery,authTypeQuery,user_id_location,parsingTargetUserId,parsingTargetUserRole)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}

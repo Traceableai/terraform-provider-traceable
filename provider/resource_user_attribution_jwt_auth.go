@@ -81,6 +81,12 @@ func resourceUserAttributionJwtAuthRule() *schema.Resource {
 				Optional:    true,
 				Default:     false,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of user attribution rule",
+				Optional:    true,
+				Default:     "JWT",
+			},
 		},
 	}
 }
@@ -98,6 +104,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 	user_role_location_json_path:=d.Get("user_role_location_json_path").(string)
 	user_id_location_json_path:=d.Get("user_id_location_json_path").(string)
 	auth_type:=d.Get("auth_type").(string)
+	category:=d.Get("category").(string)
 
 	var scopedQuery string
 	
@@ -138,7 +145,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 			createUserAttributionRule(
 			  input: {
 				name: "%s",
-				type: JWT,
+				type: %s,
 				scopeType: %s,
 				jwt: {
 					%s
@@ -162,7 +169,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 			  }
 			  total
 			}
-		  }`,name,scopeType,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim)
+		  }`,name,category,scopeType,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim)
 	} else if scopeType== "CUSTOM" {
 		
 		if scopedQuery==""{
@@ -172,7 +179,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 			createUserAttributionRule(
 			  input: {
 			  name: "%s", 
-			  type: JWT, 
+			  type: %s, 
 			  scopeType: CUSTOM, 
 			  jwt: {
 				%s
@@ -198,7 +205,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 			  }
 			  total
 			}
-		  }`,name,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim,scopedQuery)
+		  }`,name,category,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim,scopedQuery)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
@@ -242,6 +249,8 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	d.Set("name",name)
+	category:=ruleDetails["type"].(string)
+	d.Set("category",category)
 	disabled:=ruleDetails["disabled"].(bool)
 	d.Set("disabled",disabled)
 	scopeType:=ruleDetails["scopeType"]
@@ -263,58 +272,49 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 			// d.Set("url_regex",nil)
 		}
 	}
-	if ruleDetails["type"].(string)!="JWT"{
-		d.Set("auth_type",nil)
-		d.Set("jwt_location",nil)
-		d.Set("jwt_key",nil)
-		d.Set("token_capture_group",nil)
-		d.Set("user_id_location_json_path",nil)
-		d.Set("user_role_location_json_path",nil)
-		d.Set("user_id_claim",nil)
-		d.Set("user_role_claim",nil)
-		return nil
-	}
-	auth_type:=ruleDetails["jwt"].(map[string]interface{})["authentication"]
-	if auth_type!=nil{
-		auth_type=auth_type.(map[string]interface{})["type"]
-		d.Set("auth_type",auth_type)
-	}else{
-		d.Set("auth_type",nil)
-	}
+	if jwtDetails,ok:=ruleDetails["jwt"];ok{
+		auth_type:=jwtDetails.(map[string]interface{})["authentication"]
+		if auth_type!=nil{
+			auth_type=auth_type.(map[string]interface{})["type"]
+			d.Set("auth_type",auth_type)
+		}else{
+			d.Set("auth_type",nil)
+		}
+		
 	
-
-	jwt_location:=ruleDetails["jwt"].(map[string]interface{})["location"].(map[string]interface{})["type"]
-	d.Set("jwt_location",jwt_location)
-	if jwt_location=="HEADER"{
-		jwt_key:=ruleDetails["jwt"].(map[string]interface{})["location"].(map[string]interface{})["headerName"]
-		d.Set("jwt_key",jwt_key)
-	}else{
-		jwt_key:=ruleDetails["jwt"].(map[string]interface{})["location"].(map[string]interface{})["cookieName"]
-		d.Set("jwt_key",jwt_key)
-	}
-	token_capture_group_details:=ruleDetails["jwt"].(map[string]interface{})["location"].(map[string]interface{})["parsingTarget"]
-    if token_capture_group_details!=nil{
-		token_capture_group:=token_capture_group_details.(map[string]interface{})["regexCaptureGroup"]
-		d.Set("token_capture_group",token_capture_group)
-	}
-
-	userIdLocationDetails:=ruleDetails["jwt"].(map[string]interface{})["userIdLocation"]
-	if userIdLocationDetails!=nil{
-		user_id_location_json_path:=userIdLocationDetails.(map[string]interface{})["jsonPath"]
-		d.Set("user_id_location_json_path",user_id_location_json_path)
-	}
-
-	userRoleLocationDetails:=ruleDetails["jwt"].(map[string]interface{})["roleLocation"]
-	if userRoleLocationDetails!=nil{
-		user_role_location_json_path:=userRoleLocationDetails.(map[string]interface{})["jsonPath"]
-		d.Set("user_role_location_json_path",user_role_location_json_path)
-	}
-
-	user_id_claim:=ruleDetails["jwt"].(map[string]interface{})["userIdClaim"]
-	d.Set("user_id_claim",user_id_claim)
+		jwt_location:=jwtDetails.(map[string]interface{})["location"].(map[string]interface{})["type"]
+		d.Set("jwt_location",jwt_location)
+		if jwt_location=="HEADER"{
+			jwt_key:=jwtDetails.(map[string]interface{})["location"].(map[string]interface{})["headerName"]
+			d.Set("jwt_key",jwt_key)
+		}else{
+			jwt_key:=jwtDetails.(map[string]interface{})["location"].(map[string]interface{})["cookieName"]
+			d.Set("jwt_key",jwt_key)
+		}
+		token_capture_group_details:=jwtDetails.(map[string]interface{})["location"].(map[string]interface{})["parsingTarget"]
+		if token_capture_group_details!=nil{
+			token_capture_group:=token_capture_group_details.(map[string]interface{})["regexCaptureGroup"]
+			d.Set("token_capture_group",token_capture_group)
+		}
 	
-	user_role_claim:=ruleDetails["jwt"].(map[string]interface{})["roleClaim"]
-	d.Set("user_role_claim",user_role_claim)
+		userIdLocationDetails:=jwtDetails.(map[string]interface{})["userIdLocation"]
+		if userIdLocationDetails!=nil{
+			user_id_location_json_path:=userIdLocationDetails.(map[string]interface{})["jsonPath"]
+			d.Set("user_id_location_json_path",user_id_location_json_path)
+		}
+	
+		userRoleLocationDetails:=jwtDetails.(map[string]interface{})["roleLocation"]
+		if userRoleLocationDetails!=nil{
+			user_role_location_json_path:=userRoleLocationDetails.(map[string]interface{})["jsonPath"]
+			d.Set("user_role_location_json_path",user_role_location_json_path)
+		}
+	
+		user_id_claim:=jwtDetails.(map[string]interface{})["userIdClaim"]
+		d.Set("user_id_claim",user_id_claim)
+		
+		user_role_claim:=jwtDetails.(map[string]interface{})["roleClaim"]
+		d.Set("user_role_claim",user_role_claim)
+	}
 
 	return nil
 }
@@ -341,6 +341,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 	url_regex:=d.Get("url_regex").(string)
 	token_capture_group:=d.Get("token_capture_group").(string)
 	jwt_location:=d.Get("jwt_location").(string)
+	category:=d.Get("category").(string)
 	jwt_key:=d.Get("jwt_key").(string)
 	user_id_claim:=d.Get("user_id_claim").(string)
 	user_role_claim:=d.Get("user_role_claim").(string)
@@ -390,7 +391,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 			  	rank:%d, 
 				name: "%s",
 				disabled: %t,
-				type: JWT,
+				type: %s,
 				scopeType: %s,
 				jwt: {
 					%s
@@ -411,7 +412,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 				rank
 				name
 			}
-		  }`,id,rank,name,disabled,scopeType,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim)
+		  }`,id,rank,name,disabled,category,scopeType,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim)
 	} else if scopeType== "CUSTOM" {
 		
 		if scopedQuery==""{
@@ -423,7 +424,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 			  id:"%s",
 			  rank:%d, 
 			  name: "%s", 
-			  type: JWT, 
+			  type: %s, 
 			  scopeType: CUSTOM, 
 			  jwt: {
 				%s
@@ -446,7 +447,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 				name
 				type
 			}
-		  }`,id,rank,name,authTypeQuery,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim,scopedQuery)
+		  }`,id,rank,name,authTypeQuery,category,jwt_location,location_key,jwt_key,tokenCaptureGroup,userIdLocationString,roleLocationString,user_role_claim,user_id_claim,scopedQuery)
 	}else{
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
