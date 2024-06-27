@@ -32,7 +32,6 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           version: "latest"
-          distribution: goreleaser
           args: release --skip=publish --clean
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
