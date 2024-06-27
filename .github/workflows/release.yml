@@ -3,7 +3,6 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -32,7 +31,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           version: "latest"
-          args: release --skip=publish --clean
+          args: release --clean
         env:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           # GitHub sets this automatically
