@@ -40,6 +40,18 @@ func resourceUserAttributionResponseBodyRule() *schema.Resource {
 				Description: "user role location json path",
 				Optional:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of user attribution rule",
+				Optional:    true,
+				Default:     "RESPONSE_BODY",
+			},
 		},
 	}
 }
@@ -47,6 +59,7 @@ func resourceUserAttributionResponseBodyRule() *schema.Resource {
 func resourceUserAttributionRuleResponseBodyCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	url_regex:=d.Get("url_regex").(string)
+	category:=d.Get("category").(string)
 	user_role_location_json_path:=d.Get("user_role_location_json_path").(string)
 	user_id_location_json_path:=d.Get("user_id_location_json_path").(string)
 	auth_type:=d.Get("auth_type").(string)
@@ -67,7 +80,7 @@ func resourceUserAttributionRuleResponseBodyCreate(d *schema.ResourceData, meta 
 		createUserAttributionRule(
 		  input: {
 		  name: "%s", 
-		  type: RESPONSE_BODY, 
+		  type: %s, 
 		  scopeType: CUSTOM, 
 		  responseBody: {
 			%s
@@ -86,7 +99,7 @@ func resourceUserAttributionRuleResponseBodyCreate(d *schema.ResourceData, meta 
 		  }
 		  total
 		}
-	  }`,name,authTypeQuery,user_id_location_json_path,roleLocationString,url_regex)
+	  }`,name,category,authTypeQuery,user_id_location_json_path,roleLocationString,url_regex)
 	
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
@@ -121,31 +134,42 @@ func resourceUserAttributionRuleResponseBodyRead(d *schema.ResourceData, meta in
 	log.Printf("Response from read %s",responseStr)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
+		d.SetId("")
 		return nil
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
-	auth_type:=ruleDetails["responseBody"].(map[string]interface{})["authentication"]
-	if auth_type!=nil{
-		auth_type=auth_type.(map[string]interface{})["type"]
-		d.Set("auth_type",auth_type)
-	}
 	d.Set("name",name)
-	
-	userIdLocationDetails:=ruleDetails["responseBody"].(map[string]interface{})["userIdLocation"]
-	if userIdLocationDetails!=nil{
-		user_id_location_json_path:=userIdLocationDetails.(map[string]interface{})["jsonPath"]
-		d.Set("user_id_location_json_path",user_id_location_json_path)
-	}
-
-	userRoleLocationDetails:=ruleDetails["responseBody"].(map[string]interface{})["roleLocation"]
-	if userRoleLocationDetails!=nil{
-		user_role_location_json_path:=userRoleLocationDetails.(map[string]interface{})["jsonPath"]
-		d.Set("user_role_location_json_path",user_role_location_json_path)
-	}
-	
+	category:=ruleDetails["type"].(string)
+	d.Set("category",category)
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
 	d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+	responseBodyDetails:= ruleDetails["responseBody"]
+	if responseBodyDetails!=nil{
+
+		auth_type:=responseBodyDetails.(map[string]interface{})["authentication"]
+		if auth_type!=nil{
+			auth_type=auth_type.(map[string]interface{})["type"]
+			d.Set("auth_type",auth_type)
+		}else{
+			d.Set("auth_type",nil)
+		}
+		
+		
+		userIdLocationDetails:=responseBodyDetails.(map[string]interface{})["userIdLocation"]
+		if userIdLocationDetails!=nil{
+			user_id_location_json_path:=userIdLocationDetails.(map[string]interface{})["jsonPath"]
+			d.Set("user_id_location_json_path",user_id_location_json_path)
+		}
+	
+		userRoleLocationDetails:=responseBodyDetails.(map[string]interface{})["roleLocation"]
+		if userRoleLocationDetails!=nil{
+			user_role_location_json_path:=userRoleLocationDetails.(map[string]interface{})["jsonPath"]
+			d.Set("user_role_location_json_path",user_role_location_json_path)
+		}
+	}
 
 	return nil
 }
@@ -172,6 +196,7 @@ func resourceUserAttributionRuleResponseBodyUpdate(d *schema.ResourceData, meta 
 	user_role_location_json_path:=d.Get("user_role_location_json_path").(string)
 	user_id_location_json_path:=d.Get("user_id_location_json_path").(string)
 	auth_type:=d.Get("auth_type").(string)
+	disabled := d.Get("disabled").(bool)
 
 	authTypeQuery:=""
 	if auth_type!=""{
@@ -187,7 +212,8 @@ func resourceUserAttributionRuleResponseBodyUpdate(d *schema.ResourceData, meta 
 		updateUserAttributionRule(
 		  rule: {
 		  id: "%s",
-		  rank: %d
+		  rank: %d,
+		  disabled: %t,
 		  name: "%s", 
 		  type: RESPONSE_BODY, 
 		  scopeType: CUSTOM, 
@@ -205,7 +231,7 @@ func resourceUserAttributionRuleResponseBodyUpdate(d *schema.ResourceData, meta 
 			name
 			type
 		}
-	  }`,id,rank,name,authTypeQuery,user_id_location_json_path,roleLocationString,url_regex)
+	  }`,id,rank,disabled,name,authTypeQuery,user_id_location_json_path,roleLocationString,url_regex)
 	
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)

@@ -50,12 +50,25 @@ func resourceUserAttributionCustomJsonRule() *schema.Resource {
 				Description: "user role json",
 				Optional:    true,
 			},
+			"disabled": {
+				Type:        schema.TypeBool,
+				Description: "Flag to enable or disable the rule",
+				Optional:    true,
+				Default:     false,
+			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of user attribution rule",
+				Optional:    true,
+				Default:     "CUSTOM_JSON",
+			},
 		},
 	}
 }
 
 func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
+	category := d.Get("category").(string)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
 	url_regex:=d.Get("url_regex").(string)
@@ -95,7 +108,7 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 		createUserAttributionRule(
 		  input: {
 		  name: "%s", 
-		  type: CUSTOM_JSON, 
+		  type: %s, 
 		  scopeType: %s, 
 		  %s
 		  %s
@@ -110,7 +123,7 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 		  }
 		  total
 		}
-	  }`,name,scope_type,customJsonString,customScopeString)
+	  }`,name,category,scope_type,customJsonString,customScopeString)
 	
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
@@ -145,13 +158,17 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 	log.Printf("Response from read %s",responseStr)
 	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
 	if len(ruleDetails)==0{
+		d.SetId("")
 		return nil
 	}
 	log.Printf("fetching from read %s",ruleDetails)
 	name:=ruleDetails["name"].(string)
 	scopeType:=ruleDetails["scopeType"].(string)
+	category:=ruleDetails["type"].(string)
+	d.Set("category",category)
 	d.Set("name",name)
-	
+	disabled:=ruleDetails["disabled"].(bool)
+	d.Set("disabled",disabled)
 	if scopeType=="SYSTEM_WIDE"{
 		d.Set("scope_type", "SYSTEM_WIDE")
 		// d.Set("url_regex",nil)
@@ -169,17 +186,19 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 			// d.Set("url_regex",nil)
 		}
 	}
+	customJsonDetails:=ruleDetails["customJson"]
+	if customJsonDetails!=nil{
 
-	customJsonDetails:=ruleDetails["customJson"].(map[string]interface{})
-
-	authTypeJson,err:=json.Marshal(customJsonDetails["authTypeJson"])
-	userIdJson,err:=json.Marshal(customJsonDetails["userIdJson"])
-	userRoleJson,err:=json.Marshal(customJsonDetails["userRoleJson"])
+		authTypeJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["authTypeJson"])
+		userIdJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["userIdJson"])
+		userRoleJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["userRoleJson"])
+		
+		d.Set("auth_type_json",authTypeJson)
+		d.Set("user_id_json",userIdJson)
+		d.Set("user_role_json",userRoleJson)
 	
-	d.Set("auth_type_json",authTypeJson)
-	d.Set("user_id_json",userIdJson)
-	d.Set("user_role_json",userRoleJson)
-
+		return nil
+	}
 	return nil
 }
 
@@ -199,8 +218,9 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 		return nil
 	}
 	rank:=int(readRuleDetails["rank"].(float64))
-
+	category:=d.Get("category").(string)
 	name := d.Get("name").(string)
+	disabled := d.Get("disabled").(bool)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
 	url_regex:=d.Get("url_regex").(string)
@@ -241,7 +261,8 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 			id:"%s",
 			rank:%d
 			name: "%s", 
-			type: CUSTOM_JSON, 
+			disabled: %t,
+			type: %s, 
 			scopeType: %s, 
 			%s
 			%s
@@ -253,7 +274,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 			name
 			type
 		}
-	  }`,id,rank,name,scope_type,customJsonString,customScopeString)
+	  }`,id,rank,name,disabled,category,scope_type,customJsonString,customScopeString)
 	
 	
 	var response map[string]interface{}

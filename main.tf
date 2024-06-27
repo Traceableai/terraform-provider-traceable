@@ -26,7 +26,7 @@ output "api_token" {
 }
 
 provider "traceable" {
-  platform_url="https://api-dev.traceable.ai/graphql"
+  platform_url="https://app-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
@@ -52,7 +52,7 @@ resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
   url_regex="sfdsf"
   jwt_location = "COOKIE"
   jwt_key = "abcd"
-  user_id_claim = "aditya"
+  user_id_claim = "testuser"
 }
 
 resource "traceable_user_attribution_rule_response_body" "test4" {
@@ -80,22 +80,22 @@ resource "traceable_user_attribution_rule_custom_token" "test6" {
 }
 
 data "traceable_syslog_integration" "syslog" {
-  name="prer-test"
+  name="test"
 }
 
 data "traceable_splunk_integration" "splunk" {
-  name="aditya"
+  name="test"
 }
 
 data "traceable_endpoint_id" "endpoint" {
   name="POST /Unauthenticated_Modification_of_external_APIs"
-  service_name="nginx-automation-test"
-  enviroment_name="fintech-1"
+  service_name="test-service"
+  enviroment_name="test-env"
 }
 
 data "traceable_service_id" "endpoint" {
-  service_name="nginx-automation-test"
-  enviroment_name="fintech-1"
+  service_name="test-service"
+  enviroment_name="test-env"
 }
 
 output "traceable_service_id" {
@@ -142,6 +142,7 @@ resource "traceable_notification_channel" "testchannel" {
 data "traceable_notification_channels" "mychannel"{
   name = "example_channel1"
 }
+
 resource "traceable_notification_rule_logged_threat_activity" "rule1" {
   name                    = "example_notification_rule"
   environments            = []
@@ -164,7 +165,6 @@ resource "traceable_agent_token" "example" {
 
 output "agent_token" {
   value = traceable_agent_token.example.token
-  sensitive = true
 }
 
 output "agent_token_creation_timestamp" {
@@ -182,6 +182,77 @@ output "agent_token" {
 
 output "agent_token_creation_timestamp" {
   value = data.traceable_agent_token.example.creation_timestamp
+
+}
+
+
+resource "traceable_ip_range_rule" "my_ip_range" {
+    name     = "first_rule"
+    rule_action     = "RULE_ACTION_ALERT"
+    event_severity     = "LOW"
+    raw_ip_range_data = [
+        "1.1.1.1",
+        "3.3.3.3"
+    ]
+    environment=[] #all env
+    description="rule created from custom provider"
+}
+
+resource "traceable_notification_rule_blocked_threat_activity" "rule1" {
+  name                    = "example_notification_rule3"
+  environments            = []
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  threat_types            = []
+  notification_frequency  = "PT1H"
+}
+
+resource "traceable_notification_rule_threat_actor_status" "rule1" {
+  name                    = "terraform_threat_actor_status"
+  environments            = ["fintech-1"]
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  actor_states            = ["NORMAL"]
+}
+resource "traceable_notification_rule_actor_severity_change" "rule1" {
+  name                    = "terraform_threat_actor_severity2"
+  environments            = ["fintech-1"]
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  actor_severities            = []
+  actor_ip_reputation_levels            = ["HIGH"]
+
+}
+
+
+resource "traceable_ip_range_rule" "my_ip_range" {
+    name     = "first_rule"
+    rule_action     = "RULE_ACTION_ALERT"
+    event_severity     = "LOW"
+    raw_ip_range_data = [
+        "1.1.1.1",
+        "3.3.3.3"
+    ]
+    environment=[] #all env
+    description="rule created from custom provider"
+}
+resource "traceable_notification_rule_blocked_threat_activity" "rule1" {
+  name                    = "example_notification_rule3"
+  environments            = []
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  threat_types            = []
+  notification_frequency  = "PT1H"
+}
+
+resource "traceable_notification_rule_threat_actor_status" "rule1" {
+  name                    = "terraform_threat_actor_status"
+  environments            = ["fintech-1"]
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  actor_states            = ["NORMAL"]
+}
+resource "traceable_notification_rule_actor_severity_change" "rule1" {
+  name                    = "terraform_threat_actor_severity2"
+  environments            = ["fintech-1"]
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  actor_severities            = []
+  actor_ip_reputation_levels            = ["HIGH"]
 
 }
 
