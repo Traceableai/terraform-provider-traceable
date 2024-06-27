@@ -196,6 +196,7 @@ resource "traceable_ip_range_rule" "my_ip_range" {
     ]
     environment=[] #all env
     description="rule created from custom provider"
+}
 
 resource "traceable_notification_rule_blocked_threat_activity" "rule1" {
   name                    = "example_notification_rule3"
@@ -219,3 +220,102 @@ resource "traceable_notification_rule_actor_severity_change" "rule1" {
   actor_ip_reputation_levels            = ["HIGH"]
 
 }
+
+
+resource "traceable_ip_range_rule" "my_ip_range" {
+    name     = "first_rule"
+    rule_action     = "RULE_ACTION_ALERT"
+    event_severity     = "LOW"
+    raw_ip_range_data = [
+        "1.1.1.1",
+        "3.3.3.3"
+    ]
+    environment=[] #all env
+    description="rule created from custom provider"
+}
+resource "traceable_notification_rule_blocked_threat_activity" "rule1" {
+  name                    = "example_notification_rule3"
+  environments            = []
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  threat_types            = []
+  notification_frequency  = "PT1H"
+}
+
+resource "traceable_notification_rule_threat_actor_status" "rule1" {
+  name                    = "terraform_threat_actor_status"
+  environments            = ["fintech-1"]
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  actor_states            = ["NORMAL"]
+}
+resource "traceable_notification_rule_actor_severity_change" "rule1" {
+  name                    = "terraform_threat_actor_severity2"
+  environments            = ["fintech-1"]
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  actor_severities            = []
+  actor_ip_reputation_levels            = ["HIGH"]
+
+}
+
+resource "traceable_session_identification_request_rule" "example" {
+  name             = "example-session-rule-req-83"
+  description      = "This is an example session identification rule"
+  environment_names = ["default", "docker"]
+  service_names     = []
+  url_match_regexes = ["^/api/.*$", "^/internal/.*$"]
+
+  token_extraction_condition_list {
+    condition_request_header {
+      key      = "X-Example-Header"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
+    condition_request_header {
+      key      = "X-Example-Cokkie-2"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
+    condition_request_cookie {
+      key      = "X-Example-Cokkie-2"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
+    condition_request_cookie {
+      key      = "X-Example-Cokkie-6"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
+    condition_request_cookie {
+      key      = "X-Example-Cokkie-8"
+      operator = "EQUALS"
+      value    = "example-value"
+    }
+  }
+
+  session_token_details {
+    token_request_header {
+      token_key = "Authorization"
+      operator  = "MATCHES_REGEX"
+    }
+  }
+
+  obfuscation       = true
+  expiration_type   = "JWT"
+
+  token_value_transformation_list {
+    json_path { 
+      value= "random"
+    }
+    regex_capture_group {
+      value="(test-val)"
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
