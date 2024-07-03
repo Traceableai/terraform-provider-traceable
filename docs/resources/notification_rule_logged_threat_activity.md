@@ -39,6 +39,7 @@ resource "traceable_notification_rule_logged_threat_activity" "rule1" {
 
 ### Optional
 
+- `category` (String) Type of notification rule
 - `notification_frequency` (String) No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)
 
 ### Read-Only

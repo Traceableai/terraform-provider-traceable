@@ -25,6 +25,7 @@ description: |-
 ### Optional
 
 - `agent_status_changes` (Set of String) Agent status change for which you want notification (ACTIVE/IDLE/OFFLINE)
+- `category` (String) Type of notification rule
 - `notification_frequency` (String) No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)
 
 ### Read-Only
