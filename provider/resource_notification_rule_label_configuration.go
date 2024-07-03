@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotificationRuleThreatActorStatusChange() *schema.Resource {
+func resourceNotificationRuleLabelConfiguration() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleThreatActorStatusChangeCreate,
-		Read:   resourceNotificationRuleThreatActorStatusChangeRead,
-		Update: resourceNotificationRuleThreatActorStatusChangeUpdate,
-		Delete: resourceNotificationRuleThreatActorStatusChangeDelete,
+		Create: resourceNotificationRuleLabelConfigurationCreate,
+		Read:   resourceNotificationRuleLabelConfigurationRead,
+		Update: resourceNotificationRuleLabelConfigurationUpdate,
+		Delete: resourceNotificationRuleLabelConfigurationDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -21,22 +21,22 @@ func resourceNotificationRuleThreatActorStatusChange() *schema.Resource {
 				Description: "Name of the notification rule",
 				Required:    true,
 			},
-			"environments": {
-				Type:        schema.TypeSet,
-				Description: "Environments where rule will be applicable",
-				Required:    true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
 			"channel_id": {
 				Type:        schema.TypeString,
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"actor_states": {
+			"event_types": {
 				Type:        schema.TypeSet,
-				Description: "Actor states for which you want notification",
+				Description: "For which operation we need notification (CREATE/UPDATE/DELETE)",
+				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"label_types": {
+				Type:        schema.TypeSet,
+				Description: "For which label config change we need notification (LABEL_APPLICATION_RULE/LABLE_RULE)",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -51,45 +51,23 @@ func resourceNotificationRuleThreatActorStatusChange() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "THREAT_ACTOR_STATE_CHANGE_EVENT",
+				Default:     "LABEL_CONFIG_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleLabelConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
-	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_states := d.Get("actor_states").(*schema.Set).List()
+	event_types := d.Get("event_types").(*schema.Set).List()
+	label_types := d.Get("label_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
-
-	actorStatesString:="["
-	for _,v := range actor_states{
-		actorStatesString+=v.(string)
-		actorStatesString+=","
-	}
-	if len(actorStatesString)>1{
-		actorStatesString=actorStatesString[:len(actorStatesString)-1]
-	}
-	actorStatesString+="]"
 
 	frequencyString:=""
 	if notification_frequency!=""{
 		frequencyString=fmt.Sprintf(`rateLimitIntervalDuration: "%s"`,notification_frequency)
-	}
-	envArrayString:="["
-	for _,v := range environments{
-		envArrayString+=fmt.Sprintf(`"%s"`,v.(string))
-		envArrayString+=","
-	}
-	envArrayString=envArrayString[:len(envArrayString)-1]
-	envArrayString+="]"
-	envString:=fmt.Sprintf(`environmentScope: { environments: %s }`,envArrayString)
-
-	if len(environments)==0 || (len(environments)==1 && environments[0]==""){
-		envString=""
 	}
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
@@ -97,18 +75,18 @@ func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceDat
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					threatActorStateChangeEventCondition: {
-						actorStates: %s
+					labelConfigChangeEventCondition: {
+						labelConfigChangeTypes: %s
+						labelConfigTypes:" %s
 					}
 				}
 				channelId: "%s"
-				%s
 				%s
 			}
 		) {
 			ruleId
 		}
-	}`,category,name,actorStatesString,channel_id,frequencyString,envString)
+	}`,category,name,event_types,label_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -121,36 +99,33 @@ func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceDat
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleLabelConfigurationRead(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
 	readQuery:=`{
-		notificationRules {
-		  results {
-			ruleId
-			ruleName
-			environmentScope {
-			  environments
-			}
-			channelId
-			integrationTarget {
-			  type
-			  integrationId
-			}
-			category
-			eventConditions {
-			  threatActorStateChangeEventCondition {
-				actorStates
-			  }
-			}
-			rateLimitIntervalDuration
-		  }
+	notificationRules {
+		results {
+		ruleId
+		ruleName
+		channelId
+		integrationTarget {
+			type
+			integrationId
 		}
-	  }
-	  `
+		category
+		eventConditions {
+			labelConfigChangeEventCondition {
+			labelConfigChangeTypes
+			labelConfigTypes
+			}
+		}
+		rateLimitIntervalDuration
+		}
+	}
+	}`
 	var response map[string]interface{}
 	responseStr, err := executeQuery(readQuery, meta)
 	if err != nil {
-		_=fmt.Errorf("Error:%s",err)
+		_=fmt.Errorf("Error: %s",err)
 	}
 	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
@@ -166,77 +141,54 @@ func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData,
 	d.Set("name",ruleDetails["ruleName"])
 	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
-	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
-	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
-	threatActorStateChangeEventCondition:=eventConditions.(map[string]interface{})["threatActorStateChangeEventCondition"]
-	if threatActorStateChangeEventCondition!=nil{
-		actorStates:=threatActorStateChangeEventCondition.(map[string]interface{})["actorStates"].([]interface{})
-		d.Set("actor_states",schema.NewSet(schema.HashString,actorStates))
+	labelConfigChangeEventCondition:=eventConditions.(map[string]interface{})["labelConfigChangeEventCondition"]
+	if labelConfigChangeEventCondition!=nil{
+		labelConfigChangeTypes:=labelConfigChangeEventCondition.(map[string]interface{})["labelConfigChangeTypes"].([]interface{})
+		labelConfigTypes:=labelConfigChangeEventCondition.(map[string]interface{})["labelConfigTypes"].([]interface{})
+		d.Set("event_types",schema.NewSet(schema.HashString,labelConfigChangeTypes))
+		d.Set("label_types",schema.NewSet(schema.HashString,labelConfigTypes))
 	}
-
+	
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)
 	}
-
 	return nil
 }
 
-func resourceNotificationRuleThreatActorStatusChangeUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleLabelConfigurationUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId:=d.Id()
 	name := d.Get("name").(string)
-	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_states := d.Get("actor_states").(*schema.Set).List()
+	event_types := d.Get("event_types").(*schema.Set).List()
+	label_types := d.Get("label_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
-
-	actorStatesString:="["
-	for _,v := range actor_states{
-		actorStatesString+=v.(string)
-		actorStatesString+=","
-	}
-	if len(actorStatesString)>1{
-		actorStatesString=actorStatesString[:len(actorStatesString)-1]
-	}
-	actorStatesString+="]"
 
 	frequencyString:=""
 	if notification_frequency!=""{
 		frequencyString=fmt.Sprintf(`rateLimitIntervalDuration: "%s"`,notification_frequency)
 	}
-	envArrayString:="["
-	for _,v := range environments{
-		envArrayString+=fmt.Sprintf(`"%s"`,v.(string))
-		envArrayString+=","
-	}
-	envArrayString=envArrayString[:len(envArrayString)-1]
-	envArrayString+="]"
-	envString:=fmt.Sprintf(`environmentScope: { environments: %s }`,envArrayString)
-
-	if len(environments)==0 || (len(environments)==1 && environments[0]==""){
-		envString=""
-	}
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				ruleId: "%s"
 				category: %s
+				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
-					threatActorStateChangeEventCondition: {
-						actorStates: %s
+					labelConfigChangeEventCondition: {
+						labelConfigChangeTypes: %s
+						labelConfigTypes:" %s
 					}
 				}
 				channelId: "%s"
-				%s
 				%s
 			}
 		) {
 			ruleId
 		}
-	}`,ruleId,category,name,actorStatesString,channel_id,frequencyString,envString)
+	}`,category,ruleId,name,event_types,label_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -250,7 +202,7 @@ func resourceNotificationRuleThreatActorStatusChangeUpdate(d *schema.ResourceDat
 	return nil
 }
 
-func resourceNotificationRuleThreatActorStatusChangeDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleLabelConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(`mutation {
 		deleteNotificationRule(input: {ruleId: "%s"}) {
