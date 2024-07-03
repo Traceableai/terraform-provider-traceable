@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotificationRuleBlockedThreatActivity() *schema.Resource {
+func resourceNotificationRuleProtectionConfig() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleBlockedThreatActivityCreate,
-		Read:   resourceNotificationRuleBlockedThreatActivityRead,
-		Update: resourceNotificationRuleBlockedThreatActivityUpdate,
-		Delete: resourceNotificationRuleBlockedThreatActivityDelete,
+		Create: resourceNotificationRuleProtectionConfigCreate,
+		Read:   resourceNotificationRuleProtectionConfigRead,
+		Update: resourceNotificationRuleProtectionConfigUpdate,
+		Delete: resourceNotificationRuleProtectionConfigDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,9 +34,9 @@ func resourceNotificationRuleBlockedThreatActivity() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"threat_types": {
+			"security_configuration_types": {
 				Type:        schema.TypeSet,
-				Description: "Threat types for which you want notification",
+				Description: "Security config changes for which you want notification",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -51,40 +51,19 @@ func resourceNotificationRuleBlockedThreatActivity() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "BLOCKED_EVENT",
+				Default:     "SECURITY_CONFIG_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	threat_types := d.Get("threat_types").(*schema.Set).List()
+	security_configuration_types := d.Get("security_configuration_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
-
-	threatTypesString:="["
-	for _,v := range threat_types{
-		str:=""
-		if isCustomThreatEvent(v.(string))==true{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: CUSTOM
-				customDetectionCondition: { customDetectionType: %s }
-			}`,v)
-		}else if ok,val:=isPreDefinedThreatEvent(v.(string));ok{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: PRE_DEFINED
-				preDefinedBlockingCondition: { anomalyRuleId: "%s" }
-			}`,val)
-		}
-		if str==""{
-			return fmt.Errorf("Threat type %s not expected",v)
-		}
-		threatTypesString+=str
-	}
-	threatTypesString+="]"
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -108,8 +87,8 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					blockedEventCondition: {
-						blockedThreatActivityConditions: %s
+					securityConfigChangeEventCondition: {
+						securityConfigurationTypes: %s
 					}
 				}
 				channelId: "%s"
@@ -119,7 +98,7 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 		) {
 			ruleId
 		}
-	}`,category,name,threatTypesString,channel_id,frequencyString,envString)
+	}`,category,name,security_configuration_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -132,44 +111,32 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleBlockedThreatActivityRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleProtectionConfigRead(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
 	readQuery:=`{
-		notificationRules {
-		  results {
+	notificationRules {
+		results {
 			ruleId
 			ruleName
 			environmentScope {
-			  environments
+				environments
 			}
 			channelId
 			integrationTarget {
-			  type
-			  integrationId
-			  
+				type
+				integrationId
 			}
 			category
 			eventConditions {
-			  blockedEventCondition {
-				blockedThreatActivityConditions {
-				  blockedThreatActivityConditionType
-				  customBlockingCondition {
-					customBlockingType    
-				  }
-				  preDefinedBlockingCondition {
-					anomalyRuleId
-				  }
+				securityConfigChangeEventCondition {
+				securityConfigurationTypes
 				}
-			  }
-			  threatActorStateChangeEventCondition {
-				actorStates
-			  }
 			}
 			rateLimitIntervalDuration
-		  }
-		  
+			}
 		}
-	  }`
+	}
+	`
 	var response map[string]interface{}
 	responseStr, err := executeQuery(readQuery, meta)
 	if err != nil {
@@ -187,67 +154,36 @@ func resourceNotificationRuleBlockedThreatActivityRead(d *schema.ResourceData, m
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
-	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
+	d.Set("category",ruleDetails["category"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
-	blockedSecurityEventCondition:=eventConditions.(map[string]interface{})["blockedEventCondition"]
-	if blockedSecurityEventCondition==nil{
-		d.Set("threat_types",schema.NewSet(schema.HashString,[]interface{}{""}))
+	securityConfigChangeEventCondition:=eventConditions.(map[string]interface{})["securityConfigChangeEventCondition"]
+	if securityConfigChangeEventCondition!=nil{
+		securityConfigurationTypes:=securityConfigChangeEventCondition.(map[string]interface{})["securityConfigurationTypes"].([]interface{})
+		if len(securityConfigurationTypes)==0{
+			d.Set("security_configuration_types",schema.NewSet(schema.HashString,[]interface{}{}))
+		}else{
+			d.Set("security_configuration_types",schema.NewSet(schema.HashString,securityConfigurationTypes))
+		}
 	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)
 	}
-	var threat_types []interface{}
-	blockedThreatActivityConditions:=blockedSecurityEventCondition.(map[string]interface{})["blockedThreatActivityConditions"].([]interface{})
-	if blockedThreatActivityConditions!=nil{
-		for _,val := range blockedThreatActivityConditions{
-			isCustom:=val.(map[string]interface{})["blockedThreatActivityConditionType"]	
-			if isCustom=="CUSTOM"{
-				customBlockingType:=val.(map[string]interface{})["customBlockingCondition"].(map[string]interface{})["customBlockingType"]
-				threat_types=append(threat_types, customBlockingType.(string))
-			}else{
-				preDefinedBlockingCondition:=val.(map[string]interface{})["preDefinedBlockingCondition"].(map[string]interface{})["anomalyRuleId"]
-				threat_types=append(threat_types, findThreatByCrsId(preDefinedBlockingCondition.(string)))
-			}
-		}
-		d.Set("threat_types",schema.NewSet(schema.HashString,threat_types))
-	}
 	return nil
 }
 
-func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId:=d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	threat_types := d.Get("threat_types").(*schema.Set).List()
+	security_configuration_types := d.Get("security_configuration_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
-
-	threatTypesString:="["
-	for _,v := range threat_types{
-		str:=""
-		if isCustomThreatEvent(v.(string))==true{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: CUSTOM
-				customDetectionCondition: { customDetectionType: %s }
-			}`,v)
-		}else if ok,val:=isPreDefinedThreatEvent(v.(string));ok{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: PRE_DEFINED
-				preDefinedBlockingCondition: { anomalyRuleId: "%s" }
-			}`,val)
-		}
-		if str==""{
-			return fmt.Errorf("Threat type %s not expected",v)
-		}
-		threatTypesString+=str
-	}
-	threatTypesString+="]"
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -268,12 +204,12 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				ruleId: "%s"
 				category: %s
+				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
-					blockedEventCondition: {
-						blockedThreatActivityConditions: %s
+					securityConfigChangeEventCondition: {
+						securityConfigurationTypes: %s
 					}
 				}
 				channelId: "%s"
@@ -283,7 +219,7 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 		) {
 			ruleId
 		}
-	}`,ruleId,category,name,threatTypesString,channel_id,frequencyString,envString)
+	}`,category,ruleId,name,security_configuration_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -297,7 +233,7 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 	return nil
 }
 
-func resourceNotificationRuleBlockedThreatActivityDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleProtectionConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(`mutation {
 		deleteNotificationRule(input: {ruleId: "%s"}) {

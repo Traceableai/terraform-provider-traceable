@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotificationRuleBlockedThreatActivity() *schema.Resource {
+func resourceNotificationRuleDataCollection() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleBlockedThreatActivityCreate,
-		Read:   resourceNotificationRuleBlockedThreatActivityRead,
-		Update: resourceNotificationRuleBlockedThreatActivityUpdate,
-		Delete: resourceNotificationRuleBlockedThreatActivityDelete,
+		Create: resourceNotificationRuleDataCollectionCreate,
+		Read:   resourceNotificationRuleDataCollectionRead,
+		Update: resourceNotificationRuleDataCollectionUpdate,
+		Delete: resourceNotificationRuleDataCollectionDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,10 +34,15 @@ func resourceNotificationRuleBlockedThreatActivity() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"threat_types": {
-				Type:        schema.TypeSet,
-				Description: "Threat types for which you want notification",
+			"agent_activity_type": {
+				Type:        schema.TypeString,
+				Description: "Agent activity type for which you want notification",
 				Required:    true,
+			},
+			"agent_status_changes": {
+				Type:        schema.TypeSet,
+				Description: "Agent status change for which you want notification (ACTIVE/IDLE/OFFLINE)",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -51,41 +56,33 @@ func resourceNotificationRuleBlockedThreatActivity() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "BLOCKED_EVENT",
+				Default:     "DATA_COLLECTION_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	threat_types := d.Get("threat_types").(*schema.Set).List()
+	agent_activity_type := d.Get("agent_activity_type").(string)
+	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
-	threatTypesString:="["
-	for _,v := range threat_types{
-		str:=""
-		if isCustomThreatEvent(v.(string))==true{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: CUSTOM
-				customDetectionCondition: { customDetectionType: %s }
-			}`,v)
-		}else if ok,val:=isPreDefinedThreatEvent(v.(string));ok{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: PRE_DEFINED
-				preDefinedBlockingCondition: { anomalyRuleId: "%s" }
-			}`,val)
+	agentStatusChangesString:=""
+	if agent_activity_type=="STATUS_CHANGE"{
+		if len(agent_status_changes)==0{
+			return fmt.Errorf("agent_status_changes is required here")
 		}
-		if str==""{
-			return fmt.Errorf("Threat type %s not expected",v)
-		}
-		threatTypesString+=str
+		agentStatusChangesString=fmt.Sprintf(`agentStatusChanges: %s`,agent_status_changes)
 	}
-	threatTypesString+="]"
-
+	if agent_activity_type!="STATUS_CHANGE"{
+		if len(agent_status_changes)>0{
+			return fmt.Errorf("agent_status_changes is not expected here")
+		}
+	}
 	frequencyString:=""
 	if notification_frequency!=""{
 		frequencyString=fmt.Sprintf(`rateLimitIntervalDuration: "%s"`,notification_frequency)
@@ -108,9 +105,11 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					blockedEventCondition: {
-						blockedThreatActivityConditions: %s
-					}
+					dataCollectionChangeCondition: {
+						agentType: ""
+						agentActivityType: %s
+						%s
+                	}
 				}
 				channelId: "%s"
 				%s
@@ -119,7 +118,7 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 		) {
 			ruleId
 		}
-	}`,category,name,threatTypesString,channel_id,frequencyString,envString)
+	}`,category,name,agent_activity_type,agentStatusChangesString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -132,44 +131,33 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleBlockedThreatActivityRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionRead(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
 	readQuery:=`{
-		notificationRules {
-		  results {
-			ruleId
-			ruleName
-			environmentScope {
-			  environments
-			}
-			channelId
-			integrationTarget {
-			  type
-			  integrationId
-			  
-			}
-			category
-			eventConditions {
-			  blockedEventCondition {
-				blockedThreatActivityConditions {
-				  blockedThreatActivityConditionType
-				  customBlockingCondition {
-					customBlockingType    
-				  }
-				  preDefinedBlockingCondition {
-					anomalyRuleId
-				  }
-				}
-			  }
-			  threatActorStateChangeEventCondition {
-				actorStates
-			  }
-			}
-			rateLimitIntervalDuration
-		  }
-		  
+	notificationRules {
+		results {
+		ruleId
+		ruleName
+		environmentScope {
+			environments
 		}
-	  }`
+		channelId
+		integrationTarget {
+			type
+			integrationId
+		}
+		category
+		eventConditions {
+			dataCollectionChangeCondition {
+			agentType
+			agentActivityType
+			agentStatusChanges 
+			}
+		}
+		rateLimitIntervalDuration 
+		}
+	}
+	}`
 	var response map[string]interface{}
 	responseStr, err := executeQuery(readQuery, meta)
 	if err != nil {
@@ -193,62 +181,49 @@ func resourceNotificationRuleBlockedThreatActivityRead(d *schema.ResourceData, m
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
-	blockedSecurityEventCondition:=eventConditions.(map[string]interface{})["blockedEventCondition"]
-	if blockedSecurityEventCondition==nil{
-		d.Set("threat_types",schema.NewSet(schema.HashString,[]interface{}{""}))
+	dataCollectionChangeCondition:=eventConditions.(map[string]interface{})["dataCollectionChangeCondition"]
+	if dataCollectionChangeCondition!=nil{
+		agentActivityType:=dataCollectionChangeCondition.(map[string]interface{})["agentActivityType"].(string)
+		d.Set("agent_activity_type",agentActivityType)
+		if agentActivityType=="STATUS_CHANGE"{
+			agentStatusChanges:=dataCollectionChangeCondition.(map[string]interface{})["agentStatusChanges"].([]interface{})
+			if len(agentStatusChanges)==0{
+				d.Set("agent_status_changes",schema.NewSet(schema.HashString,[]interface{}{}))
+			}else{
+				d.Set("agent_status_changes",schema.NewSet(schema.HashString,agentStatusChanges))
+			}
+		}
 	}
+	
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)
 	}
-	var threat_types []interface{}
-	blockedThreatActivityConditions:=blockedSecurityEventCondition.(map[string]interface{})["blockedThreatActivityConditions"].([]interface{})
-	if blockedThreatActivityConditions!=nil{
-		for _,val := range blockedThreatActivityConditions{
-			isCustom:=val.(map[string]interface{})["blockedThreatActivityConditionType"]	
-			if isCustom=="CUSTOM"{
-				customBlockingType:=val.(map[string]interface{})["customBlockingCondition"].(map[string]interface{})["customBlockingType"]
-				threat_types=append(threat_types, customBlockingType.(string))
-			}else{
-				preDefinedBlockingCondition:=val.(map[string]interface{})["preDefinedBlockingCondition"].(map[string]interface{})["anomalyRuleId"]
-				threat_types=append(threat_types, findThreatByCrsId(preDefinedBlockingCondition.(string)))
-			}
-		}
-		d.Set("threat_types",schema.NewSet(schema.HashString,threat_types))
-	}
 	return nil
 }
 
-func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId:=d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	threat_types := d.Get("threat_types").(*schema.Set).List()
+	agent_activity_type := d.Get("agent_activity_type").(string)
+	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
-	threatTypesString:="["
-	for _,v := range threat_types{
-		str:=""
-		if isCustomThreatEvent(v.(string))==true{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: CUSTOM
-				customDetectionCondition: { customDetectionType: %s }
-			}`,v)
-		}else if ok,val:=isPreDefinedThreatEvent(v.(string));ok{
-			str=fmt.Sprintf(`{
-				blockedThreatActivityConditionType: PRE_DEFINED
-				preDefinedBlockingCondition: { anomalyRuleId: "%s" }
-			}`,val)
+	agentStatusChangesString:=""
+	if agent_activity_type=="STATUS_CHANGE"{
+		if len(agent_status_changes)==0{
+			return fmt.Errorf("agent_status_changes is required here")
 		}
-		if str==""{
-			return fmt.Errorf("Threat type %s not expected",v)
-		}
-		threatTypesString+=str
+		agentStatusChangesString=fmt.Sprintf(`agentStatusChanges: %s`,agent_status_changes)
 	}
-	threatTypesString+="]"
-
+	if agent_activity_type!="STATUS_CHANGE"{
+		if len(agent_status_changes)>0{
+			return fmt.Errorf("agent_status_changes is not expected here")
+		}
+	}
 	frequencyString:=""
 	if notification_frequency!=""{
 		frequencyString=fmt.Sprintf(`rateLimitIntervalDuration: "%s"`,notification_frequency)
@@ -268,13 +243,15 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				ruleId: "%s"
 				category: %s
+				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
-					blockedEventCondition: {
-						blockedThreatActivityConditions: %s
-					}
+					dataCollectionChangeCondition: {
+						agentType: ""
+						agentActivityType: %s
+						%s
+                	}
 				}
 				channelId: "%s"
 				%s
@@ -283,7 +260,7 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 		) {
 			ruleId
 		}
-	}`,ruleId,category,name,threatTypesString,channel_id,frequencyString,envString)
+	}`,category,ruleId,name,agent_activity_type,agentStatusChangesString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -297,7 +274,7 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 	return nil
 }
 
-func resourceNotificationRuleBlockedThreatActivityDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(`mutation {
 		deleteNotificationRule(input: {ruleId: "%s"}) {
