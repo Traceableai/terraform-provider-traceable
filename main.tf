@@ -196,7 +196,7 @@ resource "traceable_ip_range_rule" "my_ip_range" {
     ]
     environment=[] #all env
     description="rule created from custom provider"
-
+}
 resource "traceable_notification_rule_blocked_threat_activity" "rule1" {
   name                    = "example_notification_rule3"
   environments            = []
