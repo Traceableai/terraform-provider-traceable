@@ -224,7 +224,7 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 		emailChannelConfigsQuery=fmt.Sprintf(`emailChannelConfigs: %s`,emailString)
 	}
 
-	if slackWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery=="" && s3BucketChannelConfigsQuery=="" && splunkIntegrationChannelConfigsQuery=="" && syslogIntegrationChannelConfigsQuery=="" && customWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery==""{
+	if slackWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery=="" && s3BucketChannelConfigsQuery=="" && splunkIntegrationChannelConfigsQuery=="" && syslogIntegrationChannelConfigsQuery=="" && customWebhookChannelConfigsQuery==""{
 		return fmt.Errorf("No channel configuration provided")
 	}
 
@@ -506,7 +506,7 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 		emailChannelConfigsQuery=fmt.Sprintf(`emailChannelConfigs: %s`,emailString)
 	}
 
-	if slackWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery=="" && s3BucketChannelConfigsQuery=="" && splunkIntegrationChannelConfigsQuery=="" && syslogIntegrationChannelConfigsQuery=="" && customWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery==""{
+	if slackWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery=="" && s3BucketChannelConfigsQuery=="" && splunkIntegrationChannelConfigsQuery=="" && syslogIntegrationChannelConfigsQuery=="" && customWebhookChannelConfigsQuery=="" {
 		return fmt.Errorf("No channel configuration provided")
 	}
 
