@@ -47,6 +47,12 @@ func resourceNotificationRuleLabelConfiguration() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "LABEL_CONFIG_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -57,6 +63,7 @@ func resourceNotificationRuleLabelConfigurationCreate(d *schema.ResourceData, me
 	event_types := d.Get("event_types").(*schema.Set).List()
 	label_types := d.Get("label_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -65,7 +72,7 @@ func resourceNotificationRuleLabelConfigurationCreate(d *schema.ResourceData, me
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: LABEL_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					labelConfigChangeEventCondition: {
@@ -79,7 +86,7 @@ func resourceNotificationRuleLabelConfigurationCreate(d *schema.ResourceData, me
 		) {
 			ruleId
 		}
-	}`,name,event_types,label_types,channel_id,frequencyString)
+	}`,category,name,event_types,label_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -132,21 +139,18 @@ func resourceNotificationRuleLabelConfigurationRead(d *schema.ResourceData, meta
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	labelConfigChangeEventCondition:=eventConditions.(map[string]interface{})["labelConfigChangeEventCondition"]
-	if labelConfigChangeEventCondition==nil{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{}))
-		d.Set("label_types",schema.NewSet(schema.HashString,[]interface{}{}))
-		return nil
+	if labelConfigChangeEventCondition!=nil{
+		labelConfigChangeTypes:=labelConfigChangeEventCondition.(map[string]interface{})["labelConfigChangeTypes"].([]interface{})
+		labelConfigTypes:=labelConfigChangeEventCondition.(map[string]interface{})["labelConfigTypes"].([]interface{})
+		d.Set("event_types",schema.NewSet(schema.HashString,labelConfigChangeTypes))
+		d.Set("label_types",schema.NewSet(schema.HashString,labelConfigTypes))
 	}
-	labelConfigChangeTypes:=labelConfigChangeEventCondition.(map[string]interface{})["labelConfigChangeTypes"].([]interface{})
-	labelConfigTypes:=labelConfigChangeEventCondition.(map[string]interface{})["labelConfigTypes"].([]interface{})
-	d.Set("event_types",schema.NewSet(schema.HashString,labelConfigChangeTypes))
-	d.Set("label_types",schema.NewSet(schema.HashString,labelConfigTypes))
 	
-
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)
 	}
@@ -160,6 +164,7 @@ func resourceNotificationRuleLabelConfigurationUpdate(d *schema.ResourceData, me
 	event_types := d.Get("event_types").(*schema.Set).List()
 	label_types := d.Get("label_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -168,7 +173,7 @@ func resourceNotificationRuleLabelConfigurationUpdate(d *schema.ResourceData, me
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: LABEL_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -183,7 +188,7 @@ func resourceNotificationRuleLabelConfigurationUpdate(d *schema.ResourceData, me
 		) {
 			ruleId
 		}
-	}`,ruleId,name,event_types,label_types,channel_id,frequencyString)
+	}`,category,ruleId,name,event_types,label_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

@@ -47,6 +47,12 @@ func resourceNotificationRuleProtectionConfig() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "SECURITY_CONFIG_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -57,6 +63,7 @@ func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta
 	channel_id := d.Get("channel_id").(string)
 	security_configuration_types := d.Get("security_configuration_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -77,7 +84,7 @@ func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: SECURITY_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					securityConfigChangeEventCondition: {
@@ -91,7 +98,7 @@ func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta
 		) {
 			ruleId
 		}
-	}`,name,security_configuration_types,channel_id,frequencyString,envString)
+	}`,category,name,security_configuration_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -148,20 +155,19 @@ func resourceNotificationRuleProtectionConfigRead(d *schema.ResourceData, meta i
 	}
 	d.Set("name",ruleDetails["ruleName"])
 	d.Set("channel_id",ruleDetails["channelId"])
+	d.Set("category",ruleDetails["category"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	securityConfigChangeEventCondition:=eventConditions.(map[string]interface{})["securityConfigChangeEventCondition"]
-	if securityConfigChangeEventCondition==nil{
-		d.Set("security_configuration_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		return nil
-	}
-	securityConfigurationTypes:=securityConfigChangeEventCondition.(map[string]interface{})["securityConfigurationTypes"].([]interface{})
-	if len(securityConfigurationTypes)==0{
-		d.Set("security_configuration_types",schema.NewSet(schema.HashString,[]interface{}{}))
-	}else{
-		d.Set("security_configuration_types",schema.NewSet(schema.HashString,securityConfigurationTypes))
+	if securityConfigChangeEventCondition!=nil{
+		securityConfigurationTypes:=securityConfigChangeEventCondition.(map[string]interface{})["securityConfigurationTypes"].([]interface{})
+		if len(securityConfigurationTypes)==0{
+			d.Set("security_configuration_types",schema.NewSet(schema.HashString,[]interface{}{}))
+		}else{
+			d.Set("security_configuration_types",schema.NewSet(schema.HashString,securityConfigurationTypes))
+		}
 	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
@@ -177,6 +183,7 @@ func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta
 	channel_id := d.Get("channel_id").(string)
 	security_configuration_types := d.Get("security_configuration_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -197,7 +204,7 @@ func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: SECURITY_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -212,7 +219,7 @@ func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta
 		) {
 			ruleId
 		}
-	}`,ruleId,name,security_configuration_types,channel_id,frequencyString,envString)
+	}`,category,ruleId,name,security_configuration_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

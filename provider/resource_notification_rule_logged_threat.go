@@ -71,6 +71,12 @@ func resourceNotificationRuleLoggedThreatActivity() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "DETECTED_SECURITY_EVENT",
+			},
 		},
 	}
 }
@@ -84,6 +90,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 	impact := d.Get("impact").(*schema.Set).List()
 	confidence := d.Get("confidence").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	severitiesString:="severities: ["
 	for _,v := range severities{
@@ -158,7 +165,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: DETECTED_SECURITY_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					detectedSecurityEventCondition: {
@@ -175,7 +182,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 		) {
 			ruleId
 		}
-	}`,name,threatTypesString,severitiesString,impactString,confidenceString,channel_id,frequencyString,envString)
+	}`,category,name,threatTypesString,severitiesString,impactString,confidenceString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -241,56 +248,52 @@ func resourceNotificationRuleLoggedThreatActivityRead(d *schema.ResourceData, me
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	detectedSecurityEventCondition:=eventConditions.(map[string]interface{})["detectedSecurityEventCondition"]
-	if detectedSecurityEventCondition==nil{
-		d.Set("severities",schema.NewSet(schema.HashString,[]interface{}{""}))
-		d.Set("impact",schema.NewSet(schema.HashString,[]interface{}{""}))
-		d.Set("confidence",schema.NewSet(schema.HashString,[]interface{}{""}))
-		d.Set("threat_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		return nil
-	}
-	severities:=detectedSecurityEventCondition.(map[string]interface{})["severities"].([]interface{})
-	if len(severities)==0{
-		d.Set("severities",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH","CRITICAL"}))
-	}else{
-		d.Set("severities",schema.NewSet(schema.HashString,severities))
-	}
-
-	impact:=detectedSecurityEventCondition.(map[string]interface{})["impactLevels"].([]interface{})
-	if len(impact)==0{
-		d.Set("impact",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH"}))
-	}else{
-		d.Set("impact",schema.NewSet(schema.HashString,impact))
-	}
-
-	confidence:=detectedSecurityEventCondition.(map[string]interface{})["confidenceLevels"].([]interface{})
-	if len(confidence)==0{
-		d.Set("confidence",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH"}))
-	}else{
-		d.Set("confidence",schema.NewSet(schema.HashString,confidence))
+	if detectedSecurityEventCondition!=nil{
+		severities:=detectedSecurityEventCondition.(map[string]interface{})["severities"].([]interface{})
+		if len(severities)==0{
+			d.Set("severities",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH","CRITICAL"}))
+		}else{
+			d.Set("severities",schema.NewSet(schema.HashString,severities))
+		}
+	
+		impact:=detectedSecurityEventCondition.(map[string]interface{})["impactLevels"].([]interface{})
+		if len(impact)==0{
+			d.Set("impact",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH"}))
+		}else{
+			d.Set("impact",schema.NewSet(schema.HashString,impact))
+		}
+	
+		confidence:=detectedSecurityEventCondition.(map[string]interface{})["confidenceLevels"].([]interface{})
+		if len(confidence)==0{
+			d.Set("confidence",schema.NewSet(schema.HashString,[]interface{}{"LOW","MEDIUM","HIGH"}))
+		}else{
+			d.Set("confidence",schema.NewSet(schema.HashString,confidence))
+		}
+		var threat_types []interface{}
+		detectedThreatActivityConditions:=detectedSecurityEventCondition.(map[string]interface{})["detectedThreatActivityConditions"].([]interface{})
+		for _,val := range detectedThreatActivityConditions{
+			isCustom:=val.(map[string]interface{})["detectedThreatActivityConditionType"]	
+			if isCustom=="CUSTOM"{
+				customDetectionType:=val.(map[string]interface{})["customDetectionCondition"].(map[string]interface{})["customDetectionType"]
+				threat_types=append(threat_types, customDetectionType.(string))
+			}else{
+				preDefinedDetectionCondition:=val.(map[string]interface{})["preDefinedDetectionCondition"].(map[string]interface{})["anomalyRuleId"]
+				threat_types=append(threat_types, findThreatByCrsId(preDefinedDetectionCondition.(string)))
+			}
+		}
+		d.Set("threat_types",schema.NewSet(schema.HashString,threat_types))
 	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)
 	}
-	var threat_types []interface{}
-	detectedThreatActivityConditions:=detectedSecurityEventCondition.(map[string]interface{})["detectedThreatActivityConditions"].([]interface{})
-	for _,val := range detectedThreatActivityConditions{
-		isCustom:=val.(map[string]interface{})["detectedThreatActivityConditionType"]	
-		if isCustom=="CUSTOM"{
-			customDetectionType:=val.(map[string]interface{})["customDetectionCondition"].(map[string]interface{})["customDetectionType"]
-			threat_types=append(threat_types, customDetectionType.(string))
-		}else{
-			preDefinedDetectionCondition:=val.(map[string]interface{})["preDefinedDetectionCondition"].(map[string]interface{})["anomalyRuleId"]
-			threat_types=append(threat_types, findThreatByCrsId(preDefinedDetectionCondition.(string)))
-		}
-	}
-	d.Set("threat_types",schema.NewSet(schema.HashString,threat_types))
 	return nil
 }
 
@@ -304,6 +307,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 	impact := d.Get("impact").(*schema.Set).List()
 	confidence := d.Get("confidence").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	severitiesString:="severities: ["
 	for _,v := range severities{
@@ -379,7 +383,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 		updateNotificationRule(
 			input: {
 				ruleId: "%s"
-				category: DETECTED_SECURITY_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					detectedSecurityEventCondition: {
@@ -396,7 +400,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 		) {
 			ruleId
 		}
-	}`,ruleId,name,threatTypesString,severitiesString,impactString,confidenceString,channel_id,frequencyString,envString)
+	}`,ruleId,category,name,threatTypesString,severitiesString,impactString,confidenceString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

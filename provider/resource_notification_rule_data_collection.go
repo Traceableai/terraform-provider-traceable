@@ -52,6 +52,12 @@ func resourceNotificationRuleDataCollection() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "DATA_COLLECTION_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -63,6 +69,7 @@ func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta i
 	agent_activity_type := d.Get("agent_activity_type").(string)
 	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	agentStatusChangesString:=""
 	if agent_activity_type=="STATUS_CHANGE"{
@@ -95,7 +102,7 @@ func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta i
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: DATA_COLLECTION_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					dataCollectionChangeCondition: {
@@ -111,7 +118,7 @@ func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta i
 		) {
 			ruleId
 		}
-	}`,name,agent_activity_type,agentStatusChangesString,channel_id,frequencyString,envString)
+	}`,category,name,agent_activity_type,agentStatusChangesString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -168,25 +175,23 @@ func resourceNotificationRuleDataCollectionRead(d *schema.ResourceData, meta int
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	dataCollectionChangeCondition:=eventConditions.(map[string]interface{})["dataCollectionChangeCondition"]
-	if dataCollectionChangeCondition==nil{
-		d.Set("agent_activity_type",nil)
-		d.Set("agent_status_changes",nil)
-		return nil
-	}
-	agentActivityType:=dataCollectionChangeCondition.(map[string]interface{})["agentActivityType"].(string)
-	d.Set("agent_activity_type",agentActivityType)
-	if agentActivityType=="STATUS_CHANGE"{
-		agentStatusChanges:=dataCollectionChangeCondition.(map[string]interface{})["agentStatusChanges"].([]interface{})
-		if len(agentStatusChanges)==0{
-			d.Set("agent_status_changes",schema.NewSet(schema.HashString,[]interface{}{}))
-		}else{
-			d.Set("agent_status_changes",schema.NewSet(schema.HashString,agentStatusChanges))
+	if dataCollectionChangeCondition!=nil{
+		agentActivityType:=dataCollectionChangeCondition.(map[string]interface{})["agentActivityType"].(string)
+		d.Set("agent_activity_type",agentActivityType)
+		if agentActivityType=="STATUS_CHANGE"{
+			agentStatusChanges:=dataCollectionChangeCondition.(map[string]interface{})["agentStatusChanges"].([]interface{})
+			if len(agentStatusChanges)==0{
+				d.Set("agent_status_changes",schema.NewSet(schema.HashString,[]interface{}{}))
+			}else{
+				d.Set("agent_status_changes",schema.NewSet(schema.HashString,agentStatusChanges))
+			}
 		}
 	}
 	
@@ -205,6 +210,7 @@ func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta i
 	agent_activity_type := d.Get("agent_activity_type").(string)
 	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	agentStatusChangesString:=""
 	if agent_activity_type=="STATUS_CHANGE"{
@@ -237,7 +243,7 @@ func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta i
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: DATA_COLLECTION_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -254,7 +260,7 @@ func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta i
 		) {
 			ruleId
 		}
-	}`,ruleId,name,agent_activity_type,agentStatusChangesString,channel_id,frequencyString,envString)
+	}`,category,ruleId,name,agent_activity_type,agentStatusChangesString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

@@ -34,9 +34,17 @@ func resourceNotificationRulePostureEvents() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"event_types": {
+			"posture_events": {
 				Type:        schema.TypeSet,
 				Description: "Type of posture event want notification",
+				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"risk_deltas": {
+				Type:        schema.TypeSet,
+				Description: "Applicable for risk score posture events (INCREASE,DECREASE)",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -47,6 +55,12 @@ func resourceNotificationRulePostureEvents() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "POSTURE_EVENT",
+			},
 		},
 	}
 }
@@ -55,8 +69,10 @@ func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta in
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	event_types := d.Get("event_types").(*schema.Set).List()
+	posture_events := d.Get("posture_events").(*schema.Set).List()
+	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -77,11 +93,12 @@ func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta in
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: SECURITY_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					riskScoringConfigChangeEventCondition: {
-						riskScoringConfigChangeTypes: %s
+					postureEventCondition: {
+						postureEvents: %s
+						riskDeltas: %s
 					}
 				}
 				channelId: "%s"
@@ -91,7 +108,7 @@ func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta in
 		) {
 			ruleId
 		}
-	}`,name,event_types,channel_id,frequencyString,envString)
+	}`,category,name,posture_events,risk_deltas,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -121,8 +138,8 @@ func resourceNotificationRulePostureEventsRead(d *schema.ResourceData, meta inte
 			}
 			category
 			eventConditions {
-				riskScoringConfigChangeEventCondition {
-				riskScoringConfigChangeTypes
+				postureEventCondition {
+				postureEvents
 				}
 			}
 			rateLimitIntervalDuration
@@ -147,23 +164,20 @@ func resourceNotificationRulePostureEventsRead(d *schema.ResourceData, meta inte
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
-	riskScoringConfigChangeEventCondition:=eventConditions.(map[string]interface{})["riskScoringConfigChangeEventCondition"]
-	if riskScoringConfigChangeEventCondition==nil{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		return nil
+	postureEventCondition:=eventConditions.(map[string]interface{})["postureEventCondition"]
+	if postureEventCondition!=nil{
+		postureEvents:=postureEventCondition.(map[string]interface{})["postureEvents"].([]interface{})
+		d.Set("posture_events",schema.NewSet(schema.HashString,postureEvents))
+		if riskDeltas,ok:=postureEventCondition.(map[string]interface{})["riskDeltas"].([]interface{});ok {
+			d.Set("risk_deltas",schema.NewSet(schema.HashString,riskDeltas))
+		}
 	}
-	riskScoringConfigChangeTypes:=riskScoringConfigChangeEventCondition.(map[string]interface{})["riskScoringConfigChangeTypes"].([]interface{})
-	if len(riskScoringConfigChangeTypes)==0{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{}))
-	}else{
-		d.Set("event_types",schema.NewSet(schema.HashString,riskScoringConfigChangeTypes))
-	}
-
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)
 	}
@@ -175,8 +189,10 @@ func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta in
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	event_types := d.Get("event_types").(*schema.Set).List()
+	posture_events := d.Get("posture_events").(*schema.Set).List()
+	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -197,12 +213,13 @@ func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta in
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: SECURITY_CONFIG_CHANGE_EVENT
 				ruleId: "%s"
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					riskScoringConfigChangeEventCondition: {
-						riskScoringConfigChangeTypes: %s
+					postureEventCondition: {
+						postureEvents: %s
+						riskDeltas: %s
 					}
 				}
 				channelId: "%s"
@@ -212,7 +229,7 @@ func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta in
 		) {
 			ruleId
 		}
-	}`,ruleId,name,event_types,channel_id,frequencyString,envString)
+	}`,ruleId,category,name,posture_events,risk_deltas,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

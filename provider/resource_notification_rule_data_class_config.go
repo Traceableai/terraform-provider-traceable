@@ -55,6 +55,12 @@ func resourceNotificationRuleDataClassificationConfig() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "SENSITIVE_DATA_CONFIG_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -65,6 +71,7 @@ func resourceNotificationRuleDataClassificationConfigCreate(d *schema.ResourceDa
 	event_types := d.Get("event_types").(*schema.Set).List()
 	sensitive_data_config_types := d.Get("sensitive_data_config_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	envArrayString:="["
 	for _,v := range environments{
@@ -85,7 +92,7 @@ func resourceNotificationRuleDataClassificationConfigCreate(d *schema.ResourceDa
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: SENSITIVE_DATA_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					sensitiveDataConfigChangeCondition: {
@@ -100,7 +107,7 @@ func resourceNotificationRuleDataClassificationConfigCreate(d *schema.ResourceDa
 		) {
 			ruleId
 		}
-	}`,name,event_types,sensitive_data_config_types,channel_id,frequencyString,envString)
+	}`,category,name,event_types,sensitive_data_config_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -153,21 +160,18 @@ func resourceNotificationRuleDataClassificationConfigRead(d *schema.ResourceData
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	sensitiveDataConfigChangeCondition:=eventConditions.(map[string]interface{})["sensitiveDataConfigChangeCondition"]
-	if sensitiveDataConfigChangeCondition==nil{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		d.Set("sensitive_data_config_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		return nil
+	if sensitiveDataConfigChangeCondition!=nil{
+		sensitiveDataConfigChangeTypes:=sensitiveDataConfigChangeCondition.(map[string]interface{})["sensitiveDataConfigChangeTypes"].([]interface{})
+		sensitiveDataConfigTypes:=sensitiveDataConfigChangeCondition.(map[string]interface{})["sensitiveDataConfigTypes"].([]interface{})
+		d.Set("event_types",schema.NewSet(schema.HashString,sensitiveDataConfigChangeTypes))
+		d.Set("sensitive_data_config_types",schema.NewSet(schema.HashString,sensitiveDataConfigTypes))
 	}
-	sensitiveDataConfigChangeTypes:=sensitiveDataConfigChangeCondition.(map[string]interface{})["sensitiveDataConfigChangeTypes"].([]interface{})
-	sensitiveDataConfigTypes:=sensitiveDataConfigChangeCondition.(map[string]interface{})["sensitiveDataConfigTypes"].([]interface{})
-	d.Set("event_types",schema.NewSet(schema.HashString,sensitiveDataConfigChangeTypes))
-	d.Set("sensitive_data_config_types",schema.NewSet(schema.HashString,sensitiveDataConfigTypes))
 	
-
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency",val)
 	}
@@ -181,6 +185,7 @@ func resourceNotificationRuleDataClassificationConfigUpdate(d *schema.ResourceDa
 	event_types := d.Get("event_types").(*schema.Set).List()
 	sensitive_data_config_types := d.Get("sensitive_data_config_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	envArrayString:="["
 	for _,v := range environments{
@@ -201,7 +206,7 @@ func resourceNotificationRuleDataClassificationConfigUpdate(d *schema.ResourceDa
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: SENSITIVE_DATA_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -217,7 +222,7 @@ func resourceNotificationRuleDataClassificationConfigUpdate(d *schema.ResourceDa
 		) {
 			ruleId
 		}
-	}`,ruleId,name,event_types,sensitive_data_config_types,channel_id,frequencyString,envString)
+	}`,category,ruleId,name,event_types,sensitive_data_config_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

@@ -47,6 +47,12 @@ func resourceNotificationRuleNotificationConfiguration() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "NOTIFICATION_CONFIG_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -57,6 +63,7 @@ func resourceNotificationRuleNotificationConfigurationCreate(d *schema.ResourceD
 	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_config_types := d.Get("notification_config_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -65,7 +72,7 @@ func resourceNotificationRuleNotificationConfigurationCreate(d *schema.ResourceD
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: NOTIFICATION_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					notificationConfigChangeCondition: {
@@ -79,7 +86,7 @@ func resourceNotificationRuleNotificationConfigurationCreate(d *schema.ResourceD
 		) {
 			ruleId
 		}
-	}`,name,event_types,notification_config_types,channel_id,frequencyString)
+	}`,category,name,event_types,notification_config_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -132,19 +139,17 @@ func resourceNotificationRuleNotificationConfigurationRead(d *schema.ResourceDat
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	notificationConfigChangeCondition:=eventConditions.(map[string]interface{})["notificationConfigChangeCondition"]
-	if notificationConfigChangeCondition==nil{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		d.Set("notification_config_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		return nil
+	if notificationConfigChangeCondition!=nil{
+		notificationConfigChangeTypes:=notificationConfigChangeCondition.(map[string]interface{})["notificationConfigChangeTypes"].([]interface{})
+		notificationTypes:=notificationConfigChangeCondition.(map[string]interface{})["notificationTypes"].([]interface{})
+		d.Set("event_types",schema.NewSet(schema.HashString,notificationConfigChangeTypes))
+		d.Set("notification_config_types",schema.NewSet(schema.HashString,notificationTypes))
 	}
-	notificationConfigChangeTypes:=notificationConfigChangeCondition.(map[string]interface{})["notificationConfigChangeTypes"].([]interface{})
-	notificationTypes:=notificationConfigChangeCondition.(map[string]interface{})["notificationTypes"].([]interface{})
-	d.Set("event_types",schema.NewSet(schema.HashString,notificationConfigChangeTypes))
-	d.Set("notification_config_types",schema.NewSet(schema.HashString,notificationTypes))
 	
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
@@ -160,6 +165,7 @@ func resourceNotificationRuleNotificationConfigurationUpdate(d *schema.ResourceD
 	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_config_types := d.Get("notification_config_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -168,7 +174,7 @@ func resourceNotificationRuleNotificationConfigurationUpdate(d *schema.ResourceD
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: NOTIFICATION_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -183,7 +189,7 @@ func resourceNotificationRuleNotificationConfigurationUpdate(d *schema.ResourceD
 		) {
 			ruleId
 		}
-	}`,ruleId,name,event_types,notification_config_types,channel_id,frequencyString)
+	}`,category,ruleId,name,event_types,notification_config_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

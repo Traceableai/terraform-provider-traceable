@@ -47,6 +47,12 @@ func resourceNotificationRuleRiskScoring() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "RISK_SCORING_CONFIG_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -57,6 +63,7 @@ func resourceNotificationRuleRiskScoringCreate(d *schema.ResourceData, meta inte
 	channel_id := d.Get("channel_id").(string)
 	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -77,7 +84,7 @@ func resourceNotificationRuleRiskScoringCreate(d *schema.ResourceData, meta inte
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: SECURITY_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					riskScoringConfigChangeEventCondition: {
@@ -91,7 +98,7 @@ func resourceNotificationRuleRiskScoringCreate(d *schema.ResourceData, meta inte
 		) {
 			ruleId
 		}
-	}`,name,event_types,channel_id,frequencyString,envString)
+	}`,category,name,event_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -147,21 +154,20 @@ func resourceNotificationRuleRiskScoringRead(d *schema.ResourceData, meta interf
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	riskScoringConfigChangeEventCondition:=eventConditions.(map[string]interface{})["riskScoringConfigChangeEventCondition"]
-	if riskScoringConfigChangeEventCondition==nil{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		return nil
-	}
-	riskScoringConfigChangeTypes:=riskScoringConfigChangeEventCondition.(map[string]interface{})["riskScoringConfigChangeTypes"].([]interface{})
-	if len(riskScoringConfigChangeTypes)==0{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{}))
-	}else{
-		d.Set("event_types",schema.NewSet(schema.HashString,riskScoringConfigChangeTypes))
+	if riskScoringConfigChangeEventCondition!=nil{
+		riskScoringConfigChangeTypes:=riskScoringConfigChangeEventCondition.(map[string]interface{})["riskScoringConfigChangeTypes"].([]interface{})
+		if len(riskScoringConfigChangeTypes)==0{
+			d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{}))
+		}else{
+			d.Set("event_types",schema.NewSet(schema.HashString,riskScoringConfigChangeTypes))
+		}
 	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
@@ -177,6 +183,7 @@ func resourceNotificationRuleRiskScoringUpdate(d *schema.ResourceData, meta inte
 	channel_id := d.Get("channel_id").(string)
 	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -197,7 +204,7 @@ func resourceNotificationRuleRiskScoringUpdate(d *schema.ResourceData, meta inte
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: SECURITY_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -212,7 +219,7 @@ func resourceNotificationRuleRiskScoringUpdate(d *schema.ResourceData, meta inte
 		) {
 			ruleId
 		}
-	}`,ruleId,name,event_types,channel_id,frequencyString,envString)
+	}`,category,ruleId,name,event_types,channel_id,frequencyString,envString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

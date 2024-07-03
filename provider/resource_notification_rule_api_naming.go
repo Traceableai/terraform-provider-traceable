@@ -39,6 +39,12 @@ func resourceNotificationRuleApiNaming() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "API_NAMING_RULE_CONFIG_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -48,6 +54,7 @@ func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interf
 	channel_id := d.Get("channel_id").(string)
 	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -56,7 +63,7 @@ func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interf
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: API_NAMING_RULE_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					apiNamingRuleConfigChangeEventCondition: {
@@ -69,7 +76,7 @@ func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interf
 		) {
 			ruleId
 		}
-	}`,name,event_types,channel_id,frequencyString)
+	}`,category,name,event_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -121,19 +128,19 @@ func resourceNotificationRuleApiNamingRead(d *schema.ResourceData, meta interfac
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	apiNamingRuleConfigChangeEventCondition:=eventConditions.(map[string]interface{})["apiNamingRuleConfigChangeEventCondition"]
-	if apiNamingRuleConfigChangeEventCondition==nil{
-		d.Set("event_types",[]interface{}{""})
-		return nil
-	}
-	apiNamingRuleConfigChangeTypes:=apiNamingRuleConfigChangeEventCondition.(map[string]interface{})["apiNamingRuleConfigChangeTypes"].([]interface{})
-	if len(apiNamingRuleConfigChangeTypes)==0{
-		d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{}))
-	}else{
-		d.Set("event_types",schema.NewSet(schema.HashString,apiNamingRuleConfigChangeTypes))
+
+	if apiNamingRuleConfigChangeEventCondition!=nil{
+		apiNamingRuleConfigChangeTypes:=apiNamingRuleConfigChangeEventCondition.(map[string]interface{})["apiNamingRuleConfigChangeTypes"].([]interface{})
+		if len(apiNamingRuleConfigChangeTypes)==0{
+			d.Set("event_types",schema.NewSet(schema.HashString,[]interface{}{}))
+		}else{
+			d.Set("event_types",schema.NewSet(schema.HashString,apiNamingRuleConfigChangeTypes))
+		}
 	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
@@ -148,6 +155,7 @@ func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interf
 	channel_id := d.Get("channel_id").(string)
 	event_types := d.Get("event_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -156,7 +164,7 @@ func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interf
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: API_NAMING_RULE_CONFIG_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -170,7 +178,7 @@ func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interf
 		) {
 			ruleId
 		}
-	}`,ruleId,name,event_types,channel_id,frequencyString)
+	}`,category,ruleId,name,event_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

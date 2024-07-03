@@ -39,6 +39,12 @@ func resourceNotificationRuleTeamActivity() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "USER_CHANGE_EVENT",
+			},
 		},
 	}
 }
@@ -48,6 +54,7 @@ func resourceNotificationRuleTeamActivityCreate(d *schema.ResourceData, meta int
 	channel_id := d.Get("channel_id").(string)
 	user_change_types := d.Get("user_change_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -56,7 +63,7 @@ func resourceNotificationRuleTeamActivityCreate(d *schema.ResourceData, meta int
 	query:=fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: USER_CHANGE_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					userChangeEventCondition: {
@@ -69,7 +76,7 @@ func resourceNotificationRuleTeamActivityCreate(d *schema.ResourceData, meta int
 		) {
 			ruleId
 		}
-	}`,name,user_change_types,channel_id,frequencyString)
+	}`,category,name,user_change_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -121,19 +128,18 @@ func resourceNotificationRuleTeamActivityRead(d *schema.ResourceData, meta inter
 		return nil
 	}
 	d.Set("name",ruleDetails["ruleName"])
+	d.Set("category",ruleDetails["category"])
 	d.Set("channel_id",ruleDetails["channelId"])
 	eventConditions:=ruleDetails["eventConditions"]
 	log.Printf("logss %s",eventConditions)
 	userChangeEventCondition:=eventConditions.(map[string]interface{})["userChangeEventCondition"]
-	if userChangeEventCondition==nil{
-		d.Set("user_change_types",schema.NewSet(schema.HashString,[]interface{}{""}))
-		return nil
-	}
-	userChangeTypes:=userChangeEventCondition.(map[string]interface{})["userChangeTypes"].([]interface{})
-	if len(userChangeTypes)==0{
-		d.Set("user_change_types",schema.NewSet(schema.HashString,[]interface{}{}))
-	}else{
-		d.Set("user_change_types",schema.NewSet(schema.HashString,userChangeTypes))
+	if userChangeEventCondition!=nil{
+		userChangeTypes:=userChangeEventCondition.(map[string]interface{})["userChangeTypes"].([]interface{})
+		if len(userChangeTypes)==0{
+			d.Set("user_change_types",schema.NewSet(schema.HashString,[]interface{}{}))
+		}else{
+			d.Set("user_change_types",schema.NewSet(schema.HashString,userChangeTypes))
+		}
 	}
 
 	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
@@ -148,6 +154,7 @@ func resourceNotificationRuleTeamActivityUpdate(d *schema.ResourceData, meta int
 	channel_id := d.Get("channel_id").(string)
 	user_change_types := d.Get("user_change_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	frequencyString:=""
 	if notification_frequency!=""{
@@ -156,7 +163,7 @@ func resourceNotificationRuleTeamActivityUpdate(d *schema.ResourceData, meta int
 	query:=fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: USER_CHANGE_EVENT
+				category: %s
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
@@ -170,7 +177,7 @@ func resourceNotificationRuleTeamActivityUpdate(d *schema.ResourceData, meta int
 		) {
 			ruleId
 		}
-	}`,ruleId,name,user_change_types,channel_id,frequencyString)
+	}`,category,ruleId,name,user_change_types,channel_id,frequencyString)
 	var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
