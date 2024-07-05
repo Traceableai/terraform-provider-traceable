@@ -105,6 +105,10 @@ func resourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
 		for _, result := range results {
 			if token := result.(map[string]interface{}); token["id"].(string) == id {
 				d.Set("name", token["name"].(string))
+				// Preserve the token value in state
+				if v, ok := d.GetOk("token"); ok {
+					d.Set("token", v)
+				}
 				d.Set("created_by", token["createdBy"].(string))
 				d.Set("creation_timestamp", token["creationTimestamp"].(string))
 				d.Set("last_used_timestamp", token["lastUsedTimestamp"].(string))

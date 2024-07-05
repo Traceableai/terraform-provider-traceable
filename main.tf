@@ -26,7 +26,7 @@ output "api_token" {
 }
 
 provider "traceable" {
-  platform_url="https://app-dev.traceable.ai/graphql"
+  platform_url="https://api-dev.traceable.ai/graphql"
   api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
@@ -160,7 +160,12 @@ resource "traceable_label_creation_rule" "example_label_create_rule" {
 }
 
 resource "traceable_agent_token" "example" {
-  name = "tf-provider-token-testing"
+  name = "tf-provider-token-testing-resource-latest"
+}
+
+data "traceable_agent_token" "example" {
+  name = traceable_agent_token.example.name
+  depends_on = [traceable_agent_token.example]
 }
 
 output "agent_token" {
@@ -168,21 +173,9 @@ output "agent_token" {
 }
 
 output "agent_token_creation_timestamp" {
-  value = traceable_agent_token.example.creation_timestamp
-}
-
-data "traceable_agent_token" "example" {
-  name = "tf-provider-token-testing"
-}
-
-output "agent_token" {
-  value = data.traceable_agent_token.example.token
-}
-
-output "agent_token_creation_timestamp" {
   value = data.traceable_agent_token.example.creation_timestamp
-
 }
+
 
 
 resource "traceable_ip_range_rule" "my_ip_range" {
