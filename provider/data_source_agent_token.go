@@ -21,7 +21,6 @@ func dataSourceAgentToken() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The agent token value",
 				Computed:    true,
-				Sensitive:   true,
 			},
 			"created_by": &schema.Schema{
 				Type:        schema.TypeString,
@@ -63,6 +62,10 @@ func dataSourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
 			if token := result.(map[string]interface{}); token["name"].(string) == name {
 				d.SetId(token["id"].(string))
 				d.Set("name", token["name"].(string))
+				// Preserve the token value in state
+				if v, ok := d.GetOk("token"); ok {
+					d.Set("token", v)
+				}
 				d.Set("created_by", token["createdBy"].(string))
 				d.Set("creation_timestamp", token["creationTimestamp"].(string))
 				d.Set("last_used_timestamp", token["lastUsedTimestamp"].(string))
