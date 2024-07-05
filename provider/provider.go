@@ -38,7 +38,7 @@ func Provider() *schema.Provider {
 
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"traceable_notification_channels": dataSourceNotificationChannel(),
+			// "traceable_notification_channels": dataSourceNotificationChannel(),
 			"traceable_splunk_integration":    dataSourceSplunkIntegration(),
 			"traceable_syslog_integration":    dataSourceSyslogIntegration(),
 			"traceable_endpoint_id":           dataSourceEndpointId(),
