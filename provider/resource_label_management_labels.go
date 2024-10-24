@@ -16,18 +16,18 @@ func resourceLabelCreationRule() *schema.Resource {
 		Delete: resourceLabelCreationRuleDelete,
 
 		Schema: map[string]*schema.Schema{
-			"key": &schema.Schema{
+			"key": {
 				Type:        schema.TypeString,
 				Description: "The key of the label",
 				Required:    true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:        schema.TypeString,
 				Description: "A description of the label",
 				Optional:    true, // Optional as per requirements
 				Default:     "",
 			},
-			"color": &schema.Schema{
+			"color": {
 				Type:        schema.TypeString,
 				Description: "The color code of the label",
 				Optional:    true, // Optional as per requirements

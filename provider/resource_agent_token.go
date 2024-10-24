@@ -16,27 +16,27 @@ func resourceAgentToken() *schema.Resource {
 		Delete: resourceAgentTokenDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "The name of the agent token",
 				Required:    true,
 			},
-			"token": &schema.Schema{
+			"token": {
 				Type:        schema.TypeString,
 				Description: "The agent token value",
 				Computed:    true,
 			},
-			"created_by": &schema.Schema{
+			"created_by": {
 				Type:        schema.TypeString,
 				Description: "The creator of the agent token",
 				Computed:    true,
 			},
-			"creation_timestamp": &schema.Schema{
+			"creation_timestamp": {
 				Type:        schema.TypeString,
 				Description: "The creation timestamp of the agent token",
 				Computed:    true,
 			},
-			"last_used_timestamp": &schema.Schema{
+			"last_used_timestamp": {
 				Type:        schema.TypeString,
 				Description: "The last used timestamp of the agent token",
 				Computed:    true,
