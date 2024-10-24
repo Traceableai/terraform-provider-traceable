@@ -30,7 +30,7 @@ variable "API_TOKEN" {
 }
 
 provider "traceable" {
-  platform_url = "https://app-dev.traceable.ai/graphql"
+  platform_url = "platform url"
   api_token    = jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
 }
 
@@ -143,7 +143,7 @@ resource "traceable_notification_channel" "testchannel" {
 }
 
 data "traceable_notification_channels" "mychannel" {
-  name = "sarthak-test"
+  name = "helloworld"
 }
 
 resource "traceable_notification_rule_logged_threat_activity" "rule1" {
@@ -162,7 +162,6 @@ resource "traceable_label_creation_rule" "example_label_create_rule" {
   color       = "#E295E9"
 }
 
-
 resource "traceable_notification_rule_protection_configuration_change" "protection_config" {
   name                         = "aditya"
   environments                 = ["3095423142-ip-blocking"]
@@ -170,6 +169,7 @@ resource "traceable_notification_rule_protection_configuration_change" "protecti
   security_configuration_types = []
   notification_frequency       = "PT1H"
 }
+
 resource "traceable_notification_rule_team_activity" "team_activity" {
   name                   = "team-activity-1"
   channel_id             = data.traceable_notification_channels.mychannel.channel_id
@@ -184,14 +184,17 @@ output "agent_token" {
 output "agent_token_creation_timestamp" {
   value = traceable_agent_token.example.creation_timestamp
 }
+resource "traceable_agent_token" "example" {
+  name = "tf-provider-token-testing-resource-latest"
+}
 
 data "traceable_agent_token" "example" {
-  name = "tf-provider-token-testing"
+  name = traceable_agent_token.example.name
+  depends_on = [traceable_agent_token.example]
 }
 
 output "agent_token" {
-  value = data.traceable_agent_token.example.token
-  sensitive = true
+  value = traceable_agent_token.example.token
 }
 
 output "agent_token_creation_timestamp" {
@@ -249,16 +252,6 @@ resource "traceable_notification_rule_exclude_rule" "exclude_rule" {
   notification_frequency = "PT1H"
 }
 
-output "agent_token" {
-  value     = data.traceable_agent_token.example.token
-  sensitive = true
-}
-
-output "agent_token_creation_timestamp" {
-  value = data.traceable_agent_token.example.creation_timestamp
-}
-
-
 resource "traceable_ip_range_rule" "my_ip_range" {
     name     = "first_rule"
     rule_action     = "RULE_ACTION_ALERT"
@@ -270,6 +263,7 @@ resource "traceable_ip_range_rule" "my_ip_range" {
     environment=[] #all env
     description="rule created from custom provider"
 }
+
 resource "traceable_notification_rule_blocked_threat_activity" "rule1" {
   name                   = "example_notification_rule3"
   environments           = []
