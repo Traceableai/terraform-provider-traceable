@@ -11,7 +11,7 @@ import (
 func executeQuery(query string, meta interface{}) (string, error) {
 	url := meta.(*graphqlProviderConfig).GQLServerUrl
 	api_token := meta.(*graphqlProviderConfig).ApiToken
-	x-traceable-terraform-registry-version := meta.(*graphqlProviderConfig).x-traceable-terraform-registry-version
+	traceable_provider_version := meta.(*graphqlProviderConfig).TraceableProviderVersion
 
 	requestBody, err := json.Marshal(map[string]string{
 		"query": query,
@@ -27,7 +27,7 @@ func executeQuery(query string, meta interface{}) (string, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", api_token)
-	req.Header.Set("x-traceable-terraform-registry-version", x-traceable-terraform-registry-version)
+	req.Header.Set("x-traceable-terraform-registry-version", traceable_provider_version)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
