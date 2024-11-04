@@ -52,12 +52,14 @@ func Provider() *schema.Provider {
 type graphqlProviderConfig struct {
 	GQLServerUrl string
 	ApiToken     string
+	TraceableProviderVersion string
 }
 
 func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := &graphqlProviderConfig{
 		GQLServerUrl: d.Get("platform_url").(string),
 		ApiToken:     d.Get("api_token").(string),
+		TraceableProviderVersion: version.ProviderVersion,
 	}
 	return config, nil
 }
