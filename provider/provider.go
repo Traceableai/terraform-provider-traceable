@@ -17,6 +17,11 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Description: "platform api token",
 			},
+            "version": {
+                Type:        schema.TypeString,
+                Required:    true,
+                Description: "Traceable provider version",
+            },
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"traceable_ip_range_rule":                            resourceIpRangeRule(),
@@ -59,7 +64,7 @@ func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := &graphqlProviderConfig{
 		GQLServerUrl: d.Get("platform_url").(string),
 		ApiToken:     d.Get("api_token").(string),
-		TraceableProviderVersion: version.ProviderVersion,
+		TraceableProviderVersion: d.Get("version").(string),
 	}
 	return config, nil
 }
