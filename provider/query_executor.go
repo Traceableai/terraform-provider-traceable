@@ -27,7 +27,7 @@ func executeQuery(query string, meta interface{}) (string, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", api_token)
-	req.Header.Set("x-traceable-terraform-registry-version", traceable_provider_version)
+	req.Header.Set("x-traceable-client", traceable_provider_version)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
