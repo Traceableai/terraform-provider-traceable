@@ -139,7 +139,12 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
     if (sub_rule_blocking_enabled=="" && disabled=="") || (disabled!="" && sub_rule_blocking_enabled!=""){
         return fmt.Errorf("Required one of `sub_rule_blocking_enable` or `disabled`")
     }
-
+    if sub_rule_id!="" && sub_rule_blocking_enabled==""{
+        return fmt.Errorf("Required `sub_rule_blocking_enable`")
+    }
+    if sub_rule_blocking_enabled!="" && sub_rule_id==""{
+        return fmt.Errorf("Required `sub_rule_id`")
+    }
     configScope:="anomalyScope: { scopeType: CUSTOMER }"
     if environment!=""{
         configScope=fmt.Sprintf(`anomalyScope: {
