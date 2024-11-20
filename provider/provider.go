@@ -35,6 +35,10 @@ func Provider() *schema.Provider {
 			// "traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 			"traceable_label_creation_rule":                      resourceLabelCreationRule(),
 			// "traceable_agent_token":                              resourceAgentToken(),
+			"traceable_custom_signature_allow":                   resourceCustomSignatureAllowRule(),
+			"traceable_custom_signature_block":                   resourceCustomSignatureBlockRule(),
+			"traceable_custom_signature_alert":                   resourceCustomSignatureAlertRule(),
+			"traceable_custom_signature_testing":                   resourceCustomSignatureTestingRule(),
 
 		},
 		DataSourcesMap: map[string]*schema.Resource{

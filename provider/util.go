@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"regexp"
+	"strconv"
 )
 
 func listToString(stringArray []string) string {
@@ -184,4 +186,44 @@ func jsonifyList(list []interface{}) string {
 		strList = append(strList, fmt.Sprintf(`"%s"`, item))
 	}
 	return "[" + strings.Join(strList, ", ") + "]"
+}
+
+func escapeString(input string) string {
+	lines := strings.Split(input, "\n")
+    // Trim whitespace and escape each line
+    for i, line := range lines {
+//         line = strings.TrimSpace(line)
+        line = strings.ReplaceAll(line, `\`, `\\`)  // Escape backslashes
+        line = strings.ReplaceAll(line, `"`, `\"`)  // Escape double quotes
+//         line = strings.ReplaceAll(line, `%`, `%%`) // Escape %
+        lines[i] = line
+    }
+    // Join lines with explicit \n
+    return strings.Join(lines, `\n`)
+}
+
+func ConvertDurationToSeconds(duration string) (string, error) {
+	re := regexp.MustCompile(`P(T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?`)
+	matches := re.FindStringSubmatch(duration)
+	if len(matches) == 0 {
+		return "", fmt.Errorf("invalid duration format: %s", duration)
+	}
+
+	totalSeconds := 0
+
+	// Parse hours, minutes, and seconds if present
+	if matches[2] != "" { // Hours
+		hours, _ := strconv.Atoi(matches[2])
+		totalSeconds += hours * 3600
+	}
+	if matches[3] != "" { // Minutes
+		minutes, _ := strconv.Atoi(matches[3])
+		totalSeconds += minutes * 60
+	}
+	if matches[4] != "" { // Seconds
+		seconds, _ := strconv.Atoi(matches[4])
+		totalSeconds += seconds
+	}
+
+	return fmt.Sprintf("PT%dS", totalSeconds), nil
 }
