@@ -28,7 +28,7 @@ func resourceCustomSignatureBlockRule() *schema.Resource {
 			},
 			"environments": {
 				Type:        schema.TypeSet,
-				Description: "Environment of the custom signature allow rule",
+				Description: "Environment of the custom signature allow rule (Leave empty array for all env)",
 				Optional:    true,
 				Elem: &schema.Schema{
                         Type: schema.TypeString,
