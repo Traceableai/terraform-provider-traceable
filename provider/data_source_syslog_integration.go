@@ -39,7 +39,7 @@ func dataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) e
 	  }
 	  `	  
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}

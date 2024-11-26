@@ -248,7 +248,7 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 	`,channelName,slackWebhookChannelConfigsQuery,emailChannelConfigsQuery,s3BucketChannelConfigsQuery,splunkIntegrationChannelConfigsQuery,syslogIntegrationChannelConfigsQuery,customWebhookChannelConfigsQuery)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
@@ -306,7 +306,7 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}`
 	var response map[string]interface{}
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
@@ -531,7 +531,7 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 	`,channel_id,channelName,slackWebhookChannelConfigsQuery,emailChannelConfigsQuery,s3BucketChannelConfigsQuery,splunkIntegrationChannelConfigsQuery,syslogIntegrationChannelConfigsQuery,customWebhookChannelConfigsQuery)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
@@ -559,7 +559,7 @@ func resourceNotificationChannelDelete(d *schema.ResourceData, meta interface{})
 		}
 	  }
 	  `, id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

@@ -177,7 +177,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 		}
 	}`,name,threatTypesString,severitiesString,impactString,confidenceString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
@@ -225,7 +225,7 @@ func resourceNotificationRuleLoggedThreatActivityRead(d *schema.ResourceData, me
 		}
 	  }`
 	var response map[string]interface{}
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		_=fmt.Errorf("Error:%s",err)
 	}
@@ -392,7 +392,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 		}
 	}`,ruleId,name,threatTypesString,severitiesString,impactString,confidenceString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
@@ -411,7 +411,7 @@ func resourceNotificationRuleLoggedThreatActivityDelete(d *schema.ResourceData, 
 		  success
 		}
 	  }`, id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

@@ -118,7 +118,7 @@ func resourceIpRangeRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	query += "}) {id}}"
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
@@ -135,7 +135,7 @@ func resourceIpRangeRuleRead(d *schema.ResourceData, meta interface{}) error {
 	log.Println("Id from read ", id)
 	query := fmt.Sprintf("{ ipRangeRules { results { id internal disabled ruleDetails { name description rawIpRangeData ruleAction eventSeverity expirationDetails { expirationDuration expirationTimestamp } } ruleScope { environmentScope { environmentIds } } } } }	")
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}
@@ -231,7 +231,7 @@ func resourceIpRangeRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	query += "}) {id}}"
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
@@ -246,7 +246,7 @@ func resourceIpRangeRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 func resourceIpRangeRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(" mutation {deleteIpRangeRule(delete: {id: \"%s\"}) {success}}", id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

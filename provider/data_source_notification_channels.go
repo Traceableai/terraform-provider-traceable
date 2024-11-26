@@ -37,7 +37,7 @@ func dataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{})
 		}
 	  }`	  
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}

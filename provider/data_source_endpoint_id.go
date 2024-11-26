@@ -85,7 +85,7 @@ func dataSourceEndpointIdRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}`,stTime,endTime,name,enviroment_name,service_name)
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}

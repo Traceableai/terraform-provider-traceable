@@ -126,7 +126,7 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 	  }`,name,category,scope_type,customJsonString,customScopeString)
 	
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -147,7 +147,7 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 	id := d.Id()
 	log.Printf("Id from read %s", id)
 	readQuery:="{ userAttributionRules { results { id scopeType rank name type disabled customScope { environmentScopes { environmentName __typename } urlScopes { urlMatchRegex __typename } __typename } customJson { authTypeJson userIdJson userRoleJson __typename } } } }"
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
 	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
-	readQueryResStr, err := executeQuery(readQuery, meta)
+	readQueryResStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 	
 	
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -298,7 +298,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 func resourceUserAttributionRuleCustomJsonDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(" mutation { deleteUserAttributionRule(input: {id: \"%s\"}) { results { id scopeType rank name type disabled } } }", id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

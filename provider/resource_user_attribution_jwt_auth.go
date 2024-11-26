@@ -211,7 +211,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 	}
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -232,7 +232,7 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 	id := d.Id()
 	log.Printf("Id from read %s", id)
 	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName __typename} urlScopes{urlMatchRegex __typename} __typename} jwt{authentication{type __typename} location{type headerName cookieName parsingTarget{regexCaptureGroup type __typename} __typename} roleClaim userIdClaim userIdLocation{type jsonPath __typename} roleLocation{type jsonPath __typename} __typename}}}}"
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -323,7 +323,7 @@ func resourceUserAttributionRuleJwtAuthRead(d *schema.ResourceData, meta interfa
 func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta interface{}) error {
 	id:=d.Id()
 	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
-	readQueryResStr, err := executeQuery(readQuery, meta)
+	readQueryResStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -455,7 +455,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 	
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -475,7 +475,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 func resourceUserAttributionRuleJwtAuthDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(" mutation { deleteUserAttributionRule(input: {id: \"%s\"}) { results { id scopeType rank name type disabled } } }", id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

@@ -103,7 +103,7 @@ func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceDat
 		}
 	}`,name,actorStatesString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
@@ -141,7 +141,7 @@ func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData,
 	  }
 	  `
 	var response map[string]interface{}
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		_=fmt.Errorf("Error:%s",err)
 	}
@@ -225,7 +225,7 @@ func resourceNotificationRuleThreatActorStatusChangeUpdate(d *schema.ResourceDat
 		}
 	}`,ruleId,name,actorStatesString,channel_id,frequencyString,envString)
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
@@ -244,7 +244,7 @@ func resourceNotificationRuleThreatActorStatusChangeDelete(d *schema.ResourceDat
 		  success
 		}
 	  }`, id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

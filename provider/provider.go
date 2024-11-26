@@ -2,6 +2,9 @@ package provider
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
+
 )
 
 func Provider() *schema.Provider {
@@ -34,6 +37,7 @@ func Provider() *schema.Provider {
 			"traceable_api_naming_rule":                          resourceApiNamingRule(),
 			// "traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 			"traceable_label_creation_rule":                      resourceLabelCreationRule(),
+			"traceable_rate_limiting_block":                      rate_limiting.ResourceRateLimitingRuleBlock(),
 			// "traceable_agent_token":                              resourceAgentToken(),
 
 		},
@@ -49,13 +53,9 @@ func Provider() *schema.Provider {
 	}
 }
 
-type graphqlProviderConfig struct {
-	GQLServerUrl string
-	ApiToken     string
-}
 
 func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
-	config := &graphqlProviderConfig{
+	config := &common.GraphqlProviderConfig{
 		GQLServerUrl: d.Get("platform_url").(string),
 		ApiToken:     d.Get("api_token").(string),
 	}
