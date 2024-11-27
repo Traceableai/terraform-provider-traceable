@@ -54,7 +54,40 @@ func CallExecuteQuery(query string, meta interface{}) (string, error) {
 func ReturnQuotedStringList(inputList []interface{}) []string{
 	var envList []string
     for _, env := range inputList {
-        envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
+        envList = append(envList, fmt.Sprintf(`"%s",`, env.(string)))
     }
+	lastValue := envList[len(envList)-1]
+	lastValue = lastValue[:len(lastValue)-1]
+	envList[len(envList)-1]=lastValue
 	return envList
+}
+
+func CallGetRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
+	var res map[string]interface{}
+	rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})
+	results := rules["results"].([]interface{})
+	id_name := args[0]
+	if len(args)==1{
+		args = append(args, "id")
+		args = append(args, "name")
+	}
+	// log.Println(id_name)
+	// log.Println(results)
+	for _, rule := range results {
+		ruleData := rule.(map[string]interface{})
+		// log.Println(ruleData)
+		rule_id := ruleData[args[1]].(string)
+		var rule_name string
+		var ok bool
+		if rule_name, ok = ruleData[args[2]].(string); ok {
+			// fmt.Println("Rule Name:", rule_name)
+		} else {
+			rule_name = ""
+		}
+		if rule_id == id_name || rule_name == id_name {
+			// log.Println("Inside if block %s",rule)
+			return rule.(map[string]interface{})
+		}
+	}
+	return res
 }

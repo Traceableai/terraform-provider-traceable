@@ -218,10 +218,11 @@ data "traceable_endpoint_id" "endpoint" {
   service_name="service_UxDyUNPq"
   enviroment_name="jatinenv"
 }
+
 resource "traceable_rate_limiting_block" "sample_rule" {
-    name="hellowowrld2"
-    environments=[]
-    enabled=false
+    name="please one last time 1"
+    environments=["utkarsh_21"]
+    enabled=true
     alert_severity="HIGH"
     threshold_configs {
         api_aggregate_type="ACROSS_ENDPOINTS"
@@ -229,22 +230,20 @@ resource "traceable_rate_limiting_block" "sample_rule" {
         rolling_window_duration="PT60S"
         threshold_config_type="ROLLING_WINDOW"
     }
+    ip_address {
+      ip_address_list = ["1.1.1.1","1.1.1.1/32"]
+      exclude = true
+    }
     user_id {
         user_id_regexes = ["sample","test"]
         exclude=false
     }
-    
     req_res_conditions {
-      metadata_type = "URL"
-      req_res_operator = "EQUALS"
-      req_res_value = "req_url"
-    }
-    req_res_conditions {
-      metadata_type = "HOST"
-      req_res_operator = "EQUALS"
-      req_res_value = "req_header"
-    }
+          metadata_type    = "HTTP_METHOD"
+          req_res_operator = "EQUALS"
+          req_res_value    = "zfcd"
+        }
     block_expiry_duration="PT120S"
-    endpoint_id_scope=[data.traceable_endpoint_id.endpoint.endpoint_id]
+    label_id_scope = ["External"]
 }
 

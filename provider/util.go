@@ -2,8 +2,8 @@ package provider
 
 import (
 	"fmt"
-	"log"
 	"strings"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
 func listToString(stringArray []string) string {
@@ -147,34 +147,8 @@ func convertToInterfaceSlice(input []string) []interface{} {
 	return output
 }
 
-func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
-	var res map[string]interface{}
-	rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})
-	results := rules["results"].([]interface{})
-	id_name := args[0]
-	if len(args)==1{
-		args = append(args, "id")
-		args = append(args, "name")
-	}
-	// log.Println(id_name)
-	// log.Println(results)
-	for _, rule := range results {
-		ruleData := rule.(map[string]interface{})
-		log.Println(ruleData)
-		rule_id := ruleData[args[1]].(string)
-		var rule_name string
-		var ok bool
-		if rule_name, ok = ruleData[args[2]].(string); ok {
-			// fmt.Println("Rule Name:", rule_name)
-		} else {
-			rule_name = ""
-		}
-		if rule_id == id_name || rule_name == id_name {
-			// log.Println("Inside if block %s",rule)
-			return rule.(map[string]interface{})
-		}
-	}
-	return res
+func GetRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
+	return common.CallGetRuleDetailsFromRulesListUsingIdName(response , arrayJsonKey ,args...)
 }
 
 // function to convert a list of strings to a GraphQL-compatible string list

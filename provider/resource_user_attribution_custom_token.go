@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -70,40 +71,39 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 	name := d.Get("name").(string)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
-	url_regex:=d.Get("url_regex").(string)
+	url_regex := d.Get("url_regex").(string)
 	auth_type := d.Get("auth_type").(string)
-	location:=d.Get("location").(string)
-	token_name:=d.Get("token_name").(string)
-	category:=d.Get("category").(string)
+	location := d.Get("location").(string)
+	token_name := d.Get("token_name").(string)
+	category := d.Get("category").(string)
 
-	if scope_type!="SYSTEM_WIDE" && scope_type!="CUSTOM"{
+	if scope_type != "SYSTEM_WIDE" && scope_type != "CUSTOM" {
 		return fmt.Errorf("scope_type supported string is SYSTEM_WIDE or CUSTOM")
 	}
-	if location!="REQUEST_HEADER" && location!="REQUEST_BODY" && location!="REQUEST_COOKIE"{
+	if location != "REQUEST_HEADER" && location != "REQUEST_BODY" && location != "REQUEST_COOKIE" {
 		return fmt.Errorf("location supported string is REQUEST_BODY or REQUEST_HEADER")
 	}
 
-	customScopeString:=""
-	if scope_type=="CUSTOM"{
-		if environment!="" && url_regex==""{
-			customScopeString=fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`,environment)
-		}else if environment=="" && url_regex!=""{
-			customScopeString=fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`,url_regex)
-		}else{
+	customScopeString := ""
+	if scope_type == "CUSTOM" {
+		if environment != "" && url_regex == "" {
+			customScopeString = fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`, environment)
+		} else if environment == "" && url_regex != "" {
+			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
+		} else {
 			return fmt.Errorf("Required environment or url_regex")
 		}
 	}
 
-	tokenLocationString:=""
-	if location=="REQUEST_HEADER"{
-		tokenLocationString=fmt.Sprintf(`requestHeaderLocation: { headerName: "%s", type: HEADER }`,token_name)
-	}else if location=="REQUEST_BODY"{
-		tokenLocationString=fmt.Sprintf(`requestBodyLocation: { jsonPath: "%s", type: JSON_PATH }`,token_name)
-	}else if location=="REQUEST_COOKIE"{
-		location="REQUEST_HEADER"
-		tokenLocationString=fmt.Sprintf(`requestHeaderLocation: { cookieName: "%s", type: COOKIE }`,token_name)
+	tokenLocationString := ""
+	if location == "REQUEST_HEADER" {
+		tokenLocationString = fmt.Sprintf(`requestHeaderLocation: { headerName: "%s", type: HEADER }`, token_name)
+	} else if location == "REQUEST_BODY" {
+		tokenLocationString = fmt.Sprintf(`requestBodyLocation: { jsonPath: "%s", type: JSON_PATH }`, token_name)
+	} else if location == "REQUEST_COOKIE" {
+		location = "REQUEST_HEADER"
+		tokenLocationString = fmt.Sprintf(`requestHeaderLocation: { cookieName: "%s", type: COOKIE }`, token_name)
 	}
-	
 
 	var query string
 	query = fmt.Sprintf(`mutation {
@@ -129,8 +129,8 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 		  }
 		  total
 		}
-	  }`,name,category,scope_type,auth_type,location,tokenLocationString,customScopeString)
-	
+	  }`, name, category, scope_type, auth_type, location, tokenLocationString, customScopeString)
+
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
@@ -142,17 +142,17 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
-	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response,"createUserAttributionRule",name)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "createUserAttributionRule", name)
 	log.Println(ruleDetails)
-	id:=ruleDetails["id"].(string)
+	id := ruleDetails["id"].(string)
 	d.SetId(id)
- 	return nil
+	return nil
 }
 
 func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	log.Printf("Id from read %s", id)
-	readQuery:="{ userAttributionRules { results { id scopeType rank name type disabled customScope { environmentScopes { environmentName __typename } urlScopes { urlMatchRegex __typename } __typename } customToken { authentication { type __typename } customTokenLocation requestBodyLocation { jsonPath type __typename } requestHeaderLocation { cookieName headerName type __typename } __typename } } } }"
+	readQuery := "{ userAttributionRules { results { id scopeType rank name type disabled customScope { environmentScopes { environmentName __typename } urlScopes { urlMatchRegex __typename } __typename } customToken { authentication { type __typename } customTokenLocation requestBodyLocation { jsonPath type __typename } requestHeaderLocation { cookieName headerName type __typename } __typename } } } }"
 	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
@@ -161,63 +161,63 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return err
 	}
-	log.Printf("Response from read %s",responseStr)
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
-	if len(ruleDetails)==0{
+	log.Printf("Response from read %s", responseStr)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "userAttributionRules", id)
+	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
 	}
-	log.Printf("fetching from read %s",ruleDetails)
-	name:=ruleDetails["name"].(string)
-	scopeType:=ruleDetails["scopeType"].(string)
-	d.Set("name",name)
-	category:=ruleDetails["type"].(string)
-	d.Set("category",category)
-	disabled:=ruleDetails["disabled"].(bool)
-	d.Set("disabled",disabled)
-	if scopeType=="SYSTEM_WIDE"{
+	log.Printf("fetching from read %s", ruleDetails)
+	name := ruleDetails["name"].(string)
+	scopeType := ruleDetails["scopeType"].(string)
+	d.Set("name", name)
+	category := ruleDetails["type"].(string)
+	d.Set("category", category)
+	disabled := ruleDetails["disabled"].(bool)
+	d.Set("disabled", disabled)
+	if scopeType == "SYSTEM_WIDE" {
 		d.Set("scope_type", "SYSTEM_WIDE")
 		// d.Set("url_regex",nil)
 		// d.Set("environment",nil)
-	}else{
+	} else {
 		envScope := ruleDetails["customScope"].(map[string]interface{})["environmentScopes"]
 		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
-		if len(envScope.([]interface{}))==0{
-			d.Set("scope_type","CUSTOM")
-			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+		if len(envScope.([]interface{})) == 0 {
+			d.Set("scope_type", "CUSTOM")
+			d.Set("url_regex", urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
 			// d.Set("environment",nil)
-		}else{
-			d.Set("scope_type","CUSTOM")
-			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
+		} else {
+			d.Set("scope_type", "CUSTOM")
+			d.Set("environment", envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
 			// d.Set("url_regex",nil)
 		}
 	}
-	customTokenDetails:=ruleDetails["customToken"]
-	if customTokenDetails!=nil{
-		log.Printf("This is details %s",customTokenDetails)
-		auth_type:=customTokenDetails.(map[string]interface{})["authentication"]
-		customTokenLocation:=customTokenDetails.(map[string]interface{})["customTokenLocation"]
-		if auth_type!=nil{
-			auth_type=auth_type.(map[string]interface{})["type"]
-			d.Set("auth_type",auth_type)
-		}else{
-			d.Set("auth_type",nil)
+	customTokenDetails := ruleDetails["customToken"]
+	if customTokenDetails != nil {
+		log.Printf("This is details %s", customTokenDetails)
+		auth_type := customTokenDetails.(map[string]interface{})["authentication"]
+		customTokenLocation := customTokenDetails.(map[string]interface{})["customTokenLocation"]
+		if auth_type != nil {
+			auth_type = auth_type.(map[string]interface{})["type"]
+			d.Set("auth_type", auth_type)
+		} else {
+			d.Set("auth_type", nil)
 		}
-		if customTokenLocation=="REQUEST_HEADER"{
-			requestHeaderLocation:=customTokenDetails.(map[string]interface{})["requestHeaderLocation"]
-			headerType:=requestHeaderLocation.(map[string]interface{})["type"]
-			if headerType=="COOKIE"{
-				d.Set("location","REQUEST_COOKIE")
-				d.Set("token_name",requestHeaderLocation.(map[string]interface{})["cookieName"])
-	
-			}else{
-				d.Set("location","REQUEST_HEADER")
-				d.Set("token_name",requestHeaderLocation.(map[string]interface{})["headerName"])
+		if customTokenLocation == "REQUEST_HEADER" {
+			requestHeaderLocation := customTokenDetails.(map[string]interface{})["requestHeaderLocation"]
+			headerType := requestHeaderLocation.(map[string]interface{})["type"]
+			if headerType == "COOKIE" {
+				d.Set("location", "REQUEST_COOKIE")
+				d.Set("token_name", requestHeaderLocation.(map[string]interface{})["cookieName"])
+
+			} else {
+				d.Set("location", "REQUEST_HEADER")
+				d.Set("token_name", requestHeaderLocation.(map[string]interface{})["headerName"])
 			}
-		}else{
-			d.Set("location","REQUEST_BODY")
-			requestBodyLocation:=customTokenDetails.(map[string]interface{})["requestBodyLocation"]
-			d.Set("token_name",requestBodyLocation.(map[string]interface{})["jsonPath"])
+		} else {
+			d.Set("location", "REQUEST_BODY")
+			requestBodyLocation := customTokenDetails.(map[string]interface{})["requestBodyLocation"]
+			d.Set("token_name", requestBodyLocation.(map[string]interface{})["jsonPath"])
 		}
 	}
 
@@ -225,8 +225,8 @@ func resourceUserAttributionRuleCustomTokenRead(d *schema.ResourceData, meta int
 }
 
 func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta interface{}) error {
-	id:=d.Id()
-	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
+	id := d.Id()
+	readQuery := "{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
 	readQueryResStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
@@ -235,48 +235,47 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 	if err := json.Unmarshal([]byte(readQueryResStr), &readResponse); err != nil {
 		return err
 	}
-	readRuleDetails:=getRuleDetailsFromRulesListUsingIdName(readResponse,"userAttributionRules" ,id)
-	if len(readRuleDetails)==0{
+	readRuleDetails := GetRuleDetailsFromRulesListUsingIdName(readResponse, "userAttributionRules", id)
+	if len(readRuleDetails) == 0 {
 		return nil
 	}
-	rank:=int(readRuleDetails["rank"].(float64))
+	rank := int(readRuleDetails["rank"].(float64))
 	name := d.Get("name").(string)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
-	url_regex:=d.Get("url_regex").(string)
+	url_regex := d.Get("url_regex").(string)
 	auth_type := d.Get("auth_type").(string)
-	location:=d.Get("location").(string)
-	token_name:=d.Get("token_name").(string)
+	location := d.Get("location").(string)
+	token_name := d.Get("token_name").(string)
 	disabled := d.Get("disabled").(bool)
 	category := d.Get("category").(string)
-	if scope_type!="SYSTEM_WIDE" && scope_type!="CUSTOM"{
+	if scope_type != "SYSTEM_WIDE" && scope_type != "CUSTOM" {
 		return fmt.Errorf("scope_type supported string is SYSTEM_WIDE or CUSTOM")
 	}
-	if location!="REQUEST_HEADER" && location!="REQUEST_BODY" && location!="REQUEST_COOKIE"{
+	if location != "REQUEST_HEADER" && location != "REQUEST_BODY" && location != "REQUEST_COOKIE" {
 		return fmt.Errorf("location supported string is REQUEST_BODY or REQUEST_HEADER")
 	}
 
-	customScopeString:=""
-	if scope_type=="CUSTOM"{
-		if environment!="" && url_regex==""{
-			customScopeString=fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`,environment)
-		}else if environment=="" && url_regex!=""{
-			customScopeString=fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`,url_regex)
-		}else{
+	customScopeString := ""
+	if scope_type == "CUSTOM" {
+		if environment != "" && url_regex == "" {
+			customScopeString = fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`, environment)
+		} else if environment == "" && url_regex != "" {
+			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
+		} else {
 			return fmt.Errorf("Required environment or url_regex")
 		}
 	}
 
-	tokenLocationString:=""
-	if location=="REQUEST_HEADER"{
-		tokenLocationString=fmt.Sprintf(`requestHeaderLocation: { headerName: "%s", type: HEADER }`,token_name)
-	}else if location=="REQUEST_BODY"{
-		tokenLocationString=fmt.Sprintf(`requestBodyLocation: { jsonPath: "%s", type: JSON_PATH }`,token_name)
-	}else if location=="REQUEST_COOKIE"{
-		location="REQUEST_HEADER"
-		tokenLocationString=fmt.Sprintf(`requestHeaderLocation: { cookieName: "%s", type: COOKIE }`,token_name)
+	tokenLocationString := ""
+	if location == "REQUEST_HEADER" {
+		tokenLocationString = fmt.Sprintf(`requestHeaderLocation: { headerName: "%s", type: HEADER }`, token_name)
+	} else if location == "REQUEST_BODY" {
+		tokenLocationString = fmt.Sprintf(`requestBodyLocation: { jsonPath: "%s", type: JSON_PATH }`, token_name)
+	} else if location == "REQUEST_COOKIE" {
+		location = "REQUEST_HEADER"
+		tokenLocationString = fmt.Sprintf(`requestHeaderLocation: { cookieName: "%s", type: COOKIE }`, token_name)
 	}
-	
 
 	var query string
 	query = fmt.Sprintf(`mutation {
@@ -302,7 +301,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 			name
 			type
 		}
-	  }`,id,rank,name,disabled,category,scope_type,auth_type,location,tokenLocationString,customScopeString)
+	  }`, id, rank, name, disabled, category, scope_type, auth_type, location, tokenLocationString, customScopeString)
 
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
@@ -317,7 +316,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 	}
 	rules := response["data"].(map[string]interface{})["updateUserAttributionRule"].(map[string]interface{})
 	// log.Printf(ruleDetails)
-	updatedId:=rules["id"].(string)
+	updatedId := rules["id"].(string)
 	d.SetId(updatedId)
 	return nil
 }

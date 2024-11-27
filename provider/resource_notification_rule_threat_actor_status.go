@@ -58,33 +58,33 @@ func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceDat
 	actor_states := d.Get("actor_states").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 
-	actorStatesString:="["
-	for _,v := range actor_states{
-		actorStatesString+=v.(string)
-		actorStatesString+=","
+	actorStatesString := "["
+	for _, v := range actor_states {
+		actorStatesString += v.(string)
+		actorStatesString += ","
 	}
-	if len(actorStatesString)>1{
-		actorStatesString=actorStatesString[:len(actorStatesString)-1]
+	if len(actorStatesString) > 1 {
+		actorStatesString = actorStatesString[:len(actorStatesString)-1]
 	}
-	actorStatesString+="]"
+	actorStatesString += "]"
 
-	frequencyString:=""
-	if notification_frequency!=""{
-		frequencyString=fmt.Sprintf(`rateLimitIntervalDuration: "%s"`,notification_frequency)
+	frequencyString := ""
+	if notification_frequency != "" {
+		frequencyString = fmt.Sprintf(`rateLimitIntervalDuration: "%s"`, notification_frequency)
 	}
-	envArrayString:="["
-	for _,v := range environments{
-		envArrayString+=fmt.Sprintf(`"%s"`,v.(string))
-		envArrayString+=","
+	envArrayString := "["
+	for _, v := range environments {
+		envArrayString += fmt.Sprintf(`"%s"`, v.(string))
+		envArrayString += ","
 	}
-	envArrayString=envArrayString[:len(envArrayString)-1]
-	envArrayString+="]"
-	envString:=fmt.Sprintf(`environmentScope: { environments: %s }`,envArrayString)
+	envArrayString = envArrayString[:len(envArrayString)-1]
+	envArrayString += "]"
+	envString := fmt.Sprintf(`environmentScope: { environments: %s }`, envArrayString)
 
-	if len(environments)==0 || (len(environments)==1 && environments[0]==""){
-		envString=""
+	if len(environments) == 0 || (len(environments) == 1 && environments[0] == "") {
+		envString = ""
 	}
-	query:=fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
 				category: THREAT_ACTOR_STATE_CHANGE_EVENT
@@ -101,7 +101,7 @@ func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceDat
 		) {
 			ruleId
 		}
-	}`,name,actorStatesString,channel_id,frequencyString,envString)
+	}`, name, actorStatesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -115,8 +115,8 @@ func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceDat
 	return nil
 }
 func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData, meta interface{}) error {
-	id:=d.Id()
-	readQuery:=`{
+	id := d.Id()
+	readQuery := `{
 		notificationRules {
 		  results {
 			ruleId
@@ -143,69 +143,68 @@ func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData,
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
-		_=fmt.Errorf("Error:%s",err)
+		_ = fmt.Errorf("Error:%s", err)
 	}
 	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		_=fmt.Errorf("Error:%s", err)
+		_ = fmt.Errorf("Error:%s", err)
 	}
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationRules" ,id,"ruleId","ruleName")
-	d.Set("name",ruleDetails["ruleName"])
-	d.Set("channel_id",ruleDetails["channelId"])
-	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
-	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
-	eventConditions:=ruleDetails["eventConditions"]
-	log.Printf("logss %s",eventConditions)
-	threatActorStateChangeEventCondition:=eventConditions.(map[string]interface{})["threatActorStateChangeEventCondition"]
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	d.Set("name", ruleDetails["ruleName"])
+	d.Set("channel_id", ruleDetails["channelId"])
+	envs := ruleDetails["environmentScope"].(map[string]interface{})["environments"]
+	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
+	eventConditions := ruleDetails["eventConditions"]
+	log.Printf("logss %s", eventConditions)
+	threatActorStateChangeEventCondition := eventConditions.(map[string]interface{})["threatActorStateChangeEventCondition"]
 
-
-	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
-		d.Set("notification_frequency",val)
+	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
+		d.Set("notification_frequency", val)
 	}
 
-	actorStates:=threatActorStateChangeEventCondition.(map[string]interface{})["actorStates"].([]interface{})
-	
-	d.Set("actor_states",schema.NewSet(schema.HashString,actorStates))
+	actorStates := threatActorStateChangeEventCondition.(map[string]interface{})["actorStates"].([]interface{})
+
+	d.Set("actor_states", schema.NewSet(schema.HashString, actorStates))
 	return nil
 }
 
 func resourceNotificationRuleThreatActorStatusChangeUpdate(d *schema.ResourceData, meta interface{}) error {
-	ruleId:=d.Id()
+	ruleId := d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
 	actor_states := d.Get("actor_states").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 
-	actorStatesString:="["
-	for _,v := range actor_states{
-		actorStatesString+=v.(string)
-		actorStatesString+=","
+	actorStatesString := "["
+	for _, v := range actor_states {
+		actorStatesString += v.(string)
+		actorStatesString += ","
 	}
-	if len(actorStatesString)>1{
-		actorStatesString=actorStatesString[:len(actorStatesString)-1]
+	if len(actorStatesString) > 1 {
+		actorStatesString = actorStatesString[:len(actorStatesString)-1]
 	}
-	actorStatesString+="]"
+	actorStatesString += "]"
 
-	frequencyString:=""
-	if notification_frequency!=""{
-		frequencyString=fmt.Sprintf(`rateLimitIntervalDuration: "%s"`,notification_frequency)
+	frequencyString := ""
+	if notification_frequency != "" {
+		frequencyString = fmt.Sprintf(`rateLimitIntervalDuration: "%s"`, notification_frequency)
 	}
-	envArrayString:="["
-	for _,v := range environments{
-		envArrayString+=fmt.Sprintf(`"%s"`,v.(string))
-		envArrayString+=","
+	envArrayString := "["
+	for _, v := range environments {
+		envArrayString += fmt.Sprintf(`"%s"`, v.(string))
+		envArrayString += ","
 	}
-	envArrayString=envArrayString[:len(envArrayString)-1]
-	envArrayString+="]"
-	envString:=fmt.Sprintf(`environmentScope: { environments: %s }`,envArrayString)
+	envArrayString = envArrayString[:len(envArrayString)-1]
+	envArrayString += "]"
+	envString := fmt.Sprintf(`environmentScope: { environments: %s }`, envArrayString)
 
-	if len(environments)==0 || (len(environments)==1 && environments[0]==""){
-		envString=""
+	if len(environments) == 0 || (len(environments) == 1 && environments[0] == "") {
+		envString = ""
 	}
-	query:=fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
 				ruleId: "%s"
@@ -223,7 +222,7 @@ func resourceNotificationRuleThreatActorStatusChangeUpdate(d *schema.ResourceDat
 		) {
 			ruleId
 		}
-	}`,ruleId,name,actorStatesString,channel_id,frequencyString,envString)
+	}`, ruleId, name, actorStatesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)

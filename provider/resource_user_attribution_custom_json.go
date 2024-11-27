@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -71,36 +72,35 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 	category := d.Get("category").(string)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
-	url_regex:=d.Get("url_regex").(string)
+	url_regex := d.Get("url_regex").(string)
 	user_role_json := d.Get("user_role_json").(string)
-	auth_type_json:=d.Get("auth_type_json").(string)
-	user_id_json:=d.Get("user_id_json").(string)
+	auth_type_json := d.Get("auth_type_json").(string)
+	user_id_json := d.Get("user_id_json").(string)
 
-	if scope_type!="SYSTEM_WIDE" && scope_type!="CUSTOM"{
+	if scope_type != "SYSTEM_WIDE" && scope_type != "CUSTOM" {
 		return fmt.Errorf("scope_type supported string is SYSTEM_WIDE or CUSTOM")
 	}
 
-
-	customScopeString:=""
-	if scope_type=="CUSTOM"{
-		if environment!="" && url_regex==""{
-			customScopeString=fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`,environment)
-		}else if environment=="" && url_regex!=""{
-			customScopeString=fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`,url_regex)
-		}else{
+	customScopeString := ""
+	if scope_type == "CUSTOM" {
+		if environment != "" && url_regex == "" {
+			customScopeString = fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`, environment)
+		} else if environment == "" && url_regex != "" {
+			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
+		} else {
 			return fmt.Errorf("Required environment or url_regex")
 		}
 	}
 
-	customJsonString:=""
-	if user_id_json!="" && user_role_json!="" && auth_type_json!=""{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, userRoleJson: %s }`,auth_type_json,user_id_json,user_role_json)
-	}else if user_id_json=="" && user_role_json!="" && auth_type_json!=""{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s, userRoleJson: %s, }`,auth_type_json,user_role_json)
-	}else if user_id_json!="" && user_role_json=="" && auth_type_json!=""{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, }`,auth_type_json,user_id_json)
-	}else{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s }`,auth_type_json)
+	customJsonString := ""
+	if user_id_json != "" && user_role_json != "" && auth_type_json != "" {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, userRoleJson: %s }`, auth_type_json, user_id_json, user_role_json)
+	} else if user_id_json == "" && user_role_json != "" && auth_type_json != "" {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s, userRoleJson: %s, }`, auth_type_json, user_role_json)
+	} else if user_id_json != "" && user_role_json == "" && auth_type_json != "" {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, }`, auth_type_json, user_id_json)
+	} else {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s }`, auth_type_json)
 	}
 
 	var query string
@@ -123,8 +123,8 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 		  }
 		  total
 		}
-	  }`,name,category,scope_type,customJsonString,customScopeString)
-	
+	  }`, name, category, scope_type, customJsonString, customScopeString)
+
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
@@ -136,17 +136,17 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
-	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response,"createUserAttributionRule",name)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "createUserAttributionRule", name)
 	log.Println(ruleDetails)
-	id:=ruleDetails["id"].(string)
+	id := ruleDetails["id"].(string)
 	d.SetId(id)
- 	return nil
+	return nil
 }
 
 func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	log.Printf("Id from read %s", id)
-	readQuery:="{ userAttributionRules { results { id scopeType rank name type disabled customScope { environmentScopes { environmentName __typename } urlScopes { urlMatchRegex __typename } __typename } customJson { authTypeJson userIdJson userRoleJson __typename } } } }"
+	readQuery := "{ userAttributionRules { results { id scopeType rank name type disabled customScope { environmentScopes { environmentName __typename } urlScopes { urlMatchRegex __typename } __typename } customJson { authTypeJson userIdJson userRoleJson __typename } } } }"
 	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
@@ -155,56 +155,56 @@ func resourceUserAttributionRuleCustomJsonRead(d *schema.ResourceData, meta inte
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return err
 	}
-	log.Printf("Response from read %s",responseStr)
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
-	if len(ruleDetails)==0{
+	log.Printf("Response from read %s", responseStr)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "userAttributionRules", id)
+	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
 	}
-	log.Printf("fetching from read %s",ruleDetails)
-	name:=ruleDetails["name"].(string)
-	scopeType:=ruleDetails["scopeType"].(string)
-	category:=ruleDetails["type"].(string)
-	d.Set("category",category)
-	d.Set("name",name)
-	disabled:=ruleDetails["disabled"].(bool)
-	d.Set("disabled",disabled)
-	if scopeType=="SYSTEM_WIDE"{
+	log.Printf("fetching from read %s", ruleDetails)
+	name := ruleDetails["name"].(string)
+	scopeType := ruleDetails["scopeType"].(string)
+	category := ruleDetails["type"].(string)
+	d.Set("category", category)
+	d.Set("name", name)
+	disabled := ruleDetails["disabled"].(bool)
+	d.Set("disabled", disabled)
+	if scopeType == "SYSTEM_WIDE" {
 		d.Set("scope_type", "SYSTEM_WIDE")
 		// d.Set("url_regex",nil)
 		// d.Set("environment",nil)
-	}else{
+	} else {
 		envScope := ruleDetails["customScope"].(map[string]interface{})["environmentScopes"]
 		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
-		if len(envScope.([]interface{}))==0{
-			d.Set("scope_type","CUSTOM")
-			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+		if len(envScope.([]interface{})) == 0 {
+			d.Set("scope_type", "CUSTOM")
+			d.Set("url_regex", urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
 			// d.Set("environment",nil)
-		}else{
-			d.Set("scope_type","CUSTOM")
-			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
+		} else {
+			d.Set("scope_type", "CUSTOM")
+			d.Set("environment", envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
 			// d.Set("url_regex",nil)
 		}
 	}
-	customJsonDetails:=ruleDetails["customJson"]
-	if customJsonDetails!=nil{
+	customJsonDetails := ruleDetails["customJson"]
+	if customJsonDetails != nil {
 
-		authTypeJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["authTypeJson"])
-		userIdJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["userIdJson"])
-		userRoleJson,_:=json.Marshal(customJsonDetails.(map[string]interface{})["userRoleJson"])
-		
-		d.Set("auth_type_json",authTypeJson)
-		d.Set("user_id_json",userIdJson)
-		d.Set("user_role_json",userRoleJson)
-	
+		authTypeJson, _ := json.Marshal(customJsonDetails.(map[string]interface{})["authTypeJson"])
+		userIdJson, _ := json.Marshal(customJsonDetails.(map[string]interface{})["userIdJson"])
+		userRoleJson, _ := json.Marshal(customJsonDetails.(map[string]interface{})["userRoleJson"])
+
+		d.Set("auth_type_json", authTypeJson)
+		d.Set("user_id_json", userIdJson)
+		d.Set("user_role_json", userRoleJson)
+
 		return nil
 	}
 	return nil
 }
 
 func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta interface{}) error {
-	id:=d.Id()
-	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
+	id := d.Id()
+	readQuery := "{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
 	readQueryResStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
@@ -213,45 +213,45 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 	if err := json.Unmarshal([]byte(readQueryResStr), &readResponse); err != nil {
 		return err
 	}
-	readRuleDetails:=getRuleDetailsFromRulesListUsingIdName(readResponse,"userAttributionRules" ,id)
-	if len(readRuleDetails)==0{
+	readRuleDetails := GetRuleDetailsFromRulesListUsingIdName(readResponse, "userAttributionRules", id)
+	if len(readRuleDetails) == 0 {
 		return nil
 	}
-	rank:=int(readRuleDetails["rank"].(float64))
-	category:=d.Get("category").(string)
+	rank := int(readRuleDetails["rank"].(float64))
+	category := d.Get("category").(string)
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
 	scope_type := d.Get("scope_type").(string)
 	environment := d.Get("environment").(string)
-	url_regex:=d.Get("url_regex").(string)
+	url_regex := d.Get("url_regex").(string)
 	user_role_json := d.Get("user_role_json").(string)
-	auth_type_json:=d.Get("auth_type_json").(string)
-	user_id_json:=d.Get("user_id_json").(string)
+	auth_type_json := d.Get("auth_type_json").(string)
+	user_id_json := d.Get("user_id_json").(string)
 
-	if scope_type!="SYSTEM_WIDE" && scope_type!="CUSTOM"{
+	if scope_type != "SYSTEM_WIDE" && scope_type != "CUSTOM" {
 		return fmt.Errorf("scope_type supported string is SYSTEM_WIDE or CUSTOM")
 	}
 
-	customScopeString:=""
-	if scope_type=="CUSTOM"{
-		if environment!="" && url_regex==""{
-			customScopeString=fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`,environment)
-		}else if environment=="" && url_regex!=""{
-			customScopeString=fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`,url_regex)
-		}else{
+	customScopeString := ""
+	if scope_type == "CUSTOM" {
+		if environment != "" && url_regex == "" {
+			customScopeString = fmt.Sprintf(`customScope: { environmentScopes: [{ environmentName: "%s" }] }`, environment)
+		} else if environment == "" && url_regex != "" {
+			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
+		} else {
 			return fmt.Errorf("Required environment or url_regex")
 		}
 	}
 
-	customJsonString:=""
-	if user_id_json!="" && user_role_json!="" && auth_type_json!=""{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, userRoleJson: %s }`,auth_type_json,user_id_json,user_role_json)
-	}else if user_id_json=="" && user_role_json!="" && auth_type_json!=""{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s, userRoleJson: %s, }`,auth_type_json,user_role_json)
-	}else if user_id_json!="" && user_role_json=="" && auth_type_json!=""{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, }`,auth_type_json,user_id_json)
-	}else{
-		customJsonString=fmt.Sprintf(`customJson: { authTypeJson: %s }`,auth_type_json)
+	customJsonString := ""
+	if user_id_json != "" && user_role_json != "" && auth_type_json != "" {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, userRoleJson: %s }`, auth_type_json, user_id_json, user_role_json)
+	} else if user_id_json == "" && user_role_json != "" && auth_type_json != "" {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s, userRoleJson: %s, }`, auth_type_json, user_role_json)
+	} else if user_id_json != "" && user_role_json == "" && auth_type_json != "" {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s, userIdJson: %s, }`, auth_type_json, user_id_json)
+	} else {
+		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s }`, auth_type_json)
 	}
 
 	var query string
@@ -274,9 +274,8 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 			name
 			type
 		}
-	  }`,id,rank,name,disabled,category,scope_type,customJsonString,customScopeString)
-	
-	
+	  }`, id, rank, name, disabled, category, scope_type, customJsonString, customScopeString)
+
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
@@ -290,7 +289,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 	}
 	rules := response["data"].(map[string]interface{})["updateUserAttributionRule"].(map[string]interface{})
 	// log.Printf(ruleDetails)
-	updatedId:=rules["id"].(string)
+	updatedId := rules["id"].(string)
 	d.SetId(updatedId)
 	return nil
 }

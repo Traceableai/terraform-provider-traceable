@@ -3,9 +3,10 @@ package rate_limiting
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
-	"log"
 )
 
 func ResourceRateLimitingRuleBlock() *schema.Resource {
@@ -14,7 +15,7 @@ func ResourceRateLimitingRuleBlock() *schema.Resource {
 		Read:   resourceRateLimitingRuleBlockRead,
 		Update: resourceRateLimitingRuleBlockUpdate,
 		Delete: resourceRateLimitingRuleBlockDelete,
-
+		CustomizeDiff: validateSchema,
 		Schema: map[string]*schema.Schema{
 			"rule_type": {
 				Type:        schema.TypeString,
@@ -379,6 +380,76 @@ func ResourceRateLimitingRuleBlock() *schema.Resource {
 		},
 	}
 }
+func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	labelScope := d.Get("label_id_scope").([]interface{})
+	endpointScope := d.Get("endpoint_id_scope").([]interface{})
+	threshold_configs := d.Get("threshold_configs").([]interface{})
+	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
+	ip_address := d.Get("ip_address").([]interface{})
+	user_id := d.Get("user_id").([]interface{})
+
+	if len(user_id)>0{
+		flag1 := false
+		flag2 :=false
+		if userIdRegexes,ok := user_id[0].(map[string]interface{})["user_id_regexes"].([]interface{}) ; ok {
+			fmt.Printf("this is len useridregex %d",len(userIdRegexes))
+			if len(userIdRegexes)>0{
+				flag1=true
+			}
+		}
+		if userIds,ok := user_id[0].(map[string]interface{})["user_ids"].([]interface{}); ok {
+			fmt.Printf("this is len userid %d",len(userIds))
+			if len(userIds)>0{
+				flag2=true
+			}
+		}
+		
+		if flag1 && flag2 {
+			return fmt.Errorf("required one of user_id_regexes or user_ids")
+		}
+	}
+	if len(ip_address)>0{
+		flag1:=false
+		flag2:=false
+		if IpAddressList,ok := ip_address[0].(map[string]interface{})["ip_address_list"].([]interface{}); ok {
+			if len(IpAddressList)>0{
+				flag1=true
+			}
+		}
+		if ipAddressConditionType,ok := ip_address[0].(map[string]interface{})["ip_address_type"].(string); ok {
+			if ipAddressConditionType!=""{
+				flag2=true
+			}
+		}
+		if flag1 && flag2 {
+			return fmt.Errorf("required only one from ip_address_list or ip_address_type")
+		}
+	}
+
+	if len(labelScope) > 0 && len(endpointScope) > 0 {
+		return fmt.Errorf("require on of `label_id_scope` or `endpoint_id_scope`")
+	}
+	for _, thresholdConfig := range threshold_configs {
+		thresholdConfigData := thresholdConfig.(map[string]interface{})
+		thresholdConfigType := thresholdConfigData["threshold_config_type"]
+		dynamicMeanCalculationDuration := thresholdConfigData["dynamic_mean_calculation_duration"].(string)
+		if thresholdConfigType == "ROLLING_WINDOW" &&  dynamicMeanCalculationDuration != ""{
+			return fmt.Errorf("not valid here dynamicMeanCalculationDuration")
+		} else if thresholdConfigType == "DYNAMIC" {
+			if dynamicMeanCalculationDuration == "" {
+				return fmt.Errorf("required dynamic_mean_calculation_duration for dynamic threshold_config_type")
+			}
+		}
+	}
+	for _,attBasedCondition := range attribute_based_conditions {
+		valueConditionOperator := attBasedCondition.(map[string]interface{})["value_condition_operator"]
+		valueConditionValue := attBasedCondition.(map[string]interface{})["value_condition_value"]
+		if (valueConditionOperator!="" && valueConditionValue=="") || (valueConditionValue!="" && valueConditionOperator==""){
+			return fmt.Errorf("required both values value_condition_value and value_condition_operator")
+		}
+	}
+	return nil
+}
 
 func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
@@ -406,12 +477,12 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 	request_scanner_type := d.Get("request_scanner_type").([]interface{})
 	user_id := d.Get("user_id").([]interface{})
 
-	finalThresholdConfigQuery,err := returnFinalThresholdConfigQuery(threshold_configs)
-    if err!=nil{
-        return fmt.Errorf("err %s",err)
-    }
+	finalThresholdConfigQuery, err := returnFinalThresholdConfigQuery(threshold_configs)
+	if err != nil {
+		return fmt.Errorf("err %s", err)
+	}
 
-	finalConditionsQuery,err := returnConditionsStringRateLimit(
+	finalConditionsQuery, err := returnConditionsStringRateLimit(
 		ip_reputation,
 		ip_abuse_velocity,
 		label_id_scope,
@@ -429,9 +500,9 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 		request_scanner_type,
 		user_id,
 	)
-    if err!=nil{
-        return fmt.Errorf("error %s",err)
-    }
+	if err != nil {
+		return fmt.Errorf("error %s", err)
+	}
 	if finalConditionsQuery == "" {
 		return fmt.Errorf("required at least one scope condition")
 	}
@@ -445,7 +516,7 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 	}
 	createRateLimitQuery := fmt.Sprintf(RATE_LIMITING_CREATE_QUERY, finalConditionsQuery, enabled, name, rule_type, actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
-	responseStr, err := common.CallExecuteQuery(createRateLimitQuery,meta)
+	responseStr, err := common.CallExecuteQuery(createRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -463,8 +534,339 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{}) error {
-    
-	return nil 
+	id := d.Id()
+	var response map[string]interface{}
+	responseStr, err := common.CallExecuteQuery(FETCH_RATE_LIMIT_RULES, meta)
+	if err != nil {
+		_ = fmt.Errorf("Error:%s", err)
+	}
+	log.Printf("This is the graphql query %s", FETCH_RATE_LIMIT_RULES)
+	log.Printf("This is the graphql response %s", responseStr)
+	err = json.Unmarshal([]byte(responseStr), &response)
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "rateLimitingRules", id)
+	if len(ruleDetails) == 0 {
+		d.SetId("")
+		return nil
+	}
+	if err != nil {
+		_ = fmt.Errorf("Error:%s", err)
+	}
+    log.Printf("fetching from read %s", ruleDetails)
+	d.Set("name",ruleDetails["name"].(string))
+	d.Set("enabled",ruleDetails["enabled"].(bool))
+	d.Set("description",ruleDetails["description"].(string))
+	if thresholdActionConfigs,ok := ruleDetails["thresholdActionConfigs"].([]interface{}); ok {
+		firstThresholdActionConfigs := thresholdActionConfigs[0].(map[string]interface{})
+		thresholdActions := firstThresholdActionConfigs["actions"].([]interface{})
+		firstThresholdActions := thresholdActions[0].(map[string]interface{})
+		d.Set("rule_type",firstThresholdActions["actionType"])
+		if blockingConfig,ok := firstThresholdActions["block"].(map[string]interface{}); ok {
+			if blockingDuration,ok := blockingConfig["duration"].(string); ok {
+				if blockingDuration!=""{
+					d.Set("block_expiry_duration",blockingDuration)
+				}
+			}
+			if blockingSeverity,ok := blockingConfig["eventSeverity"].(string); ok {
+				if blockingSeverity!=""{
+					d.Set("alert_severity",blockingSeverity)
+				}
+			}
+		}
+		thresholdConfigs := firstThresholdActionConfigs["thresholdConfigs"].([]interface{})
+		finalThresholdConfigs := []map[string]interface{}{}
+		for _,thresholdConfig := range thresholdConfigs {
+			var count_allowed float64
+			duration := ""
+			dynamic_mean_calculation_duration:=""
+			thresholdConfigData := thresholdConfig.(map[string]interface{})
+			if rollingWindowThresholdConfig,ok := thresholdConfigData["rollingWindowThresholdConfig"].(map[string]interface{}); ok {
+				if rollingWindowCountAllowed,ok := rollingWindowThresholdConfig["countAllowed"].(float64); ok{
+					count_allowed=rollingWindowCountAllowed
+				}
+				if rollingWindowDuration,ok := rollingWindowThresholdConfig["duration"].(string); ok{
+					duration=rollingWindowDuration
+				}
+
+			}
+			if dynamicThresholdConfig,ok := thresholdConfigData["dynamicThresholdConfig"].(map[string]interface{}); ok {
+				if dynamicCountAllowed,ok := dynamicThresholdConfig["percentageExceedingMeanAllowed"].(float64); ok{
+					count_allowed=dynamicCountAllowed
+				}
+				if dynamicDuration,ok := dynamicThresholdConfig["duration"].(string); ok{
+					duration=dynamicDuration
+				}
+				if dynamicMeanCalculationDuration,ok := dynamicThresholdConfig["meanCalculationDuration"].(string); ok{
+					dynamic_mean_calculation_duration=dynamicMeanCalculationDuration
+				}
+			}
+			thresholdConfigDataMap := map[string]interface{}{
+				"api_aggregate_type" : thresholdConfigData["apiAggregateType"].(string),
+				"rolling_window_count_allowed" : count_allowed,
+				"rolling_window_duration" : duration,
+				"threshold_config_type" : thresholdConfigData["thresholdConfigType"].(string),
+				"dynamic_mean_calculation_duration" : dynamic_mean_calculation_duration,
+			}
+			finalThresholdConfigs=append(finalThresholdConfigs,thresholdConfigDataMap)
+		}
+		d.Set("threshold_configs",finalThresholdConfigs)
+	}
+	conditionsArray := ruleDetails["conditions"].([]interface{})
+	finalReqResConditionsState := []map[string]interface{}{}
+	finalAttributeBasedConditionState := []map[string]interface{}{}
+
+	labelIdScopeFlag, endPointIdScopeFlag, ipReputationScopeFlag, ipLocationTypeScopeFlag, ipAbuseVelFlag,      ipAddressFlag, emailDomainFlag, userAgentFlag, regionFlag, ipOrgFlag, ipAsnFlag, ipConnTypeFlag,      reqScannerFlag, userIdFlag := true, true, true, true, true, true, true, true, true, true, true, true, true, true
+	for _,condition := range conditionsArray {
+		leafCondition := condition.(map[string]interface{})["leafCondition"].(map[string]interface{})
+		conditionType := leafCondition["conditionType"].(string)
+		finalConditionState := []map[string]interface{}{}
+		if conditionType == "IP_REPUTATION"{
+			minIpReputationSeverity := leafCondition["ipReputationCondition"].(map[string]interface{})["minIpReputationSeverity"].(string)
+			d.Set("ip_reputation",minIpReputationSeverity)
+			ipReputationScopeFlag=false
+		}else if conditionType == "IP_ABUSE_VELOCITY" {
+			minIpAbuseVelocity := leafCondition["ipAbuseVelocityCondition"].(map[string]interface{})["minIpAbuseVelocity"].(string)
+			d.Set("ip_abuse_velocity",minIpAbuseVelocity)
+			ipAbuseVelFlag=false
+		}else if conditionType == "IP_LOCATION_TYPE" {
+			ipLocationTypeCondition := leafCondition["ipLocationTypeCondition"].(map[string]interface{})
+			ipLocationTypes := ipLocationTypeCondition["ipLocationTypes"].([]interface{})
+			excludeIpLocationType := ipLocationTypeCondition["exclude"].(bool)
+			ip_location_type := map[string]interface{}{
+				"ip_location_types":ipLocationTypes,
+				"exclude":excludeIpLocationType,
+			}
+			finalConditionState=append(finalConditionState,ip_location_type)
+			d.Set("ip_location_type",finalConditionState)
+			ipLocationTypeScopeFlag=false
+		}else if conditionType == "IP_ADDRESS" {
+			ipAddressCondition := leafCondition["ipAddressCondition"].(map[string]interface{})
+			excludeIpAddress := ipAddressCondition["exclude"].(bool)
+			if ipAddressConditionType,ok := ipAddressCondition["ipAddressConditionType"].(string) ; ok{
+				ipAddressObj := map[string]interface{}{}
+				if ipAddressConditionType == "ALL_EXTERNAL"{
+					ipAddressObj = map[string]interface{}{
+						"ip_address_type": "ALL_EXTERNAL",
+						"exclude": excludeIpAddress,
+					}
+				}else {
+					rawInputIpData := ipAddressCondition["rawInputIpData"].([]interface{})
+					ipAddressObj = map[string]interface{}{
+						"ip_address_list": rawInputIpData,
+						"exclude": excludeIpAddress,
+					}
+				}
+				finalConditionState=append(finalConditionState,ipAddressObj)
+				d.Set("ip_address",finalConditionState)
+				ipAddressFlag=false
+			}
+		}else if conditionType == "EMAIL_DOMAIN" {
+			emailDomainCondition :=	leafCondition["emailDomainCondition"].(map[string]interface{})
+			emailRegexes := emailDomainCondition["emailRegexes"].([]interface{})
+			excludeEmailRegex := emailDomainCondition["exclude"].(bool)
+			emailDomainObj := map[string]interface{}{
+				"email_domain_regexes": emailRegexes,
+				"exclude": excludeEmailRegex,
+			}
+			finalConditionState=append(finalConditionState, emailDomainObj)
+			d.Set("email_domain",finalConditionState)
+			emailDomainFlag=false
+		}else if conditionType == "USER_ID"{
+			userIdCondition := leafCondition["userIdCondition"].(map[string]interface{})
+			userIdRegexes := userIdCondition["userIdRegexes"].([]interface{})
+			userIds := userIdCondition["userIds"].([]interface{})
+			excludeUserIdRegexes := userIdCondition["exclude"].(bool)
+			userIdObj := map[string]interface{}{}
+			if len(userIdRegexes)>0{
+				userIdObj = map[string]interface{}{
+					"user_id_regexes": userIdRegexes,
+					"exclude": excludeUserIdRegexes,
+				}
+			} else if len(userIds)>0 {
+				userIdObj = map[string]interface{}{
+					"user_ids": userIds,
+					"exclude": excludeUserIdRegexes,
+				}
+			}
+			finalConditionState=append(finalConditionState, userIdObj)
+			d.Set("user_id",finalConditionState)
+			userIdFlag=false
+		}else if conditionType == "USER_AGENT" {
+			userAgentCondition :=	leafCondition["userAgentCondition"].(map[string]interface{})
+			userAgentRegexes := userAgentCondition["userAgentRegexes"].([]interface{})
+			excludeUserAgents := userAgentCondition["exclude"].(bool)
+			userAgentObj := map[string]interface{}{
+				"user_agents_list": userAgentRegexes,
+				"exclude": excludeUserAgents,
+			}
+			finalConditionState=append(finalConditionState, userAgentObj)
+			d.Set("user_agents",finalConditionState)
+			userAgentFlag=false
+		}else if conditionType == "IP_ORGANISATION" {
+			ipOrganisationCondition :=	leafCondition["ipOrganisationCondition"].(map[string]interface{})
+			ipOrganisationRegexes := ipOrganisationCondition["ipOrganisationRegexes"].([]interface{})
+			excludeIpOrg := ipOrganisationCondition["exclude"].(bool)
+			ipOrgObj := map[string]interface{}{
+				"ip_organisation_regexes": ipOrganisationRegexes,
+				"exclude": excludeIpOrg,
+			}
+			finalConditionState=append(finalConditionState, ipOrgObj)
+			d.Set("ip_organisation",finalConditionState)
+			ipOrgFlag=false
+		}else if conditionType == "IP_ASN" {
+			ipAsnCondition :=	leafCondition["ipAsnCondition"].(map[string]interface{})
+			ipAsnRegexes := ipAsnCondition["ipAsnRegexes"].([]interface{})
+			excludeIpAsn := ipAsnCondition["exclude"].(bool)
+			ipAsnObj := map[string]interface{}{
+				"ip_asn_regexes": ipAsnRegexes,
+				"exclude": excludeIpAsn,
+			}
+			finalConditionState=append(finalConditionState, ipAsnObj)
+			d.Set("ip_asn",finalConditionState)
+			ipAsnFlag=false
+		}else if conditionType == "IP_CONNECTION_TYPE" {
+			ipConnectionTypeCondition := leafCondition["ipConnectionTypeCondition"].(map[string]interface{})
+			ipConnectionTypes := ipConnectionTypeCondition["ipConnectionTypes"].([]interface{})
+			excludeIpConnection := ipConnectionTypeCondition["exclude"].(bool)
+			ipConnectionObj := map[string]interface{}{
+				"ip_connection_type_list": ipConnectionTypes,
+				"exclude": excludeIpConnection,
+			}
+			finalConditionState=append(finalConditionState, ipConnectionObj)
+			d.Set("ip_connection_type",finalConditionState)
+			ipConnTypeFlag=false
+		}else if conditionType == "REQUEST_SCANNER_TYPE" {
+			requestScannerTypeCondition := leafCondition["requestScannerTypeCondition"].(map[string]interface{})
+			scannerTypes := requestScannerTypeCondition["scannerTypes"].([]interface{})
+			excludeScanner := requestScannerTypeCondition["exclude"].(bool)
+			reqScannerObj := map[string]interface{}{
+				"scanner_types_list": scannerTypes,
+				"exclude": excludeScanner,
+			}
+			finalConditionState=append(finalConditionState, reqScannerObj)
+			d.Set("request_scanner_type",finalConditionState)
+			reqScannerFlag=false
+		}else if conditionType == "REGION"{
+			regionCondition := leafCondition["regionCondition"].(map[string]interface{})
+			regionIdentifiers := regionCondition["regionIdentifiers"].([]interface{})
+			excludeRegion := regionCondition["exclude"].(bool)
+			var regionCodes []interface{}
+			for _,region := range regionIdentifiers {
+				regionCodes=append(regionCodes,region.(map[string]interface{})["countryIsoCode"])
+			}
+			regionObj := map[string]interface{}{
+				"regions_ids": regionCodes,
+				"exclude": excludeRegion,
+			}
+			finalConditionState = append(finalConditionState, regionObj)
+			d.Set("regions",finalConditionState)
+			regionFlag=false
+		}else if conditionType == "KEY_VALUE" {
+			keyValueCondition := leafCondition["keyValueCondition"].(map[string]interface{})
+			metadataType := keyValueCondition["metadataType"].(string)
+			if metadataType == "TAG" {
+				keyCondition := keyValueCondition["keyCondition"].(map[string]interface{})
+				keyConditionOperator := keyCondition["operator"].(string)
+				keyConditionValue := keyCondition["value"].(string)
+				if valueCondition,ok := keyValueCondition["valueCondition"].(map[string]interface{}); ok {
+					if valueConditionOperator,ok := valueCondition["operator"].(string); ok {
+						valueConditionValue := valueCondition["value"].(string)
+						keyValueObj := map[string]interface{}{	
+							"key_condition_operator": keyConditionOperator,
+							"key_condition_value": keyConditionValue,
+							"value_condition_operator": valueConditionOperator,
+							"value_condition_value": valueConditionValue,
+						}
+						finalAttributeBasedConditionState=append(finalAttributeBasedConditionState, keyValueObj)
+					}
+				}else{
+					keyValueObj := map[string]interface{}{	
+						"key_condition_operator": keyConditionOperator,
+						"key_condition_value": keyConditionValue,
+					}
+					finalAttributeBasedConditionState=append(finalAttributeBasedConditionState, keyValueObj)
+				}
+			}else {
+				valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
+				valueConditionValue := valueCondition["value"].(string)
+				valueConditionKey := valueCondition["operator"].(string)
+				reqResObj := map[string]interface{}{	
+					"metadata_type": metadataType,
+					"req_res_operator": valueConditionKey,
+					"req_res_value": valueConditionValue,
+				}
+				finalReqResConditionsState=append(finalReqResConditionsState,reqResObj)
+				
+			}
+		}else if conditionType == "SCOPE" {
+			scopeCondition := leafCondition["scopeCondition"].(map[string]interface{})
+			scopeType := scopeCondition["scopeType"].(string)
+			if scopeType == "LABEL" {
+				labelScope := scopeCondition["labelScope"].(map[string]interface{})
+				labelIds := labelScope["labelIds"].([]interface{})
+				d.Set("label_id_scope",labelIds)
+				labelIdScopeFlag=false
+			}else if scopeType == "ENTITY" {
+				entityScope := scopeCondition["entityScope"].(map[string]interface{})
+				entityIds := entityScope["entityIds"].([]interface{})
+				d.Set("endpoint_id_scope",entityIds)
+				endPointIdScopeFlag=false
+			}
+		}
+	}
+	if ipAddressFlag{
+		d.Set("ip_address",[]interface{}{})
+	}
+	if labelIdScopeFlag{
+		d.Set("label_id_scope",[]interface{}{})
+	}
+	if endPointIdScopeFlag {
+		d.Set("endpoint_id_scope",[]interface{}{})
+	}
+	if ipReputationScopeFlag {
+		d.Set("ip_reputation","")
+	}
+	if ipLocationTypeScopeFlag {
+		d.Set("ip_location_type",[]interface{}{})
+	}
+	if ipAbuseVelFlag {
+		d.Set("ip_abuse_velocity","")
+	}
+	if  emailDomainFlag {
+		d.Set("email_domain",[]interface{}{})
+	}
+	if  userAgentFlag {
+		d.Set("user_agents",[]interface{}{})
+	}
+	if  regionFlag {
+		d.Set("regions",[]interface{}{})
+	}
+	if  ipOrgFlag {
+		d.Set("ip_organisation",[]interface{}{})
+	}
+	if  userIdFlag {
+		d.Set("user_id",[]interface{}{})
+	}
+	if  reqScannerFlag {
+		d.Set("request_scanner_type",[]interface{}{})
+	}
+	if  ipConnTypeFlag {
+		d.Set("ip_connection_type",[]interface{}{})
+	}
+	if  ipAsnFlag {
+		d.Set("ip_asn",[]interface{}{})
+	}
+
+	var envList []interface{}
+	if ruleConfigScope,ok := ruleDetails["ruleConfigScope"].(map[string]interface{}); ok{
+		if environmentScope,ok := ruleConfigScope["environmentScope"].(map[string]interface{}); ok {
+			envList = environmentScope["environmentIds"].([]interface{})
+		}
+	}
+	d.Set("environments",envList)
+	d.Set("req_res_conditions",finalReqResConditionsState)
+	d.Set("attribute_based_conditions",finalAttributeBasedConditionState)
+	
+	return nil
 }
 
 func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -493,14 +895,14 @@ func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{
 	ip_connection_type := d.Get("ip_connection_type").([]interface{})
 	request_scanner_type := d.Get("request_scanner_type").([]interface{})
 	user_id := d.Get("user_id").([]interface{})
-    id := d.Id()
+	id := d.Id()
 
-	finalThresholdConfigQuery,err := returnFinalThresholdConfigQuery(threshold_configs)
-    if err!=nil{
-        return fmt.Errorf("err %s",err)
-    }
+	finalThresholdConfigQuery, err := returnFinalThresholdConfigQuery(threshold_configs)
+	if err != nil {
+		return fmt.Errorf("err %s", err)
+	}
 
-	finalConditionsQuery,err := returnConditionsStringRateLimit(
+	finalConditionsQuery, err := returnConditionsStringRateLimit(
 		ip_reputation,
 		ip_abuse_velocity,
 		label_id_scope,
@@ -518,9 +920,9 @@ func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{
 		request_scanner_type,
 		user_id,
 	)
-    if err!=nil{
-        return fmt.Errorf("error %s",err)
-    }
+	if err != nil {
+		return fmt.Errorf("error %s", err)
+	}
 	if finalConditionsQuery == "" {
 		return fmt.Errorf("required at least one scope condition")
 	}
@@ -532,9 +934,9 @@ func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{
 	if block_expiry_duration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alert_severity, block_expiry_duration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY,id, finalConditionsQuery, enabled, name, rule_type, actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY, id, finalConditionsQuery, enabled, name, rule_type, actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
-	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery,meta)
+	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -552,7 +954,7 @@ func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{
 }
 
 func resourceRateLimitingRuleBlockDelete(d *schema.ResourceData, meta interface{}) error {
-    id := d.Id()
+	id := d.Id()
 	query := fmt.Sprintf(DELETE_RATE_LIMIT_QUERY, id)
 	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {

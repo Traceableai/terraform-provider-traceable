@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"log"
 	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceServiceId() *schema.Resource {
 	return &schema.Resource{
-		Read:   dataSourceServiceIdRead,
+		Read: dataSourceServiceIdRead,
 
 		Schema: map[string]*schema.Schema{
 			"service_name": {
@@ -33,8 +34,8 @@ func dataSourceServiceId() *schema.Resource {
 }
 
 func dataSourceServiceIdRead(d *schema.ResourceData, meta interface{}) error {
-	service_name:=d.Get("service_name").(string)
-	enviroment_name:=d.Get("enviroment_name").(string)
+	service_name := d.Get("service_name").(string)
+	enviroment_name := d.Get("enviroment_name").(string)
 
 	currentTime := time.Now().UTC()
 	endTime := currentTime.Format("2006-01-02T15:04:05.000Z")
@@ -69,7 +70,7 @@ func dataSourceServiceIdRead(d *schema.ResourceData, meta interface{}) error {
 		  }
 		}
 	  }
-	  `,stTime,endTime,service_name,enviroment_name)
+	  `, stTime, endTime, service_name, enviroment_name)
 
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
@@ -81,15 +82,14 @@ func dataSourceServiceIdRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Printf("this is the gql response %s",response)
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"entities",service_name)
-	if len(ruleDetails)==0{
-		return fmt.Errorf("No services found with name %s",service_name)
+	log.Printf("this is the gql response %s", response)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "entities", service_name)
+	if len(ruleDetails) == 0 {
+		return fmt.Errorf("No services found with name %s", service_name)
 	}
-	service_id:=ruleDetails["id"].(string)
-	log.Printf("Service found with name %s",service_id)
-	d.Set("service_id",service_id)
+	service_id := ruleDetails["id"].(string)
+	log.Printf("Service found with name %s", service_id)
+	d.Set("service_id", service_id)
 	d.SetId(service_id)
 	return nil
 }
-

@@ -34,7 +34,7 @@ const (
 
 	RATE_LIMITING_UPDATE_QUERY = `mutation {
                                     updateRateLimitingRule(
-                                        rateLimitingRuleData: {
+                                        rateLimitingRule: {
                                             id: "%s"
                                             category: ENDPOINT_RATE_LIMITING
                                             conditions: [

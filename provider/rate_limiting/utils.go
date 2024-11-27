@@ -26,25 +26,17 @@ func returnConditionsStringRateLimit(
     finalUserIdQuery:=""
         if len(user_id)>0{
             excludeUserId := user_id[0].(map[string]interface{})["exclude"].(bool)
-            flag1 := false
-            flag2 :=false
             if userIdRegexes,ok := user_id[0].(map[string]interface{})["user_id_regexes"].([]interface{}) ; ok {
                 fmt.Printf("this is len useridregex %d",len(userIdRegexes))
                 if len(userIdRegexes)>0{
                     finalUserIdQuery=fmt.Sprintf(USER_ID_REGEXES_QUERY,common.ReturnQuotedStringList(userIdRegexes),excludeUserId)
-                    flag1=true
                 }
             }
             if userIds,ok := user_id[0].(map[string]interface{})["user_ids"].([]interface{}); ok {
                 fmt.Printf("this is len userid %d",len(userIds))
                 if len(userIds)>0{
                     finalUserIdQuery=fmt.Sprintf(USER_ID_LIST_QUERY,common.ReturnQuotedStringList(userIds),excludeUserId)
-                    flag2=true
                 }
-            }
-            
-            if flag1 && flag2 {
-                return "",fmt.Errorf("required one of user_id_regexes or user_ids")
             }
         }
 
@@ -101,24 +93,17 @@ func returnConditionsStringRateLimit(
         }
         finalIpAddressQuery := ""
         if len(ip_address)>0{
-            flag1:=false
-            flag2:=false
             excludeIpAddress := ip_address[0].(map[string]interface{})["exclude"].(bool)
             if IpAddressList,ok := ip_address[0].(map[string]interface{})["ip_address_list"].([]interface{}); ok {
                 if len(IpAddressList)>0{
                     finalIpAddressQuery=fmt.Sprintf(RAW_INPUT_IP_ADDRESS_QUERY,common.ReturnQuotedStringList(IpAddressList),excludeIpAddress)
-                    flag1=true
                 }
 
             }
             if ipAddressConditionType,ok := ip_address[0].(map[string]interface{})["ip_address_type"].(string); ok {
                 if ipAddressConditionType!=""{
                     finalIpAddressQuery=fmt.Sprintf(ALL_EXTERNAL_IP_ADDRESS_QUERY,ipAddressConditionType,excludeIpAddress)
-                    flag2=true
                 }
-            }
-            if flag1 && flag2 {
-                return "",fmt.Errorf("required only one from ip_address_list or ip_address_type")
             }
         }
         finalEmailDomainQuery := ""
@@ -151,9 +136,9 @@ func returnConditionsStringRateLimit(
                 keyConditionValue := attBasedCondition.(map[string]interface{})["key_condition_value"]
                 valueConditionOperator := attBasedCondition.(map[string]interface{})["value_condition_operator"]
                 valueConditionValue := attBasedCondition.(map[string]interface{})["value_condition_value"]
-                if (valueConditionOperator!="" && valueConditionValue=="") || (valueConditionValue!="" && valueConditionOperator==""){
-                    return "",fmt.Errorf("required both values value_condition_value and value_condition_operator")
-                }
+                // if (valueConditionOperator!="" && valueConditionValue=="") || (valueConditionValue!="" && valueConditionOperator==""){
+                //     return "",fmt.Errorf("required both values value_condition_value and value_condition_operator")
+                // }
                 if valueConditionOperator!="" && valueConditionValue!="" {
                     finalAttributedBasedConditionsQuery+=fmt.Sprintf(ATTRIBUTE_BASED_CONDITIONS_QUERY,keyConditionOperator,keyConditionValue,fmt.Sprintf(valueTemplatedQuery,valueConditionOperator,valueConditionValue))
                 }else{
@@ -172,9 +157,9 @@ func returnConditionsStringRateLimit(
 
         }
         finalScopedQuery := ""
-        if len(endpoint_id_scope)>0 && len(label_id_scope)>0{
-            return "",fmt.Errorf("required one of endpoint_id_scope or label_id_scope")
-        }
+        // if len(endpoint_id_scope)>0 && len(label_id_scope)>0{
+        //     return "",fmt.Errorf("required one of endpoint_id_scope or label_id_scope")
+        // }
         if len(endpoint_id_scope)>0{
             finalScopedQuery=fmt.Sprintf(ENDPOINT_SCOPED_QUERY,common.ReturnQuotedStringList(endpoint_id_scope))
         }else if len(label_id_scope) > 0{
@@ -196,9 +181,9 @@ func returnFinalThresholdConfigQuery(threshold_configs []interface{}) (string,er
 		if thresholdConfigType == "ROLLING_WINDOW" {
 			finalThresholdConfigQuery += fmt.Sprintf(ROLLING_WINDOW_THRESHOLD_CONFIG_QUERY, apiAggregateType, rollingWindowCountAllowed, rollingWindowDuration)
 		} else if thresholdConfigType == "DYNAMIC" {
-			if dynamicMeanCalculationDuration == "" {
-				return "",fmt.Errorf("required dynamic_mean_calculation_duration for dynamic threshold_config_type")
-			}
+			// if dynamicMeanCalculationDuration == "" {
+			// 	return "",fmt.Errorf("required dynamic_mean_calculation_duration for dynamic threshold_config_type")
+			// }
 			finalThresholdConfigQuery += fmt.Sprintf(DYNAMIC_THRESHOLD_CONFIG_QUERY, apiAggregateType, rollingWindowCountAllowed, dynamicMeanCalculationDuration, rollingWindowDuration)
 		}
 	}

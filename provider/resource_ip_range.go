@@ -144,8 +144,8 @@ func resourceIpRangeRuleRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	ruleData:=getRuleDetailsFromRulesListUsingIdName(response,"ipRangeRules" ,id)
-	if len(ruleData)==0{
+	ruleData := GetRuleDetailsFromRulesListUsingIdName(response, "ipRangeRules", id)
+	if len(ruleData) == 0 {
 		d.SetId("")
 		return nil
 	}
@@ -153,10 +153,10 @@ func resourceIpRangeRuleRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("description", ruleDetails["description"].(string))
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	event_severity,ok:=ruleDetails["eventSeverity"].(string)
+	event_severity, ok := ruleDetails["eventSeverity"].(string)
 	if ok {
 		d.Set("event_severity", event_severity)
-	}else{
+	} else {
 		d.Set("event_severity", nil)
 	}
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
@@ -177,7 +177,7 @@ func resourceIpRangeRuleRead(d *schema.ResourceData, meta interface{}) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
