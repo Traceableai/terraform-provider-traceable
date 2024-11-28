@@ -561,11 +561,8 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
 		d.Set("rule_type",firstThresholdActions["actionType"])
 		if blockingConfig,ok := firstThresholdActions["block"].(map[string]interface{}); ok {
-			if blockingDuration,ok := blockingConfig["duration"].(string); ok {
-				if blockingDuration!=""{
-					d.Set("block_expiry_duration",blockingDuration)
-				}
-			}
+			d.Set("block_expiry_duration",blockingConfig["duration"])
+			
 			if blockingSeverity,ok := blockingConfig["eventSeverity"].(string); ok {
 				if blockingSeverity!=""{
 					d.Set("alert_severity",blockingSeverity)
@@ -614,7 +611,7 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 	finalReqResConditionsState := []map[string]interface{}{}
 	finalAttributeBasedConditionState := []map[string]interface{}{}
 
-	labelIdScopeFlag, endPointIdScopeFlag, ipReputationScopeFlag, ipLocationTypeScopeFlag, ipAbuseVelFlag,      ipAddressFlag, emailDomainFlag, userAgentFlag, regionFlag, ipOrgFlag, ipAsnFlag, ipConnTypeFlag,      reqScannerFlag, userIdFlag := true, true, true, true, true, true, true, true, true, true, true, true, true, true
+	labelIdScopeFlag, endPointIdScopeFlag, ipReputationScopeFlag, ipLocationTypeScopeFlag, ipAbuseVelFlag,ipAddressFlag, emailDomainFlag, userAgentFlag, regionFlag, ipOrgFlag, ipAsnFlag, ipConnTypeFlag,reqScannerFlag, userIdFlag := true, true, true, true, true, true, true, true, true, true, true, true, true, true
 	for _,condition := range conditionsArray {
 		leafCondition := condition.(map[string]interface{})["leafCondition"].(map[string]interface{})
 		conditionType := leafCondition["conditionType"].(string)
@@ -633,7 +630,7 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 			excludeIpLocationType := ipLocationTypeCondition["exclude"].(bool)
 			ip_location_type := map[string]interface{}{
 				"ip_location_types":ipLocationTypes,
-				"exclude":excludeIpLocationType,
+				"exclude":excludeIpLocationType,	
 			}
 			finalConditionState=append(finalConditionState,ip_location_type)
 			d.Set("ip_location_type",finalConditionState)
@@ -641,24 +638,24 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 		}else if conditionType == "IP_ADDRESS" {
 			ipAddressCondition := leafCondition["ipAddressCondition"].(map[string]interface{})
 			excludeIpAddress := ipAddressCondition["exclude"].(bool)
+			var ipAddressObj map[string]interface{}
 			if ipAddressConditionType,ok := ipAddressCondition["ipAddressConditionType"].(string) ; ok{
-				ipAddressObj := map[string]interface{}{}
-				if ipAddressConditionType == "ALL_EXTERNAL"{
-					ipAddressObj = map[string]interface{}{
-						"ip_address_type": "ALL_EXTERNAL",
-						"exclude": excludeIpAddress,
-					}
-				}else {
-					rawInputIpData := ipAddressCondition["rawInputIpData"].([]interface{})
-					ipAddressObj = map[string]interface{}{
-						"ip_address_list": rawInputIpData,
-						"exclude": excludeIpAddress,
-					}
+				ipAddressObj = map[string]interface{}{
+					"ip_address_type": ipAddressConditionType,
+					"exclude": excludeIpAddress,
+					"ip_address_list": []interface{}{},
 				}
-				finalConditionState=append(finalConditionState,ipAddressObj)
-				d.Set("ip_address",finalConditionState)
-				ipAddressFlag=false
+			}else {
+				rawInputIpData := ipAddressCondition["rawInputIpData"].([]interface{})
+				ipAddressObj = map[string]interface{}{
+					"ip_address_list": rawInputIpData,
+					"exclude": excludeIpAddress,
+					"ip_address_type": "",
+				}
 			}
+			finalConditionState=append(finalConditionState,ipAddressObj)
+			d.Set("ip_address",finalConditionState)
+			ipAddressFlag=false
 		}else if conditionType == "EMAIL_DOMAIN" {
 			emailDomainCondition :=	leafCondition["emailDomainCondition"].(map[string]interface{})
 			emailRegexes := emailDomainCondition["emailRegexes"].([]interface{})
@@ -870,7 +867,6 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{}) error {
-
 	name := d.Get("name").(string)
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
