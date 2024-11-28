@@ -204,9 +204,13 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
     if err != nil {
         return fmt.Errorf("Error:%s", err)
     }
-    rules := response["data"].(map[string]interface{})["updateAnomalyRuleConfig"].(map[string]interface{})
-    log.Println(rules)
-    d.SetId(rule_crs_id)
+    if responseData,ok := response["data"].(map[string]interface{}); ok {
+        rules := responseData["updateAnomalyRuleConfig"].(map[string]interface{})
+        log.Println(rules)
+        d.SetId(rule_crs_id)
+    }else{
+        return fmt.Errorf("Error occurred while updating the state")
+    }
     return nil
 }
 
