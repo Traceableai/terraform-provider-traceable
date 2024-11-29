@@ -34,6 +34,7 @@ func Provider() *schema.Provider {
 			"traceable_api_naming_rule":                          resourceApiNamingRule(),
 			// "traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 			"traceable_label_creation_rule":                      resourceLabelCreationRule(),
+			"traceable_detection_policies":                       resourceDetectionConfigRule(),
 			// "traceable_agent_token":                              resourceAgentToken(),
 
 		},
