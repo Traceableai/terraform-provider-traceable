@@ -212,3 +212,8 @@ resource "traceable_notification_rule_actor_severity_change" "rule1" {
   actor_ip_reputation_levels            = ["HIGH"]
 
 }
+
+resource "traceable_detection_policies" "enablelfi"{
+    config_name="typeAnomaly"
+    disabled=true
+}
