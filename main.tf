@@ -262,3 +262,7 @@ resource "traceable_rate_limiting_block" "sample_rule" {
     label_id_scope = ["External"]
 }
 
+resource "traceable_detection_policies" "enablelfi"{
+    config_name="typeAnomaly"
+    disabled=true
+}
