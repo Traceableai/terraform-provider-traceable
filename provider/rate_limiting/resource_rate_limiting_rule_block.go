@@ -98,12 +98,12 @@ func ResourceRateLimitingRuleBlock() *schema.Resource {
 						"api_aggregate_type": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "ACROSS_ENDPOINTS/PER_ENDPOINT",
+							Description: "api aggregate type (ACROSS_ENDPOINTS/PER_ENDPOINT)",
 						},
 						"user_aggregate_type": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "PER_USER",
+							Description: "user aggregate type",
 							Default: "PER_USER",
 						},
 						"rolling_window_count_allowed": {
