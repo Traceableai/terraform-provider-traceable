@@ -28,9 +28,9 @@ func resourceDetectionConfigRule() *schema.Resource {
 				Required:    true,
 			},
             "disabled": {
-                Type:        schema.TypeBool,
+                Type:        schema.TypeString,
                 Description: "Flag to enable/disable the detection config",
-                Required:    true,
+                Optional:    true,
             },
             "sub_rule_id": {
                 Type:        schema.TypeString,
@@ -38,7 +38,7 @@ func resourceDetectionConfigRule() *schema.Resource {
                 Optional:    true,
             },
             "sub_rule_blocking_enabled": {
-                Type:        schema.TypeBool,
+                Type:        schema.TypeString,
                 Description: "Enable/Disable blocking for sub rules",
                 Optional:    true,
             },
@@ -118,7 +118,6 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
             if sub_rule_config["subRuleId"]==sub_rule_id{
                 log.Printf("found a match %s",sub_rule_config)
                 is_blocking_enabled:=sub_rule_config["blockingEnabled"].(bool)
-                log.Printf("sub rule blocking %t",is_blocking_enabled)
                 d.Set("sub_rule_blocking_enabled",is_blocking_enabled)
                 break
             }
@@ -132,9 +131,14 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
 func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) error {
     environment := d.Get("environment").(string)
     config_name := d.Get("config_name").(string)
-    disabled := d.Get("disabled").(bool)
+    disabled := d.Get("disabled").(string)
     sub_rule_id := d.Get("sub_rule_id").(string)
-    sub_rule_blocking_enabled := d.Get("sub_rule_blocking_enabled").(bool)
+    sub_rule_blocking_enabled := d.Get("sub_rule_blocking_enabled").(string)
+
+
+    if (sub_rule_blocking_enabled=="" && disabled=="") || (disabled!="" && sub_rule_blocking_enabled!=""){
+        return fmt.Errorf("Required one of `sub_rule_blocking_enable` or `disabled`")
+    }
 
     configScope:="anomalyScope: { scopeType: CUSTOMER }"
     if environment!=""{
@@ -152,13 +156,13 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
     ruleConfigs:=fmt.Sprintf(`ruleConfig: {
                       ruleId: "%s"
                       configType: %s
-                      configStatus: { disabled: %t }
+                      configStatus: { disabled: %s }
                   }`,rule_crs_id,configType,disabled)
     if sub_rule_id!=""{
         ruleConfigs=fmt.Sprintf(`ruleConfig: {
                       ruleId: "%s"
                       configType: %s
-                      subRuleConfigs: [{ subRuleId: "%s", blockingEnabled: %t }]
+                      subRuleConfigs: [{ subRuleId: "%s", blockingEnabled: %s }]
                   }`,rule_crs_id,configType,sub_rule_id,sub_rule_blocking_enabled)
     }
 
@@ -182,8 +186,12 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
 
     var response map[string]interface{}
     responseStr, err := ExecuteQuery(query, meta)
+    if strings.Contains(responseStr,"DataFetchingException"){
+        _ = json.Unmarshal([]byte(responseStr), &response)
+        return fmt.Errorf("Error: %s", response)
+    }
     if err != nil {
-        return fmt.Errorf("Error:%s", err)
+        return fmt.Errorf("Error: %s", err)
     }
     log.Printf("This is the graphql query %s", query)
     log.Printf("This is the graphql response %s", responseStr)
