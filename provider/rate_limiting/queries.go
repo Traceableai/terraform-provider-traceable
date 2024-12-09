@@ -14,7 +14,7 @@ const (
                                                   {
                                                       actions: [{
                                                               actionType: %s
-                                                              block: %s
+                                                              %s: %s
                                                           }]
                                                       thresholdConfigs: [
                                                              %s
@@ -46,7 +46,7 @@ const (
                                                 {
                                                     actions: [{
                                                             actionType: %s
-                                                            block: %s
+                                                            %s: %s
                                                         }]
                                                     thresholdConfigs: [
                                                            %s
@@ -290,13 +290,13 @@ const (
 }`
 	ROLLING_WINDOW_THRESHOLD_CONFIG_QUERY = `{
                                                   apiAggregateType: %s
-                                                  userAggregateType: PER_USER
+                                                  userAggregateType: %s
                                                   thresholdConfigType: ROLLING_WINDOW
                                                   rollingWindowThresholdConfig: { countAllowed: %d, duration: "%s" }
                                               }`
 	DYNAMIC_THRESHOLD_CONFIG_QUERY = `{
                                            apiAggregateType: %s
-                                           userAggregateType: PER_USER
+                                           userAggregateType: %s
                                            thresholdConfigType: DYNAMIC
                                            dynamicThresholdConfig: {
                                                percentageExceedingMeanAllowed: %d

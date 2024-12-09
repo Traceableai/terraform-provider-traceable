@@ -1,10 +1,11 @@
 package rate_limiting
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"context"
+	"strings"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
@@ -98,6 +99,12 @@ func ResourceRateLimitingRuleBlock() *schema.Resource {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: "ACROSS_ENDPOINTS/PER_ENDPOINT",
+						},
+						"user_aggregate_type": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "PER_USER",
+							Default: "PER_USER",
 						},
 						"rolling_window_count_allowed": {
 							Type:        schema.TypeInt,
@@ -514,7 +521,7 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 	if block_expiry_duration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alert_severity, block_expiry_duration)
 	}
-	createRateLimitQuery := fmt.Sprintf(RATE_LIMITING_CREATE_QUERY, finalConditionsQuery, enabled, name, rule_type, actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	createRateLimitQuery := fmt.Sprintf(RATE_LIMITING_CREATE_QUERY, finalConditionsQuery, enabled, name, rule_type,strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(createRateLimitQuery, meta)
 	if err != nil {
@@ -930,7 +937,7 @@ func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{
 	if block_expiry_duration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alert_severity, block_expiry_duration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY, id, finalConditionsQuery, enabled, name, rule_type, actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY, id, finalConditionsQuery, enabled, name, rule_type,strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {

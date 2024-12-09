@@ -174,17 +174,18 @@ func returnFinalThresholdConfigQuery(threshold_configs []interface{}) (string,er
     for _, thresholdConfig := range threshold_configs {
 		thresholdConfigData := thresholdConfig.(map[string]interface{})
 		apiAggregateType := thresholdConfigData["api_aggregate_type"].(string)
+		userAggregateType := thresholdConfigData["user_aggregate_type"].(string)
 		rollingWindowCountAllowed := thresholdConfigData["rolling_window_count_allowed"].(int)
 		rollingWindowDuration := thresholdConfigData["rolling_window_duration"].(string)
 		thresholdConfigType := thresholdConfigData["threshold_config_type"]
 		dynamicMeanCalculationDuration := thresholdConfigData["dynamic_mean_calculation_duration"].(string)
 		if thresholdConfigType == "ROLLING_WINDOW" {
-			finalThresholdConfigQuery += fmt.Sprintf(ROLLING_WINDOW_THRESHOLD_CONFIG_QUERY, apiAggregateType, rollingWindowCountAllowed, rollingWindowDuration)
+			finalThresholdConfigQuery += fmt.Sprintf(ROLLING_WINDOW_THRESHOLD_CONFIG_QUERY, apiAggregateType,userAggregateType, rollingWindowCountAllowed, rollingWindowDuration)
 		} else if thresholdConfigType == "DYNAMIC" {
 			// if dynamicMeanCalculationDuration == "" {
 			// 	return "",fmt.Errorf("required dynamic_mean_calculation_duration for dynamic threshold_config_type")
 			// }
-			finalThresholdConfigQuery += fmt.Sprintf(DYNAMIC_THRESHOLD_CONFIG_QUERY, apiAggregateType, rollingWindowCountAllowed, dynamicMeanCalculationDuration, rollingWindowDuration)
+			finalThresholdConfigQuery += fmt.Sprintf(DYNAMIC_THRESHOLD_CONFIG_QUERY, apiAggregateType,userAggregateType, rollingWindowCountAllowed, dynamicMeanCalculationDuration, rollingWindowDuration)
 		}
 	}
     return finalThresholdConfigQuery,nil
