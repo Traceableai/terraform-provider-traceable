@@ -266,3 +266,7 @@ resource "traceable_detection_policies" "enablelfi"{
     config_name="typeAnomaly"
     disabled=true
 }
+resource "traceable_detection_policies" "enablelfi"{
+    config_name="typeAnomaly"
+    disabled=true
+}

@@ -146,9 +146,9 @@ func convertToInterfaceSlice(input []string) []interface{} {
 	}
 	return output
 }
-
 func GetRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
 	return common.CallGetRuleDetailsFromRulesListUsingIdName(response , arrayJsonKey ,args...)
+
 }
 
 // function to convert a list of strings to a GraphQL-compatible string list
