@@ -2,7 +2,6 @@ package provider
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"regexp"
 	"strconv"
@@ -151,7 +150,7 @@ func convertToInterfaceSlice(input []string) []interface{} {
 
 func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arrayJsonKey string, args ...string) map[string]interface{} {
 	var res map[string]interface{}
-	rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})
+    rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})
 	results := rules["results"].([]interface{})
 	id_name := args[0]
 	if len(args)==1{
@@ -162,7 +161,7 @@ func getRuleDetailsFromRulesListUsingIdName(response map[string]interface{}, arr
 	// log.Println(results)
 	for _, rule := range results {
 		ruleData := rule.(map[string]interface{})
-		log.Println(ruleData)
+// 		log.Println(ruleData)
 		rule_id := ruleData[args[1]].(string)
 		var rule_name string
 		var ok bool

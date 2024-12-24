@@ -237,3 +237,8 @@ resource traceable_custom_signature_allow "csruletf"{
         match_value="req_header"
     }
 }
+
+resource "traceable_detection_policies" "enablelfi"{
+    config_name="typeAnomaly"
+    disabled=true
+}
