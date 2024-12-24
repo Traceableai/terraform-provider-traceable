@@ -619,40 +619,45 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 	finalAttributeBasedConditionState := []map[string]interface{}{}
 
 	labelIdScopeFlag, endPointIdScopeFlag, ipReputationScopeFlag, ipLocationTypeScopeFlag, ipAbuseVelFlag,ipAddressFlag, emailDomainFlag, userAgentFlag, regionFlag, ipOrgFlag, ipAsnFlag, ipConnTypeFlag,reqScannerFlag, userIdFlag := true, true, true, true, true, true, true, true, true, true, true, true, true, true
-	for _,condition := range conditionsArray {
+	for _, condition := range conditionsArray {
 		leafCondition := condition.(map[string]interface{})["leafCondition"].(map[string]interface{})
 		conditionType := leafCondition["conditionType"].(string)
 		finalConditionState := []map[string]interface{}{}
-		if conditionType == "IP_REPUTATION"{
+	
+		switch conditionType {
+		case "IP_REPUTATION":
 			minIpReputationSeverity := leafCondition["ipReputationCondition"].(map[string]interface{})["minIpReputationSeverity"].(string)
-			d.Set("ip_reputation",minIpReputationSeverity)
-			ipReputationScopeFlag=false
-		}else if conditionType == "IP_ABUSE_VELOCITY" {
+			d.Set("ip_reputation", minIpReputationSeverity)
+			ipReputationScopeFlag = false
+	
+		case "IP_ABUSE_VELOCITY":
 			minIpAbuseVelocity := leafCondition["ipAbuseVelocityCondition"].(map[string]interface{})["minIpAbuseVelocity"].(string)
-			d.Set("ip_abuse_velocity",minIpAbuseVelocity)
-			ipAbuseVelFlag=false
-		}else if conditionType == "IP_LOCATION_TYPE" {
+			d.Set("ip_abuse_velocity", minIpAbuseVelocity)
+			ipAbuseVelFlag = false
+	
+		case "IP_LOCATION_TYPE":
 			ipLocationTypeCondition := leafCondition["ipLocationTypeCondition"].(map[string]interface{})
 			ipLocationTypes := ipLocationTypeCondition["ipLocationTypes"].([]interface{})
 			excludeIpLocationType := ipLocationTypeCondition["exclude"].(bool)
-			ip_location_type := map[string]interface{}{
-				"ip_location_types":ipLocationTypes,
-				"exclude":excludeIpLocationType,	
+			ipLocationType := map[string]interface{}{
+				"ip_location_types": ipLocationTypes,
+				"exclude": excludeIpLocationType,
 			}
-			finalConditionState=append(finalConditionState,ip_location_type)
-			d.Set("ip_location_type",finalConditionState)
-			ipLocationTypeScopeFlag=false
-		}else if conditionType == "IP_ADDRESS" {
+			finalConditionState = append(finalConditionState, ipLocationType)
+			d.Set("ip_location_type", finalConditionState)
+			ipLocationTypeScopeFlag = false
+	
+		case "IP_ADDRESS":
 			ipAddressCondition := leafCondition["ipAddressCondition"].(map[string]interface{})
 			excludeIpAddress := ipAddressCondition["exclude"].(bool)
 			var ipAddressObj map[string]interface{}
-			if ipAddressConditionType,ok := ipAddressCondition["ipAddressConditionType"].(string) ; ok{
+			if ipAddressConditionType, ok := ipAddressCondition["ipAddressConditionType"].(string); ok {
 				ipAddressObj = map[string]interface{}{
 					"ip_address_type": ipAddressConditionType,
 					"exclude": excludeIpAddress,
 					"ip_address_list": []interface{}{},
 				}
-			}else {
+			} else {
 				rawInputIpData := ipAddressCondition["rawInputIpData"].([]interface{})
 				ipAddressObj = map[string]interface{}{
 					"ip_address_list": rawInputIpData,
@@ -660,74 +665,80 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 					"ip_address_type": "",
 				}
 			}
-			finalConditionState=append(finalConditionState,ipAddressObj)
-			d.Set("ip_address",finalConditionState)
-			ipAddressFlag=false
-		}else if conditionType == "EMAIL_DOMAIN" {
-			emailDomainCondition :=	leafCondition["emailDomainCondition"].(map[string]interface{})
+			finalConditionState = append(finalConditionState, ipAddressObj)
+			d.Set("ip_address", finalConditionState)
+			ipAddressFlag = false
+	
+		case "EMAIL_DOMAIN":
+			emailDomainCondition := leafCondition["emailDomainCondition"].(map[string]interface{})
 			emailRegexes := emailDomainCondition["emailRegexes"].([]interface{})
 			excludeEmailRegex := emailDomainCondition["exclude"].(bool)
 			emailDomainObj := map[string]interface{}{
 				"email_domain_regexes": emailRegexes,
 				"exclude": excludeEmailRegex,
 			}
-			finalConditionState=append(finalConditionState, emailDomainObj)
-			d.Set("email_domain",finalConditionState)
-			emailDomainFlag=false
-		}else if conditionType == "USER_ID"{
+			finalConditionState = append(finalConditionState, emailDomainObj)
+			d.Set("email_domain", finalConditionState)
+			emailDomainFlag = false
+	
+		case "USER_ID":
 			userIdCondition := leafCondition["userIdCondition"].(map[string]interface{})
 			userIdRegexes := userIdCondition["userIdRegexes"].([]interface{})
 			userIds := userIdCondition["userIds"].([]interface{})
 			excludeUserIdRegexes := userIdCondition["exclude"].(bool)
-			userIdObj := map[string]interface{}{}
-			if len(userIdRegexes)>0{
+			var userIdObj map[string]interface{}
+			if len(userIdRegexes) > 0 {
 				userIdObj = map[string]interface{}{
 					"user_id_regexes": userIdRegexes,
 					"exclude": excludeUserIdRegexes,
 				}
-			} else if len(userIds)>0 {
+			} else if len(userIds) > 0 {
 				userIdObj = map[string]interface{}{
 					"user_ids": userIds,
 					"exclude": excludeUserIdRegexes,
 				}
 			}
-			finalConditionState=append(finalConditionState, userIdObj)
-			d.Set("user_id",finalConditionState)
-			userIdFlag=false
-		}else if conditionType == "USER_AGENT" {
-			userAgentCondition :=	leafCondition["userAgentCondition"].(map[string]interface{})
+			finalConditionState = append(finalConditionState, userIdObj)
+			d.Set("user_id", finalConditionState)
+			userIdFlag = false
+	
+		case "USER_AGENT":
+			userAgentCondition := leafCondition["userAgentCondition"].(map[string]interface{})
 			userAgentRegexes := userAgentCondition["userAgentRegexes"].([]interface{})
 			excludeUserAgents := userAgentCondition["exclude"].(bool)
 			userAgentObj := map[string]interface{}{
 				"user_agents_list": userAgentRegexes,
 				"exclude": excludeUserAgents,
 			}
-			finalConditionState=append(finalConditionState, userAgentObj)
-			d.Set("user_agents",finalConditionState)
-			userAgentFlag=false
-		}else if conditionType == "IP_ORGANISATION" {
-			ipOrganisationCondition :=	leafCondition["ipOrganisationCondition"].(map[string]interface{})
+			finalConditionState = append(finalConditionState, userAgentObj)
+			d.Set("user_agents", finalConditionState)
+			userAgentFlag = false
+	
+		case "IP_ORGANISATION":
+			ipOrganisationCondition := leafCondition["ipOrganisationCondition"].(map[string]interface{})
 			ipOrganisationRegexes := ipOrganisationCondition["ipOrganisationRegexes"].([]interface{})
 			excludeIpOrg := ipOrganisationCondition["exclude"].(bool)
 			ipOrgObj := map[string]interface{}{
 				"ip_organisation_regexes": ipOrganisationRegexes,
 				"exclude": excludeIpOrg,
 			}
-			finalConditionState=append(finalConditionState, ipOrgObj)
-			d.Set("ip_organisation",finalConditionState)
-			ipOrgFlag=false
-		}else if conditionType == "IP_ASN" {
-			ipAsnCondition :=	leafCondition["ipAsnCondition"].(map[string]interface{})
+			finalConditionState = append(finalConditionState, ipOrgObj)
+			d.Set("ip_organisation", finalConditionState)
+			ipOrgFlag = false
+	
+		case "IP_ASN":
+			ipAsnCondition := leafCondition["ipAsnCondition"].(map[string]interface{})
 			ipAsnRegexes := ipAsnCondition["ipAsnRegexes"].([]interface{})
 			excludeIpAsn := ipAsnCondition["exclude"].(bool)
 			ipAsnObj := map[string]interface{}{
 				"ip_asn_regexes": ipAsnRegexes,
 				"exclude": excludeIpAsn,
 			}
-			finalConditionState=append(finalConditionState, ipAsnObj)
-			d.Set("ip_asn",finalConditionState)
-			ipAsnFlag=false
-		}else if conditionType == "IP_CONNECTION_TYPE" {
+			finalConditionState = append(finalConditionState, ipAsnObj)
+			d.Set("ip_asn", finalConditionState)
+			ipAsnFlag = false
+	
+		case "IP_CONNECTION_TYPE":
 			ipConnectionTypeCondition := leafCondition["ipConnectionTypeCondition"].(map[string]interface{})
 			ipConnectionTypes := ipConnectionTypeCondition["ipConnectionTypes"].([]interface{})
 			excludeIpConnection := ipConnectionTypeCondition["exclude"].(bool)
@@ -735,10 +746,11 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 				"ip_connection_type_list": ipConnectionTypes,
 				"exclude": excludeIpConnection,
 			}
-			finalConditionState=append(finalConditionState, ipConnectionObj)
-			d.Set("ip_connection_type",finalConditionState)
-			ipConnTypeFlag=false
-		}else if conditionType == "REQUEST_SCANNER_TYPE" {
+			finalConditionState = append(finalConditionState, ipConnectionObj)
+			d.Set("ip_connection_type", finalConditionState)
+			ipConnTypeFlag = false
+	
+		case "REQUEST_SCANNER_TYPE":
 			requestScannerTypeCondition := leafCondition["requestScannerTypeCondition"].(map[string]interface{})
 			scannerTypes := requestScannerTypeCondition["scannerTypes"].([]interface{})
 			excludeScanner := requestScannerTypeCondition["exclude"].(bool)
@@ -746,77 +758,80 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 				"scanner_types_list": scannerTypes,
 				"exclude": excludeScanner,
 			}
-			finalConditionState=append(finalConditionState, reqScannerObj)
-			d.Set("request_scanner_type",finalConditionState)
-			reqScannerFlag=false
-		}else if conditionType == "REGION"{
+			finalConditionState = append(finalConditionState, reqScannerObj)
+			d.Set("request_scanner_type", finalConditionState)
+			reqScannerFlag = false
+	
+		case "REGION":
 			regionCondition := leafCondition["regionCondition"].(map[string]interface{})
 			regionIdentifiers := regionCondition["regionIdentifiers"].([]interface{})
 			excludeRegion := regionCondition["exclude"].(bool)
 			var regionCodes []interface{}
-			for _,region := range regionIdentifiers {
-				regionCodes=append(regionCodes,region.(map[string]interface{})["countryIsoCode"])
+			for _, region := range regionIdentifiers {
+				regionCodes = append(regionCodes, region.(map[string]interface{})["countryIsoCode"])
 			}
 			regionObj := map[string]interface{}{
 				"regions_ids": regionCodes,
 				"exclude": excludeRegion,
 			}
 			finalConditionState = append(finalConditionState, regionObj)
-			d.Set("regions",finalConditionState)
-			regionFlag=false
-		}else if conditionType == "KEY_VALUE" {
+			d.Set("regions", finalConditionState)
+			regionFlag = false
+	
+		case "KEY_VALUE":
 			keyValueCondition := leafCondition["keyValueCondition"].(map[string]interface{})
 			metadataType := keyValueCondition["metadataType"].(string)
 			if metadataType == "TAG" {
 				keyCondition := keyValueCondition["keyCondition"].(map[string]interface{})
 				keyConditionOperator := keyCondition["operator"].(string)
 				keyConditionValue := keyCondition["value"].(string)
-				if valueCondition,ok := keyValueCondition["valueCondition"].(map[string]interface{}); ok {
-					if valueConditionOperator,ok := valueCondition["operator"].(string); ok {
+				if valueCondition, ok := keyValueCondition["valueCondition"].(map[string]interface{}); ok {
+					if valueConditionOperator, ok := valueCondition["operator"].(string); ok {
 						valueConditionValue := valueCondition["value"].(string)
-						keyValueObj := map[string]interface{}{	
+						keyValueObj := map[string]interface{}{
 							"key_condition_operator": keyConditionOperator,
 							"key_condition_value": keyConditionValue,
 							"value_condition_operator": valueConditionOperator,
 							"value_condition_value": valueConditionValue,
 						}
-						finalAttributeBasedConditionState=append(finalAttributeBasedConditionState, keyValueObj)
+						finalAttributeBasedConditionState = append(finalAttributeBasedConditionState, keyValueObj)
 					}
-				}else{
-					keyValueObj := map[string]interface{}{	
+				} else {
+					keyValueObj := map[string]interface{}{
 						"key_condition_operator": keyConditionOperator,
 						"key_condition_value": keyConditionValue,
 					}
-					finalAttributeBasedConditionState=append(finalAttributeBasedConditionState, keyValueObj)
+					finalAttributeBasedConditionState = append(finalAttributeBasedConditionState, keyValueObj)
 				}
-			}else {
+			} else {
 				valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
 				valueConditionValue := valueCondition["value"].(string)
 				valueConditionKey := valueCondition["operator"].(string)
-				reqResObj := map[string]interface{}{	
+				reqResObj := map[string]interface{}{
 					"metadata_type": metadataType,
 					"req_res_operator": valueConditionKey,
 					"req_res_value": valueConditionValue,
 				}
-				finalReqResConditionsState=append(finalReqResConditionsState,reqResObj)
-				
+				finalReqResConditionsState = append(finalReqResConditionsState, reqResObj)
 			}
-		}else if conditionType == "SCOPE" {
+	
+		case "SCOPE":
 			scopeCondition := leafCondition["scopeCondition"].(map[string]interface{})
 			scopeType := scopeCondition["scopeType"].(string)
 			if scopeType == "LABEL" {
 				labelScope := scopeCondition["labelScope"].(map[string]interface{})
 				labelIds := labelScope["labelIds"].([]interface{})
-				d.Set("label_id_scope",labelIds)
-				labelIdScopeFlag=false
-			}else if scopeType == "ENTITY" {
+				d.Set("label_id_scope", labelIds)
+				labelIdScopeFlag = false
+			} else if scopeType == "ENTITY" {
 				entityScope := scopeCondition["entityScope"].(map[string]interface{})
 				entityIds := entityScope["entityIds"].([]interface{})
-				d.Set("endpoint_id_scope",entityIds)
-				endPointIdScopeFlag=false
+				d.Set("endpoint_id_scope", entityIds)
+				endPointIdScopeFlag = false
 			}
 		}
 	}
+	
 	if ipAddressFlag{
 		d.Set("ip_address",[]interface{}{})
 	}
