@@ -51,14 +51,14 @@ func CallExecuteQuery(query string, meta interface{}) (string, error) {
 	return string(body), nil
 }
 
-func ReturnQuotedStringList(inputList []interface{}) []string{
+func ReturnQuotedStringList(inputList []interface{}) []string {
 	var envList []string
-    for _, env := range inputList {
-        envList = append(envList, fmt.Sprintf(`"%s",`, env.(string)))
-    }
+	for _, env := range inputList {
+		envList = append(envList, fmt.Sprintf(`"%s",`, env.(string)))
+	}
 	lastValue := envList[len(envList)-1]
 	lastValue = lastValue[:len(lastValue)-1]
-	envList[len(envList)-1]=lastValue
+	envList[len(envList)-1] = lastValue
 	return envList
 }
 
@@ -67,7 +67,7 @@ func CallGetRuleDetailsFromRulesListUsingIdName(response map[string]interface{},
 	rules := response["data"].(map[string]interface{})[arrayJsonKey].(map[string]interface{})
 	results := rules["results"].([]interface{})
 	id_name := args[0]
-	if len(args)==1{
+	if len(args) == 1 {
 		args = append(args, "id")
 		args = append(args, "name")
 	}

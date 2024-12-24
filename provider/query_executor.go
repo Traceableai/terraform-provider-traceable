@@ -5,5 +5,5 @@ import (
 )
 
 func ExecuteQuery(query string, meta interface{}) (string, error) {
-	return common.CallExecuteQuery(query,meta)
+	return common.CallExecuteQuery(query, meta)
 }
