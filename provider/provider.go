@@ -39,6 +39,10 @@ func Provider() *schema.Provider {
 			"traceable_rate_limiting_block": rate_limiting.ResourceRateLimitingRuleBlock(),
 			"traceable_detection_policies":  resourceDetectionConfigRule(),
 			// "traceable_agent_token":                              resourceAgentToken(),
+			"traceable_custom_signature_allow":                   resourceCustomSignatureAllowRule(),
+			"traceable_custom_signature_block":                   resourceCustomSignatureBlockRule(),
+			"traceable_custom_signature_alert":                   resourceCustomSignatureAlertRule(),
+			"traceable_custom_signature_testing":                   resourceCustomSignatureTestingRule(),
 
 		},
 		DataSourcesMap: map[string]*schema.Resource{
