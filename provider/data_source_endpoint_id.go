@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"log"
 	"time"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceEndpointId() *schema.Resource {
 	return &schema.Resource{
-		Read:   dataSourceEndpointIdRead,
+		Read: dataSourceEndpointIdRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -38,9 +39,9 @@ func dataSourceEndpointId() *schema.Resource {
 }
 
 func dataSourceEndpointIdRead(d *schema.ResourceData, meta interface{}) error {
-	name:=d.Get("name").(string)
-	service_name:=d.Get("service_name").(string)
-	enviroment_name:=d.Get("enviroment_name").(string)
+	name := d.Get("name").(string)
+	service_name := d.Get("service_name").(string)
+	enviroment_name := d.Get("enviroment_name").(string)
 
 	currentTime := time.Now().UTC()
 	endTime := currentTime.Format("2006-01-02T15:04:05.000Z")
@@ -83,9 +84,9 @@ func dataSourceEndpointIdRead(d *schema.ResourceData, meta interface{}) error {
 				name: attribute(expression: { key: "name" })
 			}
 		}
-	}`,stTime,endTime,name,enviroment_name,service_name)
+	}`, stTime, endTime, name, enviroment_name, service_name)
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
@@ -95,15 +96,14 @@ func dataSourceEndpointIdRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Printf("this is the gql response %s",response)
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"entities",name)
-	if len(ruleDetails)==0{
-		return fmt.Errorf("No endpoints found with name %s",name)
+	log.Printf("this is the gql response %s", response)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "entities", name)
+	if len(ruleDetails) == 0 {
+		return fmt.Errorf("No endpoints found with name %s", name)
 	}
-	endpoint_id:=ruleDetails["id"].(string)
-	log.Printf("endpoint found with name %s",endpoint_id)
-	d.Set("endpoint_id",endpoint_id)
+	endpoint_id := ruleDetails["id"].(string)
+	log.Printf("endpoint found with name %s", endpoint_id)
+	d.Set("endpoint_id", endpoint_id)
 	d.SetId(endpoint_id)
 	return nil
 }
-

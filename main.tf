@@ -212,6 +212,60 @@ resource "traceable_notification_rule_actor_severity_change" "rule1" {
 
 }
 
+data "traceable_endpoint_id" "endpoint" {
+  name="POST /EOaml"
+  service_name="service_UxDyUNPq"
+  enviroment_name="jatinenv"
+}
+
+resource "traceable_rate_limiting_block" "sample_rule" {
+    name="please one last time 1"
+    environments=["utkarsh_21"]
+    enabled=true
+    alert_severity="HIGH"
+    threshold_configs {
+        api_aggregate_type="ACROSS_ENDPOINTS"
+        rolling_window_count_allowed=10
+        rolling_window_duration="PT60S"
+        threshold_config_type="ROLLING_WINDOW"
+    }
+    threshold_configs {
+        api_aggregate_type="PER_ENDPOINT"
+        rolling_window_count_allowed=100
+        rolling_window_duration="PT120S"
+        threshold_config_type="ROLLING_WINDOW"
+    }
+    threshold_configs {
+        api_aggregate_type="ACROSS_ENDPOINTS"
+        rolling_window_count_allowed=100000
+        rolling_window_duration="PT300S"
+        threshold_config_type="DYNAMIC"
+        dynamic_mean_calculation_duration="PT86400S"  
+    }
+    ip_address {
+      ip_address_list = ["1.1.1.1","1.1.1.1/32"]
+      exclude = true
+    }
+    regions{
+      regions_ids = [ "AX", "DZ" ]
+      exclude = true
+    }
+    user_id {
+        user_id_regexes = ["sample","test"]
+        exclude=false
+    }
+    req_res_conditions {
+          metadata_type    = "HTTP_METHOD"
+          req_res_operator = "EQUALS"
+          req_res_value    = "zfcd"
+        }
+    label_id_scope = ["External"]
+}
+
+resource "traceable_detection_policies" "enablelfi"{
+    config_name="typeAnomaly"
+    disabled=true
+}
 resource "traceable_detection_policies" "enablelfi"{
     config_name="typeAnomaly"
     disabled=true

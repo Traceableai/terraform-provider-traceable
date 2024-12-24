@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/traceableai/traceable-terraform-provider/provider"
+	"github.com/traceableai/terraform-provider-traceable/provider"
 )
 
 func main() {

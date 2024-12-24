@@ -45,7 +45,7 @@ func resourceLabelCreationRuleCreate(d *schema.ResourceData, meta interface{}) e
 	mutation := fmt.Sprintf(`mutation{createLabel(label:{key:"%s",description:"%s",color:"%s"}){id key description color}}`, key, description, color)
 
 	// Execute the GraphQL mutation
-	responseStr, err := executeQuery(mutation, meta)
+	responseStr, err := ExecuteQuery(mutation, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
@@ -74,7 +74,7 @@ func resourceLabelCreationRuleRead(d *schema.ResourceData, meta interface{}) err
 
 	query := `query{labels{results{id key description color}}}`
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
@@ -110,7 +110,7 @@ func resourceLabelCreationRuleUpdate(d *schema.ResourceData, meta interface{}) e
 
 	mutation := fmt.Sprintf(`mutation{updateLabel(label:{id:"%s",key:"%s",description:"%s",color:"%s"}){id key description color}}`, id, key, description, color)
 
-	responseStr, err := executeQuery(mutation, meta)
+	responseStr, err := ExecuteQuery(mutation, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL update mutation: %s", err)
 	}

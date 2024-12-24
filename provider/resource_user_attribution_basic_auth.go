@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -55,8 +56,8 @@ func resourceUserAttributionRuleBasicAuthCreate(d *schema.ResourceData, meta int
 	name := d.Get("name").(string)
 	category := d.Get("category").(string)
 
-	scopeType:=d.Get("scope_type").(string)
-	
+	scopeType := d.Get("scope_type").(string)
+
 	var query string
 	if scopeType == "SYSTEM_WIDE" {
 		query = fmt.Sprintf(`mutation {
@@ -71,17 +72,17 @@ func resourceUserAttributionRuleBasicAuthCreate(d *schema.ResourceData, meta int
 			  }
 			  total
 			}
-		  }`,name,category,scopeType)
-	} else if scopeType== "CUSTOM" {
-		environment:=d.Get("environment").(string)
-		url_regex:=d.Get("url_regex").(string)
+		  }`, name, category, scopeType)
+	} else if scopeType == "CUSTOM" {
+		environment := d.Get("environment").(string)
+		url_regex := d.Get("url_regex").(string)
 		var scopedQuery string
-		if environment!="" && url_regex=="" {
-			scopedQuery=fmt.Sprintf(`customScope: {environmentScopes: [{environmentName: "%s"}]}`,environment)
-		} else if url_regex!="" && environment=="" {
-			scopedQuery=fmt.Sprintf(`customScope: {urlScopes: [{urlMatchRegex: "%s"}]}`,url_regex)
+		if environment != "" && url_regex == "" {
+			scopedQuery = fmt.Sprintf(`customScope: {environmentScopes: [{environmentName: "%s"}]}`, environment)
+		} else if url_regex != "" && environment == "" {
+			scopedQuery = fmt.Sprintf(`customScope: {urlScopes: [{urlMatchRegex: "%s"}]}`, url_regex)
 		}
-		if scopedQuery==""{
+		if scopedQuery == "" {
 			return fmt.Errorf("Provide enviroment or url regex for custom scoped user attribution or remove one of them")
 		}
 		query = fmt.Sprintf(`mutation {
@@ -97,13 +98,13 @@ func resourceUserAttributionRuleBasicAuthCreate(d *schema.ResourceData, meta int
 			  }
 			  total
 			}
-		  }`,name,category,scopedQuery)
-	}else{
+		  }`, name, category, scopedQuery)
+	} else {
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -113,18 +114,18 @@ func resourceUserAttributionRuleBasicAuthCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
-	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response,"createUserAttributionRule",name)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "createUserAttributionRule", name)
 	log.Println(ruleDetails)
-	id:=ruleDetails["id"].(string)
+	id := ruleDetails["id"].(string)
 	d.SetId(id)
- 	return nil
+	return nil
 }
 
 func resourceUserAttributionRuleBasicAuthRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	log.Printf("Id from read %s", id)
-	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
-	responseStr, err := executeQuery(readQuery, meta)
+	readQuery := "{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -132,44 +133,44 @@ func resourceUserAttributionRuleBasicAuthRead(d *schema.ResourceData, meta inter
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return err
 	}
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"userAttributionRules" ,id)
-	if len(ruleDetails)==0{
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "userAttributionRules", id)
+	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
 	}
-	log.Printf("fetching from read %s",ruleDetails)
-	name:=ruleDetails["name"].(string)
-	category:=ruleDetails["type"].(string)
-	disabled:=ruleDetails["disabled"].(bool)
-	d.Set("disabled",disabled)
-	d.Set("category",category)
-	scopeType:=ruleDetails["scopeType"]
-	d.Set("name",name)
-	if scopeType=="SYSTEM_WIDE"{
+	log.Printf("fetching from read %s", ruleDetails)
+	name := ruleDetails["name"].(string)
+	category := ruleDetails["type"].(string)
+	disabled := ruleDetails["disabled"].(bool)
+	d.Set("disabled", disabled)
+	d.Set("category", category)
+	scopeType := ruleDetails["scopeType"]
+	d.Set("name", name)
+	if scopeType == "SYSTEM_WIDE" {
 		d.Set("scope_type", "SYSTEM_WIDE")
-	}else{
+	} else {
 		envScope := ruleDetails["customScope"].(map[string]interface{})["environmentScopes"]
 		urlScope := ruleDetails["customScope"].(map[string]interface{})["urlScopes"]
-		if len(envScope.([]interface{}))==0{
-			d.Set("scope_type","CUSTOM")
-			d.Set("url_regex",urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
-			
-		}else{
-			d.Set("scope_type","CUSTOM")
-			d.Set("environment",envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
+		if len(envScope.([]interface{})) == 0 {
+			d.Set("scope_type", "CUSTOM")
+			d.Set("url_regex", urlScope.([]interface{})[0].(map[string]interface{})["urlMatchRegex"])
+
+		} else {
+			d.Set("scope_type", "CUSTOM")
+			d.Set("environment", envScope.([]interface{})[0].(map[string]interface{})["environmentName"])
 		}
 	}
 	return nil
 }
 
 func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta interface{}) error {
-	id:=d.Id()
+	id := d.Id()
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
-	scopeType:=d.Get("scope_type").(string)
-	category:=d.Get("category").(string)
-	readQuery:="{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
-	readQueryResStr, err := executeQuery(readQuery, meta)
+	scopeType := d.Get("scope_type").(string)
+	category := d.Get("category").(string)
+	readQuery := "{userAttributionRules{results{id scopeType rank name type disabled customScope{environmentScopes{environmentName}urlScopes{urlMatchRegex}}}}}"
+	readQueryResStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -177,11 +178,11 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 	if err := json.Unmarshal([]byte(readQueryResStr), &readResponse); err != nil {
 		return err
 	}
-	readRuleDetails:=getRuleDetailsFromRulesListUsingIdName(readResponse,"userAttributionRules" ,id)
-	if len(readRuleDetails)==0{
+	readRuleDetails := GetRuleDetailsFromRulesListUsingIdName(readResponse, "userAttributionRules", id)
+	if len(readRuleDetails) == 0 {
 		return nil
 	}
-	rank:=int(readRuleDetails["rank"].(float64))
+	rank := int(readRuleDetails["rank"].(float64))
 	var query string
 	if scopeType == "SYSTEM_WIDE" {
 		query = fmt.Sprintf(`mutation {
@@ -193,17 +194,17 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 				rank
 				name
 			}
-		  }`,name,category,id,rank,disabled,scopeType)
-	} else if scopeType== "CUSTOM" {
-		environment:=d.Get("environment").(string)
-		url_regex:=d.Get("url_regex").(string)
+		  }`, name, category, id, rank, disabled, scopeType)
+	} else if scopeType == "CUSTOM" {
+		environment := d.Get("environment").(string)
+		url_regex := d.Get("url_regex").(string)
 		var scopedQuery string
-		if environment!="" && url_regex=="" {
-			scopedQuery=fmt.Sprintf(`customScope: {environmentScopes: [{environmentName: "%s"}]}`,environment)
-		} else if url_regex!="" && environment=="" {
-			scopedQuery=fmt.Sprintf(`customScope: {urlScopes: [{urlMatchRegex: "%s"}]}`,url_regex)
+		if environment != "" && url_regex == "" {
+			scopedQuery = fmt.Sprintf(`customScope: {environmentScopes: [{environmentName: "%s"}]}`, environment)
+		} else if url_regex != "" && environment == "" {
+			scopedQuery = fmt.Sprintf(`customScope: {urlScopes: [{urlMatchRegex: "%s"}]}`, url_regex)
 		}
-		if scopedQuery==""{
+		if scopedQuery == "" {
 			return fmt.Errorf("Provide enviroment or url regex for custom scoped user attribution or remove one of them")
 		}
 		query = fmt.Sprintf(`mutation {
@@ -216,13 +217,13 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 				name
 				type
 			}
-		  }`,name,category,id,rank,disabled,scopedQuery)
-	}else{
+		  }`, name, category, id, rank, disabled, scopedQuery)
+	} else {
 		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -234,7 +235,7 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 	}
 	rules := response["data"].(map[string]interface{})["updateUserAttributionRule"].(map[string]interface{})
 	// log.Printf(ruleDetails)
-	updatedId:=rules["id"].(string)
+	updatedId := rules["id"].(string)
 	d.SetId(updatedId)
 	return nil
 }
@@ -242,7 +243,7 @@ func resourceUserAttributionRuleBasicAuthUpdate(d *schema.ResourceData, meta int
 func resourceUserAttributionRuleBasicAuthDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(" mutation { deleteUserAttributionRule(input: {id: \"%s\"}) { results { id scopeType rank name type disabled } } }", id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

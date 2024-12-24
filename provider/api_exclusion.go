@@ -100,7 +100,7 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 	query := fmt.Sprintf(`mutation{createExcludeSpanRule(input:{name:"%s" disabled:%t spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id __typename}}`, name, disabled, spanFilterQueryPart)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
@@ -121,7 +121,7 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 
 	query := `{excludeSpanRules{results{id name disabled spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{relationalOperator key value field}}}}}}}`
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
@@ -227,7 +227,7 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 	query := fmt.Sprintf(`mutation{updateExcludeSpanRule(input:{id:"%s" name:"%s" disabled:%t spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id __typename}}`, id, name, disabled, spanFilterQueryPart)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
@@ -256,7 +256,7 @@ func resourceApiExclusionRuleDelete(d *schema.ResourceData, meta interface{}) er
 
 	query := fmt.Sprintf(`mutation{deleteExcludeSpanRule(input:{id:%q}){success __typename}}`, id)
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL mutation for deletion: %s", err)
 	}

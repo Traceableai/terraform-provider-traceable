@@ -98,6 +98,7 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
                   }
                 }`,anomalyScope)
     var response map[string]interface{}
+
     responseStr, err := executeQuery(readQuery, meta)
     if err != nil {
         return fmt.Errorf("Error:%s", err)
@@ -107,7 +108,8 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
     if err != nil {
         return fmt.Errorf("Error:%s", err)
     }
-    detection_config:=getRuleDetailsFromRulesListUsingIdName(response,"anomalyDetectionRuleConfigs" ,crs_id,"ruleId","ruleName")
+    detection_config:=GetRuleDetailsFromRulesListUsingIdName(response,"anomalyDetectionRuleConfigs" ,crs_id,"ruleId","ruleName")
+
 
     sub_rule_id := d.Get("sub_rule_id").(string)
     if sub_rule_id!=""{
@@ -190,6 +192,7 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
                         }`,configScope,ruleConfigs)
 
     var response map[string]interface{}
+
     responseStr, err := executeQuery(query, meta)
     if strings.Contains(responseStr,"DataFetchingException"){
         _ = json.Unmarshal([]byte(responseStr), &response)

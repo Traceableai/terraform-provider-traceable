@@ -2,6 +2,8 @@ package provider
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
 )
 
 func Provider() *schema.Provider {
@@ -19,7 +21,7 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"traceable_ip_range_rule":                            resourceIpRangeRule(),
+			"traceable_ip_range_rule": resourceIpRangeRule(),
 			//"traceable_user_attribution_rule_basic_auth":         resourceUserAttributionBasicAuthRule(),
 			//"traceable_user_attribution_rule_req_header":         resourceUserAttributionRequestHeaderRule(),
 			//"traceable_user_attribution_rule_jwt_authentication": resourceUserAttributionJwtAuthRule(),
@@ -31,10 +33,11 @@ func Provider() *schema.Provider {
 			// "traceable_notification_rule_blocked_threat_activity": resourceNotificationRuleBlockedThreatActivity(),
 			// "traceable_notification_rule_threat_actor_status": resourceNotificationRuleThreatActorStatusChange(),
 			// "traceable_notification_rule_actor_severity_change": resourceNotificationRuleActorSeverityChange(),
-			"traceable_api_naming_rule":                          resourceApiNamingRule(),
+			"traceable_api_naming_rule": resourceApiNamingRule(),
 			// "traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
-			"traceable_label_creation_rule":                      resourceLabelCreationRule(),
-			"traceable_detection_policies":                       resourceDetectionConfigRule(),
+			"traceable_label_creation_rule": resourceLabelCreationRule(),
+			"traceable_rate_limiting_block": rate_limiting.ResourceRateLimitingRuleBlock(),
+			"traceable_detection_policies":  resourceDetectionConfigRule(),
 			// "traceable_agent_token":                              resourceAgentToken(),
 
 		},
@@ -42,21 +45,16 @@ func Provider() *schema.Provider {
 			// "traceable_notification_channels": dataSourceNotificationChannel(),
 			//"traceable_splunk_integration":    dataSourceSplunkIntegration(),
 			//"traceable_syslog_integration":    dataSourceSyslogIntegration(),
-			"traceable_endpoint_id":           dataSourceEndpointId(),
-			"traceable_service_id":            dataSourceServiceId(),
+			"traceable_endpoint_id": dataSourceEndpointId(),
+			"traceable_service_id":  dataSourceServiceId(),
 			// "traceable_agent_token":           dataSourceAgentToken(),
 		},
 		ConfigureFunc: graphqlConfigure,
 	}
 }
 
-type graphqlProviderConfig struct {
-	GQLServerUrl string
-	ApiToken     string
-}
-
 func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
-	config := &graphqlProviderConfig{
+	config := &common.GraphqlProviderConfig{
 		GQLServerUrl: d.Get("platform_url").(string),
 		ApiToken:     d.Get("api_token").(string),
 	}

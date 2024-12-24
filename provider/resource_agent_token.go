@@ -60,7 +60,7 @@ func resourceAgentTokenCreate(d *schema.ResourceData, meta interface{}) error {
 	}`, name)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
@@ -90,7 +90,7 @@ func resourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
 
 	query := `{agentTokenMetadata {results {id name createdBy creationTimestamp lastUsedTimestamp __typename}}}`
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
@@ -136,7 +136,7 @@ func resourceAgentTokenUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}`, id, name)
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
@@ -169,7 +169,7 @@ func resourceAgentTokenDelete(d *schema.ResourceData, meta interface{}) error {
 		}
 	}`, id)
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
