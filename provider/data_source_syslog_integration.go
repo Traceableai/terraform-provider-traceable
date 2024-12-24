@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceSyslogIntegration() *schema.Resource {
 	return &schema.Resource{
-		Read:   dataSourceSyslogIntegrationRead,
+		Read: dataSourceSyslogIntegrationRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -27,7 +28,7 @@ func dataSourceSyslogIntegration() *schema.Resource {
 }
 
 func dataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) error {
-	name:=d.Get("name").(string)
+	name := d.Get("name").(string)
 	query := `{
 		syslogServerIntegrations {
 		  results {
@@ -37,9 +38,9 @@ func dataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) e
 		  }
 		}
 	  }
-	  `	  
+	  `
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
@@ -49,15 +50,14 @@ func dataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Printf("this is the gql response %s",response)
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"syslogServerIntegrations" ,name)
-	if len(ruleDetails)==0{
-		return fmt.Errorf("No rules found with name %s",name)
+	log.Printf("this is the gql response %s", response)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "syslogServerIntegrations", name)
+	if len(ruleDetails) == 0 {
+		return fmt.Errorf("No rules found with name %s", name)
 	}
-	syslogId:=ruleDetails["id"].(string)
-	log.Printf("Rule found with name %s",syslogId)
-	d.Set("syslog_id",syslogId)
+	syslogId := ruleDetails["id"].(string)
+	log.Printf("Rule found with name %s", syslogId)
+	d.Set("syslog_id", syslogId)
 	d.SetId(syslogId)
 	return nil
 }
-

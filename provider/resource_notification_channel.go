@@ -45,16 +45,16 @@ func resourceNotificationChannelRule() *schema.Resource {
 				Optional:    true,
 			},
 			"custom_webhook": {
-				Type: schema.TypeList,	
+				Type:        schema.TypeList,
 				Description: "Your custom webhook url",
-				Optional: true,
+				Optional:    true,
 				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"webhook_url": {
-							Type:     schema.TypeString,
+							Type:        schema.TypeString,
 							Description: "Url of custom webhook",
-							Required: true,
+							Required:    true,
 						},
 						"custom_webhook_headers": {
 							Type:        schema.TypeSet,
@@ -63,19 +63,19 @@ func resourceNotificationChannelRule() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"key": {
-										Type:     schema.TypeString,
+										Type:        schema.TypeString,
 										Description: "Test header key",
-										Required: true,
+										Required:    true,
 									},
 									"value": {
-										Type:     schema.TypeString,
+										Type:        schema.TypeString,
 										Description: "Test header value",
-										Required: true,
+										Required:    true,
 									},
 									"is_secret": {
-										Type:     schema.TypeBool,
+										Type:        schema.TypeBool,
 										Description: "Header is secret or not",
-										Required: true,
+										Required:    true,
 									},
 								},
 							},
@@ -91,19 +91,19 @@ func resourceNotificationChannelRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"bucket_name": {
-							Type:     schema.TypeString,
+							Type:        schema.TypeString,
 							Description: "Name of your s3 bucket",
-							Required: true,
+							Required:    true,
 						},
 						"region": {
-							Type:     schema.TypeString,
+							Type:        schema.TypeString,
 							Description: "Region of your s3 bucket",
-							Required: true,
+							Required:    true,
 						},
 						"bucket_arn": {
-							Type:     schema.TypeString,
+							Type:        schema.TypeString,
 							Description: "S3 bucket arn",
-							Required: true,
+							Required:    true,
 						},
 					},
 				},
@@ -156,79 +156,79 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 		s3WebhookBucketArn = s3Webhook["bucket_arn"].(string)
 	}
 
-	slackWebhookChannelConfigsQuery:=""
-	if slackWebhook!="" {
-		slackWebhookChannelConfigsQuery=fmt.Sprintf(`slackWebhookChannelConfigs: [{ url: "%s" }]`,slackWebhook)
+	slackWebhookChannelConfigsQuery := ""
+	if slackWebhook != "" {
+		slackWebhookChannelConfigsQuery = fmt.Sprintf(`slackWebhookChannelConfigs: [{ url: "%s" }]`, slackWebhook)
 	}
 
-	s3BucketChannelConfigsQuery:=""
-	if s3WebhookBucketName!=""{
-		s3BucketChannelConfigsQuery=fmt.Sprintf(`s3BucketChannelConfigs: [
+	s3BucketChannelConfigsQuery := ""
+	if s3WebhookBucketName != "" {
+		s3BucketChannelConfigsQuery = fmt.Sprintf(`s3BucketChannelConfigs: [
 			{
 				bucketName: "%s"
 				region: "%s"
 				authenticationCredentialType: WEB_IDENTITY
 				webIdentityAuthenticationCredential: { roleArn: "%s" }
 			}
-		]`,s3WebhookBucketName,s3WebhookRegion,s3WebhookBucketArn)
+		]`, s3WebhookBucketName, s3WebhookRegion, s3WebhookBucketArn)
 	}
 
-	splunkIntegrationChannelConfigsQuery:=""
-	if splunkID!=""{
-		splunkIntegrationChannelConfigsQuery=fmt.Sprintf(`splunkIntegrationChannelConfigs: [{ splunkIntegrationId: "%s" }]`,splunkID)
+	splunkIntegrationChannelConfigsQuery := ""
+	if splunkID != "" {
+		splunkIntegrationChannelConfigsQuery = fmt.Sprintf(`splunkIntegrationChannelConfigs: [{ splunkIntegrationId: "%s" }]`, splunkID)
 	}
 
-	syslogIntegrationChannelConfigsQuery:=""
-	if syslogID!=""{
-		syslogIntegrationChannelConfigsQuery=fmt.Sprintf(`syslogIntegrationChannelConfigs: [{ syslogIntegrationId: "%s" }]`,syslogID)
+	syslogIntegrationChannelConfigsQuery := ""
+	if syslogID != "" {
+		syslogIntegrationChannelConfigsQuery = fmt.Sprintf(`syslogIntegrationChannelConfigs: [{ syslogIntegrationId: "%s" }]`, syslogID)
 	}
-	
-	customWebhookChannelConfigsQuery:=""
-	if customWebhookURL!="" && len(customWebhookHeaders)==0{
-		customWebhookChannelConfigsQuery=fmt.Sprintf(`customWebhookChannelConfigs: [
+
+	customWebhookChannelConfigsQuery := ""
+	if customWebhookURL != "" && len(customWebhookHeaders) == 0 {
+		customWebhookChannelConfigsQuery = fmt.Sprintf(`customWebhookChannelConfigs: [
 			{
 				url: "%s"
 				headers: []
 				id: ""
 			}
-		]`,customWebhookURL)
-	}else if customWebhookURL!="" && len(customWebhookHeaders)>0{
-		headerString:="["
+		]`, customWebhookURL)
+	} else if customWebhookURL != "" && len(customWebhookHeaders) > 0 {
+		headerString := "["
 		for _, headers := range customWebhookHeaders {
-			tmp := fmt.Sprintf(`{key: "%s", value: "%s", isSecret: %t}`, headers["key"], headers["value"],headers["is_secret"])
-			headerString+=tmp
-			headerString+=","
+			tmp := fmt.Sprintf(`{key: "%s", value: "%s", isSecret: %t}`, headers["key"], headers["value"], headers["is_secret"])
+			headerString += tmp
+			headerString += ","
 		}
-		headerString=headerString[:len(headerString)-1]
-		headerString+="]"
+		headerString = headerString[:len(headerString)-1]
+		headerString += "]"
 
-		customWebhookChannelConfigsQuery=fmt.Sprintf(`customWebhookChannelConfigs: [
+		customWebhookChannelConfigsQuery = fmt.Sprintf(`customWebhookChannelConfigs: [
 			{
 				url: "%s"
 				headers: %s
 				id: ""
 			}
-		]`,customWebhookURL,headerString)
+		]`, customWebhookURL, headerString)
 	}
 
-	emailChannelConfigsQuery:=""
-	if len(emails)>0{
-		emailString:="["
-		for _,em :=range emails{
-			tmp:=fmt.Sprintf(`{ address: "%s" }`,em)
-			emailString+=tmp
-			emailString+=","
+	emailChannelConfigsQuery := ""
+	if len(emails) > 0 {
+		emailString := "["
+		for _, em := range emails {
+			tmp := fmt.Sprintf(`{ address: "%s" }`, em)
+			emailString += tmp
+			emailString += ","
 		}
-		emailString=emailString[:len(emailString)-1]
-		emailString+="]"
-		emailChannelConfigsQuery=fmt.Sprintf(`emailChannelConfigs: %s`,emailString)
+		emailString = emailString[:len(emailString)-1]
+		emailString += "]"
+		emailChannelConfigsQuery = fmt.Sprintf(`emailChannelConfigs: %s`, emailString)
 	}
 
-	if slackWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery=="" && s3BucketChannelConfigsQuery=="" && splunkIntegrationChannelConfigsQuery=="" && syslogIntegrationChannelConfigsQuery=="" && customWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery==""{
+	if slackWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" && s3BucketChannelConfigsQuery == "" && splunkIntegrationChannelConfigsQuery == "" && syslogIntegrationChannelConfigsQuery == "" && customWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" {
 		return fmt.Errorf("No channel configuration provided")
 	}
 
-	query:=fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		createNotificationChannel(
 			input: {
 				channelName: "%s"
@@ -245,10 +245,10 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 			channelId
 		}
 	}
-	`,channelName,slackWebhookChannelConfigsQuery,emailChannelConfigsQuery,s3BucketChannelConfigsQuery,splunkIntegrationChannelConfigsQuery,syslogIntegrationChannelConfigsQuery,customWebhookChannelConfigsQuery)
+	`, channelName, slackWebhookChannelConfigsQuery, emailChannelConfigsQuery, s3BucketChannelConfigsQuery, splunkIntegrationChannelConfigsQuery, syslogIntegrationChannelConfigsQuery, customWebhookChannelConfigsQuery)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
@@ -260,13 +260,13 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 	}
 	rules := response["data"].(map[string]interface{})["createNotificationChannel"].(map[string]interface{})
 	log.Println(rules)
-	id:=rules["channelId"].(string)
+	id := rules["channelId"].(string)
 	d.SetId(id)
- 	return nil
+	return nil
 }
 
 func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
-	readQuery:=`{
+	readQuery := `{
 		notificationChannels {
 			results {
 				channelId
@@ -306,7 +306,7 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 		}
 	}`
 	var response map[string]interface{}
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
@@ -316,47 +316,47 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
-	id:=d.Id()
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationChannels" ,id,"channelId","channelName")
-	if len(ruleDetails)==0{
+	id := d.Id()
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationChannels", id, "channelId", "channelName")
+	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
 	}
-	log.Printf("channels %s",ruleDetails)
+	log.Printf("channels %s", ruleDetails)
 
-	channelName:=ruleDetails["channelName"]
-	d.Set("channel_name",channelName)
+	channelName := ruleDetails["channelName"]
+	d.Set("channel_name", channelName)
 
-	notificationChannelConfig:=ruleDetails["notificationChannelConfig"].(map[string]interface{})
+	notificationChannelConfig := ruleDetails["notificationChannelConfig"].(map[string]interface{})
 
-	splunkIntegrationChannelConfigs:=notificationChannelConfig["splunkIntegrationChannelConfigs"].([]interface{})
-	if len(splunkIntegrationChannelConfigs)>0{
+	splunkIntegrationChannelConfigs := notificationChannelConfig["splunkIntegrationChannelConfigs"].([]interface{})
+	if len(splunkIntegrationChannelConfigs) > 0 {
 
-		splunk_id:=splunkIntegrationChannelConfigs[0].(map[string]interface{})["splunkIntegrationId"]
-		log.Printf("this is splunkkkk %s",splunk_id)
-		d.Set("splunk_id",splunk_id)
+		splunk_id := splunkIntegrationChannelConfigs[0].(map[string]interface{})["splunkIntegrationId"]
+		log.Printf("this is splunkkkk %s", splunk_id)
+		d.Set("splunk_id", splunk_id)
 	}
 
-	syslogIntegrationChannelConfigs:=notificationChannelConfig["syslogIntegrationChannelConfigs"].([]interface{})
-	if len(syslogIntegrationChannelConfigs)>0{
+	syslogIntegrationChannelConfigs := notificationChannelConfig["syslogIntegrationChannelConfigs"].([]interface{})
+	if len(syslogIntegrationChannelConfigs) > 0 {
 
-		syslog_id:=syslogIntegrationChannelConfigs[0].(map[string]interface{})["syslogIntegrationId"]
-		log.Printf("this is syslogkkk %s",syslog_id)
-		d.Set("syslog_id",syslog_id)
+		syslog_id := syslogIntegrationChannelConfigs[0].(map[string]interface{})["syslogIntegrationId"]
+		log.Printf("this is syslogkkk %s", syslog_id)
+		d.Set("syslog_id", syslog_id)
 	}
 
-	slackWebhookChannelConfigs:=notificationChannelConfig["slackWebhookChannelConfigs"].([]interface{})
-	if len(slackWebhookChannelConfigs)>0{
-		slack_url:=slackWebhookChannelConfigs[0].(map[string]interface{})["url"]
-		log.Printf("this is slack_webhookkk %s",slack_url)
-		d.Set("slack_webhook",slack_url)
+	slackWebhookChannelConfigs := notificationChannelConfig["slackWebhookChannelConfigs"].([]interface{})
+	if len(slackWebhookChannelConfigs) > 0 {
+		slack_url := slackWebhookChannelConfigs[0].(map[string]interface{})["url"]
+		log.Printf("this is slack_webhookkk %s", slack_url)
+		d.Set("slack_webhook", slack_url)
 	}
 
-	emailChannelConfigs:=notificationChannelConfig["emailChannelConfigs"].([]interface{})
-	if len(emailChannelConfigs)>0{
+	emailChannelConfigs := notificationChannelConfig["emailChannelConfigs"].([]interface{})
+	if len(emailChannelConfigs) > 0 {
 		var emails []interface{}
-		for _,em := range emailChannelConfigs{
-			emails=append(emails,em.(map[string]interface{})["address"])
+		for _, em := range emailChannelConfigs {
+			emails = append(emails, em.(map[string]interface{})["address"])
 		}
 		d.Set("email", schema.NewSet(schema.HashString, emails))
 	}
@@ -383,12 +383,12 @@ func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) e
 				"is_secret": headerMap["isSecret"],
 			}
 		}
-		
+
 		customWebhookData := map[string]interface{}{
 			"webhook_url":            customWebhook["url"],
 			"custom_webhook_headers": headerData,
 		}
-		d.Set("custom_webhook",[]interface{}{customWebhookData})
+		d.Set("custom_webhook", []interface{}{customWebhookData})
 	}
 	return nil
 }
@@ -438,79 +438,79 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 		s3WebhookBucketArn = s3Webhook["bucket_arn"].(string)
 	}
 
-	slackWebhookChannelConfigsQuery:=""
-	if slackWebhook!="" {
-		slackWebhookChannelConfigsQuery=fmt.Sprintf(`slackWebhookChannelConfigs: [{ url: "%s" }]`,slackWebhook)
+	slackWebhookChannelConfigsQuery := ""
+	if slackWebhook != "" {
+		slackWebhookChannelConfigsQuery = fmt.Sprintf(`slackWebhookChannelConfigs: [{ url: "%s" }]`, slackWebhook)
 	}
 
-	s3BucketChannelConfigsQuery:=""
-	if s3WebhookBucketName!=""{
-		s3BucketChannelConfigsQuery=fmt.Sprintf(`s3BucketChannelConfigs: [
+	s3BucketChannelConfigsQuery := ""
+	if s3WebhookBucketName != "" {
+		s3BucketChannelConfigsQuery = fmt.Sprintf(`s3BucketChannelConfigs: [
 			{
 				bucketName: "%s"
 				region: "%s"
 				authenticationCredentialType: WEB_IDENTITY
 				webIdentityAuthenticationCredential: { roleArn: "%s" }
 			}
-		]`,s3WebhookBucketName,s3WebhookRegion,s3WebhookBucketArn)
+		]`, s3WebhookBucketName, s3WebhookRegion, s3WebhookBucketArn)
 	}
 
-	splunkIntegrationChannelConfigsQuery:=""
-	if splunkID!=""{
-		splunkIntegrationChannelConfigsQuery=fmt.Sprintf(`splunkIntegrationChannelConfigs: [{ splunkIntegrationId: "%s" }]`,splunkID)
+	splunkIntegrationChannelConfigsQuery := ""
+	if splunkID != "" {
+		splunkIntegrationChannelConfigsQuery = fmt.Sprintf(`splunkIntegrationChannelConfigs: [{ splunkIntegrationId: "%s" }]`, splunkID)
 	}
 
-	syslogIntegrationChannelConfigsQuery:=""
-	if syslogID!=""{
-		syslogIntegrationChannelConfigsQuery=fmt.Sprintf(`syslogIntegrationChannelConfigs: [{ syslogIntegrationId: "%s" }]`,syslogID)
+	syslogIntegrationChannelConfigsQuery := ""
+	if syslogID != "" {
+		syslogIntegrationChannelConfigsQuery = fmt.Sprintf(`syslogIntegrationChannelConfigs: [{ syslogIntegrationId: "%s" }]`, syslogID)
 	}
-	
-	customWebhookChannelConfigsQuery:=""
-	if customWebhookURL!="" && len(customWebhookHeaders)==0{
-		customWebhookChannelConfigsQuery=fmt.Sprintf(`customWebhookChannelConfigs: [
+
+	customWebhookChannelConfigsQuery := ""
+	if customWebhookURL != "" && len(customWebhookHeaders) == 0 {
+		customWebhookChannelConfigsQuery = fmt.Sprintf(`customWebhookChannelConfigs: [
 			{
 				url: "%s"
 				headers: []
 				id: ""
 			}
-		]`,customWebhookURL)
-	}else if customWebhookURL!="" && len(customWebhookHeaders)>0{
-		headerString:="["
+		]`, customWebhookURL)
+	} else if customWebhookURL != "" && len(customWebhookHeaders) > 0 {
+		headerString := "["
 		for _, headers := range customWebhookHeaders {
-			tmp := fmt.Sprintf(`{key: "%s", value: "%s", isSecret: %t}`, headers["key"], headers["value"],headers["is_secret"])
-			headerString+=tmp
-			headerString+=","
+			tmp := fmt.Sprintf(`{key: "%s", value: "%s", isSecret: %t}`, headers["key"], headers["value"], headers["is_secret"])
+			headerString += tmp
+			headerString += ","
 		}
-		headerString=headerString[:len(headerString)-1]
-		headerString+="]"
+		headerString = headerString[:len(headerString)-1]
+		headerString += "]"
 
-		customWebhookChannelConfigsQuery=fmt.Sprintf(`customWebhookChannelConfigs: [
+		customWebhookChannelConfigsQuery = fmt.Sprintf(`customWebhookChannelConfigs: [
 			{
 				url: "%s"
 				headers: %s
 				id: ""
 			}
-		]`,customWebhookURL,headerString)
+		]`, customWebhookURL, headerString)
 	}
 
-	emailChannelConfigsQuery:=""
-	if len(emails)>0{
-		emailString:="["
-		for _,em :=range emails{
-			tmp:=fmt.Sprintf(`{ address: "%s" }`,em)
-			emailString+=tmp
-			emailString+=","
+	emailChannelConfigsQuery := ""
+	if len(emails) > 0 {
+		emailString := "["
+		for _, em := range emails {
+			tmp := fmt.Sprintf(`{ address: "%s" }`, em)
+			emailString += tmp
+			emailString += ","
 		}
-		emailString=emailString[:len(emailString)-1]
-		emailString+="]"
-		emailChannelConfigsQuery=fmt.Sprintf(`emailChannelConfigs: %s`,emailString)
+		emailString = emailString[:len(emailString)-1]
+		emailString += "]"
+		emailChannelConfigsQuery = fmt.Sprintf(`emailChannelConfigs: %s`, emailString)
 	}
 
-	if slackWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery=="" && s3BucketChannelConfigsQuery=="" && splunkIntegrationChannelConfigsQuery=="" && syslogIntegrationChannelConfigsQuery=="" && customWebhookChannelConfigsQuery=="" && emailChannelConfigsQuery==""{
+	if slackWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" && s3BucketChannelConfigsQuery == "" && splunkIntegrationChannelConfigsQuery == "" && syslogIntegrationChannelConfigsQuery == "" && customWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" {
 		return fmt.Errorf("No channel configuration provided")
 	}
 
-	query:=fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		updateNotificationChannel(
 			input: {
 				channelId: "%s"
@@ -528,10 +528,10 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 			channelId
 		}
 	}
-	`,channel_id,channelName,slackWebhookChannelConfigsQuery,emailChannelConfigsQuery,s3BucketChannelConfigsQuery,splunkIntegrationChannelConfigsQuery,syslogIntegrationChannelConfigsQuery,customWebhookChannelConfigsQuery)
+	`, channel_id, channelName, slackWebhookChannelConfigsQuery, emailChannelConfigsQuery, s3BucketChannelConfigsQuery, splunkIntegrationChannelConfigsQuery, syslogIntegrationChannelConfigsQuery, customWebhookChannelConfigsQuery)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
@@ -543,9 +543,9 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 	}
 	rules := response["data"].(map[string]interface{})["updateNotificationChannel"].(map[string]interface{})
 	log.Println(rules)
-	id:=rules["channelId"].(string)
+	id := rules["channelId"].(string)
 	d.SetId(id)
- 	return nil
+	return nil
 }
 
 func resourceNotificationChannelDelete(d *schema.ResourceData, meta interface{}) error {
@@ -559,7 +559,7 @@ func resourceNotificationChannelDelete(d *schema.ResourceData, meta interface{})
 		}
 	  }
 	  `, id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

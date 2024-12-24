@@ -9,7 +9,7 @@
 
 Clone the repo
 ```markdown
-git clone https://github.com/Traceableai/traceable-terraform-provider.git
+git clone https://github.com/traceableai/terraform-provider-traceable.git
 cd traceable-terraform-provider
 ```
 

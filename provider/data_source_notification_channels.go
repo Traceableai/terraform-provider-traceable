@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceNotificationChannel() *schema.Resource {
 	return &schema.Resource{
-		Read:   dataSourceNotificationChannelRead,
+		Read: dataSourceNotificationChannelRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -27,7 +28,7 @@ func dataSourceNotificationChannel() *schema.Resource {
 }
 
 func dataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
-	name:=d.Get("name").(string)
+	name := d.Get("name").(string)
 	query := `{
 		notificationChannels {
 		  results {
@@ -35,9 +36,9 @@ func dataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{})
 			channelName
 		  }
 		}
-	  }`	  
+	  }`
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
@@ -47,15 +48,14 @@ func dataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Printf("this is the gql response %s",response)
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"notificationChannels" ,name,"channelId","channelName")
-	if len(ruleDetails)==0{
-		return fmt.Errorf("No rules found with name %s",name)
+	log.Printf("this is the gql response %s", response)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationChannels", name, "channelId", "channelName")
+	if len(ruleDetails) == 0 {
+		return fmt.Errorf("No rules found with name %s", name)
 	}
-	channelId:=ruleDetails["channelId"].(string)
-	log.Printf("Rule found with name %s",channelId)
-	d.Set("channel_id",channelId)
+	channelId := ruleDetails["channelId"].(string)
+	log.Printf("Rule found with name %s", channelId)
+	d.Set("channel_id", channelId)
 	d.SetId(channelId)
 	return nil
 }
-

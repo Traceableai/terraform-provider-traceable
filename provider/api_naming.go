@@ -116,7 +116,7 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 	query := fmt.Sprintf(`mutation{createApiNamingRule(input:{name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, name, disabled, jsonifyList(regexes), jsonifyList(values), spanFilterQueryPart)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
@@ -141,7 +141,7 @@ func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
 	// GraphQL query to read the API Naming Rule details
 	query := `{apiNamingRules{results{id name disabled apiNamingRuleConfig{apiNamingRuleConfigType segmentMatchingBasedRuleConfig{regexes values}}spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{field relationalOperator value}}}}}}}`
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
@@ -257,7 +257,7 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 
 	log.Printf((query))
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
@@ -281,7 +281,7 @@ func resourceApiNamingRuleDelete(d *schema.ResourceData, meta interface{}) error
 mutation {deleteApiNamingRule(input: { id: "%s" }) {success,__typename}}`, id)
 
 	// Execute the GraphQL mutation
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}

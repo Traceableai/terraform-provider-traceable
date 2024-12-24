@@ -46,7 +46,7 @@ func dataSourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
 
 	query := `{agentTokenMetadata {results {id name createdBy creationTimestamp lastUsedTimestamp __typename}}}`
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error while executing GraphQL query: %s", err)
 	}
