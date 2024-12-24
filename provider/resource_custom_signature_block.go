@@ -16,6 +16,12 @@ func resourceCustomSignatureBlockRule() *schema.Resource {
 		Delete: resourceCustomSignatureBlockDelete,
 
 		Schema: map[string]*schema.Schema{
+            "rule_type": {
+				Type:        schema.TypeString,
+				Description: "Type of custom signature rule",
+				Optional:    true,
+				Default:     "DETECTION_AND_BLOCKING",
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the custom signature allow rule",
@@ -104,6 +110,7 @@ func resourceCustomSignatureBlockRule() *schema.Resource {
 
 func resourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
+	rule_type := d.Get("rule_type").(string)
 	description:=d.Get("description").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 // 	disabled := d.Get("disabled").(bool)
@@ -161,7 +168,7 @@ func resourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
                                         create: {
                                             name: "%s"
                                             description: "%s"
-                                            ruleEffect: { eventType: DETECTION_AND_BLOCKING, effects: [] ,eventSeverity: %s}
+                                            ruleEffect: { eventType: %s, effects: [] ,eventSeverity: %s}
                                             internal: false
                                             ruleDefinition: {
                                                 labels: []
@@ -181,7 +188,7 @@ func resourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
                                         __typename
                                     }
                                 }
-                                `,name,description,alert_severity,finalReqResConditionsQuery,customSecRuleQuery,envQuery,exipiryDurationString)
+                                `,name,description,rule_type,alert_severity,finalReqResConditionsQuery,customSecRuleQuery,envQuery,exipiryDurationString)
 
     var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
@@ -312,10 +319,12 @@ func resourceCustomSignatureBlockRead(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("name",ruleDetails["name"].(string))
 	d.Set("disabled",ruleDetails["disabled"].(bool))
+	d.Set("rule_type","DETECTION_AND_BLOCKING")
 	reqResConditions := []map[string]interface{}{}
     if ruleEffect, ok := ruleDetails["ruleEffect"].(map[string]interface{}); ok {
         d.Set("alert_severity",ruleEffect["eventSeverity"].(string))
     }
+    customSecRuleFlag := true
 	if ruleDefinition, ok := ruleDetails["ruleDefinition"].(map[string]interface{}); ok {
     		if clauseGroup, ok := ruleDefinition["clauseGroup"].(map[string]interface{}); ok {
     			if clauses, ok := clauseGroup["clauses"].([]interface{}); ok {
@@ -333,6 +342,7 @@ func resourceCustomSignatureBlockRead(d *schema.ResourceData, meta interface{}) 
     							}
     						}else if clauseType, exists := clauseMap["clauseType"].(string); exists && clauseType == "CUSTOM_SEC_RULE"{
     						    d.Set("custom_sec_rule",strings.TrimSpace(escapeString(clauseMap["customSecRule"].(map[string]interface{})["inputSecRuleString"].(string))))
+                                customSecRuleFlag = false
     						}
     					}
     				}
@@ -340,6 +350,9 @@ func resourceCustomSignatureBlockRead(d *schema.ResourceData, meta interface{}) 
     			}
     		}
     	}
+    if customSecRuleFlag{
+        d.Set("custom_sec_rule","")
+    }
     environments := []string{}
 
     // Extract environment IDs from ruleScope.environmentScope
@@ -368,6 +381,7 @@ func resourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
 	name := d.Get("name").(string)
 	id := d.Id()
     description:=d.Get("description").(string)
+    rule_type:=d.Get("rule_type").(string)
     environments := d.Get("environments").(*schema.Set).List()
     req_res_conditions := d.Get("req_res_conditions").([]interface{})
     custom_sec_rule := d.Get("custom_sec_rule").(string)
@@ -423,7 +437,7 @@ func resourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
                                         update: {
                                             name: "%s"
                                             description: "%s"
-                                            ruleEffect: { eventType: DETECTION_AND_BLOCKING, effects: [] , eventSeverity: %s}
+                                            ruleEffect: { eventType: %s, effects: [] , eventSeverity: %s}
                                             internal: false
                                             ruleDefinition: {
                                                 labels: []
@@ -445,7 +459,7 @@ func resourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
                                         __typename
                                     }
                                 }
-                                `,name,description,alert_severity,finalReqResConditionsQuery,customSecRuleQuery,envQuery,exipiryDurationString,id,disabled)
+                                `,name,description,rule_type,alert_severity,finalReqResConditionsQuery,customSecRuleQuery,envQuery,exipiryDurationString,id,disabled)
 
     var response map[string]interface{}
     responseStr, err := executeQuery(query, meta)

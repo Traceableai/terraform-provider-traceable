@@ -21,6 +21,12 @@ func resourceCustomSignatureTestingRule() *schema.Resource {
 				Description: "Name of the custom signature allow rule",
 				Required:    true,
 			},
+            "rule_type": {
+				Type:        schema.TypeString,
+				Description: "Type of custom signature rule",
+				Optional:    true,
+				Default:     "TESTING_DETECTION",
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Description: "Description of the custom signature allow rule",
@@ -60,22 +66,30 @@ func resourceCustomSignatureTestingRule() *schema.Resource {
                 },
 			},
             "attribute_based_conditions": {
-        				Type:        schema.TypeList,
-        				Description: "Attribute based conditions for the rule",
-        				Optional:    true,
-        				Elem: &schema.Resource{
-                                Schema: map[string]*schema.Schema{
-                                        "operator": {
-                                            Type:     schema.TypeString,
-                                            Required: true,
-                                        },
-                                        "value": {
-                                            Type:     schema.TypeString,
-                                            Required: true,
-                                        },
-                                },
-                        },
-        			},
+				Type:        schema.TypeList,
+				Description: "Attribute based conditions for the rule",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key_condition_operator": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"key_condition_value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"value_condition_operator": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"value_condition_value": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
+			},
             "inject_request_headers": {
                                     Type:        schema.TypeList,
                                     Description: "Inject Data in Request header?",
@@ -133,6 +147,7 @@ func resourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
 	name := d.Get("name").(string)
 	description:=d.Get("description").(string)
 	environments := d.Get("environments").(*schema.Set).List()
+	rule_type := d.Get("rule_type").(string)
 // 	disabled := d.Get("disabled").(bool)
 	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
@@ -162,10 +177,12 @@ func resourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
                                       matchValue: "%s"
                                   }
                               }`
+    templateAtttributeValueCondtions:=`valueCondition: { operator: %s, value: "%s" }`
     templateAttributeBasedConditions:=` {
                                            clauseType: ATTRIBUTE_KEY_VALUE_EXPRESSION
                                            attributeKeyValueExpression: {
                                                keyCondition: { operator: %s, value: "%s" }
+                                               %s
                                            }
                                        }`
     for _,req_res_cond := range req_res_conditions {
@@ -174,8 +191,17 @@ func resourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
     }
 
     for _,att_based_cond := range attribute_based_conditions{
-       att_based_cond_data := att_based_cond.(map[string]interface{})
-       finalAttributeBasedConditionsQuery+=fmt.Sprintf(templateAttributeBasedConditions,att_based_cond_data["operator"],att_based_cond_data["value"])
+        att_based_cond_data := att_based_cond.(map[string]interface{})
+        if att_based_cond_data["value_condition_operator"].(string) == "" {
+            finalAttributeBasedConditionsQuery+=fmt.Sprintf(templateAttributeBasedConditions,att_based_cond_data["key_condition_operator"],att_based_cond_data["key_condition_value"],"")
+        }else{
+             if att_based_cond_data["value_condition_value"].(string) == "" {
+                 return fmt.Errorf("required both value_condition_operator and value_condition_value")
+             }else{
+                 valueConditionString:=fmt.Sprintf(templateAtttributeValueCondtions,att_based_cond_data["value_condition_operator"].(string),att_based_cond_data["value_condition_value"].(string))
+                 finalAttributeBasedConditionsQuery+=fmt.Sprintf(templateAttributeBasedConditions,att_based_cond_data["key_condition_operator"],att_based_cond_data["key_condition_value"],valueConditionString)
+             }
+        }
     }
 
     if finalReqResConditionsQuery=="" && custom_sec_rule==""  && finalAttributeBasedConditionsQuery==""{
@@ -229,7 +255,7 @@ func resourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
                                             name: "%s"
                                             description: "%s"
                                             ruleEffect: {
-                                                eventType: NORMAL_DETECTION,
+                                                eventType: %s,
                                                 effects: [
                                                     %s
                                                 ]
@@ -254,7 +280,7 @@ func resourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
                                         __typename
                                     }
                                 }
-                                `,name,description,finalAgentEffectQuery,finalReqResConditionsQuery,customSecRuleQuery,finalAttributeBasedConditionsQuery,envQuery,expiryDurationString)
+                                `,name,description,rule_type,finalAgentEffectQuery,finalReqResConditionsQuery,customSecRuleQuery,finalAttributeBasedConditionsQuery,envQuery,expiryDurationString)
 
     var response map[string]interface{}
 	responseStr, err := executeQuery(query, meta)
@@ -385,6 +411,7 @@ func resourceCustomSignatureTestingRead(d *schema.ResourceData, meta interface{}
 	}
 	d.Set("name",ruleDetails["name"].(string))
 	d.Set("disabled",ruleDetails["disabled"].(bool))
+	d.Set("rule_type","TESTING_DETECTION")
 
 	reqResConditions := []map[string]interface{}{}
 	injectedHeaders := []map[string]interface{}{}
@@ -409,7 +436,7 @@ func resourceCustomSignatureTestingRead(d *schema.ResourceData, meta interface{}
             }
         }
     }
-
+    customSecRuleFlag := true
 	if ruleDefinition, ok := ruleDetails["ruleDefinition"].(map[string]interface{}); ok {
     		if clauseGroup, ok := ruleDefinition["clauseGroup"].(map[string]interface{}); ok {
     			if clauses, ok := clauseGroup["clauses"].([]interface{}); ok {
@@ -427,21 +454,37 @@ func resourceCustomSignatureTestingRead(d *schema.ResourceData, meta interface{}
     							}
     						}else if clauseType, exists := clauseMap["clauseType"].(string); exists && clauseType == "CUSTOM_SEC_RULE"{
     						    d.Set("custom_sec_rule",strings.TrimSpace(escapeString(clauseMap["customSecRule"].(map[string]interface{})["inputSecRuleString"].(string))))
+                                customSecRuleFlag=false
     						}else if clauseType, exists := clauseMap["clauseType"].(string); exists && clauseType == "ATTRIBUTE_KEY_VALUE_EXPRESSION"{
                                 if attributeKeyValueExpression, ok := clauseMap["attributeKeyValueExpression"].(map[string]interface{}); ok {
-                                    attributeBasedCondition := map[string]interface{}{
-                                        "operator":      attributeKeyValueExpression["keyCondition"].(map[string]interface{})["operator"],
-                                        "value": attributeKeyValueExpression["keyCondition"].(map[string]interface{})["value"],
+                                    if valueKey,ok := attributeKeyValueExpression["valueCondition"].(map[string]interface{}); ok {
+                                        attributeBasedCondition := map[string]interface{}{
+                                            "key_condition_operator":      attributeKeyValueExpression["keyCondition"].(map[string]interface{})["operator"],
+                                            "key_condition_value": attributeKeyValueExpression["keyCondition"].(map[string]interface{})["value"],
+                                            "value_condition_value": valueKey["value"],
+                                            "value_condition_operator": valueKey["operator"],
+                                        }
+                                        attributeBasedConditions = append(attributeBasedConditions, attributeBasedCondition)
+                                    }else{
+                                        attributeBasedCondition := map[string]interface{}{
+                                            "key_condition_operator":      attributeKeyValueExpression["keyCondition"].(map[string]interface{})["operator"],
+                                            "key_condition_value": attributeKeyValueExpression["keyCondition"].(map[string]interface{})["value"],
+                                        }
+                                        attributeBasedConditions = append(attributeBasedConditions, attributeBasedCondition)
                                     }
-                                    attributeBasedConditions = append(attributeBasedConditions, attributeBasedCondition)
+                                    
                                 }
     						}
     					}
     				}
                     d.Set("attribute_based_conditions",attributeBasedConditions)
+                    d.Set("req_res_conditions",reqResConditions)
     			}
     		}
     	}
+        if customSecRuleFlag {
+            d.Set("custom_sec_rule", "")
+        }
     environments := []string{}
 
     // Extract environment IDs from ruleScope.environmentScope
@@ -470,6 +513,7 @@ func resourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
     id := d.Id()
 	name := d.Get("name").(string)
     description:=d.Get("description").(string)
+    rule_type:=d.Get("rule_type").(string)
     disabled:=d.Get("disabled").(bool)
     environments := d.Get("environments").(*schema.Set).List()
     req_res_conditions := d.Get("req_res_conditions").([]interface{})
@@ -500,10 +544,12 @@ func resourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
                                       matchValue: "%s"
                                   }
                               }`
+    templateAtttributeValueCondtions:=`valueCondition: { operator: %s, value: "%s" }`
     templateAttributeBasedConditions:=` {
                                            clauseType: ATTRIBUTE_KEY_VALUE_EXPRESSION
                                            attributeKeyValueExpression: {
                                                keyCondition: { operator: %s, value: "%s" }
+                                               %s
                                            }
                                        }`
     for _,req_res_cond := range req_res_conditions {
@@ -512,8 +558,17 @@ func resourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
     }
 
     for _,att_based_cond := range attribute_based_conditions{
-       att_based_cond_data := att_based_cond.(map[string]interface{})
-       finalAttributeBasedConditionsQuery+=fmt.Sprintf(templateAttributeBasedConditions,att_based_cond_data["operator"],att_based_cond_data["value"])
+        att_based_cond_data := att_based_cond.(map[string]interface{})
+        if att_based_cond_data["value_condition_operator"].(string) == "" {
+            finalAttributeBasedConditionsQuery+=fmt.Sprintf(templateAttributeBasedConditions,att_based_cond_data["key_condition_operator"],att_based_cond_data["key_condition_value"],"")
+        }else{
+             if att_based_cond_data["value_condition_value"].(string) == "" {
+                 return fmt.Errorf("required both value_condition_operator and value_condition_value")
+             }else{
+                 valueConditionString:=fmt.Sprintf(templateAtttributeValueCondtions,att_based_cond_data["value_condition_operator"].(string),att_based_cond_data["value_condition_value"].(string))
+                 finalAttributeBasedConditionsQuery+=fmt.Sprintf(templateAttributeBasedConditions,att_based_cond_data["key_condition_operator"],att_based_cond_data["key_condition_value"],valueConditionString)
+             }
+        }
     }
 
     if finalReqResConditionsQuery=="" && custom_sec_rule==""  && finalAttributeBasedConditionsQuery==""{
@@ -569,7 +624,7 @@ func resourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
                                             name: "%s"
                                             description: "%s"
                                             ruleEffect: {
-                                                eventType: NORMAL_DETECTION,
+                                                eventType: %s,
                                                 effects: [
                                                     %s
                                                 ]
@@ -594,7 +649,7 @@ func resourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
                                         __typename
                                     }
                                 }
-                                `,id,disabled,name,description,finalAgentEffectQuery,finalReqResConditionsQuery,customSecRuleQuery,finalAttributeBasedConditionsQuery,envQuery,expiryDurationString)
+                                `,id,disabled,name,description,rule_type,finalAgentEffectQuery,finalReqResConditionsQuery,customSecRuleQuery,finalAttributeBasedConditionsQuery,envQuery,expiryDurationString)
 
     var response map[string]interface{}
     responseStr, err := executeQuery(query, meta)
