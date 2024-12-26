@@ -48,6 +48,19 @@ func ResourceRateLimitingRuleBlock() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Block for a given period",
 				Optional:    true,
+				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+					v := val.(string)
+					_, err := common.ConvertDurationToSeconds(v)
+					if err != nil {
+						errs = append(errs, fmt.Errorf("%q must be a valid duration in seconds or ISO 8601 format: %s", key, err))
+					}
+					return
+				},
+				StateFunc: func(val interface{}) string {
+					v := val.(string)
+					converted, _ := common.ConvertDurationToSeconds(v)
+					return converted
+				},
 			},
 			"label_id_scope": {
 				Type:        schema.TypeList,

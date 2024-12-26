@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
+	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
 )
 
 func Provider() *schema.Provider {
@@ -39,10 +40,10 @@ func Provider() *schema.Provider {
 			"traceable_rate_limiting_block": rate_limiting.ResourceRateLimitingRuleBlock(),
 			"traceable_detection_policies":  resourceDetectionConfigRule(),
 			// "traceable_agent_token":                              resourceAgentToken(),
-			"traceable_custom_signature_allow":                   resourceCustomSignatureAllowRule(),
-			"traceable_custom_signature_block":                   resourceCustomSignatureBlockRule(),
-			"traceable_custom_signature_alert":                   resourceCustomSignatureAlertRule(),
-			"traceable_custom_signature_testing":                   resourceCustomSignatureTestingRule(),
+			"traceable_custom_signature_allow":                   custom_signature.ResourceCustomSignatureAllowRule(),
+			"traceable_custom_signature_block":                   custom_signature.ResourceCustomSignatureBlockRule(),
+			"traceable_custom_signature_alert":                   custom_signature.ResourceCustomSignatureAlertRule(),
+			"traceable_custom_signature_testing":                   custom_signature.ResourceCustomSignatureTestingRule(),
 
 		},
 		DataSourcesMap: map[string]*schema.Resource{

@@ -134,13 +134,13 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "createUserAttributionRule", name)
 	log.Println(ruleDetails)
@@ -306,13 +306,13 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	rules := response["data"].(map[string]interface{})["updateUserAttributionRule"].(map[string]interface{})
 	// log.Printf(ruleDetails)

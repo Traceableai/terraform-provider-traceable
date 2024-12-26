@@ -193,10 +193,10 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
 	responseStr, err := ExecuteQuery(query, meta)
 	if strings.Contains(responseStr, "DataFetchingException") {
 		_ = json.Unmarshal([]byte(responseStr), &response)
-		return fmt.Errorf("Error: %s", response)
+		return fmt.Errorf("error: %s", response)
 	}
 	if err != nil {
-		return fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
