@@ -27,37 +27,37 @@ func resourceDetectionConfigRule() *schema.Resource {
 				Description: "Detection Config name",
 				Required:    true,
 			},
-            "disabled": {
-                Type:        schema.TypeString,
-                Description: "Flag to enable/disable the detection config",
-                Optional:    true,
-            },
-            "sub_rule_id": {
-                Type:        schema.TypeString,
-                Description: "Sub rule id to enable/disable sub rule blocking",
-                Optional:    true,
-            },
-            "sub_rule_blocking_enabled": {
-                Type:        schema.TypeString,
-                Description: "Enable/Disable blocking for sub rules",
-                Optional:    true,
-            },
+			"disabled": {
+				Type:        schema.TypeString,
+				Description: "Flag to enable/disable the detection config",
+				Optional:    true,
+			},
+			"sub_rule_id": {
+				Type:        schema.TypeString,
+				Description: "Sub rule id to enable/disable sub rule blocking",
+				Optional:    true,
+			},
+			"sub_rule_blocking_enabled": {
+				Type:        schema.TypeString,
+				Description: "Enable/Disable blocking for sub rules",
+				Optional:    true,
+			},
 		},
 	}
 }
 
 func resourceDetectionConfigCreate(d *schema.ResourceData, meta interface{}) error {
-    return resourceDetectionConfigUpdate(d, meta)
+	return resourceDetectionConfigUpdate(d, meta)
 }
 
 func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error {
-    crs_id:=d.Id()
-    environment := d.Get("environment").(string)
-    anomalyScope:=`anomalyScope: { scopeType: CUSTOMER }`
-    if environment!=""{
-        anomalyScope=fmt.Sprintf(`anomalyScope: {scopeType: ENVIRONMENT, environmentScope: {id: "%s"}}`,environment)
-    }
-    readQuery:=fmt.Sprintf(`{
+	crs_id := d.Id()
+	environment := d.Get("environment").(string)
+	anomalyScope := `anomalyScope: { scopeType: CUSTOMER }`
+	if environment != "" {
+		anomalyScope = fmt.Sprintf(`anomalyScope: {scopeType: ENVIRONMENT, environmentScope: {id: "%s"}}`, environment)
+	}
+	readQuery := fmt.Sprintf(`{
                   anomalyDetectionRuleConfigs(
                     %s
                   ) {
@@ -96,85 +96,82 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
                     }
                     __typename
                   }
-                }`,anomalyScope)
-    var response map[string]interface{}
+                }`, anomalyScope)
+	var response map[string]interface{}
 
-    responseStr, err := executeQuery(readQuery, meta)
-    if err != nil {
-        return fmt.Errorf("Error:%s", err)
-    }
-    log.Printf("This is the graphql query %s", readQuery)
-    err = json.Unmarshal([]byte(responseStr), &response)
-    if err != nil {
-        return fmt.Errorf("Error:%s", err)
-    }
-    detection_config:=GetRuleDetailsFromRulesListUsingIdName(response,"anomalyDetectionRuleConfigs" ,crs_id,"ruleId","ruleName")
+	responseStr, err := ExecuteQuery(readQuery, meta)
+	if err != nil {
+		return fmt.Errorf("Error:%s", err)
+	}
+	log.Printf("This is the graphql query %s", readQuery)
+	err = json.Unmarshal([]byte(responseStr), &response)
+	if err != nil {
+		return fmt.Errorf("Error:%s", err)
+	}
+	detection_config := GetRuleDetailsFromRulesListUsingIdName(response, "anomalyDetectionRuleConfigs", crs_id, "ruleId", "ruleName")
 
-
-    sub_rule_id := d.Get("sub_rule_id").(string)
-    if sub_rule_id!=""{
-        log.Println("going inside")
-        sub_rules_array:=detection_config["subRuleConfigs"].([]interface{})
-        for _, sub_rule := range sub_rules_array {
-            sub_rule_config:=sub_rule.(map[string]interface{})
-            if sub_rule_config["subRuleId"]==sub_rule_id{
-                log.Printf("found a match %s",sub_rule_config)
-                is_blocking_enabled:=sub_rule_config["blockingEnabled"].(bool)
-                d.Set("sub_rule_blocking_enabled",is_blocking_enabled)
-                break
-            }
-        }
-    }
-    is_rule_disabled:=detection_config["configStatus"].(map[string]interface{})["disabled"].(bool)
-    d.Set("disabled",is_rule_disabled)
+	sub_rule_id := d.Get("sub_rule_id").(string)
+	if sub_rule_id != "" {
+		log.Println("going inside")
+		sub_rules_array := detection_config["subRuleConfigs"].([]interface{})
+		for _, sub_rule := range sub_rules_array {
+			sub_rule_config := sub_rule.(map[string]interface{})
+			if sub_rule_config["subRuleId"] == sub_rule_id {
+				log.Printf("found a match %s", sub_rule_config)
+				is_blocking_enabled := sub_rule_config["blockingEnabled"].(bool)
+				d.Set("sub_rule_blocking_enabled", is_blocking_enabled)
+				break
+			}
+		}
+	}
+	is_rule_disabled := detection_config["configStatus"].(map[string]interface{})["disabled"].(bool)
+	d.Set("disabled", is_rule_disabled)
 	return nil
 }
 
 func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) error {
-    environment := d.Get("environment").(string)
-    config_name := d.Get("config_name").(string)
-    disabled := d.Get("disabled").(string)
-    sub_rule_id := d.Get("sub_rule_id").(string)
-    sub_rule_blocking_enabled := d.Get("sub_rule_blocking_enabled").(string)
+	environment := d.Get("environment").(string)
+	config_name := d.Get("config_name").(string)
+	disabled := d.Get("disabled").(string)
+	sub_rule_id := d.Get("sub_rule_id").(string)
+	sub_rule_blocking_enabled := d.Get("sub_rule_blocking_enabled").(string)
 
-
-    if (sub_rule_blocking_enabled=="" && disabled=="") || (disabled!="" && sub_rule_blocking_enabled!=""){
-        return fmt.Errorf("Required one of `sub_rule_blocking_enable` or `disabled`")
-    }
-    if sub_rule_id!="" && sub_rule_blocking_enabled==""{
-        return fmt.Errorf("Required `sub_rule_blocking_enable`")
-    }
-    if sub_rule_blocking_enabled!="" && sub_rule_id==""{
-        return fmt.Errorf("Required `sub_rule_id`")
-    }
-    configScope:="anomalyScope: { scopeType: CUSTOMER }"
-    if environment!=""{
-        configScope=fmt.Sprintf(`anomalyScope: {
+	if (sub_rule_blocking_enabled == "" && disabled == "") || (disabled != "" && sub_rule_blocking_enabled != "") {
+		return fmt.Errorf("Required one of `sub_rule_blocking_enable` or `disabled`")
+	}
+	if sub_rule_id != "" && sub_rule_blocking_enabled == "" {
+		return fmt.Errorf("Required `sub_rule_blocking_enable`")
+	}
+	if sub_rule_blocking_enabled != "" && sub_rule_id == "" {
+		return fmt.Errorf("Required `sub_rule_id`")
+	}
+	configScope := "anomalyScope: { scopeType: CUSTOMER }"
+	if environment != "" {
+		configScope = fmt.Sprintf(`anomalyScope: {
                                                  scopeType: ENVIRONMENT
                                                  environmentScope: { id: "%s" }
-                                             }`,environment)
-    }
-    _,rule_crs_id:=isPreDefinedThreatEvent(config_name)
-    configType:="API_DEFINITION_METADATA"
-    if strings.Contains(rule_crs_id,"crs"){
-        configType="MODSECURITY"
-    }
+                                             }`, environment)
+	}
+	_, rule_crs_id := isPreDefinedThreatEvent(config_name)
+	configType := "API_DEFINITION_METADATA"
+	if strings.Contains(rule_crs_id, "crs") {
+		configType = "MODSECURITY"
+	}
 
-    ruleConfigs:=fmt.Sprintf(`ruleConfig: {
+	ruleConfigs := fmt.Sprintf(`ruleConfig: {
                       ruleId: "%s"
                       configType: %s
                       configStatus: { disabled: %s }
-                  }`,rule_crs_id,configType,disabled)
-    if sub_rule_id!=""{
-        ruleConfigs=fmt.Sprintf(`ruleConfig: {
+                  }`, rule_crs_id, configType, disabled)
+	if sub_rule_id != "" {
+		ruleConfigs = fmt.Sprintf(`ruleConfig: {
                       ruleId: "%s"
                       configType: %s
                       subRuleConfigs: [{ subRuleId: "%s", blockingEnabled: %s }]
-                  }`,rule_crs_id,configType,sub_rule_id,sub_rule_blocking_enabled)
-    }
+                  }`, rule_crs_id, configType, sub_rule_id, sub_rule_blocking_enabled)
+	}
 
-
-    query:=fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
                             updateAnomalyRuleConfig(
                                 update: {
                                     %s
@@ -189,32 +186,32 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
                                         }
                                 __typename
                             }
-                        }`,configScope,ruleConfigs)
+                        }`, configScope, ruleConfigs)
 
-    var response map[string]interface{}
+	var response map[string]interface{}
 
-    responseStr, err := executeQuery(query, meta)
-    if strings.Contains(responseStr,"DataFetchingException"){
-        _ = json.Unmarshal([]byte(responseStr), &response)
-        return fmt.Errorf("Error: %s", response)
-    }
-    if err != nil {
-        return fmt.Errorf("Error: %s", err)
-    }
-    log.Printf("This is the graphql query %s", query)
-    log.Printf("This is the graphql response %s", responseStr)
-    err = json.Unmarshal([]byte(responseStr), &response)
-    if err != nil {
-        return fmt.Errorf("Error:%s", err)
-    }
-    if responseData,ok := response["data"].(map[string]interface{}); ok {
-        rules := responseData["updateAnomalyRuleConfig"].(map[string]interface{})
-        log.Println(rules)
-        d.SetId(rule_crs_id)
-    }else{
-        return fmt.Errorf("Error occurred while updating the state")
-    }
-    return nil
+	responseStr, err := ExecuteQuery(query, meta)
+	if strings.Contains(responseStr, "DataFetchingException") {
+		_ = json.Unmarshal([]byte(responseStr), &response)
+		return fmt.Errorf("Error: %s", response)
+	}
+	if err != nil {
+		return fmt.Errorf("Error: %s", err)
+	}
+	log.Printf("This is the graphql query %s", query)
+	log.Printf("This is the graphql response %s", responseStr)
+	err = json.Unmarshal([]byte(responseStr), &response)
+	if err != nil {
+		return fmt.Errorf("Error:%s", err)
+	}
+	if responseData, ok := response["data"].(map[string]interface{}); ok {
+		rules := responseData["updateAnomalyRuleConfig"].(map[string]interface{})
+		log.Println(rules)
+		d.SetId(rule_crs_id)
+	} else {
+		return fmt.Errorf("Error occurred while updating the state")
+	}
+	return nil
 }
 
 func resourceDetectionConfigDelete(d *schema.ResourceData, meta interface{}) error {

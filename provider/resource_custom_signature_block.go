@@ -3,9 +3,10 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCustomSignatureBlockRule() *schema.Resource {
@@ -191,7 +192,7 @@ func resourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
                                 `, name, description, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -304,7 +305,7 @@ func resourceCustomSignatureBlockRead(d *schema.ResourceData, meta interface{}) 
                     __typename
                   }
                 }`
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -312,7 +313,7 @@ func resourceCustomSignatureBlockRead(d *schema.ResourceData, meta interface{}) 
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return err
 	}
-	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response, "customSignatureRules", id)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "customSignatureRules", id)
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -462,7 +463,7 @@ func resourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
                                 `, name, description, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString, id, disabled)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -486,7 +487,7 @@ func resourceCustomSignatureBlockDelete(d *schema.ResourceData, meta interface{}
                                __typename
                              }
                            }`, id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

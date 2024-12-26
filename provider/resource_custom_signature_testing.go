@@ -3,9 +3,10 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCustomSignatureTestingRule() *schema.Resource {
@@ -283,7 +284,7 @@ func resourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
                                 `, name, description, rule_type, finalAgentEffectQuery, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery, expiryDurationString)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -396,7 +397,7 @@ func resourceCustomSignatureTestingRead(d *schema.ResourceData, meta interface{}
                     __typename
                   }
                 }`
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -404,7 +405,7 @@ func resourceCustomSignatureTestingRead(d *schema.ResourceData, meta interface{}
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return err
 	}
-	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response, "customSignatureRules", id)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "customSignatureRules", id)
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -652,7 +653,7 @@ func resourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
                                 `, id, disabled, name, description, rule_type, finalAgentEffectQuery, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery, expiryDurationString)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -676,7 +677,7 @@ func resourceCustomSignatureTestingDelete(d *schema.ResourceData, meta interface
                                __typename
                              }
                            }`, id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}
