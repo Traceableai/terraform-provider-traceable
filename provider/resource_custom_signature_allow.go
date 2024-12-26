@@ -184,7 +184,7 @@ func resourceCustomSignatureAllowCreate(d *schema.ResourceData, meta interface{}
                                 `, name, description, rule_type, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -297,7 +297,7 @@ func resourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
                     __typename
                   }
                 }`
-	responseStr, err := executeQuery(readQuery, meta)
+	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
 		return err
 	}
@@ -305,7 +305,7 @@ func resourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
 		return err
 	}
-	ruleDetails := getRuleDetailsFromRulesListUsingIdName(response, "customSignatureRules", id)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "customSignatureRules", id)
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -456,7 +456,7 @@ func resourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
                                 `, name, description, rule_type, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString, id, disabled)
 
 	var response map[string]interface{}
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
 	}
@@ -480,7 +480,7 @@ func resourceCustomSignatureAllowDelete(d *schema.ResourceData, meta interface{}
                                __typename
                              }
                            }`, id)
-	_, err := executeQuery(query, meta)
+	_, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}
