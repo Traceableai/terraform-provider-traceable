@@ -263,6 +263,9 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func ResourceCustomSignatureAllowDelete(d *schema.ResourceData, meta interface{}) error {
-	DeleteCustomSignatureRule(d,meta)
+	err := DeleteCustomSignatureRule(d,meta)
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
+	}
 	return nil
 }

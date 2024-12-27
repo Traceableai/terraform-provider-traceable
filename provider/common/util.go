@@ -119,3 +119,18 @@ func ConvertDurationToSeconds(duration string) (string, error) {
 
 	return fmt.Sprintf("PT%dS", totalSeconds), nil
 }
+
+func InterfaceToStringSlice(arr []interface{}) []string {
+	var envList []string
+	for _, env := range arr {
+		envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
+	}
+	return envList
+}
+func InterfaceToEnumStringSlice(arr []interface{}) []string {
+	var envList []string
+	for _, env := range arr {
+		envList = append(envList, fmt.Sprintf(`%s`, env))
+	}
+	return envList
+}
