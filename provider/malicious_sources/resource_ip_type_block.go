@@ -110,18 +110,16 @@ func resourceIpTypeRuleBlockCreate(d *schema.ResourceData, meta interface{}) err
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
 	query := fmt.Sprintf(CREATE_IP_TYPE_BLOCK, name, description, event_severity, rule_action, exipiryDurationString, finalAgentEffectQuery,strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
-		return fmt.Errorf("error: %s", err)
+	id,err := common.GetIdFromResponse(responseStr,"createMaliciousSourcesRule")
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
 	}
-	id := response["data"].(map[string]interface{})["createMaliciousSourcesRule"].(map[string]interface{})["id"].(string)
 	d.SetId(id)
 	return nil
 }
@@ -207,19 +205,17 @@ func resourceIpTypeRuleBlockUpdate(d *schema.ResourceData, meta interface{}) err
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
 	query := fmt.Sprintf(UPDATE_IP_TYPE_BLOCK, id, name, description, event_severity, rule_action, exipiryDurationString, finalAgentEffectQuery,strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
+	updatedId,err := common.GetIdFromResponse(responseStr,"updateMaliciousSourcesRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	updated_id := response["data"].(map[string]interface{})["updateMaliciousSourcesRule"].(map[string]interface{})["id"].(string)
-	d.SetId(updated_id)
+	d.SetId(updatedId)
 	return nil
 }
 

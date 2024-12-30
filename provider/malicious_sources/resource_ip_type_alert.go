@@ -71,18 +71,16 @@ func resourceIpTypeRuleAlertCreate(d *schema.ResourceData, meta interface{}) err
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
 	query := fmt.Sprintf(CREATE_IP_TYPE_ALERT, name, description, event_severity, rule_action, strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
-		return fmt.Errorf("error: %s", err)
+	id,err := common.GetIdFromResponse(responseStr,"createMaliciousSourcesRule")
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
 	}
-	id := response["data"].(map[string]interface{})["createMaliciousSourcesRule"].(map[string]interface{})["id"].(string)
 	d.SetId(id)
 	return nil
 }
@@ -140,19 +138,17 @@ func resourceIpTypeRuleAlertUpdate(d *schema.ResourceData, meta interface{}) err
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
 	query := fmt.Sprintf(UPDATE_IP_TYPE_ALERT, id, name, description, event_severity, rule_action, strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
-		return fmt.Errorf("error: %s", err)
+	updatedId,err := common.GetIdFromResponse(responseStr,"updateMaliciousSourcesRule")
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
 	}
-	updated_id := response["data"].(map[string]interface{})["updateMaliciousSourcesRule"].(map[string]interface{})["id"].(string)
-	d.SetId(updated_id)
+	d.SetId(updatedId)
 	return nil
 }
 

@@ -2,7 +2,6 @@ package malicious_sources
 
 import (
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
@@ -61,6 +60,7 @@ func ReturnMalicousSourcesExipiryDuration(exipiry string) string {
 	}
 	return exipiryDurationString
 }
+
 
 func SetInjectedHeaders(ruleDetails map[string]interface{}) []map[string]interface{} {
 	injectedHeaders := []map[string]interface{}{}

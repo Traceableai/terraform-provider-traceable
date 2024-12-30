@@ -134,3 +134,17 @@ func InterfaceToEnumStringSlice(arr []interface{}) []string {
 	}
 	return envList
 }
+
+func GetIdFromResponse(responseStr string,graphQlResponseKey string) (string,error) {
+	var response map[string]interface{}
+	err := json.Unmarshal([]byte(responseStr), &response)
+	if err != nil {
+		return "",fmt.Errorf("error: %s", err)
+	}
+	responseData, ok := response["data"].(map[string]interface{})
+	if !ok {
+		return "",fmt.Errorf("some error eccorred while fetching response")
+	}
+	updatedId, _ := responseData[graphQlResponseKey].(map[string]interface{})["id"].(string)
+	return updatedId,nil
+}

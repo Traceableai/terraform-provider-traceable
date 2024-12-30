@@ -103,15 +103,16 @@ func resourceIpRangeRuleAllowCreate(d *schema.ResourceData, meta interface{}) er
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
 	query := fmt.Sprintf(CREATE_IP_RANGE_ALLOW,name,strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","),rule_action,description,finalAgentEffectQuery,exipiryDurationString,envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
-		fmt.Println("Error:", err)
+	id,err := common.GetIdFromResponse(responseStr,"createIpRangeRule")
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
 	}
-	id := response["data"].(map[string]interface{})["createIpRangeRule"].(map[string]interface{})["id"].(string)
 	d.SetId(id)
 	return nil
 }
@@ -178,16 +179,17 @@ func resourceIpRangeRuleAllowUpdate(d *schema.ResourceData, meta interface{}) er
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
 	query := fmt.Sprintf(UPDATE_IP_RANGE_ALLOW,id,name,strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","),rule_action,description,exipiryDurationString,finalAgentEffectQuery,envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
-		fmt.Println("Error:", err)
+	updatedId,err := common.GetIdFromResponse(responseStr,"updateIpRangeRule")
+	if err!=nil {
+		return fmt.Errorf("error %s",err)
 	}
-	updated_id := response["data"].(map[string]interface{})["updateIpRangeRule"].(map[string]interface{})["id"].(string)
-	d.SetId(updated_id)
+	d.SetId(updatedId)
 	return nil
 }
 

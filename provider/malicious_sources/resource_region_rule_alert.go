@@ -70,15 +70,16 @@ func resourceRegionRuleAlertCreate(d *schema.ResourceData, meta interface{}) err
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
 	query := fmt.Sprintf(CREATE_REGION_RULE_ALERT,name,strings.Join(common.InterfaceToStringSlice(regions), ","),rule_action,description,event_severity,envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
+	id,err := common.GetIdFromResponse(responseStr,"createRegionRule")
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
-	id := response["data"].(map[string]interface{})["createIpRangeRule"].(map[string]interface{})["id"].(string)
 	d.SetId(id)
 	return nil
 }
@@ -139,16 +140,17 @@ func resourceRegionRuleAlertUpdate(d *schema.ResourceData, meta interface{}) err
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
 	query := fmt.Sprintf(UPDATE_REGION_RULE_ALERT,id,name,strings.Join(common.InterfaceToStringSlice(regions), ","),rule_action,description,event_severity,envQuery)
-	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	err = json.Unmarshal([]byte(responseStr), &response)
+	updatedId,err := common.GetIdFromResponse(responseStr,"updateRegionRule")
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
-	updated_id := response["data"].(map[string]interface{})["updateRegionRule"].(map[string]interface{})["id"].(string)
-	d.SetId(updated_id)
+	d.SetId(updatedId)
 	return nil
 }
 
