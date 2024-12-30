@@ -119,3 +119,32 @@ func ConvertDurationToSeconds(duration string) (string, error) {
 
 	return fmt.Sprintf("PT%dS", totalSeconds), nil
 }
+
+func InterfaceToStringSlice(arr []interface{}) []string {
+	var envList []string
+	for _, env := range arr {
+		envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
+	}
+	return envList
+}
+func InterfaceToEnumStringSlice(arr []interface{}) []string {
+	var envList []string
+	for _, env := range arr {
+		envList = append(envList, fmt.Sprintf(`%s`, env))
+	}
+	return envList
+}
+
+func GetIdFromResponse(responseStr string,graphQlResponseKey string) (string,error) {
+	var response map[string]interface{}
+	err := json.Unmarshal([]byte(responseStr), &response)
+	if err != nil {
+		return "",fmt.Errorf("error: %s", err)
+	}
+	responseData, ok := response["data"].(map[string]interface{})
+	if !ok {
+		return "",fmt.Errorf("some error eccorred while fetching response")
+	}
+	updatedId, _ := responseData[graphQlResponseKey].(map[string]interface{})["id"].(string)
+	return updatedId,nil
+}
