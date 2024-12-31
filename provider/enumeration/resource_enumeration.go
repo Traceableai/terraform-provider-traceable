@@ -169,7 +169,7 @@ func ResourceEnumerationRule() *schema.Resource {
 					},
 				},
 			},
-			"attributeBasedConditions": {
+			"attribute_based_conditions": {
 				Type:        schema.TypeList,
 				Description: "Attribute based conditions for the rule",
 				Optional:    true,
@@ -194,7 +194,7 @@ func ResourceEnumerationRule() *schema.Resource {
 					},
 				},
 			},
-			"ipReputation": {
+			"ip_reputation": {
 				Type:        schema.TypeString,
 				Description: "Ip reputation source (LOW/MEDIUM/HIGH/CRITICAL)",
 				Optional:    true,
@@ -537,7 +537,7 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 	ipOrganisation := d.Get("ip_organisation").([]interface{})
 	ipAsn := d.Get("ip_asn").([]interface{})
 	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	request_scanner_type := d.Get("request_scanner_type").([]interface{})
+	requestScannerType := d.Get("request_scanner_type").([]interface{})
 	userId := d.Get("user_id").([]interface{})
 
 	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryEnumeration(thresholdConfigs)
@@ -560,7 +560,7 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 		ipOrganisation,
 		ipAsn,
 		ipConnectionType,
-		request_scanner_type,
+		requestScannerType,
 		userId,
 		dataTypesConditions,
 	)
@@ -984,7 +984,7 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 	ipOrganisation := d.Get("ip_organisation").([]interface{})
 	ipAsn := d.Get("ip_asn").([]interface{})
 	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	request_scanner_type := d.Get("request_scanner_type").([]interface{})
+	requestScannerType := d.Get("request_scanner_type").([]interface{})
 	userId := d.Get("user_id").([]interface{})
 	id := d.Id()
 
@@ -1008,7 +1008,7 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 		ipOrganisation,
 		ipAsn,
 		ipConnectionType,
-		request_scanner_type,
+		requestScannerType,
 		userId,
 		dataTypesConditions,
 	)
