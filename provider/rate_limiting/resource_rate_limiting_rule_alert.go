@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
 func ResourceRateLimitingRuleAlert() *schema.Resource {
@@ -482,7 +483,7 @@ func resourceRateLimitingRuleAlertCreate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("err %s", err)
 	}
 
-	finalConditionsQuery, err := returnConditionsStringRateLimit(
+	finalConditionsQuery, err := ReturnConditionsStringRateLimit(
 		ip_reputation,
 		ip_abuse_velocity,
 		label_id_scope,
@@ -499,6 +500,7 @@ func resourceRateLimitingRuleAlertCreate(d *schema.ResourceData, meta interface{
 		ip_connection_type,
 		request_scanner_type,
 		user_id,
+		[]interface{}{},
 	)
 	if err != nil {
 		return fmt.Errorf("error %s", err)
@@ -511,7 +513,7 @@ func resourceRateLimitingRuleAlertCreate(d *schema.ResourceData, meta interface{
 		finalEnvironmentQuery = fmt.Sprintf(ENVIRONMENT_SCOPE_QUERY, common.ReturnQuotedStringList(environments))
 	}
 	actionsBlockQuery := fmt.Sprintf(`{ eventSeverity: %s }`, alert_severity)
-	createRateLimitQuery := fmt.Sprintf(RATE_LIMITING_CREATE_QUERY, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	createRateLimitQuery := fmt.Sprintf(RATE_LIMITING_CREATE_QUERY,RATE_LIMIT_QUERY_KEY, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(createRateLimitQuery, meta)
 	if err != nil {
@@ -533,11 +535,12 @@ func resourceRateLimitingRuleAlertCreate(d *schema.ResourceData, meta interface{
 func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	var response map[string]interface{}
-	responseStr, err := common.CallExecuteQuery(FETCH_RATE_LIMIT_RULES, meta)
+	readQuery := fmt.Sprintf(FETCH_RATE_LIMIT_RULES,RATE_LIMIT_QUERY_KEY)
+	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", FETCH_RATE_LIMIT_RULES)
+	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "rateLimitingRules", id)
@@ -907,7 +910,7 @@ func resourceRateLimitingRuleAlertUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("err %s", err)
 	}
 
-	finalConditionsQuery, err := returnConditionsStringRateLimit(
+	finalConditionsQuery, err := ReturnConditionsStringRateLimit(
 		ip_reputation,
 		ip_abuse_velocity,
 		label_id_scope,
@@ -924,6 +927,7 @@ func resourceRateLimitingRuleAlertUpdate(d *schema.ResourceData, meta interface{
 		ip_connection_type,
 		request_scanner_type,
 		user_id,
+		[]interface{}{},
 	)
 	if err != nil {
 		return fmt.Errorf("error %s", err)
@@ -936,7 +940,7 @@ func resourceRateLimitingRuleAlertUpdate(d *schema.ResourceData, meta interface{
 		finalEnvironmentQuery = fmt.Sprintf(ENVIRONMENT_SCOPE_QUERY, common.ReturnQuotedStringList(environments))
 	}
 	actionsBlockQuery := fmt.Sprintf(`{ eventSeverity: %s }`, alert_severity)
-	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY, id, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY, id,RATE_LIMIT_QUERY_KEY, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
