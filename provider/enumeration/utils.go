@@ -19,7 +19,7 @@ func ReturnFinalThresholdConfigQueryEnumeration(threshold_configs []interface{})
 		if thresholdConfigType == "PATH_PARAMS" || thresholdConfigType == "REQUEST_BODY" {
 			finalThresholdConfigQuery += fmt.Sprintf(rate_limiting.ENUMERATION_THRESHOLD_CONFIG_QUERY, apiAggregateType, userAggregateType,thresholdConfigType, uniqueValuesAllowed, duration)
 		} else if thresholdConfigType == "SENSITIVE_PARAMS" {
-			finalThresholdConfigQuery += fmt.Sprintf(rate_limiting.ENUMERATION_THRESHOLD_CONFIG_SENSITIVE_PARAM_QUERY, apiAggregateType, userAggregateType, uniqueValuesAllowed, sensitiveParamEvaluationType, duration,sensitiveParamEvaluationType)
+			finalThresholdConfigQuery += fmt.Sprintf(rate_limiting.ENUMERATION_THRESHOLD_CONFIG_SENSITIVE_PARAM_QUERY, apiAggregateType, userAggregateType, thresholdConfigType,uniqueValuesAllowed, duration,sensitiveParamEvaluationType)
 		}
 	}
 	return finalThresholdConfigQuery, nil
