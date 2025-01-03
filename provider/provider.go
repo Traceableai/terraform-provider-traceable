@@ -6,6 +6,7 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
+	"github.com/traceableai/terraform-provider-traceable/provider/data_classification"
 )
 
 func Provider() *schema.Provider {
@@ -53,6 +54,7 @@ func Provider() *schema.Provider {
 			"traceable_custom_signature_block":                   custom_signature.ResourceCustomSignatureBlockRule(),
 			"traceable_custom_signature_alert":                   custom_signature.ResourceCustomSignatureAlertRule(),
 			"traceable_custom_signature_testing":                   custom_signature.ResourceCustomSignatureTestingRule(),
+			// "traceable_data_classification_rule":                   data_classification.ResourceDataClassification(),
 
 		},
 		DataSourcesMap: map[string]*schema.Resource{

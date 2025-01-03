@@ -10,7 +10,7 @@ const (
 					}`
 	SCOPED_PATTERN_QUERY = `{
 				name: "%s"
-				urlMatchPatterns: %s
+				urlMatchPatterns: [%s]
 				patternType: %s
 				locations: [%s]
 				matchType: %s
