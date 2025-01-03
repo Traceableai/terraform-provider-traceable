@@ -6,7 +6,7 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
-	"github.com/traceableai/terraform-provider-traceable/provider/data_classification"
+	// "github.com/traceableai/terraform-provider-traceable/provider/data_classification"
 )
 
 func Provider() *schema.Provider {
