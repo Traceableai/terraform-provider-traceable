@@ -6,6 +6,34 @@ import (
 
 )
 
+func GetDatSetQuery(id string,name string,description string,iconType string) string {
+	if id==""{
+		return fmt.Sprintf(CREATE_DATA_SET_QUERY,name,description,iconType)
+	}
+	return fmt.Sprintf(UPDATE_DATA_SET_QUERY,id,name,description,iconType)
+}
+
+func GetOverridesCreateQuery(id string,name string,description string,dataSuppressionOverride string,environments []interface{}, spanFilter []interface{}) (string) {
+	keyPatterns := spanFilter[0].(map[string]interface{})["key_patterns"].([]interface{})
+	keyOperator := keyPatterns[0].(map[string]interface{})["operator"]
+	keyValue := keyPatterns[0].(map[string]interface{})["value"]
+	valuePatternString := ""
+	if valuePattern,ok := spanFilter[0].(map[string]interface{})["value_patterns"].([]interface{}); ok{
+		valueOp := valuePattern[0].(map[string]interface{})["operator"]
+		value := valuePattern[0].(map[string]interface{})["value"]
+		valuePatternString = fmt.Sprintf(VALUE_PATTERN_QUERY,valueOp,value)
+	}
+	spanFilterQuery := fmt.Sprintf(SPAN_FILTER_OVERRIDES_QUERY,keyOperator,keyValue,valuePatternString)
+	envScopedString := ""
+	if len(environments)>0{
+		envScopedString = fmt.Sprintf(ENV_OVERRIDES_QUERY,common.InterfaceToStringSlice(environments))
+	}
+	if id==""{
+		return fmt.Sprintf(CREATE_OVERRIDES_QUERY,name,description,envScopedString,spanFilterQuery,dataSuppressionOverride)
+	}
+	return fmt.Sprintf(UPDATE_OVERRIDES_QUERY,id,name,description,envScopedString,spanFilterQuery,dataSuppressionOverride)
+}
+
 func ReturnScopedPatternQuery(scopedPatterns []interface{}) (string) {
 	scopedPatternQuery:=""
 	for _,scopedPattern := range scopedPatterns {
