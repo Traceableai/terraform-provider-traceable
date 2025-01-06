@@ -56,6 +56,8 @@ func Provider() *schema.Provider {
 			"traceable_custom_signature_alert":                   custom_signature.ResourceCustomSignatureAlertRule(),
 			"traceable_custom_signature_testing":                   custom_signature.ResourceCustomSignatureTestingRule(),
 			// "traceable_data_classification_rule":                   data_classification.ResourceDataClassification(),
+			// "traceable_data_classification_overrides":                   data_classification.ResourceDataClassificationOverrides(),
+			// "traceable_data_sets":                   data_classification.ResourceDataSetsRule(),
 
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -64,6 +66,7 @@ func Provider() *schema.Provider {
 			//"traceable_syslog_integration":    dataSourceSyslogIntegration(),
 			"traceable_endpoint_id": dataSourceEndpointId(),
 			"traceable_service_id":  dataSourceServiceId(),
+			// "traceable_data_set_id":  data_classification.DataSourceDatSetId(),
 			// "traceable_agent_token":           dataSourceAgentToken(),
 		},
 		ConfigureFunc: graphqlConfigure,

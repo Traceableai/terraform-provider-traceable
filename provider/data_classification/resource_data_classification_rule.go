@@ -180,7 +180,7 @@ func ResourceDataClassificationRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("name",ruleData["name"].(string))
 	d.Set("description",ruleData["description"].(string))
 	d.Set("sensitivity",ruleData["sensitivity"].(string))
-	d.Set("dataSuppression",ruleData["dataSuppression"].(string))
+	d.Set("data_suppression",ruleData["dataSuppression"].(string))
 	d.Set("enabled",ruleData["enabled"].(bool))
 	var dataSets []interface{}
 	for _,dataSet := range ruleData["datasets"].([]interface{}) {
