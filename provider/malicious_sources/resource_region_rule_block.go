@@ -31,7 +31,8 @@ func ResourceRegionRuleBlock() *schema.Resource {
 			"rule_action": {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed (BLOCK,BLOCK_ALL_EXCEPT)",
-				Required:    true,
+				Optional:    true,
+				Default: "BLOCK",
 			},
 			"event_severity": {
 				Type:        schema.TypeString,
