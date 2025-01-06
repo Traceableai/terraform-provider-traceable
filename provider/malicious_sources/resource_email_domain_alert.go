@@ -32,7 +32,7 @@ func ResourceEmailDomainAlert() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed ",
 				Optional:    true,
-				Default: "BLOCK",
+				Default: "ALERT",
 			},
 			"event_severity": {
 				Type:        schema.TypeString,
