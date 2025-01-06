@@ -1,10 +1,11 @@
 package rate_limiting
 
 const (
+  RATE_LIMIT_QUERY_KEY = "ENDPOINT_RATE_LIMITING"
 	RATE_LIMITING_CREATE_QUERY = `mutation {
                                       createRateLimitingRule(
                                           rateLimitingRuleData: {
-                                              category: ENDPOINT_RATE_LIMITING
+                                              category: %s
                                               conditions: [
                                                   %s
                                               ]
@@ -36,7 +37,7 @@ const (
                                     updateRateLimitingRule(
                                         rateLimitingRule: {
                                             id: "%s"
-                                            category: ENDPOINT_RATE_LIMITING
+                                            category: %s
                                             conditions: [
                                                 %s
                                             ]
@@ -63,7 +64,7 @@ const (
                                         name
                                     }
                                 }`
-
+  
 	DELETE_RATE_LIMIT_QUERY = `mutation {
                                     deleteRateLimitingRule(id: "%s") {
                                         success
@@ -72,7 +73,7 @@ const (
                                 }`
 
 	FETCH_RATE_LIMIT_RULES = `{
-  rateLimitingRules: rateLimitingRules(category: ENDPOINT_RATE_LIMITING) {
+  rateLimitingRules: rateLimitingRules(category: %s) {
     results {
       category
       conditions {
@@ -294,6 +295,27 @@ const (
                                                   thresholdConfigType: ROLLING_WINDOW
                                                   rollingWindowThresholdConfig: { countAllowed: %d, duration: "%s" }
                                               }`
+	ENUMERATION_THRESHOLD_CONFIG_QUERY = `{
+                            apiAggregateType: %s
+                            userAggregateType: %s
+                            thresholdConfigType: VALUE_BASED
+                            valueBasedThresholdConfig: {
+                                valueType: %s
+                                uniqueValuesAllowed: %d
+                                duration: "%s"
+                            }
+                        }`
+	ENUMERATION_THRESHOLD_CONFIG_SENSITIVE_PARAM_QUERY = `{
+                            apiAggregateType: %s
+                            userAggregateType: %s
+                            thresholdConfigType: VALUE_BASED
+                            valueBasedThresholdConfig: {
+                                valueType: %s
+                                uniqueValuesAllowed: %d
+                                duration: "%s"
+                                sensitiveParamsEvaluationType: %s
+                            }
+                        }`
 	DYNAMIC_THRESHOLD_CONFIG_QUERY = `{
                                            apiAggregateType: %s
                                            userAggregateType: %s
@@ -448,6 +470,20 @@ const (
                                        }
                                    }
                                }`
+
+  DATA_LOCATION_STRING = `dataLocation: %s`
+	DATA_TYPES_CONDITIONS_QUERY = `{
+                    leafCondition: {
+                        conditionType: DATATYPE
+                        datatypeCondition: {
+                            datasetIds: [%s]
+                            datatypeIds: [
+                                %s
+                            ]
+                            %s
+                        }
+                    }
+                }`
 
 	ENDPOINT_SCOPED_QUERY = `{
                                   leafCondition: {
