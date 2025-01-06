@@ -31,7 +31,8 @@ func ResourceIpRangeRuleBlock() *schema.Resource {
 			"rule_action": {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed (RULE_ACTION_BLOCK_ALL_EXCEPT,RULE_ACTION_BLOCK)",
-				Required:    true,
+				Optional:    true,
+				Default: "RULE_ACTION_ALLOW",
 			},
 			"event_severity": {
 				Type:        schema.TypeString,
