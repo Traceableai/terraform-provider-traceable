@@ -316,6 +316,7 @@ const (
                                 sensitiveParamsEvaluationType: %s
                             }
                         }`
+
 	DYNAMIC_THRESHOLD_CONFIG_QUERY = `{
                                            apiAggregateType: %s
                                            userAggregateType: %s

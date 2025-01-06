@@ -28,12 +28,12 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "Name of the dlp block rule",
+				Description: "Name of the rate limiting block rule",
 				Required:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "Description of the dlp rule",
+				Description: "Description of the rate limiting rule",
 				Optional:    true,
 			},
 			"alert_severity": {
@@ -134,43 +134,107 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Threshold configs types for the rule",
 				Required:    true,
-				MinItems:    1,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"api_aggregate_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "ACROSS_ENDPOINTS/PER_ENDPOINT",
-						},
-						"user_aggregate_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "PER_USER/ACROSS_USERS",
-						},
-						"unique_values_allowed": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: "Count of calls",
-						},
-						"duration": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "Duration for the total call count in 1min(PT60S)",
-						},
-						"threshold_config_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "SENSITIVE_PARAMS/PATH_PARAMS/REQUEST_BODY",
-						},
-						"sensitive_param_evaluation_type": {
-							Type:        schema.TypeString,
+						"rolling_window_threshold_config": {
+							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "SELECTED_DATA_TYPES/ALL",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"user_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "User aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"api_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "API aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"count_allowed": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Maximum number of calls allowed",
+									},
+									"duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Duration for the total call count (e.g., PT60S for 1 minute)",
+									},
+								},
+							},
+						},
+						"dynamic_threshold_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"user_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "User aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"api_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "API aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"percentage_exceeding_mean_allowed": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Percentage exceeding the calculated mean allowed",
+									},
+									"mean_calculation_duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Duration for mean calculation (e.g., PT60S for 1 minute)",
+									},
+									"duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Overall duration for evaluation (e.g., PT60S for 1 minute)",
+									},
+								},
+							},
+						},
+						"value_based_threshold_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"user_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "User aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"api_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "API aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"unique_values_allowed": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Number of unique values allowed",
+									},
+									"duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Duration for the total evaluation period (e.g., PT60S for 1 minute)",
+									},
+									"sensitive_params_evaluation_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Type of sensitive parameter evaluation",
+									},
+								},
+							},
 						},
 					},
 				},
 			},
-			"attributeBasedConditions": {
+			"attribute_based_conditions": {
 				Type:        schema.TypeList,
 				Description: "Attribute based conditions for the rule",
 				Optional:    true,
@@ -195,7 +259,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 					},
 				},
 			},
-			"ipReputation": {
+			"ip_reputation": {
 				Type:        schema.TypeString,
 				Description: "Ip reputation source (LOW/MEDIUM/HIGH/CRITICAL)",
 				Optional:    true,
@@ -431,15 +495,12 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	labelScope := d.Get("label_id_scope").([]interface{})
 	endpointScope := d.Get("endpoint_id_scope").([]interface{})
-	thresholdConfigs := d.Get("threshold_configs").([]interface{})
 	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
 	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
 	ipAddress := d.Get("ip_address").([]interface{})
 	userId := d.Get("user_id").([]interface{})
 
-	isDataTypesConditionsEmpty := true
 	for _, data := range dataTypesConditions {
-		isDataTypesConditionsEmpty = false
 		dataTypeIds := data.(map[string]interface{})["data_type_ids"]
 		dataSetIds := data.(map[string]interface{})["data_sets_ids"]
 		if dataSetIds == "" && dataTypeIds == "" {
@@ -490,20 +551,7 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	if len(labelScope) > 0 && len(endpointScope) > 0 {
 		return fmt.Errorf("require on of `label_id_scope` or `endpoint_id_scope`")
 	}
-	for _, thresholdConfig := range thresholdConfigs {
-		thresholdConfigData := thresholdConfig.(map[string]interface{})
-		thresholdConfigType := thresholdConfigData["threshold_config_type"]
-		sensitiveParamEvaluationType := thresholdConfigData["sensitive_param_evaluation_type"].(string)
-		if (thresholdConfigType == "REQUEST_BODY" || thresholdConfigType=="PATH_PARAMS") && sensitiveParamEvaluationType != "" {
-			return fmt.Errorf("not valid here sensitive_param_evaluation_type")
-		} else if thresholdConfigType == "SENSITIVE_PARAMS" {
-			if sensitiveParamEvaluationType == "" {
-				return fmt.Errorf("required sensitive_param_evaluation_type for SENSITIVE_PARAMS threshold_config_type")
-			}else if sensitiveParamEvaluationType == "SELECTED_DATA_TYPES" && isDataTypesConditionsEmpty {
-				return fmt.Errorf("no data types selected")
-			}
-		}
-	}
+	
 	for _, attBasedCondition := range attributeBasedConditions {
 		valueConditionOperator := attBasedCondition.(map[string]interface{})["value_condition_operator"]
 		valueConditionValue := attBasedCondition.(map[string]interface{})["value_condition_value"]
@@ -538,10 +586,10 @@ func ResourceDlpUserBasedCreate(d *schema.ResourceData, meta interface{}) error 
 	ipOrganisation := d.Get("ip_organisation").([]interface{})
 	ipAsn := d.Get("ip_asn").([]interface{})
 	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	request_scanner_type := d.Get("request_scanner_type").([]interface{})
+	requestScannerType := d.Get("request_scanner_type").([]interface{})
 	userId := d.Get("user_id").([]interface{})
 
-	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryEnumeration(thresholdConfigs)
+	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryDlp(thresholdConfigs)
 	if err != nil {
 		return fmt.Errorf("err %s", err)
 	}
@@ -561,7 +609,7 @@ func ResourceDlpUserBasedCreate(d *schema.ResourceData, meta interface{}) error 
 		ipOrganisation,
 		ipAsn,
 		ipConnectionType,
-		request_scanner_type,
+		requestScannerType,
 		userId,
 		dataTypesConditions,
 	)
@@ -579,7 +627,7 @@ func ResourceDlpUserBasedCreate(d *schema.ResourceData, meta interface{}) error 
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY,ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY,DLP_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	responseStr, err := common.CallExecuteQuery(createEnumerationQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
@@ -597,7 +645,7 @@ func ResourceDlpUserBasedCreate(d *schema.ResourceData, meta interface{}) error 
 func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	var response map[string]interface{}
-	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES,ENUMERATION_QUERY_KEY)
+	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES,DLP_KEY)
 	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
@@ -985,11 +1033,11 @@ func ResourceDlpUserBasedUpdate(d *schema.ResourceData, meta interface{}) error 
 	ipOrganisation := d.Get("ip_organisation").([]interface{})
 	ipAsn := d.Get("ip_asn").([]interface{})
 	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	request_scanner_type := d.Get("request_scanner_type").([]interface{})
+	requestScannerType := d.Get("request_scanner_type").([]interface{})
 	userId := d.Get("user_id").([]interface{})
 	id := d.Id()
 
-	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryEnumeration(thresholdConfigs)
+	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryDlp(thresholdConfigs)
 	if err != nil {
 		return fmt.Errorf("err %s", err)
 	}
@@ -1009,7 +1057,7 @@ func ResourceDlpUserBasedUpdate(d *schema.ResourceData, meta interface{}) error 
 		ipOrganisation,
 		ipAsn,
 		ipConnectionType,
-		request_scanner_type,
+		requestScannerType,
 		userId,
 		dataTypesConditions,
 	)
@@ -1027,7 +1075,7 @@ func ResourceDlpUserBasedUpdate(d *schema.ResourceData, meta interface{}) error 
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY,ENUMERATION_QUERY_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY,DLP_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
