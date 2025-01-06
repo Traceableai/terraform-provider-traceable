@@ -1,11 +1,12 @@
 package data_classification
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
-	"encoding/json"
-	"github.com/traceableai/terraform-provider-traceable/provider/common"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
 func ResourceDataClassification() *schema.Resource {
@@ -93,7 +94,7 @@ func ResourceDataClassification() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "key operator and value",
 							Required:    true,
-							MaxItems: 1,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"operator": {
@@ -113,7 +114,7 @@ func ResourceDataClassification() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "key operator and value",
 							Optional:    true,
-							MaxItems: 1,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"operator": {
@@ -122,8 +123,8 @@ func ResourceDataClassification() *schema.Resource {
 										Required:    true,
 									},
 									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 								},
 							},
@@ -135,33 +136,33 @@ func ResourceDataClassification() *schema.Resource {
 	}
 }
 
-func ResourceDataClassificationCreate(d *schema.ResourceData, meta interface{}) error {
-	name := d.Get("name").(string)
-	description := d.Get("description").(string)
-	sensitivity := d.Get("sensitivity").(string)
-	dataSuppression := d.Get("data_suppression").(string)
-	enabled := d.Get("enabled").(bool)
-	dataSets := d.Get("data_sets").(*schema.Set).List()
-	scopedPatterns := d.Get("scoped_patterns").(*schema.Set).List()
+func ResourceDataClassificationCreate(rData *schema.ResourceData, meta interface{}) error {
+	name := rData.Get("name").(string)
+	description := rData.Get("description").(string)
+	sensitivity := rData.Get("sensitivity").(string)
+	dataSuppression := rData.Get("data_suppression").(string)
+	enabled := rData.Get("enabled").(bool)
+	dataSets := rData.Get("data_sets").(*schema.Set).List()
+	scopedPatterns := rData.Get("scoped_patterns").(*schema.Set).List()
 
-	scopedPatternQuery := ReturnScopedPatternQuery(scopedPatterns)
-	query := fmt.Sprintf(CREATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression,sensitivity,common.InterfaceToStringSlice(dataSets))
+	scopedPatternQuery := GetScopedPatternQuery(scopedPatterns)
+	query := fmt.Sprintf(CREATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
+	log.Printf("This is the graphql query %s", query)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createDataType")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "createDataType")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
-	d.SetId(id)
+	rData.SetId(id)
 	return nil
 }
 
-func ResourceDataClassificationRead(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id()
+func ResourceDataClassificationRead(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	log.Println("Id from read ", id)
 	responseStr, err := common.CallExecuteQuery(READ_QUERY, meta)
 	if err != nil {
@@ -174,30 +175,30 @@ func ResourceDataClassificationRead(d *schema.ResourceData, meta interface{}) er
 
 	ruleData := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "dataTypes", id)
 	if len(ruleData) == 0 {
-		d.SetId("")
+		rData.SetId("")
 		return nil
 	}
-	d.Set("name",ruleData["name"].(string))
-	d.Set("description",ruleData["description"].(string))
-	d.Set("sensitivity",ruleData["sensitivity"].(string))
-	d.Set("data_suppression",ruleData["dataSuppression"].(string))
-	d.Set("enabled",ruleData["enabled"].(bool))
+	rData.Set("name", ruleData["name"].(string))
+	rData.Set("description", ruleData["description"].(string))
+	rData.Set("sensitivity", ruleData["sensitivity"].(string))
+	rData.Set("data_suppression", ruleData["dataSuppression"].(string))
+	rData.Set("enabled", ruleData["enabled"].(bool))
 	var dataSets []interface{}
-	for _,dataSet := range ruleData["datasets"].([]interface{}) {
+	for _, dataSet := range ruleData["datasets"].([]interface{}) {
 		dataSetData := dataSet.(map[string]interface{})
 		dataSetId := dataSetData["id"].(string)
 		dataSets = append(dataSets, dataSetId)
 	}
-	d.Set("data_sets",dataSets)
+	rData.Set("data_sets", dataSets)
 	scopedPatterns := []map[string]interface{}{}
-	for _,scopedPattern := range ruleData["scopedPatterns"].([]interface{}){
+	for _, scopedPattern := range ruleData["scopedPatterns"].([]interface{}) {
 		scopedPatternData := scopedPattern.(map[string]interface{})
 		scopedPatternName := scopedPatternData["name"].(string)
 		locations := scopedPatternData["locations"].([]interface{})
 		matchType := scopedPatternData["matchType"].(string)
 		urlMatchPatterns := scopedPatternData["urlMatchPatterns"].([]interface{})
 		environmentIds := []interface{}{}
-		if scope,ok := scopedPatternData["scope"].(map[string]interface{}); ok {
+		if scope, ok := scopedPatternData["scope"].(map[string]interface{}); ok {
 			environmentScope := scope["environmentScope"].(map[string]interface{})
 			environmentIds = environmentScope["environmentIds"].([]interface{})
 		}
@@ -206,64 +207,64 @@ func ResourceDataClassificationRead(d *schema.ResourceData, meta interface{}) er
 		keyPatternOp := keyPattern["operator"].(string)
 		keyPatternObj := map[string]interface{}{
 			"operator": keyPatternOp,
-			"value": keyPatternValue,
+			"value":    keyPatternValue,
 		}
 		valuePatternObj := map[string]interface{}{}
-		if valuePattern,ok := scopedPatternData["valuePattern"].(map[string]interface{}); ok{
+		if valuePattern, ok := scopedPatternData["valuePattern"].(map[string]interface{}); ok {
 			valuePatternValue := valuePattern["value"].(string)
 			valuePatternOperator := valuePattern["operator"].(string)
 			valuePatternObj = map[string]interface{}{
 				"operator": valuePatternOperator,
-				"value": valuePatternValue,
+				"value":    valuePatternValue,
 			}
 		}
 		scopedPatternObj := map[string]interface{}{
-			"scoped_pattern_name" : scopedPatternName,
-			"locations" : locations,
-			"match_type" : matchType,
-			"url_match_patterns" : urlMatchPatterns,
-			"environments" : environmentIds,
-			"key_patterns" : keyPatternObj,	
-			"value_patterns": valuePatternObj,
+			"scoped_pattern_name": scopedPatternName,
+			"locations":           locations,
+			"match_type":          matchType,
+			"url_match_patterns":  urlMatchPatterns,
+			"environments":        environmentIds,
+			"key_patterns":        keyPatternObj,
+			"value_patterns":      valuePatternObj,
 		}
 		scopedPatterns = append(scopedPatterns, scopedPatternObj)
 	}
-	d.Set("scoped_patterns",scopedPatterns)
+	rData.Set("scoped_patterns", scopedPatterns)
 	return nil
 }
 
-func ResourceDataClassificationUpdate(d *schema.ResourceData, meta interface{}) error {
-	name := d.Get("name").(string)
-	description := d.Get("description").(string)
-	sensitivity := d.Get("sensitivity").(string)
-	dataSuppression := d.Get("data_suppression").(string)
-	enabled := d.Get("enabled").(bool)
-	dataSets := d.Get("data_sets").(*schema.Set).List()
-	scopedPatterns := d.Get("scoped_patterns").(*schema.Set).List()
+func ResourceDataClassificationUpdate(rData *schema.ResourceData, meta interface{}) error {
+	name := rData.Get("name").(string)
+	description := rData.Get("description").(string)
+	sensitivity := rData.Get("sensitivity").(string)
+	dataSuppression := rData.Get("data_suppression").(string)
+	enabled := rData.Get("enabled").(bool)
+	dataSets := rData.Get("data_sets").(*schema.Set).List()
+	scopedPatterns := rData.Get("scoped_patterns").(*schema.Set).List()
 
-	scopedPatternQuery := ReturnScopedPatternQuery(scopedPatterns)
-	query := fmt.Sprintf(UPDATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression,sensitivity,common.InterfaceToStringSlice(dataSets))
+	scopedPatternQuery := GetScopedPatternQuery(scopedPatterns)
+	query := fmt.Sprintf(UPDATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
+	log.Printf("This is the graphql query %s", query)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"updateDataType")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "updateDataType")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
-	d.SetId(id)
+	rData.SetId(id)
 	return nil
 }
 
-func ResourceDataClassificationDelete(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id()
+func ResourceDataClassificationDelete(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	query := fmt.Sprintf(DELETE_QUERY, id)
 	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)
 	}
-	d.SetId("")
+	rData.SetId("")
 	return nil
 }
