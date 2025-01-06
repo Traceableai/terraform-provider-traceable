@@ -3,10 +3,10 @@ package provider
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
-	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"github.com/traceableai/terraform-provider-traceable/provider/enumeration"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
-	// "github.com/traceableai/terraform-provider-traceable/provider/data_classification"
+	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
 )
 
 func Provider() *schema.Provider {
@@ -48,6 +48,7 @@ func Provider() *schema.Provider {
 			// "traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 			"traceable_label_creation_rule": resourceLabelCreationRule(),
 			"traceable_rate_limiting_block": rate_limiting.ResourceRateLimitingRuleBlock(),
+			"traceable_enumeration_rule": enumeration.ResourceEnumerationRule(),
 			"traceable_detection_policies":  resourceDetectionConfigRule(),
 			// "traceable_agent_token":                              resourceAgentToken(),
 			"traceable_custom_signature_allow":                   custom_signature.ResourceCustomSignatureAllowRule(),
