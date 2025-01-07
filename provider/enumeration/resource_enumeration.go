@@ -28,12 +28,12 @@ func ResourceEnumerationRule() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "Name of the rate limiting block rule",
+				Description: "Name of the enumeration rule",
 				Required:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "Description of the rate limiting rule",
+				Description: "Description of the enumeration rule",
 				Optional:    true,
 			},
 			"alert_severity": {

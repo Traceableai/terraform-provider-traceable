@@ -27,12 +27,12 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "Name of the rate limiting block rule",
+				Description: "Name of the dlp rule",
 				Required:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "Description of the rate limiting rule",
+				Description: "Description of the dlp rule",
 				Optional:    true,
 			},
 			"alert_severity": {
@@ -47,7 +47,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 			},
 			"expiry_duration": {
 				Type:        schema.TypeString,
-				Description: "Block for a given period",
+				Description: "Block for a given period of time",
 				Optional:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					v := val.(string)
@@ -491,16 +491,16 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 		},
 	}
 }
-func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
-	labelScope := d.Get("label_id_scope").([]interface{})
-	endpointScope := d.Get("endpoint_id_scope").([]interface{})
-	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
-	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
-	ipAddress := d.Get("ip_address").([]interface{})
-	userId := d.Get("user_id").([]interface{})
-	ruleType := d.Get("rule_type")
+func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interface{}) error {
+	labelScope := rData.Get("label_id_scope").([]interface{})
+	endpointScope := rData.Get("endpoint_id_scope").([]interface{})
+	dataTypesConditions := rData.Get("data_types_conditions").([]interface{})
+	attributeBasedConditions := rData.Get("attribute_based_conditions").([]interface{})
+	ipAddress := rData.Get("ip_address").([]interface{})
+	userId := rData.Get("user_id").([]interface{})
+	ruleType := rData.Get("rule_type")
 	
-	expiryDuration := d.Get("expiry_duration").(string)
+	expiryDuration := rData.Get("expiry_duration").(string)
 	if expiryDuration != "" && ruleType != "BLOCK"{
 		return fmt.Errorf("expiry_duration not expected here")
 	}
@@ -567,32 +567,32 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	return nil
 }
 
-func ResourceDlpUserBasedCreate(d *schema.ResourceData, meta interface{}) error {
-	name := d.Get("name").(string)
-	ruleType := d.Get("rule_type").(string)
-	description := d.Get("description").(string)
-	environments := d.Get("environments").([]interface{})
-	enabled := d.Get("enabled").(bool)
-	thresholdConfigs := d.Get("threshold_configs").([]interface{})
-	expiryDuration := d.Get("expiry_duration").(string)
-	alertSeverity := d.Get("alert_severity").(string)
-	ipReputation := d.Get("ip_reputation").(string)
-	ipAbuseVelocity := d.Get("ip_abuse_velocity").(string)
-	labelIdScope := d.Get("label_id_scope").([]interface{})
-	endpointIdScope := d.Get("endpoint_id_scope").([]interface{})
-	reqResConditions := d.Get("req_res_conditions").([]interface{})
-	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
-	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
-	ipLocationType := d.Get("ip_location_type").([]interface{})
-	ipAddress := d.Get("ip_address").([]interface{})
-	emailDomain := d.Get("email_domain").([]interface{})
-	regions := d.Get("regions").([]interface{})
-	userAgents := d.Get("user_agents").([]interface{})
-	ipOrganisation := d.Get("ip_organisation").([]interface{})
-	ipAsn := d.Get("ip_asn").([]interface{})
-	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	requestScannerType := d.Get("request_scanner_type").([]interface{})
-	userId := d.Get("user_id").([]interface{})
+func ResourceDlpUserBasedCreate(rData *schema.ResourceData, meta interface{}) error {
+	name := rData.Get("name").(string)
+	ruleType := rData.Get("rule_type").(string)
+	description := rData.Get("description").(string)
+	environments := rData.Get("environments").([]interface{})
+	enabled := rData.Get("enabled").(bool)
+	thresholdConfigs := rData.Get("threshold_configs").([]interface{})
+	expiryDuration := rData.Get("expiry_duration").(string)
+	alertSeverity := rData.Get("alert_severity").(string)
+	ipReputation := rData.Get("ip_reputation").(string)
+	ipAbuseVelocity := rData.Get("ip_abuse_velocity").(string)
+	labelIdScope := rData.Get("label_id_scope").([]interface{})
+	endpointIdScope := rData.Get("endpoint_id_scope").([]interface{})
+	reqResConditions := rData.Get("req_res_conditions").([]interface{})
+	dataTypesConditions := rData.Get("data_types_conditions").([]interface{})
+	attributeBasedConditions := rData.Get("attribute_based_conditions").([]interface{})
+	ipLocationType := rData.Get("ip_location_type").([]interface{})
+	ipAddress := rData.Get("ip_address").([]interface{})
+	emailDomain := rData.Get("email_domain").([]interface{})
+	regions := rData.Get("regions").([]interface{})
+	userAgents := rData.Get("user_agents").([]interface{})
+	ipOrganisation := rData.Get("ip_organisation").([]interface{})
+	ipAsn := rData.Get("ip_asn").([]interface{})
+	ipConnectionType := rData.Get("ip_connection_type").([]interface{})
+	requestScannerType := rData.Get("request_scanner_type").([]interface{})
+	userId := rData.Get("user_id").([]interface{})
 
 	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryDlp(thresholdConfigs)
 	if err != nil {
@@ -633,58 +633,58 @@ func ResourceDlpUserBasedCreate(d *schema.ResourceData, meta interface{}) error 
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
 	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY,DLP_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	log.Printf("This is the graphql query %s", createEnumerationQuery)
 	responseStr, err := common.CallExecuteQuery(createEnumerationQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", createEnumerationQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	id,err := common.GetIdFromResponse(responseStr,"")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	d.SetId(id)
+	rData.SetId(id)
 	return nil
 }
 
-func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id()
+func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	var response map[string]interface{}
 	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES,DLP_KEY)
+	log.Printf("This is the graphql query %s", readQuery)
 	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "rateLimitingRules", id)
 	if len(ruleDetails) == 0 {
-		d.SetId("")
+		rData.SetId("")
 		return nil
 	}
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
 	log.Printf("fetching from read %s", ruleDetails)
-	d.Set("name", ruleDetails["name"].(string))
-	d.Set("enabled", ruleDetails["enabled"].(bool))
-	d.Set("description", ruleDetails["description"].(string))
+	rData.Set("name", ruleDetails["name"].(string))
+	rData.Set("enabled", ruleDetails["enabled"].(bool))
+	rData.Set("description", ruleDetails["description"].(string))
 	if thresholdActionConfigs, ok := ruleDetails["thresholdActionConfigs"].([]interface{}); ok {
 		firstThresholdActionConfigs := thresholdActionConfigs[0].(map[string]interface{})
 		thresholdActions := firstThresholdActionConfigs["actions"].([]interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
 		actionType := firstThresholdActions["actionType"].(string)
-		d.Set("rule_type",actionType)
+		rData.Set("rule_type",actionType)
 		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
 			if duration,ok := ruleTypeConfig["duration"].(string); ok{
-				d.Set("expiry_duration", duration)
+				rData.Set("expiry_duration", duration)
 			}else{
-				d.Set("expiry_duration","")
+				rData.Set("expiry_duration","")
 			}
 			if alertSev, ok := ruleTypeConfig["eventSeverity"].(string); ok {
 				if alertSev != "" {
-					d.Set("alert_severity", alertSev)
+					rData.Set("alert_severity", alertSev)
 				}
 			}
 		}
@@ -748,7 +748,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 			"value_based_threshold_config": valueBasedThresholdConfigData,
 		}
 		finalThresholdConfigs = append(finalThresholdConfigs, finalThresholdConfigsObj)
-		d.Set("threshold_configs",finalThresholdConfigs)
+		rData.Set("threshold_configs",finalThresholdConfigs)
 	}
 	conditionsArray := ruleDetails["conditions"].([]interface{})
 	finalReqResConditionsState := []map[string]interface{}{}
@@ -764,12 +764,12 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 		switch conditionType {
 		case "IP_REPUTATION":
 			minIpReputationSeverity := leafCondition["ipReputationCondition"].(map[string]interface{})["minIpReputationSeverity"].(string)
-			d.Set("ip_reputation", minIpReputationSeverity)
+			rData.Set("ip_reputation", minIpReputationSeverity)
 			ipReputationScopeFlag = false
 
 		case "IP_ABUSE_VELOCITY":
 			minIpAbuseVelocity := leafCondition["ipAbuseVelocityCondition"].(map[string]interface{})["minIpAbuseVelocity"].(string)
-			d.Set("ip_abuse_velocity", minIpAbuseVelocity)
+			rData.Set("ip_abuse_velocity", minIpAbuseVelocity)
 			ipAbuseVelFlag = false
 
 		case "IP_LOCATION_TYPE":
@@ -781,7 +781,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":           excludeIpLocationType,
 			}
 			finalConditionState = append(finalConditionState, ipLocationType)
-			d.Set("ip_location_type", finalConditionState)
+			rData.Set("ip_location_type", finalConditionState)
 			ipLocationTypeScopeFlag = false
 
 		case "IP_ADDRESS":
@@ -803,7 +803,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 			finalConditionState = append(finalConditionState, ipAddressObj)
-			d.Set("ip_address", finalConditionState)
+			rData.Set("ip_address", finalConditionState)
 			ipAddressFlag = false
 
 		case "EMAIL_DOMAIN":
@@ -815,7 +815,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":              excludeEmailRegex,
 			}
 			finalConditionState = append(finalConditionState, emailDomainObj)
-			d.Set("email_domain", finalConditionState)
+			rData.Set("email_domain", finalConditionState)
 			emailDomainFlag = false
 
 		case "USER_ID":
@@ -836,7 +836,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 			finalConditionState = append(finalConditionState, userIdObj)
-			d.Set("user_id", finalConditionState)
+			rData.Set("user_id", finalConditionState)
 			userIdFlag = false
 
 		case "USER_AGENT":
@@ -848,7 +848,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":          excludeUserAgents,
 			}
 			finalConditionState = append(finalConditionState, userAgentObj)
-			d.Set("user_agents", finalConditionState)
+			rData.Set("user_agents", finalConditionState)
 			userAgentFlag = false
 
 		case "IP_ORGANISATION":
@@ -860,7 +860,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":                 excludeIpOrg,
 			}
 			finalConditionState = append(finalConditionState, ipOrgObj)
-			d.Set("ip_organisation", finalConditionState)
+			rData.Set("ip_organisation", finalConditionState)
 			ipOrgFlag = false
 
 		case "IP_ASN":
@@ -872,7 +872,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":        excludeIpAsn,
 			}
 			finalConditionState = append(finalConditionState, ipAsnObj)
-			d.Set("ip_asn", finalConditionState)
+			rData.Set("ip_asn", finalConditionState)
 			ipAsnFlag = false
 
 		case "IP_CONNECTION_TYPE":
@@ -884,7 +884,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":                 excludeIpConnection,
 			}
 			finalConditionState = append(finalConditionState, ipConnectionObj)
-			d.Set("ip_connection_type", finalConditionState)
+			rData.Set("ip_connection_type", finalConditionState)
 			ipConnTypeFlag = false
 
 		case "DATATYPE":
@@ -911,7 +911,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":            excludeScanner,
 			}
 			finalConditionState = append(finalConditionState, reqScannerObj)
-			d.Set("request_scanner_type", finalConditionState)
+			rData.Set("request_scanner_type", finalConditionState)
 			reqScannerFlag = false
 
 		case "REGION":
@@ -927,7 +927,7 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":     excludeRegion,
 			}
 			finalConditionState = append(finalConditionState, regionObj)
-			d.Set("regions", finalConditionState)
+			rData.Set("regions", finalConditionState)
 			regionFlag = false
 
 		case "KEY_VALUE":
@@ -973,58 +973,58 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 			if scopeType == "LABEL" {
 				labelScope := scopeCondition["labelScope"].(map[string]interface{})
 				labelIds := labelScope["labelIds"].([]interface{})
-				d.Set("label_id_scope", labelIds)
+				rData.Set("label_id_scope", labelIds)
 				labelIdScopeFlag = false
 			} else if scopeType == "ENTITY" {
 				entityScope := scopeCondition["entityScope"].(map[string]interface{})
 				entityIds := entityScope["entityIds"].([]interface{})
-				d.Set("endpoint_id_scope", entityIds)
+				rData.Set("endpoint_id_scope", entityIds)
 				endPointIdScopeFlag = false
 			}
 		}
 	}
 
 	if ipAddressFlag {
-		d.Set("ip_address", []interface{}{})
+		rData.Set("ip_address", []interface{}{})
 	}
 	if labelIdScopeFlag {
-		d.Set("label_id_scope", []interface{}{})
+		rData.Set("label_id_scope", []interface{}{})
 	}
 	if endPointIdScopeFlag {
-		d.Set("endpoint_id_scope", []interface{}{})
+		rData.Set("endpoint_id_scope", []interface{}{})
 	}
 	if ipReputationScopeFlag {
-		d.Set("ip_reputation", "")
+		rData.Set("ip_reputation", "")
 	}
 	if ipLocationTypeScopeFlag {
-		d.Set("ip_location_type", []interface{}{})
+		rData.Set("ip_location_type", []interface{}{})
 	}
 	if ipAbuseVelFlag {
-		d.Set("ip_abuse_velocity", "")
+		rData.Set("ip_abuse_velocity", "")
 	}
 	if emailDomainFlag {
-		d.Set("email_domain", []interface{}{})
+		rData.Set("email_domain", []interface{}{})
 	}
 	if userAgentFlag {
-		d.Set("user_agents", []interface{}{})
+		rData.Set("user_agents", []interface{}{})
 	}
 	if regionFlag {
-		d.Set("regions", []interface{}{})
+		rData.Set("regions", []interface{}{})
 	}
 	if ipOrgFlag {
-		d.Set("ip_organisation", []interface{}{})
+		rData.Set("ip_organisation", []interface{}{})
 	}
 	if userIdFlag {
-		d.Set("user_id", []interface{}{})
+		rData.Set("user_id", []interface{}{})
 	}
 	if reqScannerFlag {
-		d.Set("request_scanner_type", []interface{}{})
+		rData.Set("request_scanner_type", []interface{}{})
 	}
 	if ipConnTypeFlag {
-		d.Set("ip_connection_type", []interface{}{})
+		rData.Set("ip_connection_type", []interface{}{})
 	}
 	if ipAsnFlag {
-		d.Set("ip_asn", []interface{}{})
+		rData.Set("ip_asn", []interface{}{})
 	}
 
 	var envList []interface{}
@@ -1033,41 +1033,41 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 			envList = environmentScope["environmentIds"].([]interface{})
 		}
 	}
-	d.Set("environments", envList)
-	d.Set("req_res_conditions", finalReqResConditionsState)
-	d.Set("attribute_based_conditions", finalAttributeBasedConditionState)
-	d.Set("data_types_conditions", finalDataTypeConditionState)
+	rData.Set("environments", envList)
+	rData.Set("req_res_conditions", finalReqResConditionsState)
+	rData.Set("attribute_based_conditions", finalAttributeBasedConditionState)
+	rData.Set("data_types_conditions", finalDataTypeConditionState)
 
 	return nil
 }
 
-func ResourceDlpUserBasedUpdate(d *schema.ResourceData, meta interface{}) error {
-	name := d.Get("name").(string)
-	ruleType := d.Get("rule_type").(string)
-	description := d.Get("description").(string)
-	environments := d.Get("environments").([]interface{})
-	enabled := d.Get("enabled").(bool)
-	thresholdConfigs := d.Get("threshold_configs").([]interface{})
-	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
-	expiryDuration := d.Get("expiry_duration").(string)
-	alertSeverity := d.Get("alert_severity").(string)
-	ipReputation := d.Get("ip_reputation").(string)
-	ipAbuseVelocity := d.Get("ip_abuse_velocity").(string)
-	labelIdScope := d.Get("label_id_scope").([]interface{})
-	endpointIdScope := d.Get("endpoint_id_scope").([]interface{})
-	reqResConditions := d.Get("req_res_conditions").([]interface{})
-	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
-	ipLocationType := d.Get("ip_location_type").([]interface{})
-	ipAddress := d.Get("ip_address").([]interface{})
-	emailDomain := d.Get("email_domain").([]interface{})
-	regions := d.Get("regions").([]interface{})
-	userAgents := d.Get("user_agents").([]interface{})
-	ipOrganisation := d.Get("ip_organisation").([]interface{})
-	ipAsn := d.Get("ip_asn").([]interface{})
-	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	requestScannerType := d.Get("request_scanner_type").([]interface{})
-	userId := d.Get("user_id").([]interface{})
-	id := d.Id()
+func ResourceDlpUserBasedUpdate(rData *schema.ResourceData, meta interface{}) error {
+	name := rData.Get("name").(string)
+	ruleType := rData.Get("rule_type").(string)
+	description := rData.Get("description").(string)
+	environments := rData.Get("environments").([]interface{})
+	enabled := rData.Get("enabled").(bool)
+	thresholdConfigs := rData.Get("threshold_configs").([]interface{})
+	dataTypesConditions := rData.Get("data_types_conditions").([]interface{})
+	expiryDuration := rData.Get("expiry_duration").(string)
+	alertSeverity := rData.Get("alert_severity").(string)
+	ipReputation := rData.Get("ip_reputation").(string)
+	ipAbuseVelocity := rData.Get("ip_abuse_velocity").(string)
+	labelIdScope := rData.Get("label_id_scope").([]interface{})
+	endpointIdScope := rData.Get("endpoint_id_scope").([]interface{})
+	reqResConditions := rData.Get("req_res_conditions").([]interface{})
+	attributeBasedConditions := rData.Get("attribute_based_conditions").([]interface{})
+	ipLocationType := rData.Get("ip_location_type").([]interface{})
+	ipAddress := rData.Get("ip_address").([]interface{})
+	emailDomain := rData.Get("email_domain").([]interface{})
+	regions := rData.Get("regions").([]interface{})
+	userAgents := rData.Get("user_agents").([]interface{})
+	ipOrganisation := rData.Get("ip_organisation").([]interface{})
+	ipAsn := rData.Get("ip_asn").([]interface{})
+	ipConnectionType := rData.Get("ip_connection_type").([]interface{})
+	requestScannerType := rData.Get("request_scanner_type").([]interface{})
+	userId := rData.Get("user_id").([]interface{})
+	id := rData.Id()
 
 	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryDlp(thresholdConfigs)
 	if err != nil {
@@ -1108,29 +1108,29 @@ func ResourceDlpUserBasedUpdate(d *schema.ResourceData, meta interface{}) error 
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
 	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY,DLP_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	log.Printf("This is the graphql query %s", updateRateLimitQuery)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", updateRateLimitQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	updatedId,err := common.GetIdFromResponse(responseStr,"updateRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	d.SetId(updatedId)
+	rData.SetId(updatedId)
 
 	return nil
 }
 
-func ResourceDlpUserBasedDelete(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id()
+func ResourceDlpUserBasedDelete(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	query := fmt.Sprintf(rate_limiting.DELETE_RATE_LIMIT_QUERY, id)
 	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}
 	log.Println(query)
-	d.SetId("")
+	rData.SetId("")
 	return nil
 }
