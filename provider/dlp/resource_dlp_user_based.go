@@ -23,8 +23,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 			"rule_type": {
 				Type:        schema.TypeString,
 				Description: "ALERT or BLOCK",
-				Optional:    true,
-				Default:     "BLOCK",
+				Required:    true,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -499,6 +498,12 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
 	ipAddress := d.Get("ip_address").([]interface{})
 	userId := d.Get("user_id").([]interface{})
+	ruleType := d.Get("rule_type")
+	
+	expiryDuration := d.Get("expiry_duration").(string)
+	if expiryDuration != "" && ruleType != "BLOCK"{
+		return fmt.Errorf("expiry_duration not expected here")
+	}
 
 	for _, data := range dataTypesConditions {
 		dataTypeIds := data.(map[string]interface{})["data_type_ids"]
@@ -669,54 +674,81 @@ func ResourceDlpUserBasedRead(d *schema.ResourceData, meta interface{}) error {
 		firstThresholdActionConfigs := thresholdActionConfigs[0].(map[string]interface{})
 		thresholdActions := firstThresholdActionConfigs["actions"].([]interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
-		d.Set("rule_type", firstThresholdActions["actionType"])
-		if blockingConfig, ok := firstThresholdActions["block"].(map[string]interface{}); ok {
-			d.Set("expiry_duration", blockingConfig["duration"])
-
-			if blockingSeverity, ok := blockingConfig["eventSeverity"].(string); ok {
-				if blockingSeverity != "" {
-					d.Set("alert_severity", blockingSeverity)
+		actionType := firstThresholdActions["actionType"].(string)
+		d.Set("rule_type",actionType)
+		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
+			if duration,ok := ruleTypeConfig["duration"].(string); ok{
+				d.Set("expiry_duration", duration)
+			}else{
+				d.Set("expiry_duration","")
+			}
+			if alertSev, ok := ruleTypeConfig["eventSeverity"].(string); ok {
+				if alertSev != "" {
+					d.Set("alert_severity", alertSev)
 				}
 			}
 		}
 		thresholdConfigs := firstThresholdActionConfigs["thresholdConfigs"].([]interface{})
 		finalThresholdConfigs := []map[string]interface{}{}
+		rollingWindowThresholdConfigData := []map[string]interface{}{}
+		dynamicThresholdConfigData := []map[string]interface{}{}
+		valueBasedThresholdConfigData := []map[string]interface{}{}
 		for _, thresholdConfig := range thresholdConfigs {
-			var uniqueValuesAllowed float64
-			duration := ""
-			thresholdConfigType := ""
-			sensitiveParamsEvaluationTypeVal := ""
-			var thresholdConfigDataMap map[string]interface{}
 			thresholdConfigData := thresholdConfig.(map[string]interface{})
-			if valueBasedThresholdConfig, ok := thresholdConfigData["valueBasedThresholdConfig"].(map[string]interface{}); ok {
-				uniqueValuesAllowed = valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
-				duration = valueBasedThresholdConfig["duration"].(string)
-				thresholdConfigType = valueBasedThresholdConfig["valueType"].(string)
-				if sensitiveParamsEvaluationType,ok := thresholdConfigData["sensitiveParamsEvaluationType"].(string); ok{
-					sensitiveParamsEvaluationTypeVal=sensitiveParamsEvaluationType
-				}
+			thresholdConfigType := thresholdConfigData["thresholdConfigData"].(string)
+			switch thresholdConfigType{
+				case "ROLLING_WINDOW":
+					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+					userAggregateType := thresholdConfigData["userAggregateType"].(string)
+					rollingWindowThresholdConfig := thresholdConfigData["rollingWindowThresholdConfig"].(map[string]interface{})
+					countAllowed := rollingWindowThresholdConfig["countAllowed"].(float64)
+					duration := rollingWindowThresholdConfig["duration"].(string)
+					rollingWinObj := map[string]interface{}{
+						"user_aggregate_type":userAggregateType,
+						"api_aggregate_type":apiAggregateType,
+						"count_allowed":countAllowed,
+						"duration":duration,
+					}
+					rollingWindowThresholdConfigData = append(rollingWindowThresholdConfigData,rollingWinObj)
+				case "DYNAMIC":
+					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+					userAggregateType := thresholdConfigData["userAggregateType"].(string)
+					dynamicThresholdConfig := thresholdConfigData["dynamicThresholdConfig"].(map[string]interface{})
+					percentageExceedingMeanAllowed := dynamicThresholdConfig["percentageExceedingMeanAllowed"].(float64)
+					meanCalculationDuration := dynamicThresholdConfig["meanCalculationDuration"].(string)
+					duration := dynamicThresholdConfig["duration"].(string)
+					dynamicThresholdConfigObj := map[string]interface{}{
+						"user_aggregate_type":userAggregateType,
+						"api_aggregate_type":apiAggregateType,
+						"percentage_exceeding_mean_allowed":percentageExceedingMeanAllowed,
+						"mean_calculation_duration":meanCalculationDuration,
+						"duration":duration,
+					}
+					dynamicThresholdConfigData = append(dynamicThresholdConfigData,dynamicThresholdConfigObj)
+				case "VALUE_BASED":
+					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+					userAggregateType := thresholdConfigData["userAggregateType"].(string)
+					valueBasedThresholdConfig := thresholdConfigData["valueBasedThresholdConfig"].(map[string]interface{})
+					uniqueValuesAllowed := valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
+					sensitiveParamsEvaluationType := valueBasedThresholdConfig["sensitiveParamsEvaluationType"].(string)
+					duration := valueBasedThresholdConfig["duration"].(string)
+					valueBasedThresholdConfigObj := map[string]interface{}{
+						"user_aggregate_type":userAggregateType,
+						"api_aggregate_type":apiAggregateType,
+						"unique_values_allowed":uniqueValuesAllowed,
+						"duration":duration,
+						"sensitive_params_evaluation_type":sensitiveParamsEvaluationType,
+					}
+					valueBasedThresholdConfigData = append(valueBasedThresholdConfigData,valueBasedThresholdConfigObj)
 			}
-			if sensitiveParamsEvaluationTypeVal==""{
-				thresholdConfigDataMap = map[string]interface{}{
-					"api_aggregate_type":                thresholdConfigData["apiAggregateType"].(string),
-					"user_aggregate_type":                thresholdConfigData["userAggregateType"].(string),
-					"threshold_config_type": thresholdConfigType,
-					"unique_values_allowed":      uniqueValuesAllowed,
-					"duration":           duration,
-				}
-			}else{
-				thresholdConfigDataMap = map[string]interface{}{
-					"api_aggregate_type":                thresholdConfigData["apiAggregateType"].(string),
-					"user_aggregate_type":                thresholdConfigData["userAggregateType"].(string),
-					"threshold_config_type": thresholdConfigType,
-					"unique_values_allowed":      uniqueValuesAllowed,
-					"duration":           duration,
-					"sensitive_param_evaluation_type": sensitiveParamsEvaluationTypeVal,
-				}
-			}
-			finalThresholdConfigs = append(finalThresholdConfigs, thresholdConfigDataMap)
 		}
-		d.Set("threshold_configs", finalThresholdConfigs)
+		finalThresholdConfigsObj := map[string]interface{}{
+			"rolling_window_threshold_config":rollingWindowThresholdConfigData,
+			"dynamic_threshold_config":dynamicThresholdConfigData,
+			"value_based_threshold_config": valueBasedThresholdConfigData,
+		}
+		finalThresholdConfigs = append(finalThresholdConfigs, finalThresholdConfigsObj)
+		d.Set("threshold_configs",finalThresholdConfigs)
 	}
 	conditionsArray := ruleDetails["conditions"].([]interface{})
 	finalReqResConditionsState := []map[string]interface{}{}

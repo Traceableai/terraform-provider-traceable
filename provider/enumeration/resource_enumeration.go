@@ -435,6 +435,13 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
 	ipAddress := d.Get("ip_address").([]interface{})
 	userId := d.Get("user_id").([]interface{})
+	ruleType := d.Get("rule_type")
+
+	expiryDuration := d.Get("expiry_duration").(string)
+	if expiryDuration != "" && ruleType != "BLOCK"{
+		return fmt.Errorf("expiry_duration not expected here")
+	}
+
 
 	isDataTypesConditionsEmpty := true
 	for _, data := range dataTypesConditions {
@@ -620,13 +627,17 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 		firstThresholdActionConfigs := thresholdActionConfigs[0].(map[string]interface{})
 		thresholdActions := firstThresholdActionConfigs["actions"].([]interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
-		d.Set("rule_type", firstThresholdActions["actionType"])
-		if blockingConfig, ok := firstThresholdActions["block"].(map[string]interface{}); ok {
-			d.Set("expiry_duration", blockingConfig["duration"])
-
-			if blockingSeverity, ok := blockingConfig["eventSeverity"].(string); ok {
-				if blockingSeverity != "" {
-					d.Set("alert_severity", blockingSeverity)
+		actionType := firstThresholdActions["actionType"].(string)
+		d.Set("rule_type",actionType)
+		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
+			if duration,ok := ruleTypeConfig["duration"].(string); ok{
+				d.Set("expiry_duration", duration)
+			}else{
+				d.Set("expiry_duration","")
+			}
+			if alertSev, ok := ruleTypeConfig["eventSeverity"].(string); ok {
+				if alertSev != "" {
+					d.Set("alert_severity", alertSev)
 				}
 			}
 		}
