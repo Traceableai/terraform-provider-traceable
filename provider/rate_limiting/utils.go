@@ -11,7 +11,8 @@ func ReturnConditionsStringRateLimit(
 	ipAbuseVelocity string,
 	labelIdScope []interface{},
 	endpointIdScope []interface{},
-	reqResConditions []interface{},
+	requestResponseSingleValuedConditions  []interface{},
+	requestResponseMultiValuedConditions  []interface{},
 	attributeBasedConditions []interface{},
 	ipLocationType []interface{},
 	ipAddress []interface{},
@@ -39,7 +40,8 @@ func ReturnConditionsStringRateLimit(
 		finalIpAbuseVelocityQuery      string
 		finalIpReputationQuery         string
 		finalAttributedBasedConditionsQuery string
-		finalReqResConditionsQuery     string
+		finalRequestResponseSingleValuedConditionsQuery     string
+		finalRequestResponseMultiValuedConditionsQuery     string
 		finalScopedQuery               string
 		finalDataTypesConditionsQuery               	string
 	)
@@ -144,13 +146,28 @@ func ReturnConditionsStringRateLimit(
 			}
 		}
 
-	case len(reqResConditions) > 0:
-		for _, condition := range reqResConditions {
-			condData := condition.(map[string]interface{})
-			metadataType := condData["metadata_type"].(string)
-			operator := condData["req_res_operator"].(string)
-			value := condData["req_res_value"].(string)
-			finalReqResConditionsQuery += fmt.Sprintf(REQ_RES_CONDITIONS_QUERY, metadataType, operator, value)
+	case len(requestResponseSingleValuedConditions)>0:
+		for _,requestPayloadSingleValuedCondition := range requestResponseSingleValuedConditions{
+			requestPayloadSingleValuedConditionData := requestPayloadSingleValuedCondition.(map[string]interface{})
+			requestLocation := requestPayloadSingleValuedConditionData["request_location"].(string)
+			keyOp := requestPayloadSingleValuedConditionData["operator"].(string)
+			keyValue := requestPayloadSingleValuedConditionData["value"].(string)
+			finalRequestResponseSingleValuedConditionsQuery += fmt.Sprintf(REQ_RES_CONDITIONS_QUERY,requestLocation,keyOp,keyValue)
+		}
+	case len(requestResponseMultiValuedConditions)>0:
+		for _,requestPayloadMultiValuedCondition := range requestResponseMultiValuedConditions{
+			requestPayloadMultiValuedConditionData := requestPayloadMultiValuedCondition.(map[string]interface{})
+			requestLocation := requestPayloadMultiValuedConditionData["request_location"].(string)
+			keyPatterns := requestPayloadMultiValuedConditionData["key_patterns"].([]interface{})
+			keyOp := keyPatterns[0].(map[string]interface{})["operator"]
+			keyValue := keyPatterns[0].(map[string]interface{})["value"]
+			valQuery := ""
+			if valuePatterns,ok := requestPayloadMultiValuedConditionData["value_patterns"].([]interface{});ok{
+				valueOp := valuePatterns[0].(map[string]interface{})["operator"]
+				value := valuePatterns[0].(map[string]interface{})["value"]
+				valQuery = fmt.Sprintf(DATATYPE_VALUE_CONDITIONS,valueOp,value)
+			}
+			finalRequestResponseMultiValuedConditionsQuery += fmt.Sprintf(MULTI_VALUES_REQ_CONDITIONS,requestLocation,keyOp,keyValue,valQuery)
 		}
 
 	case len(dataTypesConditions) > 0:
@@ -174,7 +191,7 @@ func ReturnConditionsStringRateLimit(
 		finalScopedQuery = fmt.Sprintf(LABEL_ID_SCOPED_QUERY, common.ReturnQuotedStringList(labelIdScope))
 	}
 
-	finalConditionsQuery := finalScopedQuery + finalReqResConditionsQuery + finalAttributedBasedConditionsQuery +
+	finalConditionsQuery := finalScopedQuery + finalRequestResponseSingleValuedConditionsQuery+finalRequestResponseMultiValuedConditionsQuery + finalAttributedBasedConditionsQuery +
 		finalIpReputationQuery + finalIpAbuseVelocityQuery + finalIpLocationQuery +
 		finalEmailDomainQuery + finalIpAddressQuery + finalUserAgentsQuery + finalRegionsQuery +
 		finalIpOrganisationQuery + finalIpAsnQuery + finalIpConnectionTypeQuery + finalRequestScannerQuery + finalUserIdQuery
