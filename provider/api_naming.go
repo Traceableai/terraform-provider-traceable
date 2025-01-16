@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApiNamingRule() *schema.Resource {
+func ResourceApiNamingRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApiNamingRuleCreate,
 		Read:   resourceApiNamingRuleRead,

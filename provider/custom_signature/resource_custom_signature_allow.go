@@ -161,7 +161,7 @@ func ResourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 	d.Set("name", ruleDetails["name"].(string))
-	d.Set("rule_type", "ALLOW")
+	d.Set("rule_type", ruleDetails["ruleEffect"].(map[string]interface{})["eventType"].(string))
 	d.Set("disabled", ruleDetails["disabled"].(bool))
 	reqResConditions := []map[string]interface{}{}
 	customSecRuleFlag := true
