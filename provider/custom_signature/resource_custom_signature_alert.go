@@ -192,13 +192,17 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("disabled", ruleDetails["disabled"].(bool))
-	d.Set("rule_type", "NORMAL_DETECTION")
+	d.Set("rule_type", ruleDetails["ruleEffect"].(map[string]interface{})["eventType"].(string))
 
 	reqResConditions := []map[string]interface{}{}
 	injectedHeaders := []map[string]interface{}{}
 	attributeBasedConditions := []map[string]interface{}{}
 	if ruleEffect, ok := ruleDetails["ruleEffect"].(map[string]interface{}); ok {
-		d.Set("alert_severity", ruleEffect["eventSeverity"].(string))
+		if eventSeverity,ok := ruleEffect["eventSeverity"].(string);ok{
+			d.Set("alert_severity", eventSeverity)
+		}else{
+			d.Set("alert_severity", "")
+		}
 		if effects, ok := ruleEffect["effects"].([]interface{}); ok {
 			for _, effect := range effects {
 				effectMap := effect.(map[string]interface{})
@@ -298,7 +302,9 @@ func ResourceCustomSignatureAlertUpdate(d *schema.ResourceData, meta interface{}
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	alert_severity := d.Get("alert_severity").(string)
 	inject_request_headers := d.Get("inject_request_headers").([]interface{})
-	custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
+	if !strings.Contains(custom_sec_rule, `\n`) {
+		custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
+	}
 
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)

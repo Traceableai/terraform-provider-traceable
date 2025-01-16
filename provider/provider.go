@@ -44,7 +44,7 @@ func Provider() *schema.Provider {
 			// "traceable_notification_rule_blocked_threat_activity": resourceNotificationRuleBlockedThreatActivity(),
 			// "traceable_notification_rule_threat_actor_status": resourceNotificationRuleThreatActorStatusChange(),
 			// "traceable_notification_rule_actor_severity_change": resourceNotificationRuleActorSeverityChange(),
-			"traceable_api_naming_rule": resourceApiNamingRule(),
+			"traceable_api_naming_rule": ResourceApiNamingRule(),
 			// "traceable_api_exclusion_rule":                       resourceApiExclusionRule(),
 			"traceable_label_creation_rule": resourceLabelCreationRule(),
 			"traceable_rate_limiting_block": rate_limiting.ResourceRateLimitingRuleBlock(),
@@ -58,7 +58,6 @@ func Provider() *schema.Provider {
 			// "traceable_data_classification_rule":                   data_classification.ResourceDataClassification(),
 			// "traceable_data_classification_overrides":                   data_classification.ResourceDataClassificationOverrides(),
 			// "traceable_data_sets":                   data_classification.ResourceDataSetsRule(),
-
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			// "traceable_notification_channels": dataSourceNotificationChannel(),

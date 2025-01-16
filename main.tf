@@ -27,7 +27,7 @@ output "api_token" {
 
 provider "traceable" {
   platform_url="https://api-dev.traceable.ai/graphql"
-  api_token=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+  api_token=""
 }
 
 resource "traceable_user_attribution_rule_basic_auth" "test1" {
@@ -296,4 +296,103 @@ resource "traceable_detection_policies" "enablelfi"{
 resource "traceable_detection_policies" "enablelfi"{
     config_name="typeAnomaly"
     disabled=true
+}
+
+resource "traceable_custom_signature_allow" "cs_allow" {
+  name = "tf-cs-allow-test-1"
+  description = "test rule created from tf"
+  environments = ["crapi-test"]
+  allow_expiry_duration="PT30M"
+  custom_sec_rule=<<EOT
+     SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
+     "id:92100120,\
+     phase:2,\
+     block,\
+     msg:'Test sec Rule',\
+     logdata:'Matched Data: %%{TX.0} found within %%{MATCHED_VAR_NAME}: %%{MATCHED_VAR}',\
+     tag:'attack-protocol',\
+     tag:'traceable/labels/OWASP_2021:A4,CWE:444,OWASP_API_2019:API8',\
+     tag:'traceable/severity/HIGH',\
+     tag:'traceable/type/safe,block',\
+     severity:'CRITICAL',\
+     setvar:'tx.anomaly_score_pl1=+%%{tx.critical_anomaly_score}'"
+  EOT
+  req_res_conditions{
+        match_key="HEADER_NAME"
+        match_category="REQUEST"
+        match_operator="EQUALS"
+        match_value="req_header"
+    }
+  req_res_conditions{
+        match_key="HEADER_NAME"
+        match_category="REQUEST"
+        match_operator="EQUALS"
+        match_value="req_header_test"
+    }
+}
+
+resource "traceable_custom_signature_alert" "cs_alert" {
+  name = "tf-cs-alert-test-1"
+  description = "test rule created from tf"
+  environments = []
+  custom_sec_rule=<<EOT
+     SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
+     "id:92100120,\
+     phase:2,\
+     block,\
+     msg:'Test sec Rule',\
+     logdata:'Matched Data: %%{TX.0} found within %%{MATCHED_VAR_NAME}: %%{MATCHED_VAR}',\
+     tag:'attack-protocol',\
+     tag:'traceable/labels/OWASP_2021:A4,CWE:444,OWASP_API_2019:API8',\
+     tag:'traceable/severity/HIGH',\
+     tag:'traceable/type/safe,block',\
+     severity:'CRITICAL',\
+     setvar:'tx.anomaly_score_pl1=+%%{tx.critical_anomaly_score}'"
+  EOT
+  req_res_conditions{
+        match_key="HEADER_NAME"
+        match_category="REQUEST"
+        match_operator="EQUALS"
+        match_value="req_header"
+    }
+  req_res_conditions{
+        match_key="HEADER_NAME"
+        match_category="REQUEST"
+        match_operator="EQUALS"
+        match_value="req_header_test"
+    }
+    alert_severity = "HIGH"
+}
+
+resource "traceable_custom_signature_block" "cs_block" {
+  name = "tf-cs-block-test-1"
+  description = "test rule created from tf"
+  environments = []
+  custom_sec_rule=<<EOT
+     SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
+     "id:92100120,\
+     phase:2,\
+     block,\
+     msg:'Test sec Rule',\
+     logdata:'Matched Data: %%{TX.0} found within %%{MATCHED_VAR_NAME}: %%{MATCHED_VAR}',\
+     tag:'attack-protocol',\
+     tag:'traceable/labels/OWASP_2021:A4,CWE:444,OWASP_API_2019:API8',\
+     tag:'traceable/severity/HIGH',\
+     tag:'traceable/type/safe,block',\
+     severity:'CRITICAL',\
+     setvar:'tx.anomaly_score_pl1=+%%{tx.critical_anomaly_score}'"
+  EOT
+  req_res_conditions{
+        match_key="HEADER_NAME"
+        match_category="REQUEST"
+        match_operator="EQUALS"
+        match_value="req_header"
+    }
+  req_res_conditions{
+        match_key="HEADER_NAME"
+        match_category="REQUEST"
+        match_operator="EQUALS"
+        match_value="req_header_test"
+    }
+    alert_severity = "HIGH"
 }

@@ -189,7 +189,7 @@ func ResourceCustomSignatureTestingRead(d *schema.ResourceData, meta interface{}
 	}
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("disabled", ruleDetails["disabled"].(bool))
-	d.Set("rule_type", "TESTING_DETECTION")
+	d.Set("rule_type", ruleDetails["ruleEffect"].(map[string]interface{})["eventType"].(string))
 
 	reqResConditions := []map[string]interface{}{}
 	injectedHeaders := []map[string]interface{}{}
@@ -294,7 +294,9 @@ func ResourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	inject_request_headers := d.Get("inject_request_headers").([]interface{})
-	custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
+	if !strings.Contains(custom_sec_rule, `\n`) {
+		custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
+	}
 
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
