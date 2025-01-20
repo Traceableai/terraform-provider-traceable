@@ -76,8 +76,7 @@ func resourceUserAttributionRuleResponseBodyCreate(d *schema.ResourceData, meta 
 	if user_role_location_json_path != "" {
 		roleLocationString = fmt.Sprintf(`roleLocation: { type: JSON_PATH, jsonPath: "%s" }`, user_role_location_json_path)
 	}
-	var query string
-	query = fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		createUserAttributionRule(
 		  input: {
 		  name: "%s", 
@@ -207,8 +206,7 @@ func resourceUserAttributionRuleResponseBodyUpdate(d *schema.ResourceData, meta 
 	if user_role_location_json_path != "" {
 		roleLocationString = fmt.Sprintf(`roleLocation: { type: JSON_PATH, jsonPath: "%s" }`, user_role_location_json_path)
 	}
-	var query string
-	query = fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		updateUserAttributionRule(
 		  rule: {
 		  id: "%s",

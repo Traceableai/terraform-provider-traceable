@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceUserAttributionBasicAuthRule() *schema.Resource {
+func ResourceUserAttributionBasicAuthRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceUserAttributionRuleBasicAuthCreate,
 		Read:   resourceUserAttributionRuleBasicAuthRead,
