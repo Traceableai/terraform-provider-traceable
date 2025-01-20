@@ -30,13 +30,8 @@ variable "API_TOKEN" {
 }
 
 provider "traceable" {
-<<<<<<< HEAD
-  platform_url="https://api-dev.traceable.ai/graphql"
-  api_token=""
-=======
   platform_url = "platform url"
   api_token    = jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
->>>>>>> f28d602f80e6f133d11214c66da58efc5e4ef6c9
 }
 
 resource "traceable_user_attribution_rule_basic_auth" "test1" {
@@ -299,8 +294,6 @@ resource "traceable_notification_rule_posture_events" "rule1" {
   risk_deltas  = ["INCREASE"]
 }
 
-<<<<<<< HEAD
-}
 
 resource traceable_custom_signature_allow "csruletf"{
     name="testtf2"
@@ -486,5 +479,3 @@ resource "traceable_custom_signature_block" "cs_block" {
     }
     alert_severity = "HIGH"
 }
-=======
->>>>>>> f28d602f80e6f133d11214c66da58efc5e4ef6c9
