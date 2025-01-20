@@ -77,9 +77,9 @@ func resourceIpTypeRuleAlertCreate(d *schema.ResourceData, meta interface{}) err
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createMaliciousSourcesRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "createMaliciousSourcesRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(id)
 	return nil
@@ -105,14 +105,14 @@ func resourceIpTypeRuleAlertRead(d *schema.ResourceData, meta interface{}) error
 	ruleDetails := ruleData["info"].(map[string]interface{})
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("description", ruleDetails["description"].(string))
-	if action,ok := ruleDetails["action"].(map[string]interface{}); ok{
-		d.Set("event_severity",action["eventSeverity"])
+	if action, ok := ruleDetails["action"].(map[string]interface{}); ok {
+		d.Set("event_severity", action["eventSeverity"])
 		d.Set("rule_action", ruleDetails["ruleActionType"].(string))
 	}
-	
+
 	condition := ruleData["conditions"].([]interface{})[0].(map[string]interface{})
 	ipLocationTypeCondition := condition["ipLocationTypeCondition"].(map[string]interface{})
-	d.Set("ip_types",ipLocationTypeCondition["ipLocationTypes"].([]interface{}))
+	d.Set("ip_types", ipLocationTypeCondition["ipLocationTypes"].([]interface{}))
 
 	if ruleScope, ok := ruleData["scope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
@@ -144,9 +144,9 @@ func resourceIpTypeRuleAlertUpdate(d *schema.ResourceData, meta interface{}) err
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateMaliciousSourcesRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateMaliciousSourcesRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(updatedId)
 	return nil

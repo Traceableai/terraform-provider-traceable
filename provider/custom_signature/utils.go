@@ -1,20 +1,20 @@
 package custom_signature
 
 import (
-	"strings"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"strings"
 )
 
 func EscapeString(input string) string {
 	lines := strings.Split(input, "\n")
-    for i, line := range lines {
-        line = strings.ReplaceAll(line, `\`, `\\`)  
-        line = strings.ReplaceAll(line, `"`, `\"`)  
-        lines[i] = line
-    }
-    return strings.Join(lines, `\n`)
+	for i, line := range lines {
+		line = strings.ReplaceAll(line, `\`, `\\`)
+		line = strings.ReplaceAll(line, `"`, `\"`)
+		lines[i] = line
+	}
+	return strings.Join(lines, `\n`)
 }
 
 func ReturnEnvScopedQuery(environments []interface{}) string {
@@ -39,8 +39,7 @@ func ReturnReqResConditionsQuery(req_res_conditions []interface{}) string {
 	return finalReqResConditionsQuery
 }
 
-
-func ReturnAttributeBasedConditionsQuery(attribute_based_conditions []interface{}) (string,error) {
+func ReturnAttributeBasedConditionsQuery(attribute_based_conditions []interface{}) (string, error) {
 	finalAttributeBasedConditionsQuery := ""
 	for _, att_based_cond := range attribute_based_conditions {
 		att_based_cond_data := att_based_cond.(map[string]interface{})
@@ -48,16 +47,15 @@ func ReturnAttributeBasedConditionsQuery(attribute_based_conditions []interface{
 			finalAttributeBasedConditionsQuery += fmt.Sprintf(ATTRIBUTES_BASED_QUERY, att_based_cond_data["key_condition_operator"], att_based_cond_data["key_condition_value"], "")
 		} else {
 			if att_based_cond_data["value_condition_value"].(string) == "" {
-				return "",fmt.Errorf("required both value_condition_operator and value_condition_value")
+				return "", fmt.Errorf("required both value_condition_operator and value_condition_value")
 			} else {
 				valueConditionString := fmt.Sprintf(ATTRIBUTE_VALUE_CONDITION_QUERY, att_based_cond_data["value_condition_operator"].(string), att_based_cond_data["value_condition_value"].(string))
 				finalAttributeBasedConditionsQuery += fmt.Sprintf(ATTRIBUTES_BASED_QUERY, att_based_cond_data["key_condition_operator"], att_based_cond_data["key_condition_value"], valueConditionString)
 			}
 		}
 	}
-	return finalAttributeBasedConditionsQuery,nil
+	return finalAttributeBasedConditionsQuery, nil
 }
-
 
 func ReturnCustomSecRuleQuery(custom_sec_rule string) string {
 	customSecRuleQuery := ""
@@ -90,7 +88,7 @@ func ReturnfinalAgentEffectQuery(inject_request_headers []interface{}) string {
 	return finalAgentEffectQuery
 }
 
-func DeleteCustomSignatureRule(d *schema.ResourceData, meta interface{}) error{
+func DeleteCustomSignatureRule(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(DELETE_QUERY, id)
 	_, err := common.CallExecuteQuery(query, meta)

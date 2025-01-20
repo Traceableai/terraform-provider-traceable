@@ -47,6 +47,12 @@ func resourceNotificationRuleBlockedThreatActivity() *schema.Resource {
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
 				Optional:    true,
 			},
+			"category": {
+				Type:        schema.TypeString,
+				Description: "Type of notification rule",
+				Optional:    true,
+				Default:     "BLOCKED_EVENT",
+			},
 		},
 	}
 }
@@ -57,11 +63,12 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 	channel_id := d.Get("channel_id").(string)
 	threat_types := d.Get("threat_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	threatTypesString := "["
 	for _, v := range threat_types {
 		str := ""
-		if isCustomThreatEvent(v.(string)) == true {
+		if isCustomThreatEvent(v.(string)) {
 			str = fmt.Sprintf(`{
 				blockedThreatActivityConditionType: CUSTOM
 				customDetectionCondition: { customDetectionType: %s }
@@ -73,7 +80,7 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 			}`, val)
 		}
 		if str == "" {
-			return fmt.Errorf("Threat type %s not expected", v)
+			return fmt.Errorf("threat type %s not expected", v)
 		}
 		threatTypesString += str
 	}
@@ -98,7 +105,7 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 	query := fmt.Sprintf(`mutation {
 		createNotificationRule(
 			input: {
-				category: BLOCKED_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					blockedEventCondition: {
@@ -112,14 +119,17 @@ func resourceNotificationRuleBlockedThreatActivityCreate(d *schema.ResourceData,
 		) {
 			ruleId
 		}
-	}`, name, threatTypesString, channel_id, frequencyString, envString)
+	}`, category, name, threatTypesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	id := response["data"].(map[string]interface{})["createNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)
@@ -175,30 +185,40 @@ func resourceNotificationRuleBlockedThreatActivityRead(d *schema.ResourceData, m
 		_ = fmt.Errorf("Error:%s", err)
 	}
 	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	if len(ruleDetails) == 0 {
+		d.SetId("")
+		return nil
+	}
 	d.Set("name", ruleDetails["ruleName"])
+	d.Set("category", ruleDetails["category"])
 	d.Set("channel_id", ruleDetails["channelId"])
 	envs := ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
 	blockedSecurityEventCondition := eventConditions.(map[string]interface{})["blockedEventCondition"]
+	if blockedSecurityEventCondition == nil {
+		d.Set("threat_types", schema.NewSet(schema.HashString, []interface{}{""}))
+	}
 
 	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency", val)
 	}
 	var threat_types []interface{}
 	blockedThreatActivityConditions := blockedSecurityEventCondition.(map[string]interface{})["blockedThreatActivityConditions"].([]interface{})
-	for _, val := range blockedThreatActivityConditions {
-		isCustom := val.(map[string]interface{})["blockedThreatActivityConditionType"]
-		if isCustom == "CUSTOM" {
-			customBlockingType := val.(map[string]interface{})["customBlockingCondition"].(map[string]interface{})["customBlockingType"]
-			threat_types = append(threat_types, customBlockingType.(string))
-		} else {
-			preDefinedBlockingCondition := val.(map[string]interface{})["preDefinedBlockingCondition"].(map[string]interface{})["anomalyRuleId"]
-			threat_types = append(threat_types, findThreatByCrsId(preDefinedBlockingCondition.(string)))
+	if blockedThreatActivityConditions != nil {
+		for _, val := range blockedThreatActivityConditions {
+			isCustom := val.(map[string]interface{})["blockedThreatActivityConditionType"]
+			if isCustom == "CUSTOM" {
+				customBlockingType := val.(map[string]interface{})["customBlockingCondition"].(map[string]interface{})["customBlockingType"]
+				threat_types = append(threat_types, customBlockingType.(string))
+			} else {
+				preDefinedBlockingCondition := val.(map[string]interface{})["preDefinedBlockingCondition"].(map[string]interface{})["anomalyRuleId"]
+				threat_types = append(threat_types, findThreatByCrsId(preDefinedBlockingCondition.(string)))
+			}
 		}
+		d.Set("threat_types", schema.NewSet(schema.HashString, threat_types))
 	}
-	d.Set("threat_types", schema.NewSet(schema.HashString, threat_types))
 	return nil
 }
 
@@ -209,11 +229,12 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 	channel_id := d.Get("channel_id").(string)
 	threat_types := d.Get("threat_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
+	category := d.Get("category").(string)
 
 	threatTypesString := "["
 	for _, v := range threat_types {
 		str := ""
-		if isCustomThreatEvent(v.(string)) == true {
+		if isCustomThreatEvent(v.(string)) {
 			str = fmt.Sprintf(`{
 				blockedThreatActivityConditionType: CUSTOM
 				customDetectionCondition: { customDetectionType: %s }
@@ -225,7 +246,7 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 			}`, val)
 		}
 		if str == "" {
-			return fmt.Errorf("Threat type %s not expected", v)
+			return fmt.Errorf("threat type %s not expected", v)
 		}
 		threatTypesString += str
 	}
@@ -251,7 +272,7 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 		updateNotificationRule(
 			input: {
 				ruleId: "%s"
-				category: BLOCKED_EVENT
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
 					blockedEventCondition: {
@@ -265,14 +286,17 @@ func resourceNotificationRuleBlockedThreatActivityUpdate(d *schema.ResourceData,
 		) {
 			ruleId
 		}
-	}`, ruleId, name, threatTypesString, channel_id, frequencyString, envString)
+	}`, ruleId, category, name, threatTypesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	id := response["data"].(map[string]interface{})["updateNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)

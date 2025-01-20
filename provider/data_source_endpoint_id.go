@@ -99,7 +99,7 @@ func dataSourceEndpointIdRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("this is the gql response %s", response)
 	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "entities", name)
 	if len(ruleDetails) == 0 {
-		return fmt.Errorf("No endpoints found with name %s", name)
+		return fmt.Errorf("no endpoints found with name %s", name)
 	}
 	endpoint_id := ruleDetails["id"].(string)
 	log.Printf("endpoint found with name %s", endpoint_id)

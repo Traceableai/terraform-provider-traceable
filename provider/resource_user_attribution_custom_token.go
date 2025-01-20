@@ -91,7 +91,7 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 		} else if environment == "" && url_regex != "" {
 			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
 		} else {
-			return fmt.Errorf("Required environment or url_regex")
+			return fmt.Errorf("required environment or url_regex")
 		}
 	}
 
@@ -263,7 +263,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 		} else if environment == "" && url_regex != "" {
 			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
 		} else {
-			return fmt.Errorf("Required environment or url_regex")
+			return fmt.Errorf("required environment or url_regex")
 		}
 	}
 

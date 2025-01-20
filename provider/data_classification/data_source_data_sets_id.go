@@ -3,9 +3,9 @@ package data_classification
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"log"
 )
 
 func DataSourceDatSetId() *schema.Resource {

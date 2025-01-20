@@ -1,7 +1,7 @@
 package malicious_sources
 
 const (
-    DELETE_MALICIOUS_SOURCES = `mutation {
+	DELETE_MALICIOUS_SOURCES = `mutation {
     deleteMaliciousSourcesRule(
         delete: { id: "%s" }
     ) {
@@ -9,7 +9,7 @@ const (
         __typename
     }
 }`
-    CREATE_IP_TYPE_ALERT = `mutation {
+	CREATE_IP_TYPE_ALERT = `mutation {
     createMaliciousSourcesRule(
         create: {
             ruleInfo: {
@@ -34,7 +34,7 @@ const (
         __typename
     }
 }`
-    UPDATE_IP_TYPE_ALERT = `mutation {
+	UPDATE_IP_TYPE_ALERT = `mutation {
         updateMaliciousSourcesRule(
             update: {
                 ruleInfo: {
@@ -60,7 +60,7 @@ const (
             __typename
         }
     }`
-    CREATE_IP_TYPE_BLOCK = `mutation {
+	CREATE_IP_TYPE_BLOCK = `mutation {
     createMaliciousSourcesRule(
         create: {
             ruleInfo: {
@@ -86,7 +86,7 @@ const (
         __typename
     }
 }`
-    UPDATE_IP_TYPE_BLOCK = `mutation {
+	UPDATE_IP_TYPE_BLOCK = `mutation {
     updateMaliciousSourcesRule(
         update: {
             ruleInfo: {
@@ -189,7 +189,7 @@ const (
   }
 }`
 	DELETE_QUERY_IP_RANGE = `mutation {deleteIpRangeRule(delete: {id: "%s"}) {success}}`
-	DELETE_REGION = `mutation {
+	DELETE_REGION         = `mutation {
   deleteRegionRule(input: {id: "%s"}) {
     success
     __typename
@@ -517,7 +517,7 @@ const (
         __typename
     }
 }`
-	REGION_READ_QUERY=`{
+	REGION_READ_QUERY = `{
     regionRules {
         results {
             id
@@ -572,7 +572,7 @@ const (
     }
 }
 `
-	IP_RANGE_READ_QUERY=`{
+	IP_RANGE_READ_QUERY = `{
   ipRangeRules {
     results {
       id

@@ -85,7 +85,7 @@ func dataSourceServiceIdRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("this is the gql response %s", response)
 	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "entities", service_name)
 	if len(ruleDetails) == 0 {
-		return fmt.Errorf("No services found with name %s", service_name)
+		return fmt.Errorf("no services found with name %s", service_name)
 	}
 	service_id := ruleDetails["id"].(string)
 	log.Printf("Service found with name %s", service_id)

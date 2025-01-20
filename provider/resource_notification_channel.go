@@ -224,8 +224,8 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 		emailChannelConfigsQuery = fmt.Sprintf(`emailChannelConfigs: %s`, emailString)
 	}
 
-	if slackWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" && s3BucketChannelConfigsQuery == "" && splunkIntegrationChannelConfigsQuery == "" && syslogIntegrationChannelConfigsQuery == "" && customWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" {
-		return fmt.Errorf("No channel configuration provided")
+	if slackWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" && s3BucketChannelConfigsQuery == "" && splunkIntegrationChannelConfigsQuery == "" && syslogIntegrationChannelConfigsQuery == "" && customWebhookChannelConfigsQuery == "" {
+		return fmt.Errorf("no channel configuration provided")
 	}
 
 	query := fmt.Sprintf(`mutation {
@@ -250,7 +250,7 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error:%s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
@@ -506,8 +506,8 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 		emailChannelConfigsQuery = fmt.Sprintf(`emailChannelConfigs: %s`, emailString)
 	}
 
-	if slackWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" && s3BucketChannelConfigsQuery == "" && splunkIntegrationChannelConfigsQuery == "" && syslogIntegrationChannelConfigsQuery == "" && customWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" {
-		return fmt.Errorf("No channel configuration provided")
+	if slackWebhookChannelConfigsQuery == "" && emailChannelConfigsQuery == "" && s3BucketChannelConfigsQuery == "" && splunkIntegrationChannelConfigsQuery == "" && syslogIntegrationChannelConfigsQuery == "" && customWebhookChannelConfigsQuery == "" {
+		return fmt.Errorf("no channel configuration provided")
 	}
 
 	query := fmt.Sprintf(`mutation {
@@ -533,13 +533,13 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error:%s", err)
+		return fmt.Errorf("error:%s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error:%s", err)
+		return fmt.Errorf("error:%s", err)
 	}
 	rules := response["data"].(map[string]interface{})["updateNotificationChannel"].(map[string]interface{})
 	log.Println(rules)

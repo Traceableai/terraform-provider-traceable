@@ -69,11 +69,6 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 
 	var spanFilters []string
 
-	// Checking if env name list is (empty -> all env case)
-	environmentNames, ok := d.Get("environment_names").([]interface{})
-	if !ok {
-		fmt.Println("environment_names is not a valid []interface{} type")
-	}
 	if len(environmentNames) > 0 {
 		firstElement, ok := environmentNames[0].(string) // Proper type assertion
 		if ok && firstElement != "" {
@@ -87,11 +82,6 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 		fmt.Println("The environment_names list is empty")
 	}
 
-	// Checking if service name list is (empty -> all services case)
-	serviceNames, ok2 := d.Get("service_names").([]interface{})
-	if !ok2 {
-		fmt.Println("service_names is not a valid []interface{} type")
-	}
 	if len(serviceNames) > 0 {
 		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
 		if ok2 && firstElement != "" {
@@ -117,9 +107,12 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
+	}
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error unmarshling response: %s", err)
 
 	}
 
@@ -143,7 +136,7 @@ func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
 
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
 
 	var response map[string]interface{}
@@ -210,11 +203,6 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 
 	var spanFilters []string
 
-	// Checking if env name list is (empty -> all env case)
-	environmentNames, ok := d.Get("environment_names").([]interface{})
-	if !ok {
-		fmt.Println("environment_names is not a valid []interface{} type")
-	}
 	if len(environmentNames) > 0 {
 		firstElement, ok := environmentNames[0].(string) // Proper type assertion
 		if ok && firstElement != "" {
@@ -228,11 +216,6 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 		fmt.Println("The environment_names list is empty")
 	}
 
-	// Checking if service name list is (empty -> all services case)
-	serviceNames, ok2 := d.Get("service_names").([]interface{})
-	if !ok2 {
-		fmt.Println("service_names is not a valid []interface{} type")
-	}
 	if len(serviceNames) > 0 {
 		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
 		if ok2 && firstElement != "" {
@@ -258,9 +241,12 @@ func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error
 	log.Printf((query))
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
+	}
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error unmarshaling response: %s", err)
 	}
 
 	log.Printf("GraphQL response: %s", responseStr)
@@ -283,7 +269,7 @@ mutation {deleteApiNamingRule(input: { id: "%s" }) {success,__typename}}`, id)
 	// Execute the GraphQL mutation
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
 
 	log.Printf("GraphQL response: %s", responseStr)

@@ -1,11 +1,11 @@
 package data_classification
 
 import (
-	"fmt"
-	"log"
 	"encoding/json"
-	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"log"
 )
 
 func ResourceDataClassificationOverrides() *schema.Resource {
@@ -43,14 +43,14 @@ func ResourceDataClassificationOverrides() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Span filters for the overrides",
 				Optional:    true,
-				MaxItems: 1,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_patterns": {
 							Type:        schema.TypeList,
 							Description: "Key operator and value",
 							Required:    true,
-							MaxItems: 1,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"operator": {
@@ -70,7 +70,7 @@ func ResourceDataClassificationOverrides() *schema.Resource {
 							Type:        schema.TypeList,
 							Description: "Value operator and value",
 							Optional:    true,
-							MaxItems: 1,
+							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"operator": {
@@ -79,8 +79,8 @@ func ResourceDataClassificationOverrides() *schema.Resource {
 										Required:    true,
 									},
 									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 								},
 							},
@@ -98,16 +98,16 @@ func ResourceDataClassificationOverridesCreate(rData *schema.ResourceData, meta 
 	dataSuppressionOverride := rData.Get("data_suppression_override").(string)
 	environments := rData.Get("environments").(*schema.Set).List()
 	spanFilter := rData.Get("span_filter").(*schema.Set).List()
-	createQuery := GetOverridesCreateQuery("",name,description,dataSuppressionOverride,environments,spanFilter)
+	createQuery := GetOverridesCreateQuery("", name, description, dataSuppressionOverride, environments, spanFilter)
 	log.Printf("This is the graphql query %s", createQuery)
 	responseStr, err := common.CallExecuteQuery(createQuery, meta)
 	if err != nil {
-		return fmt.Errorf("error occured :%s",err)
+		return fmt.Errorf("error occured :%s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createDataClassificationOverride")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "createDataClassificationOverride")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	rData.SetId(id)
 	return nil
@@ -130,14 +130,14 @@ func ResourceDataClassificationOverridesRead(rData *schema.ResourceData, meta in
 		rData.SetId("")
 		return nil
 	}
-	rData.Set("name",ruleData["name"].(string))
-	rData.Set("description",ruleData["description"].(string))
-	rData.Set("data_suppression_override",ruleData["behaviorOverride"].(map[string]interface{})["dataSuppressionOverride"].(string))
-	if environmentScope,ok := ruleData["environmentScope"].(map[string]interface{});ok {
+	rData.Set("name", ruleData["name"].(string))
+	rData.Set("description", ruleData["description"].(string))
+	rData.Set("data_suppression_override", ruleData["behaviorOverride"].(map[string]interface{})["dataSuppressionOverride"].(string))
+	if environmentScope, ok := ruleData["environmentScope"].(map[string]interface{}); ok {
 		environmentIds := environmentScope["environmentIds"].([]interface{})
-		rData.Set("environments",environmentIds)
-	}else{
-		rData.Set("environments",[]interface{}{})
+		rData.Set("environments", environmentIds)
+	} else {
+		rData.Set("environments", []interface{}{})
 	}
 	spanFilter := ruleData["spanFilter"].(map[string]interface{})
 	keyValueFilter := spanFilter["keyValueFilter"].(map[string]interface{})
@@ -146,22 +146,22 @@ func ResourceDataClassificationOverridesRead(rData *schema.ResourceData, meta in
 	keyPatternOp := keyPattern["operator"].(string)
 	keyPatternObj := map[string]interface{}{
 		"operator": keyPatternOp,
-		"value": keyPatternValue,
+		"value":    keyPatternValue,
 	}
 	valuePatternObj := map[string]interface{}{}
-	if valuePattern,ok := keyValueFilter["valuePattern"].(map[string]interface{}); ok{
+	if valuePattern, ok := keyValueFilter["valuePattern"].(map[string]interface{}); ok {
 		valuePatternValue := valuePattern["value"].(string)
 		valuePatternOperator := valuePattern["operator"].(string)
 		valuePatternObj = map[string]interface{}{
 			"operator": valuePatternOperator,
-			"value": valuePatternValue,
+			"value":    valuePatternValue,
 		}
 	}
 	spanFilterObj := map[string]interface{}{
-		"key_patterns" : keyPatternObj,	
+		"key_patterns":   keyPatternObj,
 		"value_patterns": valuePatternObj,
 	}
-	rData.Set("span_filter",spanFilterObj)
+	rData.Set("span_filter", spanFilterObj)
 	return nil
 }
 
@@ -172,16 +172,16 @@ func ResourceDataClassificationOverridesUpdate(rData *schema.ResourceData, meta 
 	dataSuppressionOverride := rData.Get("data_suppression_override").(string)
 	environments := rData.Get("environments").(*schema.Set).List()
 	spanFilter := rData.Get("span_filter").(*schema.Set).List()
-	updateQuery := GetOverridesCreateQuery(id,name,description,dataSuppressionOverride,environments,spanFilter)
+	updateQuery := GetOverridesCreateQuery(id, name, description, dataSuppressionOverride, environments, spanFilter)
 	log.Printf("This is the graphql query %s", updateQuery)
 	responseStr, err := common.CallExecuteQuery(updateQuery, meta)
 	if err != nil {
-		return fmt.Errorf("error occured :%s",err)
+		return fmt.Errorf("error occured :%s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateDataClassificationOverride")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateDataClassificationOverride")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	rData.SetId(updatedId)
 	return nil

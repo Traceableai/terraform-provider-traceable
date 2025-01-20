@@ -26,22 +26,22 @@ func ReturnConditionsStringRateLimit(
 	dataTypesConditions []interface{},
 ) (string, error) {
 	var (
-		finalUserIdQuery               string
-		finalRequestScannerQuery       string
-		finalIpConnectionTypeQuery     string
-		finalIpAsnQuery                string
-		finalIpOrganisationQuery       string
-		finalRegionsQuery              string
-		finalUserAgentsQuery           string
-		finalIpAddressQuery            string
-		finalEmailDomainQuery          string
-		finalIpLocationQuery           string
-		finalIpAbuseVelocityQuery      string
-		finalIpReputationQuery         string
+		finalUserIdQuery                    string
+		finalRequestScannerQuery            string
+		finalIpConnectionTypeQuery          string
+		finalIpAsnQuery                     string
+		finalIpOrganisationQuery            string
+		finalRegionsQuery                   string
+		finalUserAgentsQuery                string
+		finalIpAddressQuery                 string
+		finalEmailDomainQuery               string
+		finalIpLocationQuery                string
+		finalIpAbuseVelocityQuery           string
+		finalIpReputationQuery              string
 		finalAttributedBasedConditionsQuery string
-		finalReqResConditionsQuery     string
-		finalScopedQuery               string
-		finalDataTypesConditionsQuery               	string
+		finalReqResConditionsQuery          string
+		finalScopedQuery                    string
+		finalDataTypesConditionsQuery       string
 	)
 
 	switch {
@@ -161,10 +161,10 @@ func ReturnConditionsStringRateLimit(
 			dataLocation := condData["data_location"].(string)
 			dataLocationQuery := ""
 			if dataLocation != "REQUEST_RESPONSE" {
-				dataLocationQuery = fmt.Sprintf(DATA_LOCATION_STRING,dataLocation)
+				dataLocationQuery = fmt.Sprintf(DATA_LOCATION_STRING, dataLocation)
 			}
 
-			finalDataTypesConditionsQuery += fmt.Sprintf(DATA_TYPES_CONDITIONS_QUERY, common.ReturnQuotedStringList(dataSetIds), common.ReturnQuotedStringList(dataTypeIds),dataLocationQuery)
+			finalDataTypesConditionsQuery += fmt.Sprintf(DATA_TYPES_CONDITIONS_QUERY, common.ReturnQuotedStringList(dataSetIds), common.ReturnQuotedStringList(dataTypeIds), dataLocationQuery)
 		}
 	}
 

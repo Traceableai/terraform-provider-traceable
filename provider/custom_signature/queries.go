@@ -1,7 +1,7 @@
 package custom_signature
 
 const (
-	BLOCK_UPDATE_QUERY=`mutation {
+	BLOCK_UPDATE_QUERY = `mutation {
                                     updateCustomSignatureRule(
                                         update: {
                                             name: "%s"
@@ -28,8 +28,8 @@ const (
                                         __typename
                                     }
                                 }`
-								
-	BLOCK_CREATE_QUERY=`mutation {
+
+	BLOCK_CREATE_QUERY = `mutation {
                                     createCustomSignatureRule(
                                         create: {
                                             name: "%s"
@@ -55,7 +55,7 @@ const (
                                     }
                                 }`
 
-	TEST_UPDATE_QUERY=`mutation {
+	TEST_UPDATE_QUERY = `mutation {
                                     updateCustomSignatureRule(
                                         update: {
                                             id: "%s"
@@ -88,7 +88,7 @@ const (
                                     }
                                 }`
 
-	TEST_CREATE_QUERY= `mutation {
+	TEST_CREATE_QUERY = `mutation {
                                     createCustomSignatureRule(
                                         create: {
                                             name: "%s"
@@ -353,7 +353,7 @@ const (
 								}
 							}`
 	ATTRIBUTE_VALUE_CONDITION_QUERY = `valueCondition: { operator: %s, value: "%s" }`
-	ATTRIBUTES_BASED_QUERY = ` {
+	ATTRIBUTES_BASED_QUERY          = ` {
 								clauseType: ATTRIBUTE_KEY_VALUE_EXPRESSION
 								attributeKeyValueExpression: {
 									keyCondition: { operator: %s, value: "%s" }
