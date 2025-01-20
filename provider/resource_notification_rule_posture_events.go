@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotificationRuleActorSeverityChange() *schema.Resource {
+func resourceNotificationRulePostureEvents() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleActorSeverityChangeCreate,
-		Read:   resourceNotificationRuleActorSeverityChangeRead,
-		Update: resourceNotificationRuleActorSeverityChangeUpdate,
-		Delete: resourceNotificationRuleActorSeverityChangeDelete,
+		Create: resourceNotificationRulePostureEventsCreate,
+		Read:   resourceNotificationRulePostureEventsRead,
+		Update: resourceNotificationRulePostureEventsUpdate,
+		Delete: resourceNotificationRulePostureEventsDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,17 +34,17 @@ func resourceNotificationRuleActorSeverityChange() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"actor_severities": {
+			"posture_events": {
 				Type:        schema.TypeSet,
-				Description: "Threat types for which you want notification",
+				Description: "Type of posture event want notification",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"actor_ip_reputation_levels": {
+			"risk_deltas": {
 				Type:        schema.TypeSet,
-				Description: "Severites of threat events you want to notify (LOW,MEDIUM,HIGH,CRITICAL)",
+				Description: "Applicable for risk score posture events (INCREASE,DECREASE)",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -59,48 +59,20 @@ func resourceNotificationRuleActorSeverityChange() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "ACTOR_SEVERITY_STATE_CHANGE_EVENT",
+				Default:     "POSTURE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_severities := d.Get("actor_severities").(*schema.Set).List()
-	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
+	posture_events := d.Get("posture_events").(*schema.Set).List()
+	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
-
-	actorSeveritiesString := "["
-	for _, v := range actor_severities {
-		actorSeveritiesString += v.(string)
-		actorSeveritiesString += ","
-	}
-	if len(actorSeveritiesString) > 1 {
-		actorSeveritiesString = actorSeveritiesString[:len(actorSeveritiesString)-1]
-	}
-
-	actorSeveritiesString += "]"
-	if len(actor_severities) == 4 {
-		actorSeveritiesString = ""
-	}
-
-	actorIpRepString := "["
-	for _, v := range actor_ip_reputation_levels {
-		actorIpRepString += v.(string)
-		actorIpRepString += ","
-	}
-	if len(actorIpRepString) > 1 {
-		actorIpRepString = actorIpRepString[:len(actorIpRepString)-1]
-	}
-
-	actorIpRepString += "]"
-	if len(actor_ip_reputation_levels) == 4 {
-		actorIpRepString = ""
-	}
 
 	frequencyString := ""
 	if notification_frequency != "" {
@@ -124,9 +96,9 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					actorSeverityStateChangeEventCondition: {
-						actorSeverities: %s
-						actorIpReputationLevels: %s
+					postureEventCondition: {
+						postureEvents: %s
+						riskDeltas: %s
 					}
 				}
 				channelId: "%s"
@@ -136,7 +108,7 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 		) {
 			ruleId
 		}
-	}`, category, name, actorSeveritiesString, actorIpRepString, channel_id, frequencyString, envString)
+	}`, category, name, posture_events, risk_deltas, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -149,33 +121,32 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	readQuery := `{
-		notificationRules {
-		  results {
+	notificationRules {
+		results {
 			ruleId
 			ruleName
 			environmentScope {
-			  environments
+				environments
 			}
 			channelId
 			integrationTarget {
-			  type
-			  integrationId
+				type
+				integrationId
 			}
 			category
 			eventConditions {
-			  actorSeverityStateChangeEventCondition {
-				actorSeverities
-				actorIpReputationLevels 
-			  }
+				postureEventCondition {
+				postureEvents
+				}
 			}
 			rateLimitIntervalDuration
-		  }
+			}
 		}
-	  }
-	  `
+	}
+	`
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
@@ -199,12 +170,13 @@ func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, met
 	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
-	actorSeverityStateChangeEventCondition := eventConditions.(map[string]interface{})["actorSeverityStateChangeEventCondition"]
-	if actorSeverityStateChangeEventCondition != nil {
-		actorSeverities := actorSeverityStateChangeEventCondition.(map[string]interface{})["actorSeverities"].([]interface{})
-		d.Set("actor_severities", schema.NewSet(schema.HashString, actorSeverities))
-		actorIpReputationLevels := actorSeverityStateChangeEventCondition.(map[string]interface{})["actorIpReputationLevels"].([]interface{})
-		d.Set("actor_ip_reputation_levels", schema.NewSet(schema.HashString, actorIpReputationLevels))
+	postureEventCondition := eventConditions.(map[string]interface{})["postureEventCondition"]
+	if postureEventCondition != nil {
+		postureEvents := postureEventCondition.(map[string]interface{})["postureEvents"].([]interface{})
+		d.Set("posture_events", schema.NewSet(schema.HashString, postureEvents))
+		if riskDeltas, ok := postureEventCondition.(map[string]interface{})["riskDeltas"].([]interface{}); ok {
+			d.Set("risk_deltas", schema.NewSet(schema.HashString, riskDeltas))
+		}
 	}
 	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency", val)
@@ -212,41 +184,15 @@ func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, met
 	return nil
 }
 
-func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId := d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_severities := d.Get("actor_severities").(*schema.Set).List()
-	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
+	posture_events := d.Get("posture_events").(*schema.Set).List()
+	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
-
-	actorSeveritiesString := "["
-	for _, v := range actor_severities {
-		actorSeveritiesString += v.(string)
-		actorSeveritiesString += ","
-	}
-	if len(actorSeveritiesString) > 1 {
-		actorSeveritiesString = actorSeveritiesString[:len(actorSeveritiesString)-1]
-	}
-	actorSeveritiesString += "]"
-	if len(actor_severities) == 4 {
-		actorSeveritiesString = ""
-	}
-
-	actorIpRepString := "["
-	for _, v := range actor_ip_reputation_levels {
-		actorIpRepString += v.(string)
-		actorIpRepString += ","
-	}
-	if len(actorIpRepString) > 1 {
-		actorIpRepString = actorIpRepString[:len(actorIpRepString)-1]
-	}
-	actorIpRepString += "]"
-	if len(actor_ip_reputation_levels) == 4 {
-		actorIpRepString = ""
-	}
 
 	frequencyString := ""
 	if notification_frequency != "" {
@@ -271,9 +217,9 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					actorSeverityStateChangeEventCondition: {
-						actorSeverities: %s
-						actorIpReputationLevels: %s
+					postureEventCondition: {
+						postureEvents: %s
+						riskDeltas: %s
 					}
 				}
 				channelId: "%s"
@@ -283,7 +229,7 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 		) {
 			ruleId
 		}
-	}`, ruleId, category, name, actorSeveritiesString, actorIpRepString, channel_id, frequencyString, envString)
+	}`, ruleId, category, name, posture_events, risk_deltas, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -297,7 +243,7 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 	return nil
 }
 
-func resourceNotificationRuleActorSeverityChangeDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(`mutation {
 		deleteNotificationRule(input: {ruleId: "%s"}) {

@@ -4,15 +4,15 @@ terraform {
       source  = "terraform.local/local/traceable"
       version = "0.0.1"
     }
-    aws={
-      source = "hashicorp/aws"
+    aws = {
+      source  = "hashicorp/aws"
       version = "5.35.0"
     }
   }
-    backend "s3" {
-    bucket         = "traceable-provider-store"
-    key            = "traceable-provider-store"
-    region         = "us-west-2"
+  backend "s3" {
+    bucket = "traceable-provider-store"
+    key    = "traceable-provider-store"
+    region = "us-west-2"
   }
 }
 
@@ -21,29 +21,37 @@ data "aws_secretsmanager_secret_version" "api_token" {
 }
 
 output "api_token" {
-  value=jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+  value     = jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
   sensitive = true
 }
 
+variable "API_TOKEN" {
+  default = ""
+}
+
 provider "traceable" {
+<<<<<<< HEAD
   platform_url="https://api-dev.traceable.ai/graphql"
   api_token=""
+=======
+  platform_url = "platform url"
+  api_token    = jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
+>>>>>>> f28d602f80e6f133d11214c66da58efc5e4ef6c9
 }
 
 resource "traceable_user_attribution_rule_basic_auth" "test1" {
-  name = "traceable_user_attribution_rule_basic_auth"
+  name       = "traceable_user_attribution_rule_basic_auth_1"
   scope_type = "SYSTEM_WIDE"
-  url_regex = "abcd"
 }
 
 resource "traceable_user_attribution_rule_req_header" "test2" {
-  name = "traceable_user_attribution_rule_req_header"
-  scope_type = "CUSTOM"
-  url_regex = "abcd"
-  auth_type = "test"
-  user_id_location = "test"
-  user_role_location="yes"
-  role_location_regex_capture_group="test"
+  name                              = "traceable_user_attribution_rule_req_header"
+  scope_type                        = "CUSTOM"
+  url_regex                         = "abcd"
+  auth_type                         = "test"
+  user_id_location                  = "test"
+  user_role_location                = "yes"
+  role_location_regex_capture_group = "test"
 }
 
 resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
@@ -56,27 +64,27 @@ resource "traceable_user_attribution_rule_jwt_authentication" "test3" {
 }
 
 resource "traceable_user_attribution_rule_response_body" "test4" {
-  name = "resbody"
-  url_regex="sfdsf"
-  user_id_location_json_path="test"
-  auth_type="sadsak"
-  user_role_location_json_path="hjasa"
+  name                         = "resbody"
+  url_regex                    = "sfdsf"
+  user_id_location_json_path   = "test"
+  auth_type                    = "sadsak"
+  user_role_location_json_path = "hjasa"
 }
 
 resource "traceable_user_attribution_rule_custom_json" "test5" {
-  name = "traceable_user_attribution_rule_custom_json"
-  scope_type="CUSTOM"
-  url_regex="sfdsf"
-  auth_type_json=jsonencode(file("authType.json"))
-  user_id_json=jsonencode(file("authType.json"))
+  name           = "traceable_user_attribution_rule_custom_json"
+  scope_type     = "CUSTOM"
+  url_regex      = "sfdsf"
+  auth_type_json = jsonencode(file("authType.json"))
+  user_id_json   = jsonencode(file("authType.json"))
 }
 
 resource "traceable_user_attribution_rule_custom_token" "test6" {
-  name = "traceable_user_attribution_rule_custom_token"
-  scope_type="SYSTEM_WIDE"
-  auth_type="test"
-  location="REQUEST_COOKIE"
-  token_name="test"
+  name       = "traceable_user_attribution_rule_custom_token"
+  scope_type = "SYSTEM_WIDE"
+  auth_type  = "test"
+  location   = "REQUEST_COOKIE"
+  token_name = "test"
 }
 
 data "traceable_syslog_integration" "syslog" {
@@ -111,54 +119,76 @@ resource "traceable_notification_channel" "testchannel" {
   ]
 
   slack_webhook = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
-  splunk_id=data.traceable_splunk_integration.splunk.splunk_id
+  splunk_id     = data.traceable_splunk_integration.splunk.splunk_id
   # syslog_id=""
-  custom_webhook  {
+  custom_webhook {
     webhook_url = "https://example.com/webhook"
-    custom_webhook_headers  {
+    custom_webhook_headers {
       key       = "Authorization"
       value     = "Bearer token123"
       is_secret = false
     }
-    custom_webhook_headers  {
+    custom_webhook_headers {
       key       = "Authorization1"
       value     = "Bearer token1232"
       is_secret = true
     }
-    custom_webhook_headers  {
+    custom_webhook_headers {
       key       = "tets"
       value     = "Bearer"
       is_secret = false
     }
   }
 
-  s3_webhook  {
+  s3_webhook {
     bucket_name = "your-s3-bucket"
     region      = "us-west-2"
     bucket_arn  = "arn:aws:s3:::your-s3-bucket"
   }
 }
 
-data "traceable_notification_channels" "mychannel"{
-  name = "example_channel1"
+data "traceable_notification_channels" "mychannel" {
+  name = "helloworld"
 }
 
 resource "traceable_notification_rule_logged_threat_activity" "rule1" {
-  name                    = "example_notification_rule"
-  environments            = []
-  channel_id              = data.traceable_notification_channels.mychannel.channel_id
-  threat_types            = ["SQLInjection","bola"]
-  severities              = ["HIGH", "MEDIUM","LOW","CRITICAL"]
-  impact                  = ["LOW", "HIGH"]
-  confidence              = ["HIGH", "MEDIUM"]
+  name         = "example_notification_rule"
+  environments = []
+  channel_id   = data.traceable_notification_channels.mychannel.channel_id
+  threat_types = ["SQLInjection", "bola"]
+  severities   = ["HIGH", "MEDIUM", "LOW", "CRITICAL"]
+  impact       = ["LOW", "HIGH"]
+  confidence   = ["HIGH", "MEDIUM"]
 }
 
 resource "traceable_label_creation_rule" "example_label_create_rule" {
-  key="test-rule-create-label-test1"
-  description="test rule to create a label"
-  color="#E295E9"
+  key         = "test-rule-create-label-test1"
+  description = "test rule to create a label"
+  color       = "#E295E9"
 }
 
+resource "traceable_notification_rule_protection_configuration_change" "protection_config" {
+  name                         = "aditya"
+  environments                 = ["3095423142-ip-blocking"]
+  channel_id                   = data.traceable_notification_channels.mychannel.channel_id
+  security_configuration_types = []
+  notification_frequency       = "PT1H"
+}
+
+resource "traceable_notification_rule_team_activity" "team_activity" {
+  name                   = "team-activity-1"
+  channel_id             = data.traceable_notification_channels.mychannel.channel_id
+  user_change_types      = []
+  notification_frequency = "PT1H"
+}
+
+output "agent_token" {
+  value = traceable_agent_token.example.token
+}
+
+output "agent_token_creation_timestamp" {
+  value = traceable_agent_token.example.creation_timestamp
+}
 resource "traceable_agent_token" "example" {
   name = "tf-provider-token-testing-resource-latest"
 }
@@ -176,7 +206,56 @@ output "agent_token_creation_timestamp" {
   value = data.traceable_agent_token.example.creation_timestamp
 }
 
+resource "traceable_notification_rule_protection_configuration_change" "protection_config" {
+  name                         = "aditya"
+  environments                 = ["3095423142-ip-blocking"]
+  channel_id                   = data.traceable_notification_channels.mychannel.channel_id
+  security_configuration_types = []
+  notification_frequency       = "PT1H"
+}
+resource "traceable_notification_rule_team_activity" "team_activity" {
+  name                   = "team-activity-1"
+  channel_id             = data.traceable_notification_channels.mychannel.channel_id
+  user_change_types      = []
+  notification_frequency = "PT1H"
+}
 
+resource "traceable_notification_rule_api_naming" "api_naming" {
+  name        = "traceable_notification_rule_api_naming"
+  channel_id  = data.traceable_notification_channels.mychannel.channel_id
+  event_types = []
+  # notification_frequency = "PT1H"
+}
+
+resource "traceable_notification_rule_api_documentation" "api_documentation" {
+  name        = "traceable_notification_rule_api_documentation"
+  channel_id  = data.traceable_notification_channels.mychannel.channel_id
+  event_types = []
+  # notification_frequency = "PT1H"
+}
+
+resource "traceable_notification_rule_data_collection" "data_collection" {
+  name                   = "traceable_notification_rule_data_collection"
+  environments           = ["3095423142-ip-blocking"]
+  channel_id             = data.traceable_notification_channels.mychannel.channel_id
+  agent_activity_type    = "NO_DATA_IN_ENVIRONMENT"
+  notification_frequency = "PT1H"
+}
+
+resource "traceable_notification_rule_risk_scoring" "risk_scoring" {
+  name         = "traceable_notification_rule_risk_scoring"
+  environments = ["3095423142-ip-blocking"]
+  channel_id   = data.traceable_notification_channels.mychannel.channel_id
+  event_types  = ["UPDATE"]
+  # notification_frequency = "PT1H"
+}
+
+resource "traceable_notification_rule_exclude_rule" "exclude_rule" {
+  name                   = "traceable_notification_rule_exclude_rule"
+  channel_id             = data.traceable_notification_channels.mychannel.channel_id
+  event_types            = ["CREATE"]
+  notification_frequency = "PT1H"
+}
 
 resource "traceable_ip_range_rule" "my_ip_range" {
     name     = "first_rule"
@@ -189,27 +268,38 @@ resource "traceable_ip_range_rule" "my_ip_range" {
     environment=[] #all env
     description="rule created from custom provider"
 }
+
 resource "traceable_notification_rule_blocked_threat_activity" "rule1" {
-  name                    = "example_notification_rule3"
-  environments            = []
-  channel_id              = data.traceable_notification_channels.mychannel.channel_id
-  threat_types            = []
-  notification_frequency  = "PT1H"
+  name                   = "example_notification_rule3"
+  environments           = []
+  channel_id             = data.traceable_notification_channels.mychannel.channel_id
+  threat_types           = []
+  notification_frequency = "PT1H"
 }
 
 resource "traceable_notification_rule_threat_actor_status" "rule1" {
-  name                    = "terraform_threat_actor_status"
-  environments            = ["fintech-1"]
-  channel_id              = data.traceable_notification_channels.mychannel.channel_id
-  actor_states            = ["NORMAL"]
+  name         = "terraform_threat_actor_status"
+  environments = ["fintech-1"]
+  channel_id   = data.traceable_notification_channels.mychannel.channel_id
+  actor_states = ["NORMAL"]
 }
+
 resource "traceable_notification_rule_actor_severity_change" "rule1" {
-  name                    = "terraform_threat_actor_severity2"
+  name                    = "terraform_threat_actor_severity"
   environments            = ["fintech-1"]
   channel_id              = data.traceable_notification_channels.mychannel.channel_id
   actor_severities            = []
-  actor_ip_reputation_levels            = ["HIGH"]
+  actor_ip_reputation_levels  = ["HIGH"]
+}
+resource "traceable_notification_rule_posture_events" "rule1" {
+  name                    = "terraform_notification_posture_events"
+  environments            = ["fintech"]
+  channel_id              = data.traceable_notification_channels.mychannel.channel_id
+  posture_events            = ["RISK_SCORE_CHANGE"]
+  risk_deltas  = ["INCREASE"]
+}
 
+<<<<<<< HEAD
 }
 
 resource traceable_custom_signature_allow "csruletf"{
@@ -396,3 +486,5 @@ resource "traceable_custom_signature_block" "cs_block" {
     }
     alert_severity = "HIGH"
 }
+=======
+>>>>>>> f28d602f80e6f133d11214c66da58efc5e4ef6c9

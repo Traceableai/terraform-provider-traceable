@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceNotificationRuleActorSeverityChange() *schema.Resource {
+func resourceNotificationRuleDataCollection() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleActorSeverityChangeCreate,
-		Read:   resourceNotificationRuleActorSeverityChangeRead,
-		Update: resourceNotificationRuleActorSeverityChangeUpdate,
-		Delete: resourceNotificationRuleActorSeverityChangeDelete,
+		Create: resourceNotificationRuleDataCollectionCreate,
+		Read:   resourceNotificationRuleDataCollectionRead,
+		Update: resourceNotificationRuleDataCollectionUpdate,
+		Delete: resourceNotificationRuleDataCollectionDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,18 +34,15 @@ func resourceNotificationRuleActorSeverityChange() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"actor_severities": {
-				Type:        schema.TypeSet,
-				Description: "Threat types for which you want notification",
+			"agent_activity_type": {
+				Type:        schema.TypeString,
+				Description: "Agent activity type for which you want notification",
 				Required:    true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
 			},
-			"actor_ip_reputation_levels": {
+			"agent_status_changes": {
 				Type:        schema.TypeSet,
-				Description: "Severites of threat events you want to notify (LOW,MEDIUM,HIGH,CRITICAL)",
-				Required:    true,
+				Description: "Agent status change for which you want notification (ACTIVE/IDLE/OFFLINE)",
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -59,49 +56,33 @@ func resourceNotificationRuleActorSeverityChange() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "ACTOR_SEVERITY_STATE_CHANGE_EVENT",
+				Default:     "DATA_COLLECTION_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_severities := d.Get("actor_severities").(*schema.Set).List()
-	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
+	agent_activity_type := d.Get("agent_activity_type").(string)
+	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
-	actorSeveritiesString := "["
-	for _, v := range actor_severities {
-		actorSeveritiesString += v.(string)
-		actorSeveritiesString += ","
+	agentStatusChangesString := ""
+	if agent_activity_type == "STATUS_CHANGE" {
+		if len(agent_status_changes) == 0 {
+			return fmt.Errorf("agent_status_changes is required here")
+		}
+		agentStatusChangesString = fmt.Sprintf(`agentStatusChanges: %s`, agent_status_changes)
 	}
-	if len(actorSeveritiesString) > 1 {
-		actorSeveritiesString = actorSeveritiesString[:len(actorSeveritiesString)-1]
+	if agent_activity_type != "STATUS_CHANGE" {
+		if len(agent_status_changes) > 0 {
+			return fmt.Errorf("agent_status_changes is not expected here")
+		}
 	}
-
-	actorSeveritiesString += "]"
-	if len(actor_severities) == 4 {
-		actorSeveritiesString = ""
-	}
-
-	actorIpRepString := "["
-	for _, v := range actor_ip_reputation_levels {
-		actorIpRepString += v.(string)
-		actorIpRepString += ","
-	}
-	if len(actorIpRepString) > 1 {
-		actorIpRepString = actorIpRepString[:len(actorIpRepString)-1]
-	}
-
-	actorIpRepString += "]"
-	if len(actor_ip_reputation_levels) == 4 {
-		actorIpRepString = ""
-	}
-
 	frequencyString := ""
 	if notification_frequency != "" {
 		frequencyString = fmt.Sprintf(`rateLimitIntervalDuration: "%s"`, notification_frequency)
@@ -124,10 +105,11 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					actorSeverityStateChangeEventCondition: {
-						actorSeverities: %s
-						actorIpReputationLevels: %s
-					}
+					dataCollectionChangeCondition: {
+						agentType: ""
+						agentActivityType: %s
+						%s
+                	}
 				}
 				channelId: "%s"
 				%s
@@ -136,7 +118,7 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 		) {
 			ruleId
 		}
-	}`, category, name, actorSeveritiesString, actorIpRepString, channel_id, frequencyString, envString)
+	}`, category, name, agent_activity_type, agentStatusChangesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -149,33 +131,33 @@ func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, m
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	readQuery := `{
-		notificationRules {
-		  results {
-			ruleId
-			ruleName
-			environmentScope {
-			  environments
-			}
-			channelId
-			integrationTarget {
-			  type
-			  integrationId
-			}
-			category
-			eventConditions {
-			  actorSeverityStateChangeEventCondition {
-				actorSeverities
-				actorIpReputationLevels 
-			  }
-			}
-			rateLimitIntervalDuration
-		  }
+	notificationRules {
+		results {
+		ruleId
+		ruleName
+		environmentScope {
+			environments
 		}
-	  }
-	  `
+		channelId
+		integrationTarget {
+			type
+			integrationId
+		}
+		category
+		eventConditions {
+			dataCollectionChangeCondition {
+			agentType
+			agentActivityType
+			agentStatusChanges 
+			}
+		}
+		rateLimitIntervalDuration 
+		}
+	}
+	}`
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
@@ -199,55 +181,48 @@ func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, met
 	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
-	actorSeverityStateChangeEventCondition := eventConditions.(map[string]interface{})["actorSeverityStateChangeEventCondition"]
-	if actorSeverityStateChangeEventCondition != nil {
-		actorSeverities := actorSeverityStateChangeEventCondition.(map[string]interface{})["actorSeverities"].([]interface{})
-		d.Set("actor_severities", schema.NewSet(schema.HashString, actorSeverities))
-		actorIpReputationLevels := actorSeverityStateChangeEventCondition.(map[string]interface{})["actorIpReputationLevels"].([]interface{})
-		d.Set("actor_ip_reputation_levels", schema.NewSet(schema.HashString, actorIpReputationLevels))
+	dataCollectionChangeCondition := eventConditions.(map[string]interface{})["dataCollectionChangeCondition"]
+	if dataCollectionChangeCondition != nil {
+		agentActivityType := dataCollectionChangeCondition.(map[string]interface{})["agentActivityType"].(string)
+		d.Set("agent_activity_type", agentActivityType)
+		if agentActivityType == "STATUS_CHANGE" {
+			agentStatusChanges := dataCollectionChangeCondition.(map[string]interface{})["agentStatusChanges"].([]interface{})
+			if len(agentStatusChanges) == 0 {
+				d.Set("agent_status_changes", schema.NewSet(schema.HashString, []interface{}{}))
+			} else {
+				d.Set("agent_status_changes", schema.NewSet(schema.HashString, agentStatusChanges))
+			}
+		}
 	}
+
 	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency", val)
 	}
 	return nil
 }
 
-func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId := d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	actor_severities := d.Get("actor_severities").(*schema.Set).List()
-	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
+	agent_activity_type := d.Get("agent_activity_type").(string)
+	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
-	actorSeveritiesString := "["
-	for _, v := range actor_severities {
-		actorSeveritiesString += v.(string)
-		actorSeveritiesString += ","
+	agentStatusChangesString := ""
+	if agent_activity_type == "STATUS_CHANGE" {
+		if len(agent_status_changes) == 0 {
+			return fmt.Errorf("agent_status_changes is required here")
+		}
+		agentStatusChangesString = fmt.Sprintf(`agentStatusChanges: %s`, agent_status_changes)
 	}
-	if len(actorSeveritiesString) > 1 {
-		actorSeveritiesString = actorSeveritiesString[:len(actorSeveritiesString)-1]
+	if agent_activity_type != "STATUS_CHANGE" {
+		if len(agent_status_changes) > 0 {
+			return fmt.Errorf("agent_status_changes is not expected here")
+		}
 	}
-	actorSeveritiesString += "]"
-	if len(actor_severities) == 4 {
-		actorSeveritiesString = ""
-	}
-
-	actorIpRepString := "["
-	for _, v := range actor_ip_reputation_levels {
-		actorIpRepString += v.(string)
-		actorIpRepString += ","
-	}
-	if len(actorIpRepString) > 1 {
-		actorIpRepString = actorIpRepString[:len(actorIpRepString)-1]
-	}
-	actorIpRepString += "]"
-	if len(actor_ip_reputation_levels) == 4 {
-		actorIpRepString = ""
-	}
-
 	frequencyString := ""
 	if notification_frequency != "" {
 		frequencyString = fmt.Sprintf(`rateLimitIntervalDuration: "%s"`, notification_frequency)
@@ -267,14 +242,15 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 	query := fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				ruleId: "%s"
 				category: %s
+				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
-					actorSeverityStateChangeEventCondition: {
-						actorSeverities: %s
-						actorIpReputationLevels: %s
-					}
+					dataCollectionChangeCondition: {
+						agentType: ""
+						agentActivityType: %s
+						%s
+                	}
 				}
 				channelId: "%s"
 				%s
@@ -283,7 +259,7 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 		) {
 			ruleId
 		}
-	}`, ruleId, category, name, actorSeveritiesString, actorIpRepString, channel_id, frequencyString, envString)
+	}`, category, ruleId, name, agent_activity_type, agentStatusChangesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	log.Printf("This is the graphql query %s", query)
@@ -297,7 +273,7 @@ func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, m
 	return nil
 }
 
-func resourceNotificationRuleActorSeverityChangeDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleDataCollectionDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	query := fmt.Sprintf(`mutation {
 		deleteNotificationRule(input: {ruleId: "%s"}) {
