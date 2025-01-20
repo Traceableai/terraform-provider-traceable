@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,14 +6,15 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationRuleDataCollection() *schema.Resource {
+func ResourceNotificationRulePostureEvents() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleDataCollectionCreate,
-		Read:   resourceNotificationRuleDataCollectionRead,
-		Update: resourceNotificationRuleDataCollectionUpdate,
-		Delete: resourceNotificationRuleDataCollectionDelete,
+		Create: resourceNotificationRulePostureEventsCreate,
+		Read:   resourceNotificationRulePostureEventsRead,
+		Update: resourceNotificationRulePostureEventsUpdate,
+		Delete: resourceNotificationRulePostureEventsDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,15 +35,18 @@ func resourceNotificationRuleDataCollection() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"agent_activity_type": {
-				Type:        schema.TypeString,
-				Description: "Agent activity type for which you want notification",
-				Required:    true,
-			},
-			"agent_status_changes": {
+			"posture_events": {
 				Type:        schema.TypeSet,
-				Description: "Agent status change for which you want notification (ACTIVE/IDLE/OFFLINE)",
-				Optional:    true,
+				Description: "Type of posture event want notification",
+				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"risk_deltas": {
+				Type:        schema.TypeSet,
+				Description: "Applicable for risk score posture events (INCREASE,DECREASE)",
+				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -56,33 +60,21 @@ func resourceNotificationRuleDataCollection() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "DATA_COLLECTION_CHANGE_EVENT",
+				Default:     "POSTURE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	agent_activity_type := d.Get("agent_activity_type").(string)
-	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
+	posture_events := d.Get("posture_events").(*schema.Set).List()
+	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
-	agentStatusChangesString := ""
-	if agent_activity_type == "STATUS_CHANGE" {
-		if len(agent_status_changes) == 0 {
-			return fmt.Errorf("agent_status_changes is required here")
-		}
-		agentStatusChangesString = fmt.Sprintf(`agentStatusChanges: %s`, agent_status_changes)
-	}
-	if agent_activity_type != "STATUS_CHANGE" {
-		if len(agent_status_changes) > 0 {
-			return fmt.Errorf("agent_status_changes is not expected here")
-		}
-	}
 	frequencyString := ""
 	if notification_frequency != "" {
 		frequencyString = fmt.Sprintf(`rateLimitIntervalDuration: "%s"`, notification_frequency)
@@ -105,11 +97,10 @@ func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta i
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					dataCollectionChangeCondition: {
-						agentType: ""
-						agentActivityType: %s
-						%s
-                	}
+					postureEventCondition: {
+						postureEvents: %s
+						riskDeltas: %s
+					}
 				}
 				channelId: "%s"
 				%s
@@ -118,9 +109,9 @@ func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta i
 		) {
 			ruleId
 		}
-	}`, category, name, agent_activity_type, agentStatusChangesString, channel_id, frequencyString, envString)
+	}`, category, name, posture_events, risk_deltas, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -134,45 +125,19 @@ func resourceNotificationRuleDataCollectionCreate(d *schema.ResourceData, meta i
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleDataCollectionRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	readQuery := `{
-	notificationRules {
-		results {
-		ruleId
-		ruleName
-		environmentScope {
-			environments
-		}
-		channelId
-		integrationTarget {
-			type
-			integrationId
-		}
-		category
-		eventConditions {
-			dataCollectionChangeCondition {
-			agentType
-			agentActivityType
-			agentStatusChanges 
-			}
-		}
-		rateLimitIntervalDuration 
-		}
-	}
-	}`
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_RULE_READ, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -184,48 +149,30 @@ func resourceNotificationRuleDataCollectionRead(d *schema.ResourceData, meta int
 	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
-	dataCollectionChangeCondition := eventConditions.(map[string]interface{})["dataCollectionChangeCondition"]
-	if dataCollectionChangeCondition != nil {
-		agentActivityType := dataCollectionChangeCondition.(map[string]interface{})["agentActivityType"].(string)
-		d.Set("agent_activity_type", agentActivityType)
-		if agentActivityType == "STATUS_CHANGE" {
-			agentStatusChanges := dataCollectionChangeCondition.(map[string]interface{})["agentStatusChanges"].([]interface{})
-			if len(agentStatusChanges) == 0 {
-				d.Set("agent_status_changes", schema.NewSet(schema.HashString, []interface{}{}))
-			} else {
-				d.Set("agent_status_changes", schema.NewSet(schema.HashString, agentStatusChanges))
-			}
+	postureEventCondition := eventConditions.(map[string]interface{})["postureEventCondition"]
+	if postureEventCondition != nil {
+		postureEvents := postureEventCondition.(map[string]interface{})["postureEvents"].([]interface{})
+		d.Set("posture_events", schema.NewSet(schema.HashString, postureEvents))
+		if riskDeltas, ok := postureEventCondition.(map[string]interface{})["riskDeltas"].([]interface{}); ok {
+			d.Set("risk_deltas", schema.NewSet(schema.HashString, riskDeltas))
 		}
 	}
-
 	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency", val)
 	}
 	return nil
 }
 
-func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId := d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	agent_activity_type := d.Get("agent_activity_type").(string)
-	agent_status_changes := d.Get("agent_status_changes").(*schema.Set).List()
+	posture_events := d.Get("posture_events").(*schema.Set).List()
+	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
-	agentStatusChangesString := ""
-	if agent_activity_type == "STATUS_CHANGE" {
-		if len(agent_status_changes) == 0 {
-			return fmt.Errorf("agent_status_changes is required here")
-		}
-		agentStatusChangesString = fmt.Sprintf(`agentStatusChanges: %s`, agent_status_changes)
-	}
-	if agent_activity_type != "STATUS_CHANGE" {
-		if len(agent_status_changes) > 0 {
-			return fmt.Errorf("agent_status_changes is not expected here")
-		}
-	}
 	frequencyString := ""
 	if notification_frequency != "" {
 		frequencyString = fmt.Sprintf(`rateLimitIntervalDuration: "%s"`, notification_frequency)
@@ -245,15 +192,14 @@ func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta i
 	query := fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: %s
 				ruleId: "%s"
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					dataCollectionChangeCondition: {
-						agentType: ""
-						agentActivityType: %s
-						%s
-                	}
+					postureEventCondition: {
+						postureEvents: %s
+						riskDeltas: %s
+					}
 				}
 				channelId: "%s"
 				%s
@@ -262,9 +208,9 @@ func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta i
 		) {
 			ruleId
 		}
-	}`, category, ruleId, name, agent_activity_type, agentStatusChangesString, channel_id, frequencyString, envString)
+	}`, ruleId, category, name, posture_events, risk_deltas, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -279,14 +225,10 @@ func resourceNotificationRuleDataCollectionUpdate(d *schema.ResourceData, meta i
 	return nil
 }
 
-func resourceNotificationRuleDataCollectionDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRulePostureEventsDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationRule(input: {ruleId: "%s"}) {
-		  success
-		}
-	  }`, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_RULE, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

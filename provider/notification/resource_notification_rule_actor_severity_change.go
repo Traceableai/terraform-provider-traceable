@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,14 +6,15 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationRuleProtectionConfig() *schema.Resource {
+func ResourceNotificationRuleActorSeverityChange() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleProtectionConfigCreate,
-		Read:   resourceNotificationRuleProtectionConfigRead,
-		Update: resourceNotificationRuleProtectionConfigUpdate,
-		Delete: resourceNotificationRuleProtectionConfigDelete,
+		Create: resourceNotificationRuleActorSeverityChangeCreate,
+		Read:   resourceNotificationRuleActorSeverityChangeRead,
+		Update: resourceNotificationRuleActorSeverityChangeUpdate,
+		Delete: resourceNotificationRuleActorSeverityChangeDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,9 +35,17 @@ func resourceNotificationRuleProtectionConfig() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"security_configuration_types": {
+			"actor_severities": {
 				Type:        schema.TypeSet,
-				Description: "Security config changes for which you want notification",
+				Description: "Threat types for which you want notification",
+				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"actor_ip_reputation_levels": {
+				Type:        schema.TypeSet,
+				Description: "Severites of threat events you want to notify (LOW,MEDIUM,HIGH,CRITICAL)",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -51,19 +60,48 @@ func resourceNotificationRuleProtectionConfig() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "SECURITY_CONFIG_CHANGE_EVENT",
+				Default:     "ACTOR_SEVERITY_STATE_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleActorSeverityChangeCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	security_configuration_types := d.Get("security_configuration_types").(*schema.Set).List()
+	actor_severities := d.Get("actor_severities").(*schema.Set).List()
+	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
+
+	actorSeveritiesString := "["
+	for _, v := range actor_severities {
+		actorSeveritiesString += v.(string)
+		actorSeveritiesString += ","
+	}
+	if len(actorSeveritiesString) > 1 {
+		actorSeveritiesString = actorSeveritiesString[:len(actorSeveritiesString)-1]
+	}
+
+	actorSeveritiesString += "]"
+	if len(actor_severities) == 4 {
+		actorSeveritiesString = ""
+	}
+
+	actorIpRepString := "["
+	for _, v := range actor_ip_reputation_levels {
+		actorIpRepString += v.(string)
+		actorIpRepString += ","
+	}
+	if len(actorIpRepString) > 1 {
+		actorIpRepString = actorIpRepString[:len(actorIpRepString)-1]
+	}
+
+	actorIpRepString += "]"
+	if len(actor_ip_reputation_levels) == 4 {
+		actorIpRepString = ""
+	}
 
 	frequencyString := ""
 	if notification_frequency != "" {
@@ -87,8 +125,9 @@ func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					securityConfigChangeEventCondition: {
-						securityConfigurationTypes: %s
+					actorSeverityStateChangeEventCondition: {
+						actorSeverities: %s
+						actorIpReputationLevels: %s
 					}
 				}
 				channelId: "%s"
@@ -98,9 +137,9 @@ func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta
 		) {
 			ruleId
 		}
-	}`, category, name, security_configuration_types, channel_id, frequencyString, envString)
+	}`, category, name, actorSeveritiesString, actorIpRepString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -114,92 +153,84 @@ func resourceNotificationRuleProtectionConfigCreate(d *schema.ResourceData, meta
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleProtectionConfigRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleActorSeverityChangeRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	readQuery := `{
-	notificationRules {
-		results {
-			ruleId
-			ruleName
-			environmentScope {
-				environments
-			}
-			channelId
-			integrationTarget {
-				type
-				integrationId
-			}
-			category
-			eventConditions {
-				securityConfigChangeEventCondition {
-				securityConfigurationTypes
-				}
-			}
-			rateLimitIntervalDuration
-			}
-		}
-	}
-	`
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_RULE_READ, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
 	}
 	d.Set("name", ruleDetails["ruleName"])
-	d.Set("channel_id", ruleDetails["channelId"])
 	d.Set("category", ruleDetails["category"])
+	d.Set("channel_id", ruleDetails["channelId"])
 	envs := ruleDetails["environmentScope"].(map[string]interface{})["environments"]
 	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
-	securityConfigChangeEventCondition := eventConditions.(map[string]interface{})["securityConfigChangeEventCondition"]
-	if securityConfigChangeEventCondition != nil {
-		securityConfigurationTypes := securityConfigChangeEventCondition.(map[string]interface{})["securityConfigurationTypes"].([]interface{})
-		if len(securityConfigurationTypes) == 0 {
-			d.Set("security_configuration_types", schema.NewSet(schema.HashString, []interface{}{}))
-		} else {
-			d.Set("security_configuration_types", schema.NewSet(schema.HashString, securityConfigurationTypes))
-		}
+	actorSeverityStateChangeEventCondition := eventConditions.(map[string]interface{})["actorSeverityStateChangeEventCondition"]
+	if actorSeverityStateChangeEventCondition != nil {
+		actorSeverities := actorSeverityStateChangeEventCondition.(map[string]interface{})["actorSeverities"].([]interface{})
+		d.Set("actor_severities", schema.NewSet(schema.HashString, actorSeverities))
+		actorIpReputationLevels := actorSeverityStateChangeEventCondition.(map[string]interface{})["actorIpReputationLevels"].([]interface{})
+		d.Set("actor_ip_reputation_levels", schema.NewSet(schema.HashString, actorIpReputationLevels))
 	}
-
 	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency", val)
 	}
 	return nil
 }
 
-func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleActorSeverityChangeUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId := d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	security_configuration_types := d.Get("security_configuration_types").(*schema.Set).List()
+	actor_severities := d.Get("actor_severities").(*schema.Set).List()
+	actor_ip_reputation_levels := d.Get("actor_ip_reputation_levels").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
+
+	actorSeveritiesString := "["
+	for _, v := range actor_severities {
+		actorSeveritiesString += v.(string)
+		actorSeveritiesString += ","
+	}
+	if len(actorSeveritiesString) > 1 {
+		actorSeveritiesString = actorSeveritiesString[:len(actorSeveritiesString)-1]
+	}
+	actorSeveritiesString += "]"
+	if len(actor_severities) == 4 {
+		actorSeveritiesString = ""
+	}
+
+	actorIpRepString := "["
+	for _, v := range actor_ip_reputation_levels {
+		actorIpRepString += v.(string)
+		actorIpRepString += ","
+	}
+	if len(actorIpRepString) > 1 {
+		actorIpRepString = actorIpRepString[:len(actorIpRepString)-1]
+	}
+	actorIpRepString += "]"
+	if len(actor_ip_reputation_levels) == 4 {
+		actorIpRepString = ""
+	}
 
 	frequencyString := ""
 	if notification_frequency != "" {
 		frequencyString = fmt.Sprintf(`rateLimitIntervalDuration: "%s"`, notification_frequency)
 	}
-	envArrayString := "["
-	for _, v := range environments {
-		envArrayString += fmt.Sprintf(`"%s"`, v.(string))
-		envArrayString += ","
-	}
-	envArrayString = envArrayString[:len(envArrayString)-1]
-	envArrayString += "]"
-	envString := fmt.Sprintf(`environmentScope: { environments: %s }`, envArrayString)
+	envString := fmt.Sprintf(`environmentScope: { environments: [%s] }`, common.InterfaceToStringSlice(environments))
 
 	if len(environments) == 0 || (len(environments) == 1 && environments[0] == "") {
 		envString = ""
@@ -207,12 +238,13 @@ func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta
 	query := fmt.Sprintf(`mutation {
 		updateNotificationRule(
 			input: {
-				category: %s
 				ruleId: "%s"
+				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					securityConfigChangeEventCondition: {
-						securityConfigurationTypes: %s
+					actorSeverityStateChangeEventCondition: {
+						actorSeverities: %s
+						actorIpReputationLevels: %s
 					}
 				}
 				channelId: "%s"
@@ -222,9 +254,9 @@ func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta
 		) {
 			ruleId
 		}
-	}`, category, ruleId, name, security_configuration_types, channel_id, frequencyString, envString)
+	}`, ruleId, category, name, actorSeveritiesString, actorIpRepString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -239,14 +271,10 @@ func resourceNotificationRuleProtectionConfigUpdate(d *schema.ResourceData, meta
 	return nil
 }
 
-func resourceNotificationRuleProtectionConfigDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleActorSeverityChangeDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationRule(input: {ruleId: "%s"}) {
-		  success
-		}
-	  }`, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_RULE, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,14 +6,15 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationRulePostureEvents() *schema.Resource {
+func ResourceNotificationRuleThreatActorStatusChange() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRulePostureEventsCreate,
-		Read:   resourceNotificationRulePostureEventsRead,
-		Update: resourceNotificationRulePostureEventsUpdate,
-		Delete: resourceNotificationRulePostureEventsDelete,
+		Create: resourceNotificationRuleThreatActorStatusChangeCreate,
+		Read:   resourceNotificationRuleThreatActorStatusChangeRead,
+		Update: resourceNotificationRuleThreatActorStatusChangeUpdate,
+		Delete: resourceNotificationRuleThreatActorStatusChangeDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,17 +35,9 @@ func resourceNotificationRulePostureEvents() *schema.Resource {
 				Description: "Reporting channel for this notification rule",
 				Required:    true,
 			},
-			"posture_events": {
+			"actor_states": {
 				Type:        schema.TypeSet,
-				Description: "Type of posture event want notification",
-				Required:    true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-			"risk_deltas": {
-				Type:        schema.TypeSet,
-				Description: "Applicable for risk score posture events (INCREASE,DECREASE)",
+				Description: "Actor states for which you want notification",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -59,20 +52,29 @@ func resourceNotificationRulePostureEvents() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "POSTURE_EVENT",
+				Default:     "THREAT_ACTOR_STATE_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	posture_events := d.Get("posture_events").(*schema.Set).List()
-	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
+	actor_states := d.Get("actor_states").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
+
+	actorStatesString := "["
+	for _, v := range actor_states {
+		actorStatesString += v.(string)
+		actorStatesString += ","
+	}
+	if len(actorStatesString) > 1 {
+		actorStatesString = actorStatesString[:len(actorStatesString)-1]
+	}
+	actorStatesString += "]"
 
 	frequencyString := ""
 	if notification_frequency != "" {
@@ -96,9 +98,8 @@ func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta in
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					postureEventCondition: {
-						postureEvents: %s
-						riskDeltas: %s
+					threatActorStateChangeEventCondition: {
+						actorStates: %s
 					}
 				}
 				channelId: "%s"
@@ -108,9 +109,9 @@ func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta in
 		) {
 			ruleId
 		}
-	}`, category, name, posture_events, risk_deltas, channel_id, frequencyString, envString)
+	}`, category, name, actorStatesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -124,44 +125,19 @@ func resourceNotificationRulePostureEventsCreate(d *schema.ResourceData, meta in
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRulePostureEventsRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	readQuery := `{
-	notificationRules {
-		results {
-			ruleId
-			ruleName
-			environmentScope {
-				environments
-			}
-			channelId
-			integrationTarget {
-				type
-				integrationId
-			}
-			category
-			eventConditions {
-				postureEventCondition {
-				postureEvents
-				}
-			}
-			rateLimitIntervalDuration
-			}
-		}
-	}
-	`
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_RULE_READ, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -173,29 +149,37 @@ func resourceNotificationRulePostureEventsRead(d *schema.ResourceData, meta inte
 	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
-	postureEventCondition := eventConditions.(map[string]interface{})["postureEventCondition"]
-	if postureEventCondition != nil {
-		postureEvents := postureEventCondition.(map[string]interface{})["postureEvents"].([]interface{})
-		d.Set("posture_events", schema.NewSet(schema.HashString, postureEvents))
-		if riskDeltas, ok := postureEventCondition.(map[string]interface{})["riskDeltas"].([]interface{}); ok {
-			d.Set("risk_deltas", schema.NewSet(schema.HashString, riskDeltas))
-		}
+	threatActorStateChangeEventCondition := eventConditions.(map[string]interface{})["threatActorStateChangeEventCondition"]
+	if threatActorStateChangeEventCondition != nil {
+		actorStates := threatActorStateChangeEventCondition.(map[string]interface{})["actorStates"].([]interface{})
+		d.Set("actor_states", schema.NewSet(schema.HashString, actorStates))
 	}
+
 	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
 		d.Set("notification_frequency", val)
 	}
+
 	return nil
 }
 
-func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleThreatActorStatusChangeUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId := d.Id()
 	name := d.Get("name").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	channel_id := d.Get("channel_id").(string)
-	posture_events := d.Get("posture_events").(*schema.Set).List()
-	risk_deltas := d.Get("risk_deltas").(*schema.Set).List()
+	actor_states := d.Get("actor_states").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
+
+	actorStatesString := "["
+	for _, v := range actor_states {
+		actorStatesString += v.(string)
+		actorStatesString += ","
+	}
+	if len(actorStatesString) > 1 {
+		actorStatesString = actorStatesString[:len(actorStatesString)-1]
+	}
+	actorStatesString += "]"
 
 	frequencyString := ""
 	if notification_frequency != "" {
@@ -220,9 +204,8 @@ func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta in
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					postureEventCondition: {
-						postureEvents: %s
-						riskDeltas: %s
+					threatActorStateChangeEventCondition: {
+						actorStates: %s
 					}
 				}
 				channelId: "%s"
@@ -232,9 +215,9 @@ func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta in
 		) {
 			ruleId
 		}
-	}`, ruleId, category, name, posture_events, risk_deltas, channel_id, frequencyString, envString)
+	}`, ruleId, category, name, actorStatesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -249,14 +232,10 @@ func resourceNotificationRulePostureEventsUpdate(d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceNotificationRulePostureEventsDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleThreatActorStatusChangeDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationRule(input: {ruleId: "%s"}) {
-		  success
-		}
-	  }`, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_RULE, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceUserAttributionResponseBodyRule() *schema.Resource {
+func ResourceUserAttributionResponseBodyRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceUserAttributionRuleResponseBodyCreate,
 		Read:   resourceUserAttributionRuleResponseBodyRead,

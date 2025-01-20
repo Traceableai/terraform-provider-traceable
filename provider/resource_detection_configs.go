@@ -3,10 +3,10 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/notification"
 	"log"
 	"strings"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceDetectionConfigRule() *schema.Resource {
@@ -152,7 +152,7 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
                                                  environmentScope: { id: "%s" }
                                              }`, environment)
 	}
-	_, rule_crs_id := isPreDefinedThreatEvent(config_name)
+	_, rule_crs_id := notification.IsPreDefinedThreatEvent(config_name)
 	configType := "API_DEFINITION_METADATA"
 	if strings.Contains(rule_crs_id, "crs") {
 		configType = "MODSECURITY"

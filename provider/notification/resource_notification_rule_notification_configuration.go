@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,14 +6,15 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationRuleExcludeRule() *schema.Resource {
+func ResourceNotificationRuleNotificationConfiguration() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleExcludeRuleCreate,
-		Read:   resourceNotificationRuleExcludeRuleRead,
-		Update: resourceNotificationRuleExcludeRuleUpdate,
-		Delete: resourceNotificationRuleExcludeRuleDelete,
+		Create: resourceNotificationRuleNotificationConfigurationCreate,
+		Read:   resourceNotificationRuleNotificationConfigurationRead,
+		Update: resourceNotificationRuleNotificationConfigurationUpdate,
+		Delete: resourceNotificationRuleNotificationConfigurationDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -34,6 +35,14 @@ func resourceNotificationRuleExcludeRule() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"notification_config_types": {
+				Type:        schema.TypeSet,
+				Description: "For which label config change we need notification (NOTIFICATION_CHANNEL/NOTIFICATION_RULE)",
+				Required:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 			"notification_frequency": {
 				Type:        schema.TypeString,
 				Description: "No more than one notification every configured notification_frequency (should be in this format PT1H for 1 hr)",
@@ -43,16 +52,17 @@ func resourceNotificationRuleExcludeRule() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "EXCLUDE_SPAN_RULE_CONFIG_CHANGE_EVENT",
+				Default:     "NOTIFICATION_CONFIG_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleExcludeRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleNotificationConfigurationCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	channel_id := d.Get("channel_id").(string)
 	event_types := d.Get("event_types").(*schema.Set).List()
+	notification_config_types := d.Get("notification_config_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
@@ -66,8 +76,9 @@ func resourceNotificationRuleExcludeRuleCreate(d *schema.ResourceData, meta inte
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					excludeSpanRuleConfigChangeEventCondition: {
-						excludeSpanRuleConfigChangeTypes: %s
+					notificationConfigChangeCondition: {
+						notificationConfigChangeTypes: %s
+						notificationTypes:" %s
 					}
 				}
 				channelId: "%s"
@@ -76,9 +87,9 @@ func resourceNotificationRuleExcludeRuleCreate(d *schema.ResourceData, meta inte
 		) {
 			ruleId
 		}
-	}`, category, name, event_types, channel_id, frequencyString)
+	}`, category, name, event_types, notification_config_types, channel_id, frequencyString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -92,40 +103,19 @@ func resourceNotificationRuleExcludeRuleCreate(d *schema.ResourceData, meta inte
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleExcludeRuleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleNotificationConfigurationRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	readQuery := `{
-	notificationRules {
-		results {
-		ruleId
-		ruleName
-		channelId
-		integrationTarget {
-			type
-			integrationId
-		}
-		category
-		eventConditions {
-			excludeSpanRuleConfigChangeEventCondition {
-			excludeSpanRuleConfigChangeTypes
-			}
-		}
-		rateLimitIntervalDuration
-		}
-	}
-	}`
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_RULE_READ, meta)
 	if err != nil {
-		_ = fmt.Errorf("Error:%s", err)
+		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		_ = fmt.Errorf("Error:%s", err)
+		return fmt.Errorf("error:%s", err)
 	}
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -135,14 +125,12 @@ func resourceNotificationRuleExcludeRuleRead(d *schema.ResourceData, meta interf
 	d.Set("channel_id", ruleDetails["channelId"])
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
-	excludeSpanRuleConfigChangeEventCondition := eventConditions.(map[string]interface{})["excludeSpanRuleConfigChangeEventCondition"]
-	if excludeSpanRuleConfigChangeEventCondition != nil {
-		excludeSpanRuleConfigChangeTypes := excludeSpanRuleConfigChangeEventCondition.(map[string]interface{})["excludeSpanRuleConfigChangeTypes"].([]interface{})
-		if len(excludeSpanRuleConfigChangeTypes) == 0 {
-			d.Set("event_types", schema.NewSet(schema.HashString, []interface{}{}))
-		} else {
-			d.Set("event_types", schema.NewSet(schema.HashString, excludeSpanRuleConfigChangeTypes))
-		}
+	notificationConfigChangeCondition := eventConditions.(map[string]interface{})["notificationConfigChangeCondition"]
+	if notificationConfigChangeCondition != nil {
+		notificationConfigChangeTypes := notificationConfigChangeCondition.(map[string]interface{})["notificationConfigChangeTypes"].([]interface{})
+		notificationTypes := notificationConfigChangeCondition.(map[string]interface{})["notificationTypes"].([]interface{})
+		d.Set("event_types", schema.NewSet(schema.HashString, notificationConfigChangeTypes))
+		d.Set("notification_config_types", schema.NewSet(schema.HashString, notificationTypes))
 	}
 
 	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
@@ -151,11 +139,12 @@ func resourceNotificationRuleExcludeRuleRead(d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceNotificationRuleExcludeRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleNotificationConfigurationUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId := d.Id()
 	name := d.Get("name").(string)
 	channel_id := d.Get("channel_id").(string)
 	event_types := d.Get("event_types").(*schema.Set).List()
+	notification_config_types := d.Get("notification_config_types").(*schema.Set).List()
 	notification_frequency := d.Get("notification_frequency").(string)
 	category := d.Get("category").(string)
 
@@ -170,8 +159,9 @@ func resourceNotificationRuleExcludeRuleUpdate(d *schema.ResourceData, meta inte
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
-					excludeSpanRuleConfigChangeEventCondition: {
-						excludeSpanRuleConfigChangeTypes: %s
+					notificationConfigChangeCondition: {
+						notificationConfigChangeTypes: %s
+						notificationTypes:" %s
 					}
 				}
 				channelId: "%s"
@@ -180,9 +170,9 @@ func resourceNotificationRuleExcludeRuleUpdate(d *schema.ResourceData, meta inte
 		) {
 			ruleId
 		}
-	}`, category, ruleId, name, event_types, channel_id, frequencyString)
+	}`, category, ruleId, name, event_types, notification_config_types, channel_id, frequencyString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -197,14 +187,10 @@ func resourceNotificationRuleExcludeRuleUpdate(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceNotificationRuleExcludeRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleNotificationConfigurationDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationRule(input: {ruleId: "%s"}) {
-		  success
-		}
-	  }`, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_RULE, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

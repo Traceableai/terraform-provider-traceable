@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,9 +6,10 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationChannelRule() *schema.Resource {
+func ResourceNotificationChannelRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNotificationChannelCreate,
 		Read:   resourceNotificationChannelRead,
@@ -228,27 +229,10 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("no channel configuration provided")
 	}
 
-	query := fmt.Sprintf(`mutation {
-		createNotificationChannel(
-			input: {
-				channelName: "%s"
-				notificationChannelConfig: {
-					%s
-					%s
-					%s
-					%s
-					%s
-					%s
-				}
-			}
-		) {
-			channelId
-		}
-	}
-	`, channelName, slackWebhookChannelConfigsQuery, emailChannelConfigsQuery, s3BucketChannelConfigsQuery, splunkIntegrationChannelConfigsQuery, syslogIntegrationChannelConfigsQuery, customWebhookChannelConfigsQuery)
+	query := fmt.Sprintf(CREATE_NOTIFICATION_CHANNEL, channelName, slackWebhookChannelConfigsQuery, emailChannelConfigsQuery, s3BucketChannelConfigsQuery, splunkIntegrationChannelConfigsQuery, syslogIntegrationChannelConfigsQuery, customWebhookChannelConfigsQuery)
 
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -266,58 +250,19 @@ func resourceNotificationChannelCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
-	readQuery := `{
-		notificationChannels {
-			results {
-				channelId
-				channelName
-				notificationChannelConfig {
-					emailChannelConfigs {
-						address
-					}
-					customWebhookChannelConfigs {
-						headers {
-							key
-							value
-							isSecret
-						}
-						customWebhookChannelIndex: id
-						url
-					}
-					slackWebhookChannelConfigs {
-						url
-					}
-					splunkIntegrationChannelConfigs {
-						splunkIntegrationId
-					}
-					syslogIntegrationChannelConfigs {
-						syslogIntegrationId
-					}
-					s3BucketChannelConfigs {
-						bucketName
-						region
-						authenticationCredentialType
-						webIdentityAuthenticationCredential {
-							roleArn	
-						}	
-					}	
-				}	
-			}
-		}
-	}`
+
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_CHANNEL_READ, meta)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		return fmt.Errorf("Error:%s", err)
 	}
 	id := d.Id()
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationChannels", id, "channelId", "channelName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationChannels", id, "channelId", "channelName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -510,28 +455,10 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("no channel configuration provided")
 	}
 
-	query := fmt.Sprintf(`mutation {
-		updateNotificationChannel(
-			input: {
-				channelId: "%s"
-				channelName: "%s"
-				notificationChannelConfig: {
-					%s
-					%s
-					%s
-					%s
-					%s
-					%s
-				}
-			}
-		) {
-			channelId
-		}
-	}
-	`, channel_id, channelName, slackWebhookChannelConfigsQuery, emailChannelConfigsQuery, s3BucketChannelConfigsQuery, splunkIntegrationChannelConfigsQuery, syslogIntegrationChannelConfigsQuery, customWebhookChannelConfigsQuery)
+	query := fmt.Sprintf(UPDATE_NOTIFICATION_CHANNEL, channel_id, channelName, slackWebhookChannelConfigsQuery, emailChannelConfigsQuery, s3BucketChannelConfigsQuery, splunkIntegrationChannelConfigsQuery, syslogIntegrationChannelConfigsQuery, customWebhookChannelConfigsQuery)
 
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error:%s", err)
 	}
@@ -550,16 +477,8 @@ func resourceNotificationChannelUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceNotificationChannelDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationChannel(
-		  input: {channelId: "%s"}
-		) {
-		  success
-		  
-		}
-	  }
-	  `, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_CHANNEL, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}
