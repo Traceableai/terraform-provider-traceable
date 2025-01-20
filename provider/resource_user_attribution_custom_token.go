@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceUserAttributionCustomTokenRule() *schema.Resource {
+func ResourceUserAttributionCustomTokenRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceUserAttributionRuleCustomTokenCreate,
 		Read:   resourceUserAttributionRuleCustomTokenRead,
@@ -105,8 +105,7 @@ func resourceUserAttributionRuleCustomTokenCreate(d *schema.ResourceData, meta i
 		tokenLocationString = fmt.Sprintf(`requestHeaderLocation: { cookieName: "%s", type: COOKIE }`, token_name)
 	}
 
-	var query string
-	query = fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		createUserAttributionRule(
 		  input: {
 		  name: "%s", 
@@ -277,8 +276,7 @@ func resourceUserAttributionRuleCustomTokenUpdate(d *schema.ResourceData, meta i
 		tokenLocationString = fmt.Sprintf(`requestHeaderLocation: { cookieName: "%s", type: COOKIE }`, token_name)
 	}
 
-	var query string
-	query = fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		updateUserAttributionRule(
 		  rule: {
 			id:"%s",

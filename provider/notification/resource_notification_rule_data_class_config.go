@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,9 +6,10 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationRuleDataClassificationConfig() *schema.Resource {
+func ResourceNotificationRuleDataClassificationConfig() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNotificationRuleDataClassificationConfigCreate,
 		Read:   resourceNotificationRuleDataClassificationConfigRead,
@@ -109,7 +110,7 @@ func resourceNotificationRuleDataClassificationConfigCreate(d *schema.ResourceDa
 		}
 	}`, category, name, event_types, sensitive_data_config_types, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -125,39 +126,17 @@ func resourceNotificationRuleDataClassificationConfigCreate(d *schema.ResourceDa
 }
 func resourceNotificationRuleDataClassificationConfigRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	readQuery := `{
-	notificationRules {
-		results {
-		ruleId
-		ruleName
-		channelId
-		integrationTarget {
-			type
-			integrationId
-		}
-		category
-		eventConditions {
-			sensitiveDataConfigChangeCondition {
-			sensitiveDataConfigChangeTypes
-			sensitiveDataConfigTypes
-			}
-		}
-		rateLimitIntervalDuration
-		}
-	}
-	}`
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_RULE_READ, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		return fmt.Errorf("error:%s", err)
 	}
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -227,7 +206,7 @@ func resourceNotificationRuleDataClassificationConfigUpdate(d *schema.ResourceDa
 		}
 	}`, category, ruleId, name, event_types, sensitive_data_config_types, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -244,12 +223,8 @@ func resourceNotificationRuleDataClassificationConfigUpdate(d *schema.ResourceDa
 
 func resourceNotificationRuleDataClassificationConfigDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationRule(input: {ruleId: "%s"}) {
-		  success
-		}
-	  }`, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_RULE, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

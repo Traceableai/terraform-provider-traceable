@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,14 +6,15 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationRuleApiNaming() *schema.Resource {
+func ResourceNotificationRuleExcludeRule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNotificationRuleApiNamingCreate,
-		Read:   resourceNotificationRuleApiNamingRead,
-		Update: resourceNotificationRuleApiNamingUpdate,
-		Delete: resourceNotificationRuleApiNamingDelete,
+		Create: resourceNotificationRuleExcludeRuleCreate,
+		Read:   resourceNotificationRuleExcludeRuleRead,
+		Update: resourceNotificationRuleExcludeRuleUpdate,
+		Delete: resourceNotificationRuleExcludeRuleDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -43,13 +44,13 @@ func resourceNotificationRuleApiNaming() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Type of notification rule",
 				Optional:    true,
-				Default:     "API_NAMING_RULE_CONFIG_CHANGE_EVENT",
+				Default:     "EXCLUDE_SPAN_RULE_CONFIG_CHANGE_EVENT",
 			},
 		},
 	}
 }
 
-func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleExcludeRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	channel_id := d.Get("channel_id").(string)
 	event_types := d.Get("event_types").(*schema.Set).List()
@@ -66,8 +67,8 @@ func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interf
 				category: %s
 				ruleName: "%s"
 				eventConditions: {
-					apiNamingRuleConfigChangeEventCondition: {
-						apiNamingRuleConfigChangeTypes: %s
+					excludeSpanRuleConfigChangeEventCondition: {
+						excludeSpanRuleConfigChangeTypes: %s
 					}
 				}
 				channelId: "%s"
@@ -78,7 +79,7 @@ func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interf
 		}
 	}`, category, name, event_types, channel_id, frequencyString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -92,40 +93,19 @@ func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interf
 	d.SetId(id)
 	return nil
 }
-func resourceNotificationRuleApiNamingRead(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleExcludeRuleRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	readQuery := `{
-	notificationRules {
-		results {
-		ruleId
-		ruleName
-		channelId
-		integrationTarget {
-			type
-			integrationId
-		}
-		category
-		eventConditions {
-			apiNamingRuleConfigChangeEventCondition {
-			apiNamingRuleConfigChangeTypes
-			}
-		}
-		rateLimitIntervalDuration
-		}
-	}
-	}`
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_RULE_READ, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -135,14 +115,13 @@ func resourceNotificationRuleApiNamingRead(d *schema.ResourceData, meta interfac
 	d.Set("channel_id", ruleDetails["channelId"])
 	eventConditions := ruleDetails["eventConditions"]
 	log.Printf("logss %s", eventConditions)
-	apiNamingRuleConfigChangeEventCondition := eventConditions.(map[string]interface{})["apiNamingRuleConfigChangeEventCondition"]
-
-	if apiNamingRuleConfigChangeEventCondition != nil {
-		apiNamingRuleConfigChangeTypes := apiNamingRuleConfigChangeEventCondition.(map[string]interface{})["apiNamingRuleConfigChangeTypes"].([]interface{})
-		if len(apiNamingRuleConfigChangeTypes) == 0 {
+	excludeSpanRuleConfigChangeEventCondition := eventConditions.(map[string]interface{})["excludeSpanRuleConfigChangeEventCondition"]
+	if excludeSpanRuleConfigChangeEventCondition != nil {
+		excludeSpanRuleConfigChangeTypes := excludeSpanRuleConfigChangeEventCondition.(map[string]interface{})["excludeSpanRuleConfigChangeTypes"].([]interface{})
+		if len(excludeSpanRuleConfigChangeTypes) == 0 {
 			d.Set("event_types", schema.NewSet(schema.HashString, []interface{}{}))
 		} else {
-			d.Set("event_types", schema.NewSet(schema.HashString, apiNamingRuleConfigChangeTypes))
+			d.Set("event_types", schema.NewSet(schema.HashString, excludeSpanRuleConfigChangeTypes))
 		}
 	}
 
@@ -152,7 +131,7 @@ func resourceNotificationRuleApiNamingRead(d *schema.ResourceData, meta interfac
 	return nil
 }
 
-func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleExcludeRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	ruleId := d.Id()
 	name := d.Get("name").(string)
 	channel_id := d.Get("channel_id").(string)
@@ -171,8 +150,8 @@ func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interf
 				ruleId: "%s"
 				ruleName: "%s"
 				eventConditions: {
-					apiNamingRuleConfigChangeEventCondition: {
-						apiNamingRuleConfigChangeTypes: %s
+					excludeSpanRuleConfigChangeEventCondition: {
+						excludeSpanRuleConfigChangeTypes: %s
 					}
 				}
 				channelId: "%s"
@@ -183,7 +162,7 @@ func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interf
 		}
 	}`, category, ruleId, name, event_types, channel_id, frequencyString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -198,14 +177,10 @@ func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceNotificationRuleApiNamingDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceNotificationRuleExcludeRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationRule(input: {ruleId: "%s"}) {
-		  success
-		}
-	  }`, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_RULE, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}

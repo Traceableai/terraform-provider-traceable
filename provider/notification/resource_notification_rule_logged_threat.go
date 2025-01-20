@@ -1,4 +1,4 @@
-package provider
+package notification
 
 import (
 	"encoding/json"
@@ -6,9 +6,10 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
-func resourceNotificationRuleLoggedThreatActivity() *schema.Resource {
+func ResourceNotificationRuleLoggedThreatActivity() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceNotificationRuleLoggedThreatActivityCreate,
 		Read:   resourceNotificationRuleLoggedThreatActivityRead,
@@ -128,12 +129,12 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 	threatTypesString := "["
 	for _, v := range threat_types {
 		str := ""
-		if isCustomThreatEvent(v.(string)) {
+		if IsCustomThreatEvent(v.(string)) {
 			str = fmt.Sprintf(`{
 				detectedThreatActivityConditionType: CUSTOM
 				customDetectionCondition: { customDetectionType: %s }
 			}`, v)
-		} else if ok, val := isPreDefinedThreatEvent(v.(string)); ok {
+		} else if ok, val := IsPreDefinedThreatEvent(v.(string)); ok {
 			str = fmt.Sprintf(`{
 				detectedThreatActivityConditionType: PRE_DEFINED
 				preDefinedDetectionCondition: { anomalyRuleId: "%s" }
@@ -184,7 +185,7 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 		}
 	}`, category, name, threatTypesString, severitiesString, impactString, confidenceString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -200,52 +201,17 @@ func resourceNotificationRuleLoggedThreatActivityCreate(d *schema.ResourceData, 
 }
 func resourceNotificationRuleLoggedThreatActivityRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	readQuery := `{
-		notificationRules {
-		  results {
-			ruleId
-			ruleName
-			environmentScope {
-			  environments
-			}
-			channelId
-			integrationTarget {
-			  type
-			  integrationId
-			}
-			category
-			eventConditions {
-			  detectedSecurityEventCondition {
-				detectedThreatActivityConditions {
-				  detectedThreatActivityConditionType
-				  customDetectionCondition {
-					customDetectionType
-				  }
-				  preDefinedDetectionCondition {
-					anomalyRuleId
-				  }
-				}
-				severities
-				impactLevels
-				confidenceLevels
-			  }
-			}
-			rateLimitIntervalDuration
-		  }
-		}
-	  }`
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(readQuery, meta)
+	responseStr, err := common.CallExecuteQuery(NOTIFICATION_RULE_READ, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
@@ -288,7 +254,7 @@ func resourceNotificationRuleLoggedThreatActivityRead(d *schema.ResourceData, me
 				threat_types = append(threat_types, customDetectionType.(string))
 			} else {
 				preDefinedDetectionCondition := val.(map[string]interface{})["preDefinedDetectionCondition"].(map[string]interface{})["anomalyRuleId"]
-				threat_types = append(threat_types, findThreatByCrsId(preDefinedDetectionCondition.(string)))
+				threat_types = append(threat_types, FindThreatByCrsId(preDefinedDetectionCondition.(string)))
 			}
 		}
 		d.Set("threat_types", schema.NewSet(schema.HashString, threat_types))
@@ -348,12 +314,12 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 	threatTypesString := "["
 	for _, v := range threat_types {
 		str := ""
-		if isCustomThreatEvent(v.(string)) {
+		if IsCustomThreatEvent(v.(string)) {
 			str = fmt.Sprintf(`{
 				detectedThreatActivityConditionType: CUSTOM
 				customDetectionCondition: { customDetectionType: %s }
 			}`, v)
-		} else if ok, val := isPreDefinedThreatEvent(v.(string)); ok {
+		} else if ok, val := IsPreDefinedThreatEvent(v.(string)); ok {
 			str = fmt.Sprintf(`{
 				detectedThreatActivityConditionType: PRE_DEFINED
 				preDefinedDetectionCondition: { anomalyRuleId: "%s" }
@@ -405,7 +371,7 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 		}
 	}`, ruleId, category, name, threatTypesString, severitiesString, impactString, confidenceString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
+	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -422,12 +388,8 @@ func resourceNotificationRuleLoggedThreatActivityUpdate(d *schema.ResourceData, 
 
 func resourceNotificationRuleLoggedThreatActivityDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	query := fmt.Sprintf(`mutation {
-		deleteNotificationRule(input: {ruleId: "%s"}) {
-		  success
-		}
-	  }`, id)
-	_, err := ExecuteQuery(query, meta)
+	query := fmt.Sprintf(DELETE_NOTIFICATION_RULE, id)
+	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}
