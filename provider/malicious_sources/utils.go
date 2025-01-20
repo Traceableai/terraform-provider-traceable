@@ -61,7 +61,6 @@ func ReturnMalicousSourcesExipiryDuration(exipiry string) string {
 	return exipiryDurationString
 }
 
-
 func SetInjectedHeaders(ruleDetails map[string]interface{}) []map[string]interface{} {
 	injectedHeaders := []map[string]interface{}{}
 	if ruleEffect, ok := ruleDetails["effects"].(map[string]interface{}); ok {

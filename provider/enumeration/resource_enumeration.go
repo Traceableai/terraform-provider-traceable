@@ -493,12 +493,12 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 		thresholdConfigData := thresholdConfig.(map[string]interface{})
 		thresholdConfigType := thresholdConfigData["threshold_config_type"]
 		sensitiveParamEvaluationType := thresholdConfigData["sensitive_param_evaluation_type"].(string)
-		if (thresholdConfigType == "REQUEST_BODY" || thresholdConfigType=="PATH_PARAMS") && sensitiveParamEvaluationType != "" {
+		if (thresholdConfigType == "REQUEST_BODY" || thresholdConfigType == "PATH_PARAMS") && sensitiveParamEvaluationType != "" {
 			return fmt.Errorf("not valid here sensitive_param_evaluation_type")
 		} else if thresholdConfigType == "SENSITIVE_PARAMS" {
 			if sensitiveParamEvaluationType == "" {
 				return fmt.Errorf("required sensitive_param_evaluation_type for SENSITIVE_PARAMS threshold_config_type")
-			}else if sensitiveParamEvaluationType == "SELECTED_DATA_TYPES" && isDataTypesConditionsEmpty {
+			} else if sensitiveParamEvaluationType == "SELECTED_DATA_TYPES" && isDataTypesConditionsEmpty {
 				return fmt.Errorf("no data types selected")
 			}
 		}
@@ -578,14 +578,14 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY,ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY, ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	responseStr, err := common.CallExecuteQuery(createEnumerationQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", createEnumerationQuery)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"")
+	id, err := common.GetIdFromResponse(responseStr, "")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -596,7 +596,7 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	var response map[string]interface{}
-	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES,ENUMERATION_QUERY_KEY)
+	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES, ENUMERATION_QUERY_KEY)
 	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
@@ -643,25 +643,25 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				uniqueValuesAllowed = valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
 				duration = valueBasedThresholdConfig["duration"].(string)
 				thresholdConfigType = valueBasedThresholdConfig["valueType"].(string)
-				if sensitiveParamsEvaluationType,ok := thresholdConfigData["sensitiveParamsEvaluationType"].(string); ok{
-					sensitiveParamsEvaluationTypeVal=sensitiveParamsEvaluationType
+				if sensitiveParamsEvaluationType, ok := thresholdConfigData["sensitiveParamsEvaluationType"].(string); ok {
+					sensitiveParamsEvaluationTypeVal = sensitiveParamsEvaluationType
 				}
 			}
-			if sensitiveParamsEvaluationTypeVal==""{
+			if sensitiveParamsEvaluationTypeVal == "" {
 				thresholdConfigDataMap = map[string]interface{}{
-					"api_aggregate_type":                thresholdConfigData["apiAggregateType"].(string),
-					"user_aggregate_type":                thresholdConfigData["userAggregateType"].(string),
+					"api_aggregate_type":    thresholdConfigData["apiAggregateType"].(string),
+					"user_aggregate_type":   thresholdConfigData["userAggregateType"].(string),
 					"threshold_config_type": thresholdConfigType,
-					"unique_values_allowed":      uniqueValuesAllowed,
-					"duration":           duration,
+					"unique_values_allowed": uniqueValuesAllowed,
+					"duration":              duration,
 				}
-			}else{
+			} else {
 				thresholdConfigDataMap = map[string]interface{}{
-					"api_aggregate_type":                thresholdConfigData["apiAggregateType"].(string),
-					"user_aggregate_type":                thresholdConfigData["userAggregateType"].(string),
-					"threshold_config_type": thresholdConfigType,
-					"unique_values_allowed":      uniqueValuesAllowed,
-					"duration":           duration,
+					"api_aggregate_type":              thresholdConfigData["apiAggregateType"].(string),
+					"user_aggregate_type":             thresholdConfigData["userAggregateType"].(string),
+					"threshold_config_type":           thresholdConfigType,
+					"unique_values_allowed":           uniqueValuesAllowed,
+					"duration":                        duration,
 					"sensitive_param_evaluation_type": sensitiveParamsEvaluationTypeVal,
 				}
 			}
@@ -811,15 +811,15 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 			dataSetsIds := dataTypeConditionMap["datasetIds"].([]interface{})
 			datatypeIds := dataTypeConditionMap["datatypeIds"].([]interface{})
 			location := "REQUEST_RESPONSE"
-			if dataLocation,ok := dataTypeConditionMap["dataLocation"].(string); ok {
-				location=dataLocation
+			if dataLocation, ok := dataTypeConditionMap["dataLocation"].(string); ok {
+				location = dataLocation
 			}
 			dataTypeConditionsObj := map[string]interface{}{
 				"data_type_ids": datatypeIds,
 				"data_sets_ids": dataSetsIds,
 				"data_location": location,
 			}
-			finalDataTypeConditionState = append(finalDataTypeConditionState, dataTypeConditionsObj)			
+			finalDataTypeConditionState = append(finalDataTypeConditionState, dataTypeConditionsObj)
 
 		case "REQUEST_SCANNER_TYPE":
 			requestScannerTypeCondition := leafCondition["requestScannerTypeCondition"].(map[string]interface{})
@@ -1026,14 +1026,14 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY,ENUMERATION_QUERY_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, ENUMERATION_QUERY_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", updateRateLimitQuery)
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateRateLimitingRule")
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}

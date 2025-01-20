@@ -174,7 +174,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 	} else if scopeType == "CUSTOM" {
 
 		if scopedQuery == "" {
-			return fmt.Errorf("Provide enviroment or url regex for custom scoped user attribution or remove one of them")
+			return fmt.Errorf("provide enviroment or url regex for custom scoped user attribution or remove one of them")
 		}
 		query = fmt.Sprintf(`mutation {
 			createUserAttributionRule(
@@ -208,7 +208,7 @@ func resourceUserAttributionRuleJwtAuthCreate(d *schema.ResourceData, meta inter
 			}
 		  }`, name, category, authTypeQuery, jwt_location, location_key, jwt_key, tokenCaptureGroup, userIdLocationString, roleLocationString, user_role_claim, user_id_claim, scopedQuery)
 	} else {
-		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
+		return fmt.Errorf("expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
 
 	var response map[string]interface{}
@@ -417,7 +417,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 	} else if scopeType == "CUSTOM" {
 
 		if scopedQuery == "" {
-			return fmt.Errorf("Provide enviroment or url regex for custom scoped user attribution or remove one of them")
+			return fmt.Errorf("provide enviroment or url regex for custom scoped user attribution or remove one of them")
 		}
 		query = fmt.Sprintf(`mutation {
 			updateUserAttributionRule(
@@ -450,7 +450,7 @@ func resourceUserAttributionRuleJwtAuthUpdate(d *schema.ResourceData, meta inter
 			}
 		  }`, id, rank, name, category, authTypeQuery, jwt_location, location_key, jwt_key, tokenCaptureGroup, userIdLocationString, roleLocationString, user_role_claim, user_id_claim, scopedQuery)
 	} else {
-		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
+		return fmt.Errorf("expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
 
 	var response map[string]interface{}

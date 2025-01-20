@@ -232,7 +232,7 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 	allow_expiry_duration := d.Get("allow_expiry_duration").(string)
 
 	disabled := d.Get("disabled").(bool)
-	
+
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
 
@@ -263,9 +263,9 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func ResourceCustomSignatureAllowDelete(d *schema.ResourceData, meta interface{}) error {
-	err := DeleteCustomSignatureRule(d,meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	err := DeleteCustomSignatureRule(d, meta)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	return nil
 }

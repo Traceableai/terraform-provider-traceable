@@ -9,12 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApiExclusionRule() *schema.Resource {
+func ResourceApiExclusionRule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApiExclusionRuleCreate,
-		Read:   resourceApiExclusionRuleRead,
-		Update: resourceApiExclusionRuleUpdate,
-		Delete: resourceApiExclusionRuleDelete,
+		Create: ResourceApiExclusionRuleCreate,
+		Read:   ResourceApiExclusionRuleRead,
+		Update: ResourceApiExclusionRuleUpdate,
+		Delete: ResourceApiExclusionRuleDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -47,7 +47,7 @@ func resourceApiExclusionRule() *schema.Resource {
 		},
 	}
 }
-func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) error {
+func ResourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
 	regexes := d.Get("regexes").(string)
@@ -56,11 +56,6 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 
 	var spanFilters []string
 
-	// Checking if env name list is (empty -> all env case)
-	environmentNames, ok := d.Get("environment_names").([]interface{})
-	if !ok {
-		fmt.Println("environment_names is not a valid []interface{} type")
-	}
 	if len(environmentNames) > 0 {
 		firstElement, ok := environmentNames[0].(string) // Proper type assertion
 		if ok && firstElement != "" {
@@ -71,14 +66,9 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 			fmt.Println("The first environment name is empty or not a string")
 		}
 	} else {
-		fmt.Println("The environment_names list is empty")
+		fmt.Println("the environment_names list is empty")
 	}
 
-	// Checking if service name list is (empty -> all services case)
-	serviceNames, ok2 := d.Get("service_names").([]interface{})
-	if !ok2 {
-		fmt.Println("service_names is not a valid []interface{} type")
-	}
 	if len(serviceNames) > 0 {
 		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
 		if ok2 && firstElement != "" {
@@ -101,22 +91,25 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
+	}
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error while uunmarshling response str: %s", err)
 	}
 
 	if response["data"] != nil && response["data"].(map[string]interface{})["createExcludeSpanRule"] != nil {
 		id := response["data"].(map[string]interface{})["createExcludeSpanRule"].(map[string]interface{})["id"].(string)
 		d.SetId(id)
 	} else {
-		return fmt.Errorf(responseStr)
+		return fmt.Errorf("error %s", responseStr)
 	}
 
 	return nil
 }
 
-func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) error {
+func ResourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 
 	query := `{excludeSpanRules{results{id name disabled spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{relationalOperator key value field}}}}}}}`
@@ -173,7 +166,7 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+func ResourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id() // Retrieve the ID of the resource
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
@@ -183,11 +176,6 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 
 	var spanFilters []string
 
-	// Checking if env name list is (empty -> all env case)
-	environmentNames, ok := d.Get("environment_names").([]interface{})
-	if !ok {
-		fmt.Println("environment_names is not a valid []interface{} type")
-	}
 	if len(environmentNames) > 0 {
 		firstElement, ok := environmentNames[0].(string) // Proper type assertion
 		if ok && firstElement != "" {
@@ -201,11 +189,6 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 		fmt.Println("The environment_names list is empty")
 	}
 
-	// Checking if service name list is (empty -> all services case)
-	serviceNames, ok2 := d.Get("service_names").([]interface{})
-	if !ok2 {
-		fmt.Println("service_names is not a valid []interface{} type")
-	}
 	if len(serviceNames) > 0 {
 		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
 		if ok2 && firstElement != "" {
@@ -229,12 +212,12 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
 
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error parsing JSON response from update operation: %s", err)	
+		return fmt.Errorf("error parsing JSON response from update operation: %s", err)
 	}
 
 	if response["data"] == nil || response["data"].(map[string]interface{})["updateExcludeSpanRule"] == nil {
@@ -251,19 +234,19 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	return nil
 }
-func resourceApiExclusionRuleDelete(d *schema.ResourceData, meta interface{}) error {
+func ResourceApiExclusionRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id() // Retrieve the ID of the resource to delete
 
 	query := fmt.Sprintf(`mutation{deleteExcludeSpanRule(input:{id:%q}){success __typename}}`, id)
 
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL mutation for deletion: %s", err)
+		return fmt.Errorf("error while executing GraphQL mutation for deletion: %s", err)
 	}
 
 	var response map[string]interface{}
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
-		return fmt.Errorf("Error parsing JSON response: %s", err)
+		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
 
 	// Check the success field from the response to ensure the deletion was processed correctly

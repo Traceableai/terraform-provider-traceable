@@ -2,7 +2,7 @@ package data_classification
 
 const (
 	VALUE_PATTERN_QUERY = `valuePattern: { operator: %s, value: "%s" }`
-	ENV_SCOPED_QUERY = `scope: {
+	ENV_SCOPED_QUERY    = `scope: {
 						type: ENVIRONMENT
 						environmentScope: {
 							environmentIds: [%s]

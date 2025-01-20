@@ -79,11 +79,14 @@ func resourceNotificationRuleApiNamingCreate(d *schema.ResourceData, meta interf
 	}`, category, name, event_types, channel_id, frequencyString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	id := response["data"].(map[string]interface{})["createNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)
@@ -181,11 +184,14 @@ func resourceNotificationRuleApiNamingUpdate(d *schema.ResourceData, meta interf
 	}`, category, ruleId, name, event_types, channel_id, frequencyString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	id := response["data"].(map[string]interface{})["updateNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)

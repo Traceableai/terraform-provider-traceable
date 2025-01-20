@@ -3,11 +3,11 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
+	"strings"
 )
 
 func ResourceIpRangeRuleAlert() *schema.Resource {
@@ -37,7 +37,7 @@ func ResourceIpRangeRuleAlert() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed",
 				Optional:    true,
-				Default: "RULE_ACTION_ALERT",
+				Default:     "RULE_ACTION_ALERT",
 			},
 			"environment": {
 				Type:        schema.TypeSet,
@@ -69,16 +69,16 @@ func resourceIpRangeRuleAlertCreate(d *schema.ResourceData, meta interface{}) er
 
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(CREATE_IP_RANGE_ALERT,name,strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","),rule_action,description,event_severity,envQuery)
+	query := fmt.Sprintf(CREATE_IP_RANGE_ALERT, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, event_severity, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createIpRangeRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "createIpRangeRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(id)
 	return nil
@@ -111,9 +111,9 @@ func resourceIpRangeRuleAlertRead(d *schema.ResourceData, meta interface{}) erro
 	} else {
 		d.Set("event_severity", nil)
 	}
-	
+
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	
+
 	rawIpRangeData := ruleDetails["rawIpRangeData"].([]interface{})
 	d.Set("raw_ip_range_data", rawIpRangeData)
 
@@ -121,8 +121,8 @@ func resourceIpRangeRuleAlertRead(d *schema.ResourceData, meta interface{}) erro
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			}else{
-				d.Set("environment",[]interface{}{})
+			} else {
+				d.Set("environment", []interface{}{})
 			}
 		}
 	}
@@ -140,22 +140,22 @@ func resourceIpRangeRuleAlertUpdate(d *schema.ResourceData, meta interface{}) er
 
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(UPDATE_IP_RANGE_ALERT,id,name,strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","),rule_action,description,event_severity,envQuery)
+	query := fmt.Sprintf(UPDATE_IP_RANGE_ALERT, id, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, event_severity, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateIpRangeRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateIpRangeRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(updatedId)
 	return nil
 }
 
 func resourceIpRangeRuleAlertDelete(d *schema.ResourceData, meta interface{}) error {
-	DeleteIPRangeRule(d,meta)
+	DeleteIPRangeRule(d, meta)
 	return nil
 }

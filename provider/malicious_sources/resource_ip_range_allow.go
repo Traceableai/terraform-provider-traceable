@@ -3,11 +3,11 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
+	"strings"
 )
 
 func ResourceIpRangeRuleAllow() *schema.Resource {
@@ -32,7 +32,7 @@ func ResourceIpRangeRuleAllow() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed",
 				Optional:    true,
-				Default: "RULE_ACTION_ALLOW",
+				Default:     "RULE_ACTION_ALLOW",
 			},
 			"expiration": {
 				Type:        schema.TypeString,
@@ -102,16 +102,16 @@ func resourceIpRangeRuleAllowCreate(d *schema.ResourceData, meta interface{}) er
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(CREATE_IP_RANGE_ALLOW,name,strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","),rule_action,description,finalAgentEffectQuery,exipiryDurationString,envQuery)
+	query := fmt.Sprintf(CREATE_IP_RANGE_ALLOW, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, finalAgentEffectQuery, exipiryDurationString, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createIpRangeRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "createIpRangeRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(id)
 	return nil
@@ -138,7 +138,7 @@ func resourceIpRangeRuleAllowRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("description", ruleDetails["description"].(string))
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	
+
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
 	expiration, ok := ruleDetails["expiration"].(string)
 	if ok {
@@ -154,8 +154,8 @@ func resourceIpRangeRuleAllowRead(d *schema.ResourceData, meta interface{}) erro
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			}else{
-				d.Set("environment",[]interface{}{})
+			} else {
+				d.Set("environment", []interface{}{})
 			}
 		}
 	}
@@ -178,22 +178,22 @@ func resourceIpRangeRuleAllowUpdate(d *schema.ResourceData, meta interface{}) er
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(UPDATE_IP_RANGE_ALLOW,id,name,strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","),rule_action,description,exipiryDurationString,finalAgentEffectQuery,envQuery)
+	query := fmt.Sprintf(UPDATE_IP_RANGE_ALLOW, id, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, exipiryDurationString, finalAgentEffectQuery, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateIpRangeRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateIpRangeRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(updatedId)
 	return nil
 }
 
 func resourceIpRangeRuleAllowDelete(d *schema.ResourceData, meta interface{}) error {
-	DeleteIPRangeRule(d,meta)
+	DeleteIPRangeRule(d, meta)
 	return nil
 }

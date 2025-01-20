@@ -108,14 +108,17 @@ func resourceNotificationRuleThreatActorStatusChangeCreate(d *schema.ResourceDat
 		) {
 			ruleId
 		}
-	}`,category,name,actorStatesString,channel_id,frequencyString,envString)
+	}`, category, name, actorStatesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	id := response["data"].(map[string]interface{})["createNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)
@@ -158,26 +161,26 @@ func resourceNotificationRuleThreatActorStatusChangeRead(d *schema.ResourceData,
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	ruleDetails:=GetRuleDetailsFromRulesListUsingIdName(response,"notificationRules" ,id,"ruleId","ruleName")
-	if len(ruleDetails)==0{
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
+	if len(ruleDetails) == 0 {
 		d.SetId("")
 		return nil
 	}
-	d.Set("name",ruleDetails["ruleName"])
-	d.Set("category",ruleDetails["category"])
-	d.Set("channel_id",ruleDetails["channelId"])
-	envs:=ruleDetails["environmentScope"].(map[string]interface{})["environments"]
-	d.Set("environments",schema.NewSet(schema.HashString,envs.([]interface{})))
-	eventConditions:=ruleDetails["eventConditions"]
-	log.Printf("logss %s",eventConditions)
-	threatActorStateChangeEventCondition:=eventConditions.(map[string]interface{})["threatActorStateChangeEventCondition"]
-	if threatActorStateChangeEventCondition!=nil{
-		actorStates:=threatActorStateChangeEventCondition.(map[string]interface{})["actorStates"].([]interface{})
-		d.Set("actor_states",schema.NewSet(schema.HashString,actorStates))
+	d.Set("name", ruleDetails["ruleName"])
+	d.Set("category", ruleDetails["category"])
+	d.Set("channel_id", ruleDetails["channelId"])
+	envs := ruleDetails["environmentScope"].(map[string]interface{})["environments"]
+	d.Set("environments", schema.NewSet(schema.HashString, envs.([]interface{})))
+	eventConditions := ruleDetails["eventConditions"]
+	log.Printf("logss %s", eventConditions)
+	threatActorStateChangeEventCondition := eventConditions.(map[string]interface{})["threatActorStateChangeEventCondition"]
+	if threatActorStateChangeEventCondition != nil {
+		actorStates := threatActorStateChangeEventCondition.(map[string]interface{})["actorStates"].([]interface{})
+		d.Set("actor_states", schema.NewSet(schema.HashString, actorStates))
 	}
 
-	if val,ok := ruleDetails["rateLimitIntervalDuration"]; ok {
-		d.Set("notification_frequency",val)
+	if val, ok := ruleDetails["rateLimitIntervalDuration"]; ok {
+		d.Set("notification_frequency", val)
 	}
 
 	return nil
@@ -236,14 +239,17 @@ func resourceNotificationRuleThreatActorStatusChangeUpdate(d *schema.ResourceDat
 		) {
 			ruleId
 		}
-	}`,ruleId,category,name,actorStatesString,channel_id,frequencyString,envString)
+	}`, ruleId, category, name, actorStatesString, channel_id, frequencyString, envString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	id := response["data"].(map[string]interface{})["updateNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)

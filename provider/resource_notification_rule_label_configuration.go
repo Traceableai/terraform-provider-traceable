@@ -89,11 +89,14 @@ func resourceNotificationRuleLabelConfigurationCreate(d *schema.ResourceData, me
 	}`, category, name, event_types, label_types, channel_id, frequencyString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error:%s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error:%s", err)
 	}
 	id := response["data"].(map[string]interface{})["createNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)
@@ -125,13 +128,13 @@ func resourceNotificationRuleLabelConfigurationRead(d *schema.ResourceData, meta
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(readQuery, meta)
 	if err != nil {
-		_ = fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		_ = fmt.Errorf("Error:%s", err)
+		return fmt.Errorf("error:%s", err)
 	}
 	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationRules", id, "ruleId", "ruleName")
 	if len(ruleDetails) == 0 {
@@ -191,11 +194,14 @@ func resourceNotificationRuleLabelConfigurationUpdate(d *schema.ResourceData, me
 	}`, category, ruleId, name, event_types, label_types, channel_id, frequencyString)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error: %s", err)
+	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return fmt.Errorf("error: %s", err)
 	}
 	id := response["data"].(map[string]interface{})["updateNotificationRule"].(map[string]interface{})["ruleId"].(string)
 	d.SetId(id)

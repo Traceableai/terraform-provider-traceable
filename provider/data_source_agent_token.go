@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceAgentToken() *schema.Resource {
+func DataSourceAgentToken() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAgentTokenRead,
+		Read: DataSourceAgentTokenRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -41,20 +41,20 @@ func dataSourceAgentToken() *schema.Resource {
 	}
 }
 
-func dataSourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
+func DataSourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 
 	query := `{agentTokenMetadata {results {id name createdBy creationTimestamp lastUsedTimestamp __typename}}}`
 
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
 
 	var response map[string]interface{}
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error while parsing GraphQL response: %s", err)
+		return fmt.Errorf("error while parsing GraphQL response: %s", err)
 	}
 
 	if results, ok := response["data"].(map[string]interface{})["agentTokenMetadata"].(map[string]interface{})["results"].([]interface{}); ok {
@@ -72,7 +72,7 @@ func dataSourceAgentTokenRead(d *schema.ResourceData, meta interface{}) error {
 				return nil
 			}
 		}
-		return fmt.Errorf("No agent token found with name %s", name)
+		return fmt.Errorf("no agent token found with name %s", name)
 	}
 
 	return nil

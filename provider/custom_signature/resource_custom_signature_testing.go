@@ -141,7 +141,7 @@ func ResourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
 
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
-	finalAttributeBasedConditionsQuery,_ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
+	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
 		return fmt.Errorf("please provide on of finalReqResConditionsQuery or custom_sec_rule")
@@ -300,7 +300,7 @@ func ResourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
 
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
-	finalAttributeBasedConditionsQuery,_ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
+	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
 		return fmt.Errorf("please provide on of finalReqResConditionsQuery or custom_sec_rule")
 	}
@@ -328,9 +328,9 @@ func ResourceCustomSignatureTestingUpdate(d *schema.ResourceData, meta interface
 }
 
 func ResourceCustomSignatureTestingDelete(d *schema.ResourceData, meta interface{}) error {
-	err := DeleteCustomSignatureRule(d,meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	err := DeleteCustomSignatureRule(d, meta)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	return nil
 }

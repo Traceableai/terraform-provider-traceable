@@ -1,7 +1,7 @@
 package rate_limiting
 
 const (
-  RATE_LIMIT_QUERY_KEY = "ENDPOINT_RATE_LIMITING"
+	RATE_LIMIT_QUERY_KEY       = "ENDPOINT_RATE_LIMITING"
 	RATE_LIMITING_CREATE_QUERY = `mutation {
                                       createRateLimitingRule(
                                           rateLimitingRuleData: {
@@ -64,7 +64,7 @@ const (
                                         name
                                     }
                                 }`
-  
+
 	DELETE_RATE_LIMIT_QUERY = `mutation {
                                     deleteRateLimitingRule(id: "%s") {
                                         success
@@ -471,7 +471,7 @@ const (
                                    }
                                }`
 
-  DATA_LOCATION_STRING = `dataLocation: %s`
+	DATA_LOCATION_STRING        = `dataLocation: %s`
 	DATA_TYPES_CONDITIONS_QUERY = `{
                     leafCondition: {
                         conditionType: DATATYPE
