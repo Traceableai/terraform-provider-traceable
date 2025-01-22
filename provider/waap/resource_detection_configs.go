@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/notification"
@@ -116,7 +115,7 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
 	fetchedWaapConfig := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "anomalyDetectionRuleConfigs", crs_id, "ruleId", "ruleName")
 
 	disabled := fetchedWaapConfig["configStatus"].(map[string]interface{})["disabled"].(bool)
-	ruleId := notification.FindThreatByCrsId(fetchedWaapConfig["ruleId"].(string))
+	ruleId := notification.FindThreatByCrsId(crs_id)
 	subRuleConfigs := fetchedWaapConfig["subRuleConfigs"].([]interface{})
 	anomalySubRuleAction := ""
 	for _, subRuleConfig := range subRuleConfigs {
