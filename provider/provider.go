@@ -7,6 +7,7 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/enumeration"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
+	"github.com/traceableai/terraform-provider-traceable/provider/waap"
 )
 
 func Provider() *schema.Provider {
@@ -59,7 +60,7 @@ func Provider() *schema.Provider {
 			"traceable_label_creation_rule":      resourceLabelCreationRule(),
 			"traceable_rate_limiting_block":      rate_limiting.ResourceRateLimitingRuleBlock(),
 			"traceable_enumeration_rule":         enumeration.ResourceEnumerationRule(),
-			"traceable_detection_policies":       resourceDetectionConfigRule(),
+			"traceable_waap_policies":            waap.ResourceDetectionConfigRule(),
 			"traceable_custom_signature_allow":   custom_signature.ResourceCustomSignatureAllowRule(),
 			"traceable_custom_signature_block":   custom_signature.ResourceCustomSignatureBlockRule(),
 			"traceable_custom_signature_alert":   custom_signature.ResourceCustomSignatureAlertRule(),
