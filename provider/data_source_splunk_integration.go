@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSplunkIntegration() *schema.Resource {
+func DataSourceSplunkIntegration() *schema.Resource {
 	return &schema.Resource{
-		Read:   dataSourceSplunkIntegrationRead,
+		Read: DataSourceSplunkIntegrationRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -26,8 +27,8 @@ func dataSourceSplunkIntegration() *schema.Resource {
 	}
 }
 
-func dataSourceSplunkIntegrationRead(d *schema.ResourceData, meta interface{}) error {
-	name:=d.Get("name").(string)
+func DataSourceSplunkIntegrationRead(d *schema.ResourceData, meta interface{}) error {
+	name := d.Get("name").(string)
 	query := `{
 		splunkIntegrations {
 		  results {
@@ -37,9 +38,9 @@ func dataSourceSplunkIntegrationRead(d *schema.ResourceData, meta interface{}) e
 			httpEventCollectorUrl
 		  }
 		}
-	  }`	  
+	  }`
 
-	responseStr, err := executeQuery(query, meta)
+	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
@@ -49,15 +50,14 @@ func dataSourceSplunkIntegrationRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return fmt.Errorf("error parsing JSON response: %s", err)
 	}
-	log.Printf("this is the gql response %s",response)
-	ruleDetails:=getRuleDetailsFromRulesListUsingIdName(response,"splunkIntegrations" ,name)
-	if len(ruleDetails)==0{
-		return fmt.Errorf("No rules found with name %s",name)
+	log.Printf("this is the gql response %s", response)
+	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "splunkIntegrations", name)
+	if len(ruleDetails) == 0 {
+		return fmt.Errorf("no rules found with name %s", name)
 	}
-	splunkId:=ruleDetails["id"].(string)
-	log.Printf("Rule found with name %s",splunkId)
-	d.Set("splunk_id",splunkId)
+	splunkId := ruleDetails["id"].(string)
+	log.Printf("Rule found with name %s", splunkId)
+	d.Set("splunk_id", splunkId)
 	d.SetId(splunkId)
 	return nil
 }
-
