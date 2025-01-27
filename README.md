@@ -19,6 +19,39 @@ go mod tidy
 go build -o terraform-provider-traceable
 ```
 
+## Plugin set up (to run locally)
+
+Inside `~/.terraform.d` directory
+
+Create a new directory path for terraform provider, where Terraform will look for local provider plugins.
+
+```markdown
+mkdir -p plugins/terraform.local/local/traceable/0.0.1/darwin_amd64/
+```
+
+Move provider binary `terraform-provider-traceable` to this directory ```plugins/terraform.local/local/traceable/0.0.1/darwin_amd64/```
+`darwin_amd64` this should match with your os arch
+
+Add provider binary path to your `.terraformrc` (if not exist create and paste below lines) to run it locally
+
+```markdown
+provider_installation {
+  filesystem_mirror {
+    path    = "/Users/<USER>/.terraform.d/plugins"
+  }
+  direct {
+    exclude = ["terraform.local/*/*"]
+  }
+}
+```
+
+Initialize a Terraform working directory and Apply the changes.
+
+```markdown
+terraform init
+terraform apply
+```
+
 ## Traceable provider
 
 #### Example usage:
@@ -68,41 +101,3 @@ resource "traceable_ip_range_rule" "my_ip_range" {
 ##### Optional:
 - `expiration`: (string) expiration time of the rule (this attribute don't apply on `RULE_ACTION_ALERT`, don't pass this attribute if we need to block or allow indefinetly)
 - `description`: (string) description of the rule
-
-## Plugin set up (to run locally)
-
-Inside `~/.terraform.d` directory
-
-Create a new directory path for a custom Terraform provider, where Terraform will look for local provider plugins.
-
-```markdown
-mkdir -p plugins/terraform.local/local/traceable/0.0.1/darwin_amd64/
-```
-
-Move provider binary `terraform-provider-traceable` to this directory ```plugins/terraform.local/local/traceable/0.0.1/darwin_amd64/```
-`darwin_amd64` this should match with your os arch
-
-Add provider binary path to your `.terraformrc` (if not exist create and paste below lines) to run it locally
-
-```markdown
-provider_installation {
-  filesystem_mirror {
-    path    = "/Users/<USER>/.terraform.d/plugins"
-  }
-  direct {
-    exclude = ["terraform.local/*/*"]
-  }
-}
-```
-
-Initialize a Terraform working directory and Apply the changes.
-
-```markdown
-terraform init
-terraform apply
-```
-
-
-
-
-
