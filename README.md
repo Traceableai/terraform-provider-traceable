@@ -16,14 +16,14 @@ cd traceable-terraform-provider
 Install packages and build
 ```markdown
 go mod tidy
-go build -o terraform-provider-example
+go build -o terraform-provider-traceable
 ```
 
 ## Traceable provider
 
 #### Example usage:
 ```markdown
-provider "example" {
+provider "traceable" {
   platform_url=""
   api_token=""
 }
@@ -42,7 +42,7 @@ provider "example" {
 #### Example usage:
 
 ```markdown
-resource "example_ip_range_rule" "my_ip_range" {
+resource "traceable_ip_range_rule" "my_ip_range" {
     name     = "first_rule_2"
     rule_action     = "RULE_ACTION_ALERT"
     event_severity     = "LOW"
@@ -76,11 +76,11 @@ Inside `~/.terraform.d` directory
 Create a new directory path for a custom Terraform provider, where Terraform will look for local provider plugins.
 
 ```markdown
-mkdir -p plugins/terraform.local/local/example/0.0.1/darwin_amd64/
+mkdir -p plugins/terraform.local/local/traceable/0.0.1/darwin_amd64/
 ```
 
-Move provider binary `terraform-provider-example` to this directory ```plugins/terraform.local/local/example/0.0.1/darwin_amd64/```
-
+Move provider binary `terraform-provider-traceable` to this directory ```plugins/terraform.local/local/traceable/0.0.1/darwin_amd64/```
+`darwin_amd64` this should match with your os arch
 
 Add provider binary path to your `.terraformrc` (if not exist create and paste below lines) to run it locally
 
