@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+
+func CheckEmptySegments(segments []interface{}) bool {
+	for _,seg := range segments{
+		if seg == "" {
+			return false
+		}
+	}
+	return true
+}
 func convertToStringSlicetype(input interface{}) []string {
 	var output []string
 	switch v := input.(type) {
