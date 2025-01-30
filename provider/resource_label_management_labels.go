@@ -16,9 +16,9 @@ func resourceLabelCreationRule() *schema.Resource {
 		Delete: resourceLabelCreationRuleDelete,
 
 		Schema: map[string]*schema.Schema{
-			"key": {
+			"name": {
 				Type:        schema.TypeString,
-				Description: "The key of the label",
+				Description: "The name of the label",
 				Required:    true,
 			},
 			"description": {
@@ -67,7 +67,7 @@ func resourceLabelCreationRuleCreate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	return fmt.Errorf("could not create label Creation rule, no ID returned")
+	return fmt.Errorf("label exist with same name")
 }
 
 func resourceLabelCreationRuleRead(d *schema.ResourceData, meta interface{}) error {
