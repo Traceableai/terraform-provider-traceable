@@ -98,8 +98,7 @@ func ResourceCustomSignatureBlockRule() *schema.Resource {
 			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
-				Optional:    true,
-				Default:     false,
+				Required:    true,
 			},
 			"alert_severity": {
 				Type:        schema.TypeString,
@@ -115,7 +114,7 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
 	environments := d.Get("environments").(*schema.Set).List()
-	// 	disabled := d.Get("disabled").(bool)
+	disabled := d.Get("disabled").(bool)
 	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	alert_severity := d.Get("alert_severity").(string)
@@ -133,7 +132,7 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	customSecRuleQuery := ReturnCustomSecRuleQuery(custom_sec_rule)
 	exipiryDurationString := ReturnExipiryDuration(block_expiry_duration)
 
-	query := fmt.Sprintf(BLOCK_CREATE_QUERY, name, description, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
+	query := fmt.Sprintf(BLOCK_CREATE_QUERY, name, description,disabled, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)

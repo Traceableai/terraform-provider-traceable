@@ -34,6 +34,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: { eventType: %s, effects: [] ,eventSeverity: %s}
                                             internal: false
                                             ruleDefinition: {
@@ -93,6 +94,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: {
                                                 eventType: %s,
                                                 effects: [
@@ -152,6 +154,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: { eventType: %s, effects: [] }
                                             internal: false
                                             ruleDefinition: {
@@ -314,6 +317,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: {
                                                 eventType: %s,
                                                 effects: [
