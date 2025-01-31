@@ -50,7 +50,7 @@ func ResourceIpTypeRuleAlert() *schema.Resource {
 			},
 			"ip_types": {
 				Type:        schema.TypeSet,
-				Description: "Ip types to include for the rule",
+				Description: "Ip types to include for the rule among ANONYMOUS VPN,HOSTING PROVIDER,PUBLIC PROXY,TOR EXIT NODE,BOT",
 				Required:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
