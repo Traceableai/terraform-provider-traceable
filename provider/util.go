@@ -10,10 +10,10 @@ import (
 func CheckEmptySegments(segments []interface{}) bool {
 	for _,seg := range segments{
 		if seg == "" {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }
 func convertToStringSlicetype(input interface{}) []string {
 	var output []string
