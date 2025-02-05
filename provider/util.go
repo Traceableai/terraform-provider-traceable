@@ -9,7 +9,7 @@ import (
 
 func CheckEmptySegments(segments []interface{}) bool {
 	for _,seg := range segments{
-		if seg == "" {
+		if seg == nil {
 			return true
 		}
 	}
