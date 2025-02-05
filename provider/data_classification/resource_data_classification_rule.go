@@ -35,7 +35,7 @@ func ResourceDataClassification() *schema.Resource {
 			"data_sets": {
 				Type:        schema.TypeList,
 				Description: "List of Data sets  Id for this data type",
-				Required:    true,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

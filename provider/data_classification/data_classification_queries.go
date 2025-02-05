@@ -42,7 +42,7 @@ const (
 					}
 				}`
 
-	ENV_OVERRIDES_QUERY = `environmentScope: { environmentIds: [%s] }`
+	ENV_OVERRIDES_QUERY = `environmentScope: { environmentIds: %s }`
 
 	CREATE_OVERRIDES_QUERY = `mutation {
 		createDataClassificationOverride(

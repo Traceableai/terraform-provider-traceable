@@ -57,7 +57,7 @@ func Provider() *schema.Provider {
 			// "traceable_notification_rule_data_class_configuration":        notification.ResourceNotificationRuleDataClassificationConfig(),
 			// "traceable_notification_rule_posture_events":                  notification.ResourceNotificationRulePostureEvents(),
 			"traceable_api_naming_rule":          ResourceApiNamingRule(),
-			"traceable_label_creation_rule":      resourceLabelCreationRule(),
+			"label_management_label_creation":      resourceLabelCreationRule(),
 			"traceable_rate_limiting_block":      rate_limiting.ResourceRateLimitingRuleBlock(),
 			"traceable_enumeration_rule":         enumeration.ResourceEnumerationRule(),
 			"traceable_waap_policies":            waap.ResourceDetectionConfigRule(),

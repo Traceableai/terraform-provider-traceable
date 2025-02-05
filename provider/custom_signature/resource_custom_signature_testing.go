@@ -120,8 +120,7 @@ func ResourceCustomSignatureTestingRule() *schema.Resource {
 			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
-				Optional:    true,
-				Default:     false,
+				Required:    true,
 			},
 		},
 	}
@@ -132,7 +131,7 @@ func ResourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
 	description := d.Get("description").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	rule_type := d.Get("rule_type").(string)
-	// 	disabled := d.Get("disabled").(bool)
+	disabled := d.Get("disabled").(bool)	
 	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
@@ -151,7 +150,7 @@ func ResourceCustomSignatureTestingCreate(d *schema.ResourceData, meta interface
 
 	finalAgentEffectQuery := ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(TEST_CREATE_QUERY, name, description, rule_type, finalAgentEffectQuery, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
+	query := fmt.Sprintf(TEST_CREATE_QUERY, name, description,disabled, rule_type, finalAgentEffectQuery, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)

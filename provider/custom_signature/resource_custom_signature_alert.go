@@ -120,8 +120,7 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
-				Optional:    true,
-				Default:     false,
+				Required:    true,
 			},
 			"alert_severity": {
 				Type:        schema.TypeString,
@@ -136,6 +135,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	name := d.Get("name").(string)
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
+	disabled := d.Get("disabled").(bool)
 	environments := d.Get("environments").(*schema.Set).List()
 	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
@@ -155,7 +155,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	customSecRuleQuery := ReturnCustomSecRuleQuery(custom_sec_rule)
 	finalAgentEffectQuery := ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(ALERT_CREATE_QUERY, name, description, rule_type, finalAgentEffectQuery, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
+	query := fmt.Sprintf(ALERT_CREATE_QUERY, name, description,disabled, rule_type, finalAgentEffectQuery, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
