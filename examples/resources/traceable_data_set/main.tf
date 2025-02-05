@@ -39,6 +39,7 @@ variable "icon_type" {
 
 
 
+
 provider "traceable" {
   platform_url =var.platform_url
   api_token    =var.traceable_api_key

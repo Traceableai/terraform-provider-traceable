@@ -1,66 +1,128 @@
 package test
 
 import (
-	"fmt"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	// "log
 	"os"
 	"testing"
-	"time"
+	"fmt"
+	"github.com/traceableai/terraform-provider-traceable/test/testlog"
+
+	
 )
 
-func TestDataSetsRuleCreation(t *testing.T) {
-	t.Parallel() // it makes the test case running paralledl
+var names = []string{"test-dataset-a","test-dataset-b"}
+var descriptions = []string{"Test dataset 1","Test dataset 2"}
+var iconTypes = []string{"Setting","dashboard"}
 
-	// Generate a unique name for parallel test runs
-	uniqueName := fmt.Sprintf("test-dataset-%d", time.Now().Unix())
+func generateTestCases() []struct {
+	name        string
+	description string
+	iconType    string
+} {
 
-	traceAPIKEy := os.Getenv("TRACEABLE_API_KEY")
-	pLATFORMURL := os.Getenv("PLATFORM_URL")
-
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../../examples/resources/traceable_data_set",
-
-		Vars: map[string]interface{}{
-			"name":              uniqueName,
-			"description":       "Test dataset for integration testing",
-			"icon_type":         "Setting",
-			"traceable_api_key": traceAPIKEy,
-			"platform_url":      pLATFORMURL,
-		},
+	var testCases []struct {
+		name        string
+		description string
+		iconType    string
 	}
 
-	// it is doing apply and create
-	terraform.InitAndApply(t, terraformOptions)
+	for _, n := range names {
+		for _, d := range descriptions {
+			for _, i := range iconTypes {
+				testCases = append(testCases, struct {
+					name        string
+					description string
+					iconType    string
+				}{
+					name:      n,
+					description: d,
+					iconType:    i,
+				})
+			}
+		}
+	}
 
-	//after create getting state
-	datasetName := terraform.Output(t, terraformOptions, "dataset_name")
-	datasetDescription := terraform.Output(t, terraformOptions, "dataset_description")
-	datasetIconType := terraform.Output(t, terraformOptions, "dataset_icon_type")
+	return testCases
+}
 
-	// check the actual state with desired state
-	assert.Equal(t, uniqueName, datasetName)
-	assert.Equal(t, "Test dataset for integration testing", datasetDescription)
-	assert.Equal(t, "Setting", datasetIconType)
+func TestDataSetsRuleCreation(t *testing.T) {
+  logger:=testlog.Logger
 
-	newDescription := "Updated test dataset description"
-	terraformOptions.Vars["description"] = newDescription
+	
 
-	// it is doing update
-	terraform.Apply(t, terraformOptions)
 
-	updatedDescription := terraform.Output(t, terraformOptions, "dataset_description")
 
-	assert.Equal(t, newDescription, updatedDescription)
 
-	terraform.Destroy(t, terraformOptions)
 
-	_ = terraform.Output(t, terraformOptions, "dataset_id")
+	t.Parallel() // enables parallel execution of the test case
+	t.Log("Test TestDataSetsRuleCreation is running")
+	t.Log(t.Name())
+	traceAPIKey := os.Getenv("TRACEABLE_API_KEY")
+	platformURL := os.Getenv("PLATFORM_URL")
 
+	tests := generateTestCases()
+
+
+	
+
+	// Define table-driven test cases
+
+	// Iterate through the test cases
+	for _, tt := range tests {
+
+		
+		t.Run(fmt.Sprintf(" Name:%s,Description:%s,IconType:%s",tt.name, tt.description, tt.iconType), func(t *testing.T) {
+			// Apply Terraform to create resources
+			logger.SetTestName(fmt.Sprintf("%s Name:%s,Description:%s,IconType:%s", t.Name(),tt.name, tt.description, tt.iconType))
+
+
+			terraformOptions := &terraform.Options{
+				TerraformDir: "../../examples/resources/traceable_data_set",
+				Vars: map[string]interface{}{
+					"name":              tt.name,
+					"description":       tt.description,
+					"icon_type":         tt.iconType,
+					"traceable_api_key": traceAPIKey,
+					"platform_url":      platformURL,
+					
+				},
+			}
+
+			logger.Log("Starting terraform init and apply")
+			terraform.InitAndApply(t, terraformOptions)
+
+			// Verify created resources
+			logger.Log("Verifying created resources")
+			datasetName := terraform.Output(t, terraformOptions, "dataset_name")
+			datasetDescription := terraform.Output(t, terraformOptions, "dataset_description")
+			datasetIconType := terraform.Output(t, terraformOptions, "dataset_icon_type")
+
+			// Assert the created resource properties
+			logger.Log(fmt.Sprintf("Verifying outputs - Name: %s, Description: %s, IconType: %s", datasetName, datasetDescription, datasetIconType))
+			require.Equal(t, tt.description, datasetDescription,"description should be same after creating")
+			require.Equal(t, tt.iconType, datasetIconType,"icon type should be same after creating")
+
+			// Apply updates to resources
+			// logger.Printf("Starting update phase")
+			terraformOptions.Vars["description"] = "new description"
+			terraform.Apply(t, terraformOptions)
+    
+			// Verify the updated description
+			updatedDescription := terraform.Output(t, terraformOptions, "dataset_description")
+			require.Equal(t, "new description", updatedDescription,"description should be same after updating")
+
+			// Destroy the resources after the test
+			terraform.Destroy(t, terraformOptions)
+			// logger.Log("Verifying updated description: %s", updatedDescription)
+			
+		})
+	}
 }
 
 // this type of test cases we are using for negative test case
-func TestDataSetsRuleValidation(t *testing.T) {
+func TestDataSetsRuleValidation1(t *testing.T) {
 	t.Parallel()
 
 	terraformOptions := &terraform.Options{
@@ -75,5 +137,5 @@ func TestDataSetsRuleValidation(t *testing.T) {
 	}
 
 	_, err := terraform.InitAndApplyE(t, terraformOptions)
-	assert.Error(t, err)
+	require.Error(t, err)
 }

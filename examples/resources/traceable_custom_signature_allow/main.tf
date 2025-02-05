@@ -66,6 +66,7 @@ resource "traceable_custom_signature_allow" "cs_allow" {
   description           = var.description
   environments          = var.environments
   allow_expiry_duration = var.allow_expiry_duration
+  disabled = true
 
   dynamic "req_res_conditions" {
     for_each = var.req_res_conditions
@@ -76,6 +77,7 @@ resource "traceable_custom_signature_allow" "cs_allow" {
       match_value    = req_res_conditions.value.match_value
     }
   }
+
 }
 
 

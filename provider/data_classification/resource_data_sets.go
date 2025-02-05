@@ -71,6 +71,7 @@ func ResourceDataSetsRuleRead(rData *schema.ResourceData, meta interface{}) erro
 		rData.SetId("")
 		return nil
 	}
+	
 	rData.Set("name", ruleData["name"].(string))
 	rData.Set("description", ruleData["description"].(string))
 	rData.Set("iconType", ruleData["iconType"].(string))
