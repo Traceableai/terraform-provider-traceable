@@ -7,7 +7,6 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
 	"log"
-	"strings"
 )
 
 func ResourceRegionRuleAlert() *schema.Resource {
@@ -55,6 +54,23 @@ func ResourceRegionRuleAlert() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"inject_request_headers": {
+				Type:        schema.TypeList,
+				Description: "Inject Data in Request header?",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"header_key": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"header_value": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -66,10 +82,15 @@ func resourceRegionRuleAlertCreate(d *schema.ResourceData, meta interface{}) err
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
 	environment := d.Get("environment").(*schema.Set).List()
+	injectRequestHeaders := d.Get("inject_request_headers").([]interface{})
 
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-
-	query := fmt.Sprintf(CREATE_REGION_RULE_ALERT, name, strings.Join(common.InterfaceToStringSlice(regions), ","), rule_action, description, event_severity, envQuery)
+	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(injectRequestHeaders)
+	regionIds,ok := MapCountryNameToRegionId(regions,meta)
+	if ok != nil {
+		return fmt.Errorf("error: %s", ok)
+	}
+	query := fmt.Sprintf(CREATE_REGION_RULE_ALERT, name, common.InterfaceToStringSlice(regionIds), rule_action, description, event_severity,finalAgentEffectQuery, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
@@ -101,29 +122,36 @@ func resourceRegionRuleAlertRead(d *schema.ResourceData, meta interface{}) error
 		d.SetId("")
 		return nil
 	}
-	ruleDetails := ruleData["ruleDetails"].(map[string]interface{})
-	d.Set("name", ruleDetails["name"].(string))
-	d.Set("description", ruleDetails["description"].(string))
-	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	event_severity, ok := ruleDetails["eventSeverity"].(string)
+	d.Set("name", ruleData["name"].(string))
+	d.Set("description", ruleData["description"].(string))
+	d.Set("rule_action", ruleData["type"].(string))
+	event_severity, ok := ruleData["eventSeverity"]
 	if ok {
 		d.Set("event_severity", event_severity)
 	} else {
-		d.Set("event_severity", nil)
+		d.Set("event_severity","")
 	}
-	d.Set("rule_action", ruleDetails["ruleAction"].(string))
 
-	rawIpRangeData := ruleDetails["rawIpRangeData"].([]interface{})
-	d.Set("regions", rawIpRangeData)
+	finalRegionsState := []interface{}{}
+	regionsData := ruleData["regions"].([]interface{})
+	for _,regions := range regionsData{
+		regionsMap := regions.(map[string]interface{})
+		countryName := regionsMap["name"].(string)
+		finalRegionsState=append(finalRegionsState, countryName)
+	}
+	d.Set("regions", finalRegionsState)
 
+	envFlag := false
 	if ruleScope, ok := ruleData["ruleScope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			} else {
-				d.Set("environment", []interface{}{})
-			}
+				envFlag = true
+			} 
 		}
+	}
+	if !envFlag{
+		d.Set("environment",[]interface{}{})
 	}
 	return nil
 }
@@ -136,10 +164,14 @@ func resourceRegionRuleAlertUpdate(d *schema.ResourceData, meta interface{}) err
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
 	environment := d.Get("environment").(*schema.Set).List()
-
+	injectRequestHeaders := d.Get("inject_request_headers").([]interface{})
+	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(injectRequestHeaders)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-
-	query := fmt.Sprintf(UPDATE_REGION_RULE_ALERT, id, name, strings.Join(common.InterfaceToStringSlice(regions), ","), rule_action, description, event_severity, envQuery)
+	regionIds,ok := MapCountryNameToRegionId(regions,meta)
+	if ok != nil {
+		return fmt.Errorf("error: %s", ok)
+	}
+	query := fmt.Sprintf(UPDATE_REGION_RULE_ALERT, id, name, common.InterfaceToStringSlice(regionIds), rule_action, description, event_severity,finalAgentEffectQuery, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)

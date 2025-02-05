@@ -41,7 +41,7 @@ func ResourceIpTypeRuleAlert() *schema.Resource {
 				Required:    true,
 			},
 			"environment": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Description: "environment where it will be applied",
 				Required:    true,
 				Elem: &schema.Schema{
@@ -49,7 +49,7 @@ func ResourceIpTypeRuleAlert() *schema.Resource {
 				},
 			},
 			"ip_types": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Description: "Ip types to include for the rule among ANONYMOUS VPN,HOSTING PROVIDER,PUBLIC PROXY,TOR EXIT NODE,BOT",
 				Required:    true,
 				Elem: &schema.Schema{
@@ -63,10 +63,10 @@ func ResourceIpTypeRuleAlert() *schema.Resource {
 func resourceIpTypeRuleAlertCreate(d *schema.ResourceData, meta interface{}) error {
 	event_severity := d.Get("event_severity").(string)
 	name := d.Get("name").(string)
-	ip_types := d.Get("ip_types").(*schema.Set).List()
+	ip_types := d.Get("ip_types").([]interface{})
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	environment := d.Get("environment").(*schema.Set).List()
+	environment := d.Get("environment").([]interface{})
 
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
@@ -107,21 +107,24 @@ func resourceIpTypeRuleAlertRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("description", ruleDetails["description"].(string))
 	if action, ok := ruleDetails["action"].(map[string]interface{}); ok {
 		d.Set("event_severity", action["eventSeverity"])
-		d.Set("rule_action", ruleDetails["ruleActionType"].(string))
+		d.Set("rule_action", action["ruleActionType"].(string))
 	}
 
-	condition := ruleData["conditions"].([]interface{})[0].(map[string]interface{})
+	condition := ruleDetails["conditions"].([]interface{})[0].(map[string]interface{})
 	ipLocationTypeCondition := condition["ipLocationTypeCondition"].(map[string]interface{})
 	d.Set("ip_types", ipLocationTypeCondition["ipLocationTypes"].([]interface{}))
 
+	envFlag := true
 	if ruleScope, ok := ruleData["scope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			} else {
-				d.Set("environment", []interface{}{})
+				envFlag = false
 			}
 		}
+	}
+	if envFlag{
+		d.Set("environment", []interface{}{})
 	}
 	return nil
 }
@@ -130,14 +133,14 @@ func resourceIpTypeRuleAlertUpdate(d *schema.ResourceData, meta interface{}) err
 	id := d.Id()
 	event_severity := d.Get("event_severity").(string)
 	name := d.Get("name").(string)
-	ip_types := d.Get("ip_types").(*schema.Set).List()
+	ip_types := d.Get("ip_types").([]interface{})
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	environment := d.Get("environment").(*schema.Set).List()
+	environment := d.Get("environment").([]interface{})
 
-	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
+	envQuery := ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(UPDATE_IP_TYPE_ALERT, id, name, description, event_severity, rule_action, strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
+	query := fmt.Sprintf(UPDATE_IP_TYPE_ALERT, id, name, description, event_severity, rule_action, common.InterfaceToEnumStringSlice(ip_types), envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)

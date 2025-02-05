@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"encoding/json"
 )
 
 func DeleteIPRangeRule(d *schema.ResourceData, meta interface{}) error {
@@ -45,6 +46,44 @@ func ReturnEmailFraudScoreQuery(sev string) string {
 	}
 	return finalQuery
 }
+func GetCountryId(countries []interface{}, region string) (string,error){
+	for _,country := range countries{
+		countryData := country.(map[string]interface{})
+		cName := countryData["name"].(string)
+		cId := countryData["id"].(string)
+		if cName == region{
+			return cId,nil
+		}
+	}
+	return "",fmt.Errorf("no id found with name %s",region)
+}
+func MapCountryNameToRegionId(regions []interface{},meta interface{}) ([]interface{},error){
+	regionResponseStr, fetchRegionQueryErr := common.CallExecuteQuery(FETCH_REGION_ID, meta)
+	regionIds := []interface{}{}
+	if fetchRegionQueryErr != nil {
+		return regionIds,fetchRegionQueryErr
+	}
+	var response map[string]interface{}
+	err := json.Unmarshal([]byte(regionResponseStr), &response)
+	if err != nil {
+		return regionIds,err
+	}
+	responseData, ok := response["data"].(map[string]interface{})
+	if !ok{
+		return regionIds,fmt.Errorf("unexpected response in countries graphql")
+	}
+
+	countries := responseData["countries"].(map[string]interface{})
+	countiresMap := countries["results"].([]interface{})
+	for _,region := range regions{
+		cId,matchErr := GetCountryId(countiresMap,region.(string))
+		if matchErr!=nil{
+			return regionIds,matchErr
+		}
+		regionIds = append(regionIds, cId)
+	}
+	return regionIds,nil
+}
 
 func ReturnExipiryDuration(exipiry string) string {
 	exipiryDurationString := ""
@@ -78,4 +117,19 @@ func SetInjectedHeaders(ruleDetails map[string]interface{}) []map[string]interfa
 		}
 	}
 	return injectedHeaders
+}
+func ReturnEnvScopedQuery(environments []interface{}) string {
+	envQuery := ""
+	if len(environments) != 0 {
+		envQuery = fmt.Sprintf(ENVIRONMENT_SCOPE_QUERY, common.InterfaceToStringSlice(environments))
+	}
+	return envQuery
+}
+
+func RegionRuleExpiryString(expiration string) string {
+	exipiryDurationString := ""
+	if expiration != "" {
+		exipiryDurationString = fmt.Sprintf(`duration : "%s"`,expiration)
+	}
+	return exipiryDurationString
 }

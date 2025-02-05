@@ -7,7 +7,6 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
 	"log"
-	"strings"
 )
 
 func ResourceIpRangeRuleAlert() *schema.Resource {
@@ -69,7 +68,7 @@ func resourceIpRangeRuleAlertCreate(d *schema.ResourceData, meta interface{}) er
 
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(CREATE_IP_RANGE_ALERT, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, event_severity, envQuery)
+	query := fmt.Sprintf(CREATE_IP_RANGE_ALERT, name, common.InterfaceToStringSlice(raw_ip_range_data), rule_action, description, event_severity, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)
@@ -105,11 +104,11 @@ func resourceIpRangeRuleAlertRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("description", ruleDetails["description"].(string))
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	event_severity, ok := ruleDetails["eventSeverity"].(string)
+	event_severity, ok := ruleDetails["eventSeverity"]
 	if ok {
 		d.Set("event_severity", event_severity)
 	} else {
-		d.Set("event_severity", nil)
+		d.Set("event_severity", "")
 	}
 
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
@@ -117,14 +116,17 @@ func resourceIpRangeRuleAlertRead(d *schema.ResourceData, meta interface{}) erro
 	rawIpRangeData := ruleDetails["rawIpRangeData"].([]interface{})
 	d.Set("raw_ip_range_data", rawIpRangeData)
 
-	if ruleScope, ok := ruleData["ruleScope"].(map[string]interface{}); ok {
+	envFlag := true
+	if ruleScope, ok := ruleDetails["ruleScope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			} else {
-				d.Set("environment", []interface{}{})
+				envFlag = false
 			}
 		}
+	}
+	if envFlag{
+		d.Set("environment", []interface{}{})
 	}
 	return nil
 }
@@ -140,7 +142,7 @@ func resourceIpRangeRuleAlertUpdate(d *schema.ResourceData, meta interface{}) er
 
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(UPDATE_IP_RANGE_ALERT, id, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, event_severity, envQuery)
+	query := fmt.Sprintf(UPDATE_IP_RANGE_ALERT, id, name, common.InterfaceToStringSlice(raw_ip_range_data), rule_action, description, event_severity, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)

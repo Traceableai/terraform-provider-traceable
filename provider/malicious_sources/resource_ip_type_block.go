@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
@@ -74,23 +72,6 @@ func ResourceIpTypeRuleBlock() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"inject_request_headers": {
-				Type:        schema.TypeList,
-				Description: "Inject Data in Request header?",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"header_key": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"header_value": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
 		},
 	}
 }
@@ -102,14 +83,12 @@ func resourceIpTypeRuleBlockCreate(d *schema.ResourceData, meta interface{}) err
 	ip_types := d.Get("ip_types").(*schema.Set).List()
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	inject_request_headers := d.Get("inject_request_headers").([]interface{})
 	environment := d.Get("environment").(*schema.Set).List()
 
 	exipiryDurationString := ReturnMalicousSourcesExipiryDuration(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(CREATE_IP_TYPE_BLOCK, name, description, event_severity, rule_action, exipiryDurationString, finalAgentEffectQuery, strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
+	query := fmt.Sprintf(CREATE_IP_TYPE_BLOCK, name, description, event_severity, rule_action, exipiryDurationString, common.InterfaceToEnumStringSlice(ip_types), envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
@@ -146,45 +125,32 @@ func resourceIpTypeRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("description", ruleDetails["description"].(string))
 	if action, ok := ruleDetails["action"].(map[string]interface{}); ok {
 		d.Set("event_severity", action["eventSeverity"])
-		d.Set("rule_action", ruleDetails["ruleActionType"].(string))
+		d.Set("rule_action", action["ruleActionType"].(string))
+		expirationFlag := true
 		if expirationDetails, ok := action["expirationDetails"].(map[string]interface{}); ok {
 			d.Set("expiration", expirationDetails["expirationDuration"].(string))
-		} else {
-			d.Set("expiration", "")
+			expirationFlag = false
+		} 
+		if expirationFlag {
+			d.Set("expiration","")
 		}
-		injectedHeaders := []map[string]interface{}{}
-		if ruleEffects, ok := action["effects"].([]interface{}); ok {
-			for _, ruleEffect := range ruleEffects {
-				ruleEffectMap := ruleEffect.(map[string]interface{})
-				if agentEffect, ok := ruleEffectMap["agentEffect"].(map[string]interface{}); ok {
-					if agentModifications, ok := agentEffect["agentModifications"].([]interface{}); ok {
-						for _, agentModification := range agentModifications {
-							agentModificationMap := agentModification.(map[string]interface{})
-							injectedHeader := map[string]interface{}{
-								"header_key":   agentModificationMap["headerInjection"].(map[string]interface{})["key"].(string),
-								"header_value": agentModificationMap["headerInjection"].(map[string]interface{})["value"].(string),
-							}
-							injectedHeaders = append(injectedHeaders, injectedHeader)
-						}
-					}
-				}
-			}
-		}
-		d.Set("inject_request_headers", injectedHeaders)
 	}
 
-	condition := ruleData["conditions"].([]interface{})[0].(map[string]interface{})
+	condition := ruleDetails["conditions"].([]interface{})[0].(map[string]interface{})
 	ipLocationTypeCondition := condition["ipLocationTypeCondition"].(map[string]interface{})
 	d.Set("ip_types", ipLocationTypeCondition["ipLocationTypes"].([]interface{}))
 
-	if ruleScope, ok := ruleData["scope"].(map[string]interface{}); ok {
+	envFlag := true
+	if ruleScope, ok := ruleDetails["scope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			} else {
-				d.Set("environment", []interface{}{})
-			}
+				envFlag =false
+			} 
 		}
+	}
+	if envFlag {
+		d.Set("environment", []interface{}{})
 	}
 	return nil
 }
@@ -197,14 +163,12 @@ func resourceIpTypeRuleBlockUpdate(d *schema.ResourceData, meta interface{}) err
 	ip_types := d.Get("ip_types").(*schema.Set).List()
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	inject_request_headers := d.Get("inject_request_headers").([]interface{})
 	environment := d.Get("environment").(*schema.Set).List()
 
 	exipiryDurationString := ReturnMalicousSourcesExipiryDuration(expiration)
-	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
+	envQuery := ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(UPDATE_IP_TYPE_BLOCK, id, name, description, event_severity, rule_action, exipiryDurationString, finalAgentEffectQuery, strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
+	query := fmt.Sprintf(UPDATE_IP_TYPE_BLOCK, id, name, description, event_severity, rule_action, exipiryDurationString,common.InterfaceToEnumStringSlice(ip_types), envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)

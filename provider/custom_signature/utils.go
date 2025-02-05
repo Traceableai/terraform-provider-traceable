@@ -18,13 +18,9 @@ func EscapeString(input string) string {
 }
 
 func ReturnEnvScopedQuery(environments []interface{}) string {
-	var envList []string
-	for _, env := range environments {
-		envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
-	}
 	envQuery := ""
 	if len(environments) != 0 {
-		envQuery = fmt.Sprintf(ENVIRONMENT_SCOPE_QUERY, strings.Join(envList, ","))
+		envQuery = fmt.Sprintf(ENVIRONMENT_SCOPE_QUERY, common.InterfaceToStringSlice(environments))
 	}
 	return envQuery
 }
