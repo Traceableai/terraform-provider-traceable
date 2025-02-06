@@ -83,9 +83,8 @@ func resourceRegionRuleAlertCreate(d *schema.ResourceData, meta interface{}) err
 	description := d.Get("description").(string)
 	environment := d.Get("environment").(*schema.Set).List()
 	injectRequestHeaders := d.Get("inject_request_headers").([]interface{})
-
-	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(injectRequestHeaders)
+	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 	regionIds,ok := MapCountryNameToRegionId(regions,meta)
 	if ok != nil {
 		return fmt.Errorf("error: %s", ok)
@@ -153,6 +152,8 @@ func resourceRegionRuleAlertRead(d *schema.ResourceData, meta interface{}) error
 	if !envFlag{
 		d.Set("environment",[]interface{}{})
 	}
+	injectedHeader := SetInjectedHeaders(ruleData)
+	d.Set("inject_request_headers",injectedHeader)
 	return nil
 }
 

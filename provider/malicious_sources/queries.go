@@ -26,7 +26,7 @@ const (
                 action: {
                     eventSeverity: %s
                     ruleActionType: %s
-                    effects: []
+                    effects: [%s]
                 }
                 conditions: [
                     {
@@ -51,7 +51,7 @@ const (
                 info: {
                     name: "%s"
                     description: "%s"
-                    action: { eventSeverity: %s, ruleActionType: %s, effects: [] }
+                    action: { eventSeverity: %s, ruleActionType: %s, effects: [%s] }
                     conditions: [
                         {
                             conditionType: IP_LOCATION_TYPE
@@ -452,7 +452,7 @@ UPDATE_IP_TYPE_BLOCK = `mutation {
                 ruleAction: %s
                 description: "%s"
                 eventSeverity: %s
-                effects: []
+                effects: [%s]
             }
 			%s
         }
@@ -471,7 +471,7 @@ UPDATE_IP_TYPE_BLOCK = `mutation {
                 ruleAction: %s
                 description: "%s"
                 eventSeverity: %s
-                effects: []
+                effects: [%s]
             }
 			%s
         }
