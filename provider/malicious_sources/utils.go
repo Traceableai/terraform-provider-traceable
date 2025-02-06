@@ -1,10 +1,11 @@
 package malicious_sources
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
-	"encoding/json"
 )
 
 func DeleteIPRangeRule(d *schema.ResourceData, meta interface{}) error {
@@ -76,7 +77,7 @@ func MapCountryNameToRegionId(regions []interface{},meta interface{}) ([]interfa
 	countries := responseData["countries"].(map[string]interface{})
 	countiresMap := countries["results"].([]interface{})
 	for _,region := range regions{
-		cId,matchErr := GetCountryId(countiresMap,region.(string))
+		cId,matchErr := GetCountryId(countiresMap,strings.ToLower(region.(string)))
 		if matchErr!=nil{
 			return regionIds,matchErr
 		}
