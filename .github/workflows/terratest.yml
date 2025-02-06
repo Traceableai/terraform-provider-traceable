@@ -44,7 +44,7 @@ jobs:
         pip3 install --upgrade pip
         pip3 install junit2html
 
-    - name: Install dependencies
+    - name: Verify installations
       run: |
         terraform --version
         python3  --version
