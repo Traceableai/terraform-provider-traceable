@@ -155,7 +155,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	customSecRuleQuery := ReturnCustomSecRuleQuery(custom_sec_rule)
 	finalAgentEffectQuery := ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(ALERT_CREATE_QUERY, name, description,disabled, rule_type, finalAgentEffectQuery, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
+	query := fmt.Sprintf(ALERT_CREATE_QUERY, name, description, disabled, rule_type, finalAgentEffectQuery, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)

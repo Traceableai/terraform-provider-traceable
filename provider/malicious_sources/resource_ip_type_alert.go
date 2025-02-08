@@ -88,7 +88,7 @@ func resourceIpTypeRuleAlertCreate(d *schema.ResourceData, meta interface{}) err
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(injectRequestHeaders)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(CREATE_IP_TYPE_ALERT, name, description, event_severity, rule_action,finalAgentEffectQuery, strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
+	query := fmt.Sprintf(CREATE_IP_TYPE_ALERT, name, description, event_severity, rule_action, finalAgentEffectQuery, strings.Join(common.InterfaceToEnumStringSlice(ip_types), ","), envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
@@ -141,11 +141,11 @@ func resourceIpTypeRuleAlertRead(d *schema.ResourceData, meta interface{}) error
 			}
 		}
 	}
-	if envFlag{
+	if envFlag {
 		d.Set("environment", []interface{}{})
 	}
 	injectedHeader := SetInjectedHeaders(ruleData)
-	d.Set("inject_request_headers",injectedHeader)
+	d.Set("inject_request_headers", injectedHeader)
 	return nil
 }
 
@@ -161,7 +161,7 @@ func resourceIpTypeRuleAlertUpdate(d *schema.ResourceData, meta interface{}) err
 	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(injectRequestHeaders)
 	envQuery := ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(UPDATE_IP_TYPE_ALERT, id, name, description, event_severity, rule_action,finalAgentEffectQuery, common.InterfaceToEnumStringSlice(ip_types), envQuery)
+	query := fmt.Sprintf(UPDATE_IP_TYPE_ALERT, id, name, description, event_severity, rule_action, finalAgentEffectQuery, common.InterfaceToEnumStringSlice(ip_types), envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)

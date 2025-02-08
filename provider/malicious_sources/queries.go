@@ -1,7 +1,7 @@
 package malicious_sources
 
 const (
-    FETCH_REGION_ID=`query Countries {
+	FETCH_REGION_ID = `query Countries {
     countries {
         results {
             id
@@ -42,8 +42,8 @@ const (
         __typename
     }
 }`
-    ENVIRONMENT_SCOPE_QUERY = `scope: { environmentScope: { environmentIds: %s } }`
-	UPDATE_IP_TYPE_ALERT = `mutation {
+	ENVIRONMENT_SCOPE_QUERY = `scope: { environmentScope: { environmentIds: %s } }`
+	UPDATE_IP_TYPE_ALERT    = `mutation {
     updateMaliciousSourcesRule(
         update: {
             rule: {
@@ -68,7 +68,7 @@ const (
         __typename
     }
 }`
-UPDATE_IP_TYPE_BLOCK = `mutation {
+	UPDATE_IP_TYPE_BLOCK = `mutation {
     updateMaliciousSourcesRule(
         update: {
             rule: {
@@ -125,7 +125,7 @@ UPDATE_IP_TYPE_BLOCK = `mutation {
         __typename
     }
 }`
-	
+
 	MALICOUS_SOURCES_READ = `{
   maliciousSourcesRules {
     results {

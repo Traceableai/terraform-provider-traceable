@@ -15,7 +15,7 @@ func GetDatSetQuery(id string, name string, description string, iconType string)
 
 func GetOverridesCreateQuery(id string, name string, description string, dataSuppressionOverride string, environments []interface{}, spanFilter []interface{}) string {
 	spanFilterQuery := ""
-	if len(spanFilter)>0 {
+	if len(spanFilter) > 0 {
 		keyPatterns := spanFilter[0].(map[string]interface{})["key_patterns"].([]interface{})
 		keyOperator := keyPatterns[0].(map[string]interface{})["operator"]
 		keyValue := keyPatterns[0].(map[string]interface{})["value"]

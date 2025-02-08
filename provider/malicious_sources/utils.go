@@ -3,7 +3,6 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
@@ -47,43 +46,44 @@ func ReturnEmailFraudScoreQuery(sev string) string {
 	}
 	return finalQuery
 }
-func GetCountryId(countries []interface{}, region string) (string,error){
-	for _,country := range countries{
-		countryData := country.(map[string]interface{})
-		cName := countryData["name"].(string)
-		cId := countryData["id"].(string)
-		if cName == region{
-			return cId,nil
-		}
-	}
-	return "",fmt.Errorf("no id found with name %s",region)
-}
-func MapCountryNameToRegionId(regions []interface{},meta interface{}) ([]interface{},error){
+
+func MapCountryNameToRegionId(regions []interface{}, meta interface{}) ([]interface{}, error) {
 	regionResponseStr, fetchRegionQueryErr := common.CallExecuteQuery(FETCH_REGION_ID, meta)
 	regionIds := []interface{}{}
 	if fetchRegionQueryErr != nil {
-		return regionIds,fetchRegionQueryErr
+		return regionIds, fetchRegionQueryErr
 	}
 	var response map[string]interface{}
 	err := json.Unmarshal([]byte(regionResponseStr), &response)
 	if err != nil {
-		return regionIds,err
+		return regionIds, err
 	}
 	responseData, ok := response["data"].(map[string]interface{})
-	if !ok{
-		return regionIds,fmt.Errorf("unexpected response in countries graphql")
+	if !ok {
+		return regionIds, fmt.Errorf("unexpected response in countries graphql")
 	}
 
 	countries := responseData["countries"].(map[string]interface{})
-	countiresMap := countries["results"].([]interface{})
-	for _,region := range regions{
-		cId,matchErr := GetCountryId(countiresMap,strings.ToLower(region.(string)))
-		if matchErr!=nil{
-			return regionIds,matchErr
+	countiresList := countries["results"].([]interface{})
+	countryMap := make(map[string]string)
+
+	for _, country := range countiresList {
+		if countryData, ok := country.(map[string]interface{}); ok {
+			if cName, ok := countryData["name"].(string); ok {
+				if cId, ok := countryData["id"].(string); ok {
+					countryMap[cName] = cId
+				}
+			}
 		}
-		regionIds = append(regionIds, cId)
 	}
-	return regionIds,nil
+	for _, region := range regions {
+		if id, exists := countryMap[region.(string)]; exists {
+			regionIds = append(regionIds, id)
+		} else {
+			return []interface{}{}, fmt.Errorf("incorrect region name provided")
+		}
+	}
+	return regionIds, nil
 }
 
 func ReturnExipiryDuration(exipiry string) string {
@@ -130,7 +130,7 @@ func ReturnEnvScopedQuery(environments []interface{}) string {
 func RegionRuleExpiryString(expiration string) string {
 	exipiryDurationString := ""
 	if expiration != "" {
-		exipiryDurationString = fmt.Sprintf(`duration : "%s"`,expiration)
+		exipiryDurationString = fmt.Sprintf(`duration : "%s"`, expiration)
 	}
 	return exipiryDurationString
 }

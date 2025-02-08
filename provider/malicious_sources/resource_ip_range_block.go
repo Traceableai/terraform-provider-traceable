@@ -150,7 +150,7 @@ func resourceIpRangeRuleBlockRead(d *schema.ResourceData, meta interface{}) erro
 			}
 		}
 	}
-	if envFlag{
+	if envFlag {
 		d.Set("environment", []interface{}{})
 	}
 	return nil
@@ -169,7 +169,7 @@ func resourceIpRangeRuleBlockUpdate(d *schema.ResourceData, meta interface{}) er
 	exipiryDurationString := ReturnExipiryDuration(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(UPDATE_IP_RANGE_BLOCK, id, name,common.InterfaceToStringSlice(raw_ip_range_data), rule_action, description, event_severity, exipiryDurationString, envQuery)
+	query := fmt.Sprintf(UPDATE_IP_RANGE_BLOCK, id, name, common.InterfaceToStringSlice(raw_ip_range_data), rule_action, description, event_severity, exipiryDurationString, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)

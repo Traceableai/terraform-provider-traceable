@@ -3,10 +3,10 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"log"
 )
 
 func ResourceIpTypeRuleBlock() *schema.Resource {
@@ -130,9 +130,9 @@ func resourceIpTypeRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 		if expirationDetails, ok := action["expirationDetails"].(map[string]interface{}); ok {
 			d.Set("expiration", expirationDetails["expirationDuration"].(string))
 			expirationFlag = false
-		} 
+		}
 		if expirationFlag {
-			d.Set("expiration","")
+			d.Set("expiration", "")
 		}
 	}
 
@@ -145,8 +145,8 @@ func resourceIpTypeRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-				envFlag =false
-			} 
+				envFlag = false
+			}
 		}
 	}
 	if envFlag {
@@ -168,7 +168,7 @@ func resourceIpTypeRuleBlockUpdate(d *schema.ResourceData, meta interface{}) err
 	exipiryDurationString := ReturnMalicousSourcesExipiryDuration(expiration)
 	envQuery := ReturnEnvScopedQuery(environment)
 
-	query := fmt.Sprintf(UPDATE_IP_TYPE_BLOCK, id, name, description, event_severity, rule_action, exipiryDurationString,common.InterfaceToEnumStringSlice(ip_types), envQuery)
+	query := fmt.Sprintf(UPDATE_IP_TYPE_BLOCK, id, name, description, event_severity, rule_action, exipiryDurationString, common.InterfaceToEnumStringSlice(ip_types), envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)

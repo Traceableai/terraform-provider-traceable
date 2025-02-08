@@ -86,7 +86,7 @@ func resourceRegionRuleBlockCreate(d *schema.ResourceData, meta interface{}) err
 	environment := d.Get("environment").(*schema.Set).List()
 	exipiryDurationString := RegionRuleExpiryString(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	regionIds,ok := MapCountryNameToRegionId(regions,meta)
+	regionIds, ok := MapCountryNameToRegionId(regions, meta)
 	if ok != nil {
 		return fmt.Errorf("error: %s", ok)
 	}
@@ -140,10 +140,10 @@ func resourceRegionRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 
 	finalRegionsState := []interface{}{}
 	regionsData := ruleData["regions"].([]interface{})
-	for _,regions := range regionsData{
+	for _, regions := range regionsData {
 		regionsMap := regions.(map[string]interface{})
 		countryName := regionsMap["name"].(string)
-		finalRegionsState=append(finalRegionsState, countryName)
+		finalRegionsState = append(finalRegionsState, countryName)
 	}
 	d.Set("regions", finalRegionsState)
 
@@ -153,11 +153,11 @@ func resourceRegionRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
 				envFlag = true
-			} 
+			}
 		}
 	}
-	if !envFlag{
-		d.Set("environment",[]interface{}{})
+	if !envFlag {
+		d.Set("environment", []interface{}{})
 	}
 	return nil
 }
@@ -174,11 +174,11 @@ func resourceRegionRuleBlockUpdate(d *schema.ResourceData, meta interface{}) err
 
 	exipiryDurationString := RegionRuleExpiryString(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	regionIds,ok := MapCountryNameToRegionId(regions,meta)
+	regionIds, ok := MapCountryNameToRegionId(regions, meta)
 	if ok != nil {
 		return fmt.Errorf("error: %s", ok)
 	}
-	query := fmt.Sprintf(UPDATE_REGION_RULE_BLOCK, id, name,common.InterfaceToStringSlice(regionIds), rule_action, description, event_severity, exipiryDurationString, envQuery)
+	query := fmt.Sprintf(UPDATE_REGION_RULE_BLOCK, id, name, common.InterfaceToStringSlice(regionIds), rule_action, description, event_severity, exipiryDurationString, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)

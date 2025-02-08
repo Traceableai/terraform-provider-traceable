@@ -3,10 +3,10 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"log"
 )
 
 func ResourceEmailDomainBlock() *schema.Resource {
@@ -170,9 +170,9 @@ func resourceEmailDomainBlockRead(d *schema.ResourceData, meta interface{}) erro
 	if emailFraudScore, ok := emailDomainCondition["emailFraudScore"].(map[string]interface{}); ok {
 		d.Set("email_fraud_score", emailFraudScore["minEmailFraudScoreLevel"])
 		emailFraudScoreFlag = false
-	} 
+	}
 	if emailFraudScoreFlag {
-		d.Set("email_fraud_score",false)
+		d.Set("email_fraud_score", false)
 	}
 
 	envFlag := true
@@ -180,11 +180,11 @@ func resourceEmailDomainBlockRead(d *schema.ResourceData, meta interface{}) erro
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-				envFlag=false
-			} 
+				envFlag = false
+			}
 		}
 	}
-	if envFlag{
+	if envFlag {
 		d.Set("environment", []interface{}{})
 	}
 	return nil

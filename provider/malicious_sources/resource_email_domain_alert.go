@@ -145,9 +145,9 @@ func resourceEmailDomainAlertRead(d *schema.ResourceData, meta interface{}) erro
 	if emailFraudScore, ok := emailDomainCondition["emailFraudScore"].(map[string]interface{}); ok {
 		d.Set("email_fraud_score", emailFraudScore["minEmailFraudScoreLevel"])
 		emailFraudScoreFlag = false
-	} 
+	}
 	if emailFraudScoreFlag {
-		d.Set("email_fraud_score",false)
+		d.Set("email_fraud_score", false)
 	}
 
 	envFlag := true
@@ -155,11 +155,11 @@ func resourceEmailDomainAlertRead(d *schema.ResourceData, meta interface{}) erro
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-				envFlag=false
-			} 
+				envFlag = false
+			}
 		}
 	}
-	if envFlag{
+	if envFlag {
 		d.Set("environment", []interface{}{})
 	}
 	return nil
