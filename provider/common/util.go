@@ -12,8 +12,8 @@ import (
 )
 
 type GraphqlProviderConfig struct {
-	GQLServerUrl string
-	ApiToken     string
+	GQLServerUrl             string
+	ApiToken                 string
 	TraceableProviderVersion string
 }
 
@@ -37,7 +37,7 @@ func CallExecuteQuery(query string, meta interface{}) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", api_token)
 	req.Header.Set("x-traceable-client", traceable_provider_version)
-	
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
