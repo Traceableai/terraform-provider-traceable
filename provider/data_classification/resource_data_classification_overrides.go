@@ -139,7 +139,7 @@ func ResourceDataClassificationOverridesRead(rData *schema.ResourceData, meta in
 	} else {
 		rData.Set("environments", []interface{}{})
 	}
-	if spanFilter,ok := ruleData["spanFilter"].(map[string]interface{}); ok{
+	if spanFilter, ok := ruleData["spanFilter"].(map[string]interface{}); ok {
 		keyValueFilter := spanFilter["keyValueFilter"].(map[string]interface{})
 		keyPattern := keyValueFilter["keyPattern"].(map[string]interface{})
 		keyPatternValue := keyPattern["value"].(string)
@@ -162,7 +162,7 @@ func ResourceDataClassificationOverridesRead(rData *schema.ResourceData, meta in
 			"value_patterns": valuePatternObj,
 		}
 		rData.Set("span_filter", spanFilterObj)
-	}else{
+	} else {
 		rData.Set("span_filter", map[string]interface{}{})
 	}
 	return nil

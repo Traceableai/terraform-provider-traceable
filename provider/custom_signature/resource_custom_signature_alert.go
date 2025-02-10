@@ -3,11 +3,10 @@ package custom_signature
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"log"
+	"strings"
 )
 
 func ResourceCustomSignatureAlertRule() *schema.Resource {

@@ -21,7 +21,7 @@ func GetOverridesCreateQuery(id string, name string, description string, dataSup
 		keyValue := keyPatterns[0].(map[string]interface{})["value"]
 		valuePatternString := ""
 		if valuePattern, ok := spanFilter[0].(map[string]interface{})["value_patterns"].([]interface{}); ok {
-			if len(valuePattern)>0{
+			if len(valuePattern) > 0 {
 				valueOp := valuePattern[0].(map[string]interface{})["operator"]
 				value := valuePattern[0].(map[string]interface{})["value"]
 				valuePatternString = fmt.Sprintf(VALUE_PATTERN_QUERY, valueOp, value)

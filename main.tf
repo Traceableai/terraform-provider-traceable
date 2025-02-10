@@ -298,6 +298,7 @@ resource "traceable_notification_rule_posture_events" "rule1" {
 resource traceable_custom_signature_allow "csruletf"{
     name="testtf2"
     description="test1"
+    disabled = true
     environments=["fintech-1","demo-test"]
     custom_sec_rule=<<EOT
      SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
@@ -385,6 +386,7 @@ resource "traceable_custom_signature_allow" "cs_allow" {
   name = "tf-cs-allow-test-1"
   description = "test rule created from tf"
   environments = ["crapi-test"]
+  disabled = true
   allow_expiry_duration="PT30M"
   custom_sec_rule=<<EOT
      SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
@@ -418,6 +420,7 @@ resource "traceable_custom_signature_alert" "cs_alert" {
   name = "tf-cs-alert-test-1"
   description = "test rule created from tf"
   environments = []
+  disabled = true
   custom_sec_rule=<<EOT
      SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
      "id:92100120,\
@@ -451,6 +454,7 @@ resource "traceable_custom_signature_block" "cs_block" {
   name = "tf-cs-block-test-1"
   description = "test rule created from tf"
   environments = []
+  disabled = true
   custom_sec_rule=<<EOT
      SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
      "id:92100120,\
@@ -478,4 +482,34 @@ resource "traceable_custom_signature_block" "cs_block" {
         match_value="req_header_test"
     }
     alert_severity = "HIGH"
+}
+
+resource "traceable_label_management_label_rule" "example_rule" {
+  name        = "Example Label Application Rule"
+  description = "An example rule for applying labels based on conditions"
+  enabled     = true
+
+  condition_list {
+    key      = "request.header.content-type"
+    operator = "OPERATOR_EQUALS"
+    value    = "application/json"
+  }
+
+  condition_list {
+    key      = "request.query.param"
+    operator = "OPERATOR_EQUALS"
+    values   = ["value1", "value2"]
+  }
+
+  condition_list {
+    key      = "response.status"
+    operator = "OPERATOR_EQUALS"
+  }
+
+  action {
+    type         = "DYNAMIC_LABEL_KEY"
+    entity_types = ["request", "response"]
+    operation    = "OPERATION_MERGE"
+    dynamic_label_key = "dynamic_label_key_example"
+  }
 }

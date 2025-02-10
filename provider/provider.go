@@ -5,6 +5,7 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
 	"github.com/traceableai/terraform-provider-traceable/provider/enumeration"
+	"github.com/traceableai/terraform-provider-traceable/provider/label_management"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
 )
@@ -55,15 +56,16 @@ func Provider() *schema.Provider {
 			// "traceable_notification_rule_notification_configuration":      notification.ResourceNotificationRuleNotificationConfiguration(),
 			// "traceable_notification_rule_data_class_configuration":        notification.ResourceNotificationRuleDataClassificationConfig(),
 			// "traceable_notification_rule_posture_events":                  notification.ResourceNotificationRulePostureEvents(),
-			"traceable_api_naming_rule":          ResourceApiNamingRule(),
-			"label_management_label_creation":    resourceLabelCreationRule(),
-			"traceable_rate_limiting_block":      rate_limiting.ResourceRateLimitingRuleBlock(),
-			"traceable_enumeration_rule":         enumeration.ResourceEnumerationRule(),
-			"traceable_detection_policies":       resourceDetectionConfigRule(),
-			"traceable_custom_signature_allow":   custom_signature.ResourceCustomSignatureAllowRule(),
-			"traceable_custom_signature_block":   custom_signature.ResourceCustomSignatureBlockRule(),
-			"traceable_custom_signature_alert":   custom_signature.ResourceCustomSignatureAlertRule(),
-			"traceable_custom_signature_testing": custom_signature.ResourceCustomSignatureTestingRule(),
+			"traceable_api_naming_rule":             ResourceApiNamingRule(),
+			"traceable_label_management_label":      label_management.ResourceLabelCreationRule(),
+			"traceable_label_management_label_rule": label_management.ResourceLabelApplicationRule(),
+			"traceable_rate_limiting_block":         rate_limiting.ResourceRateLimitingRuleBlock(),
+			"traceable_enumeration_rule":            enumeration.ResourceEnumerationRule(),
+			"traceable_detection_policies":          resourceDetectionConfigRule(),
+			"traceable_custom_signature_allow":      custom_signature.ResourceCustomSignatureAllowRule(),
+			"traceable_custom_signature_block":      custom_signature.ResourceCustomSignatureBlockRule(),
+			"traceable_custom_signature_alert":      custom_signature.ResourceCustomSignatureAlertRule(),
+			"traceable_custom_signature_testing":    custom_signature.ResourceCustomSignatureTestingRule(),
 			// "traceable_api_exclusion_rule":                       ResourceApiExclusionRule(),
 			// "traceable_agent_token":                              ResourceAgentToken(),
 			// "traceable_data_classification_rule":                   data_classification.ResourceDataClassification(),
