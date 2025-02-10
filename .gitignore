@@ -2,3 +2,5 @@
 terraform.tfstate*
 .terraform*
 dist/
+.DS_Store
+provider/.DS_Store
