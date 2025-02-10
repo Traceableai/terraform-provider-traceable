@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type GraphqlProviderConfig struct {
@@ -123,10 +124,11 @@ func ConvertDurationToSeconds(duration string) (string, error) {
 func InterfaceToStringSlice(arr []interface{}) []string {
 	var envList []string
 	for _, env := range arr {
-		envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
+		envList = append(envList, fmt.Sprintf(`"%s"`, env))
 	}
-	return envList
+	return []string{strings.Join(envList, ", ")}
 }
+
 func InterfaceToEnumStringSlice(arr []interface{}) []string {
 	var envList []string
 	for _, env := range arr {
