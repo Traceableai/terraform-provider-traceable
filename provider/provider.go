@@ -24,6 +24,11 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Description: "platform api token",
 			},
+			"version": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Traceable provider version",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"traceable_ip_range_rule_block": malicious_sources.ResourceIpRangeRuleBlock(),
@@ -63,7 +68,7 @@ func Provider() *schema.Provider {
 			"traceable_rate_limiting_block":         rate_limiting.ResourceRateLimitingRuleBlock(),
 			"traceable_rate_limiting_alert":         rate_limiting.ResourceRateLimitingRuleAlert(),
 			"traceable_enumeration_rule":            enumeration.ResourceEnumerationRule(),
-			"traceable_detection_policies":          resourceDetectionConfigRule(),
+			"traceable_detection_policies":          waap.ResourceDetectionConfigRule(),
 			"traceable_custom_signature_allow":      custom_signature.ResourceCustomSignatureAllowRule(),
 			"traceable_custom_signature_block":      custom_signature.ResourceCustomSignatureBlockRule(),
 			"traceable_custom_signature_alert":      custom_signature.ResourceCustomSignatureAlertRule(),
@@ -89,8 +94,9 @@ func Provider() *schema.Provider {
 
 func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := &common.GraphqlProviderConfig{
-		GQLServerUrl: d.Get("platform_url").(string),
-		ApiToken:     d.Get("api_token").(string),
+		GQLServerUrl:             d.Get("platform_url").(string),
+		ApiToken:                 d.Get("api_token").(string),
+		TraceableProviderVersion: d.Get("version").(string),
 	}
 	return config, nil
 }
