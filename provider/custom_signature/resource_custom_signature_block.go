@@ -132,7 +132,7 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	customSecRuleQuery := ReturnCustomSecRuleQuery(custom_sec_rule)
 	exipiryDurationString := ReturnExipiryDuration(block_expiry_duration)
 
-	query := fmt.Sprintf(BLOCK_CREATE_QUERY, name, description,disabled, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
+	query := fmt.Sprintf(BLOCK_CREATE_QUERY, name, description, disabled, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)

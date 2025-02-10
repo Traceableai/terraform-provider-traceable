@@ -123,7 +123,7 @@ func ResourceCustomSignatureAllowCreate(d *schema.ResourceData, meta interface{}
 
 	exipiryDurationString := ReturnExipiryDuration(allow_expiry_duration)
 
-	query := fmt.Sprintf(ALLOW_CREATE_QUERY, name, description,disabled, rule_type, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
+	query := fmt.Sprintf(ALLOW_CREATE_QUERY, name, description, disabled, rule_type, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)

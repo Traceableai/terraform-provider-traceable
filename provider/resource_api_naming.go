@@ -63,10 +63,10 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 	serviceNames := d.Get("service_names").([]interface{})
 	environmentNames := d.Get("environment_names").([]interface{})
 
-	if len(regexes) != len(values)  {
+	if len(regexes) != len(values) {
 		return fmt.Errorf("the number of regexes (%d) does not match the number of values (%d)", len(regexes), len(values))
 	}
-	if CheckEmptySegments(regexes) || CheckEmptySegments(values){
+	if CheckEmptySegments(regexes) || CheckEmptySegments(values) {
 		return fmt.Errorf("found empty values")
 	}
 	var spanFilters []string
@@ -106,7 +106,7 @@ func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	query := fmt.Sprintf(`mutation{createApiNamingRule(input:{name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, name, disabled, jsonifyList(regexes), jsonifyList(values), spanFilterQueryPart)
-	fmt.Printf("This is the query %s",query)
+	fmt.Printf("This is the query %s", query)
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
