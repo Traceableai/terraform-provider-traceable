@@ -24,7 +24,7 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Description: "platform api token",
 			},
-			"version": {
+			"provider_version": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Traceable provider version",
@@ -96,7 +96,7 @@ func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := &common.GraphqlProviderConfig{
 		GQLServerUrl:             d.Get("platform_url").(string),
 		ApiToken:                 d.Get("api_token").(string),
-		TraceableProviderVersion: d.Get("version").(string),
+		TraceableProviderVersion: d.Get("provider_version").(string),
 	}
 	return config, nil
 }
