@@ -60,6 +60,7 @@ func Provider() *schema.Provider {
 			"traceable_label_management_label":      label_management.ResourceLabelCreationRule(),
 			"traceable_label_management_label_rule": label_management.ResourceLabelApplicationRule(),
 			"traceable_rate_limiting_block":         rate_limiting.ResourceRateLimitingRuleBlock(),
+			"traceable_rate_limiting_alert":         rate_limiting.ResourceRateLimitingRuleAlert(),
 			"traceable_enumeration_rule":            enumeration.ResourceEnumerationRule(),
 			"traceable_detection_policies":          resourceDetectionConfigRule(),
 			"traceable_custom_signature_allow":      custom_signature.ResourceCustomSignatureAllowRule(),
