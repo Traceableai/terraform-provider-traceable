@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceNotificationChannel() *schema.Resource {
+func DataSourceNotificationChannel() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceNotificationChannelRead,
+		Read: DataSourceNotificationChannelRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -27,7 +27,7 @@ func dataSourceNotificationChannel() *schema.Resource {
 	}
 }
 
-func dataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
+func DataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	query := `{
 		notificationChannels {
@@ -51,7 +51,7 @@ func dataSourceNotificationChannelRead(d *schema.ResourceData, meta interface{})
 	log.Printf("this is the gql response %s", response)
 	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "notificationChannels", name, "channelId", "channelName")
 	if len(ruleDetails) == 0 {
-		return fmt.Errorf("No rules found with name %s", name)
+		return fmt.Errorf("no rules found with name %s", name)
 	}
 	channelId := ruleDetails["channelId"].(string)
 	log.Printf("Rule found with name %s", channelId)

@@ -3,10 +3,10 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/notification"
 	"log"
 	"strings"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceDetectionConfigRule() *schema.Resource {
@@ -137,13 +137,13 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
 	sub_rule_blocking_enabled := d.Get("sub_rule_blocking_enabled").(string)
 
 	if (sub_rule_blocking_enabled == "" && disabled == "") || (disabled != "" && sub_rule_blocking_enabled != "") {
-		return fmt.Errorf("Required one of `sub_rule_blocking_enable` or `disabled`")
+		return fmt.Errorf("required one of `sub_rule_blocking_enable` or `disabled`")
 	}
 	if sub_rule_id != "" && sub_rule_blocking_enabled == "" {
-		return fmt.Errorf("Required `sub_rule_blocking_enable`")
+		return fmt.Errorf("required `sub_rule_blocking_enable`")
 	}
 	if sub_rule_blocking_enabled != "" && sub_rule_id == "" {
-		return fmt.Errorf("Required `sub_rule_id`")
+		return fmt.Errorf("required `sub_rule_id`")
 	}
 	configScope := "anomalyScope: { scopeType: CUSTOMER }"
 	if environment != "" {
@@ -152,7 +152,7 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
                                                  environmentScope: { id: "%s" }
                                              }`, environment)
 	}
-	_, rule_crs_id := isPreDefinedThreatEvent(config_name)
+	_, rule_crs_id := notification.IsPreDefinedThreatEvent(config_name)
 	configType := "API_DEFINITION_METADATA"
 	if strings.Contains(rule_crs_id, "crs") {
 		configType = "MODSECURITY"
@@ -209,7 +209,7 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
 		log.Println(rules)
 		d.SetId(rule_crs_id)
 	} else {
-		return fmt.Errorf("Error occurred while updating the state")
+		return fmt.Errorf("error occurred while updating the state")
 	}
 	return nil
 }

@@ -3,11 +3,10 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 )
 
 func ResourceEmailDomainAlert() *schema.Resource {
@@ -32,7 +31,7 @@ func ResourceEmailDomainAlert() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed ",
 				Optional:    true,
-				Default: "ALERT",
+				Default:     "ALERT",
 			},
 			"event_severity": {
 				Type:        schema.TypeString,
@@ -96,16 +95,16 @@ func resourceEmailDomainAlertCreate(d *schema.ResourceData, meta interface{}) er
 
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 	emailFraudScoreQuery := ReturnEmailFraudScoreQuery(email_fraud_score)
-	query := fmt.Sprintf(CREATE_EMAIL_DOMAIN_ALERT,name,description,event_severity,rule_action,data_leaked_email,disposable_email_domain,strings.Join(common.InterfaceToStringSlice(email_domains),","),strings.Join(common.InterfaceToStringSlice(email_regexes),","),emailFraudScoreQuery,envQuery)
+	query := fmt.Sprintf(CREATE_EMAIL_DOMAIN_ALERT, name, description, event_severity, rule_action, data_leaked_email, disposable_email_domain, common.InterfaceToStringSlice(email_domains), common.InterfaceToStringSlice(email_regexes), emailFraudScoreQuery, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createMaliciousSourcesRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "createMaliciousSourcesRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(id)
 	return nil
@@ -131,31 +130,37 @@ func resourceEmailDomainAlertRead(d *schema.ResourceData, meta interface{}) erro
 	ruleDetails := ruleData["info"].(map[string]interface{})
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("description", ruleDetails["description"].(string))
-	if action,ok := ruleDetails["action"].(map[string]interface{}); ok {
-		d.Set("event_severity",action["eventSeverity"])
-		d.Set("rule_action",action["ruleActionType"])
-	}
-	
-	condition := ruleData["conditions"].([]interface{})[0].(map[string]interface{})
-	emailDomainCondition := condition["emailDomainCondition"].(map[string]interface{})
-	d.Set("data_leaked_email",emailDomainCondition["dataLeakedEmail"])
-	d.Set("disposable_email_domain",emailDomainCondition["disposableEmailDomain"])
-	d.Set("email_regexes",emailDomainCondition["emailRegexes"].([]interface{}))
-	d.Set("email_domains",emailDomainCondition["emailDomains"].([]interface{}))
-	if emailFraudScore,ok := emailDomainCondition["emailFraudScore"].(map[string]interface{}); ok{
-		d.Set("email_fraud_score",emailFraudScore["minEmailFraudScoreLevel"])
-	}else{
-		d.Set("email_fraud_score","")
+	if action, ok := ruleDetails["action"].(map[string]interface{}); ok {
+		d.Set("event_severity", action["eventSeverity"])
+		d.Set("rule_action", action["ruleActionType"])
 	}
 
-	if ruleScope, ok := ruleData["scope"].(map[string]interface{}); ok {
+	condition := ruleDetails["conditions"].([]interface{})[0].(map[string]interface{})
+	emailDomainCondition := condition["emailDomainCondition"].(map[string]interface{})
+	d.Set("data_leaked_email", emailDomainCondition["dataLeakedEmail"])
+	d.Set("disposable_email_domain", emailDomainCondition["disposableEmailDomain"])
+	d.Set("email_regexes", emailDomainCondition["emailRegexes"].([]interface{}))
+	d.Set("email_domains", emailDomainCondition["emailDomains"].([]interface{}))
+	emailFraudScoreFlag := true
+	if emailFraudScore, ok := emailDomainCondition["emailFraudScore"].(map[string]interface{}); ok {
+		d.Set("email_fraud_score", emailFraudScore["minEmailFraudScoreLevel"])
+		emailFraudScoreFlag = false
+	}
+	if emailFraudScoreFlag {
+		d.Set("email_fraud_score", false)
+	}
+
+	envFlag := true
+	if ruleScope, ok := ruleDetails["scope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			}else{
-				d.Set("environment",[]interface{}{})
+				envFlag = false
 			}
 		}
+	}
+	if envFlag {
+		d.Set("environment", []interface{}{})
 	}
 	return nil
 }
@@ -173,25 +178,25 @@ func resourceEmailDomainAlertUpdate(d *schema.ResourceData, meta interface{}) er
 	description := d.Get("description").(string)
 	environment := d.Get("environment").(*schema.Set).List()
 
-	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
+	envQuery := ReturnEnvScopedQuery(environment)
 	emailFraudScoreQuery := ReturnEmailFraudScoreQuery(email_fraud_score)
-	query := fmt.Sprintf(UPDATE_EMAIL_DOMAIN_ALERT,id,name,description,event_severity,rule_action,data_leaked_email,disposable_email_domain,strings.Join(common.InterfaceToStringSlice(email_domains),","),strings.Join(common.InterfaceToStringSlice(email_regexes),","),emailFraudScoreQuery,envQuery)
-	
+	query := fmt.Sprintf(UPDATE_EMAIL_DOMAIN_ALERT, id, name, description, event_severity, rule_action, data_leaked_email, disposable_email_domain, common.InterfaceToStringSlice(email_domains), common.InterfaceToStringSlice(email_regexes), emailFraudScoreQuery, envQuery)
+
 	responseStr, err := common.CallExecuteQuery(query, meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateMaliciousSourcesRule")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateMaliciousSourcesRule")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	d.SetId(updatedId)
 	return nil
 }
 
 func resourceEmailDomainAlertDelete(d *schema.ResourceData, meta interface{}) error {
-	DeleteMaliciousSourcesRule(d,meta)
+	DeleteMaliciousSourcesRule(d, meta)
 	return nil
 }

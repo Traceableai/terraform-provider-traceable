@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceSyslogIntegration() *schema.Resource {
+func DataSourceSyslogIntegration() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceSyslogIntegrationRead,
+		Read: DataSourceSyslogIntegrationRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -27,7 +27,7 @@ func dataSourceSyslogIntegration() *schema.Resource {
 	}
 }
 
-func dataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) error {
+func DataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	query := `{
 		syslogServerIntegrations {
@@ -53,7 +53,7 @@ func dataSourceSyslogIntegrationRead(d *schema.ResourceData, meta interface{}) e
 	log.Printf("this is the gql response %s", response)
 	ruleDetails := GetRuleDetailsFromRulesListUsingIdName(response, "syslogServerIntegrations", name)
 	if len(ruleDetails) == 0 {
-		return fmt.Errorf("No rules found with name %s", name)
+		return fmt.Errorf("no rules found with name %s", name)
 	}
 	syslogId := ruleDetails["id"].(string)
 	log.Printf("Rule found with name %s", syslogId)

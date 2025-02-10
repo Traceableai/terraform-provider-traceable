@@ -96,8 +96,7 @@ func ResourceCustomSignatureAllowRule() *schema.Resource {
 			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
-				Optional:    true,
-				Default:     false,
+				Required:    true,
 			},
 		},
 	}
@@ -108,7 +107,7 @@ func ResourceCustomSignatureAllowCreate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
 	environments := d.Get("environments").(*schema.Set).List()
-	// 	disabled := d.Get("disabled").(bool)
+	disabled := d.Get("disabled").(bool)
 	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
@@ -124,7 +123,7 @@ func ResourceCustomSignatureAllowCreate(d *schema.ResourceData, meta interface{}
 
 	exipiryDurationString := ReturnExipiryDuration(allow_expiry_duration)
 
-	query := fmt.Sprintf(ALLOW_CREATE_QUERY, name, description, rule_type, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
+	query := fmt.Sprintf(ALLOW_CREATE_QUERY, name, description, disabled, rule_type, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
@@ -161,7 +160,7 @@ func ResourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
 		return nil
 	}
 	d.Set("name", ruleDetails["name"].(string))
-	d.Set("rule_type", "ALLOW")
+	d.Set("rule_type", ruleDetails["ruleEffect"].(map[string]interface{})["eventType"].(string))
 	d.Set("disabled", ruleDetails["disabled"].(bool))
 	reqResConditions := []map[string]interface{}{}
 	customSecRuleFlag := true
@@ -232,7 +231,7 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 	allow_expiry_duration := d.Get("allow_expiry_duration").(string)
 
 	disabled := d.Get("disabled").(bool)
-	
+
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
 
@@ -263,9 +262,9 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func ResourceCustomSignatureAllowDelete(d *schema.ResourceData, meta interface{}) error {
-	err := DeleteCustomSignatureRule(d,meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	err := DeleteCustomSignatureRule(d, meta)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	return nil
 }

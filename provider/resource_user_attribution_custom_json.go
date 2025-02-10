@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceUserAttributionCustomJsonRule() *schema.Resource {
+func ResourceUserAttributionCustomJsonRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceUserAttributionRuleCustomJsonCreate,
 		Read:   resourceUserAttributionRuleCustomJsonRead,
@@ -88,7 +88,7 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 		} else if environment == "" && url_regex != "" {
 			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
 		} else {
-			return fmt.Errorf("Required environment or url_regex")
+			return fmt.Errorf("required environment or url_regex")
 		}
 	}
 
@@ -103,8 +103,7 @@ func resourceUserAttributionRuleCustomJsonCreate(d *schema.ResourceData, meta in
 		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s }`, auth_type_json)
 	}
 
-	var query string
-	query = fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		createUserAttributionRule(
 		  input: {
 		  name: "%s", 
@@ -239,7 +238,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 		} else if environment == "" && url_regex != "" {
 			customScopeString = fmt.Sprintf(`customScope: { urlScopes: [{ urlMatchRegex: "%s" }] }`, url_regex)
 		} else {
-			return fmt.Errorf("Required environment or url_regex")
+			return fmt.Errorf("required environment or url_regex")
 		}
 	}
 
@@ -254,8 +253,7 @@ func resourceUserAttributionRuleCustomJsonUpdate(d *schema.ResourceData, meta in
 		customJsonString = fmt.Sprintf(`customJson: { authTypeJson: %s }`, auth_type_json)
 	}
 
-	var query string
-	query = fmt.Sprintf(`mutation {
+	query := fmt.Sprintf(`mutation {
 		updateUserAttributionRule(
 		  rule: {
 			id:"%s",

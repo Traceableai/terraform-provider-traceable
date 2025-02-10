@@ -3,11 +3,12 @@ package common
 import (
 	"bytes"
 	"encoding/json"
-	"regexp"
-	"strconv"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
+	"strconv"
+	"strings"
 )
 
 type GraphqlProviderConfig struct {
@@ -123,10 +124,11 @@ func ConvertDurationToSeconds(duration string) (string, error) {
 func InterfaceToStringSlice(arr []interface{}) []string {
 	var envList []string
 	for _, env := range arr {
-		envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
+		envList = append(envList, fmt.Sprintf(`"%s"`, env))
 	}
-	return envList
+	return []string{strings.Join(envList, ", ")}
 }
+
 func InterfaceToEnumStringSlice(arr []interface{}) []string {
 	var envList []string
 	for _, env := range arr {
@@ -135,16 +137,16 @@ func InterfaceToEnumStringSlice(arr []interface{}) []string {
 	return envList
 }
 
-func GetIdFromResponse(responseStr string,graphQlResponseKey string) (string,error) {
+func GetIdFromResponse(responseStr string, graphQlResponseKey string) (string, error) {
 	var response map[string]interface{}
 	err := json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return "",fmt.Errorf("error: %s", err)
+		return "", fmt.Errorf("error: %s", err)
 	}
 	responseData, ok := response["data"].(map[string]interface{})
 	if !ok {
-		return "",fmt.Errorf("some error eccorred while fetching response")
+		return "", fmt.Errorf("some error eccorred while fetching response")
 	}
 	updatedId, _ := responseData[graphQlResponseKey].(map[string]interface{})["id"].(string)
-	return updatedId,nil
+	return updatedId, nil
 }

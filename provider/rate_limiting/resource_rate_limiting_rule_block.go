@@ -592,7 +592,7 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 	if block_expiry_duration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alert_severity, block_expiry_duration)
 	}
-	createRateLimitQuery := fmt.Sprintf(RATE_LIMITING_CREATE_QUERY,RATE_LIMIT_QUERY_KEY, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	createRateLimitQuery := fmt.Sprintf(RATE_LIMITING_CREATE_QUERY, RATE_LIMIT_QUERY_KEY, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(createRateLimitQuery, meta)
 	if err != nil {
@@ -614,7 +614,7 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	var response map[string]interface{}
-	readQuery := fmt.Sprintf(FETCH_RATE_LIMIT_RULES,RATE_LIMIT_QUERY_KEY)
+	readQuery := fmt.Sprintf(FETCH_RATE_LIMIT_RULES, RATE_LIMIT_QUERY_KEY)
 	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error:%s", err)
@@ -1052,7 +1052,7 @@ func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{
 	if block_expiry_duration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alert_severity, block_expiry_duration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY, id,RATE_LIMIT_QUERY_KEY, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(RATE_LIMITING_UPDATE_QUERY, id, RATE_LIMIT_QUERY_KEY, finalConditionsQuery, enabled, name, rule_type, strings.ToLower(rule_type), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {

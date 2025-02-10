@@ -1,7 +1,15 @@
 package malicious_sources
 
 const (
-    DELETE_MALICIOUS_SOURCES = `mutation {
+	FETCH_REGION_ID = `query Countries {
+    countries {
+        results {
+            id
+            name
+        }
+    }
+}`
+	DELETE_MALICIOUS_SOURCES = `mutation {
     deleteMaliciousSourcesRule(
         delete: { id: "%s" }
     ) {
@@ -9,7 +17,7 @@ const (
         __typename
     }
 }`
-    CREATE_IP_TYPE_ALERT = `mutation {
+	CREATE_IP_TYPE_ALERT = `mutation {
     createMaliciousSourcesRule(
         create: {
             ruleInfo: {
@@ -18,7 +26,7 @@ const (
                 action: {
                     eventSeverity: %s
                     ruleActionType: %s
-                    effects: []
+                    effects: [%s]
                 }
                 conditions: [
                     {
@@ -34,33 +42,64 @@ const (
         __typename
     }
 }`
-    UPDATE_IP_TYPE_ALERT = `mutation {
-        updateMaliciousSourcesRule(
-            update: {
-                ruleInfo: {
-                    id: "%s"
+	ENVIRONMENT_SCOPE_QUERY = `scope: { environmentScope: { environmentIds: %s } }`
+	UPDATE_IP_TYPE_ALERT    = `mutation {
+    updateMaliciousSourcesRule(
+        update: {
+            rule: {
+                id: "%s"
+                info: {
+                    name: "%s"
+                    description: "%s"
+                    action: { eventSeverity: %s, ruleActionType: %s, effects: [%s] }
+                    conditions: [
+                        {
+                            conditionType: IP_LOCATION_TYPE
+                            ipLocationTypeCondition: { ipLocationTypes: %s }
+                        }
+                    ]
+                }
+                status: { disabled: false }
+                %s
+            }
+        }
+    ) {
+        id
+        __typename
+    }
+}`
+	UPDATE_IP_TYPE_BLOCK = `mutation {
+    updateMaliciousSourcesRule(
+        update: {
+            rule: {
+                id: "%s"
+                info:{
                     name: "%s"
                     description: "%s"
                     action: {
                         eventSeverity: %s
                         ruleActionType: %s
+                        %s
                         effects: []
                     }
                     conditions: [
                         {
                             conditionType: IP_LOCATION_TYPE
-                            ipLocationTypeCondition: { ipLocationTypes: [%s] }
+                            ipLocationTypeCondition: { ipLocationTypes: %s }
                         }
                     ]
                 }
+                status: { disabled: false }
                 %s
             }
-        ) {
-            id
-            __typename
         }
-    }`
-    CREATE_IP_TYPE_BLOCK = `mutation {
+    ) {
+        id
+        __typename
+    }
+}`
+
+	CREATE_IP_TYPE_BLOCK = `mutation {
     createMaliciousSourcesRule(
         create: {
             ruleInfo: {
@@ -70,39 +109,12 @@ const (
                     eventSeverity: %s
                     ruleActionType: %s
                     %s
-                    effects: [%s]
+                    effects: []
                 }
                 conditions: [
                     {
                         conditionType: IP_LOCATION_TYPE
-                        ipLocationTypeCondition: { ipLocationTypes: [%s] }
-                    }
-                ]
-            }
-            %s
-        }
-    ) {
-        id
-        __typename
-    }
-}`
-    UPDATE_IP_TYPE_BLOCK = `mutation {
-    updateMaliciousSourcesRule(
-        update: {
-            ruleInfo: {
-                id: "%s"
-                name: "%s"
-                description: "%s"
-                action: {
-                    eventSeverity: %s
-                    ruleActionType: %s
-                    %s
-                    effects: [%s]
-                }
-                conditions: [
-                    {
-                        conditionType: IP_LOCATION_TYPE
-                        ipLocationTypeCondition: { ipLocationTypes: [%s] }
+                        ipLocationTypeCondition: { ipLocationTypes: %s }
                     }
                 ]
             }
@@ -189,7 +201,7 @@ const (
   }
 }`
 	DELETE_QUERY_IP_RANGE = `mutation {deleteIpRangeRule(delete: {id: "%s"}) {success}}`
-	DELETE_REGION = `mutation {
+	DELETE_REGION         = `mutation {
   deleteRegionRule(input: {id: "%s"}) {
     success
     __typename
@@ -200,14 +212,12 @@ const (
         create: {
             ruleDetails: {
                 name: "%s"
-                rawIpRangeData: [%s]
+                rawIpRangeData: %s
                 ruleAction: %s
                 description: "%s"
                 eventSeverity: %s
 				%s
-                effects: [
-                    %s
-                ]
+                effects: []
             }
             %s
         }
@@ -237,8 +247,8 @@ const (
                         emailDomainCondition: {
                             dataLeakedEmail: %t
                             disposableEmailDomain: %t
-                            emailDomains: [%s]
-                            emailRegexes: [%s]
+                            emailDomains: %s
+                            emailRegexes: %s
                             %s
                         }
                     }
@@ -267,8 +277,8 @@ const (
                         emailDomainCondition: {
                             dataLeakedEmail: %t
                             disposableEmailDomain: %t
-                            emailDomains: [%s]
-                            emailRegexes: [%s]
+                            emailDomains: %s
+                            emailRegexes: %s
                             %s
                         }
                     }
@@ -284,30 +294,33 @@ const (
 	UPDATE_EMAIL_DOMAIN_BLOCK = `mutation {
     updateMaliciousSourcesRule(
         update: {
-            ruleInfo: {
-				id: "%s"
-                name: "%s"
-                description: "%s"
-                action: {
-                    eventSeverity: %s
-                    ruleActionType: %s
-                    %s
-                }
-                conditions: [
-                    {
-                        conditionType: EMAIL_DOMAIN
-                        emailDomainCondition: {
-                            dataLeakedEmail: %t
-                            disposableEmailDomain: %t
-                            emailDomains: [%s]
-                            emailRegexes: [%s]
+                rule: {
+                    id: "%s"
+                    info: {
+                        name: "%s"
+                        description: "%s"
+                        action: {
+                            eventSeverity: %s
+                            ruleActionType: %s
                             %s
                         }
+                        conditions: [
+                            {
+                                conditionType: EMAIL_DOMAIN
+                                emailDomainCondition: {
+                                    dataLeakedEmail: %t
+                                    disposableEmailDomain: %t
+                                    emailDomains: %s
+                                    emailRegexes: %s
+                                    %s
+                                }
+                            }
+                        ]
                     }
-                ]
+                    status: { disabled: false }
+                    %s
+                }
             }
-            %s
-        }
     ) {
         id
         __typename
@@ -316,28 +329,28 @@ const (
 	UPDATE_EMAIL_DOMAIN_ALERT = `mutation {
     updateMaliciousSourcesRule(
         update: {
-            ruleInfo: {
-				id: "%s"
-                name: "%s"
-                description: "%s"
-                action: {
-                    eventSeverity: %s
-                    ruleActionType: %s
-                }
-                conditions: [
+            rule: {
+                id: "%s"
+                info: {
+                    name: "%s"
+                    description: "%s"
+                    action: { eventSeverity: %s, ruleActionType: %s }
+                    conditions: [
                     {
                         conditionType: EMAIL_DOMAIN
                         emailDomainCondition: {
                             dataLeakedEmail: %t
                             disposableEmailDomain: %t
-                            emailDomains: [%s]
-                            emailRegexes: [%s]
+                            emailDomains: %s
+                            emailRegexes: %s
                             %s
                         }
                     }
                 ]
+                }
+                status: { disabled: true }
+                %s
             }
-            %s
         }
     ) {
         id
@@ -348,14 +361,12 @@ const (
     createRegionRule(
         input: {
             name: "%s"
-            regionIds: [
-                %s
-            ]
+            regionIds: %s
             type: %s
             description: "%s"
             eventSeverity: %s
 			%s
-            effects: [%s]
+            effects: []
 			%s
         }
     ) {
@@ -367,13 +378,11 @@ const (
     createRegionRule(
         input: {
             name: "%s"
-            regionIds: [
-                %s
-            ]
+            regionIds: %s
             type: %s
             description: "%s"
             eventSeverity: %s
-            effects: []
+            effects: [%s]
 			%s
         }
     ) {
@@ -386,13 +395,11 @@ const (
         input: {
 			id: "%s"
             name: "%s"
-            regionIds: [
-                %s
-            ]
+            regionIds: %s
             type: %s
             description: "%s"
             eventSeverity: %s
-            effects: []
+            effects: [%s]
 			%s
         }
     ) {
@@ -405,14 +412,12 @@ const (
         input: {
 			id: "%s"
             name: "%s"
-            regionIds: [
-                %s
-            ]
+            regionIds: %s
             type: %s
             description: "%s"
             eventSeverity: %s
 			%s
-            effects: [%s]
+            effects: []
 			%s
         }
     ) {
@@ -425,10 +430,10 @@ const (
         create: {
             ruleDetails: {
                 name: "%s"
-                rawIpRangeData: [%s]
+                rawIpRangeData: %s
                 ruleAction: %s
                 description: "%s"
-                effects: [%s]
+                effects: []
 				%s
             }
 			%s
@@ -443,11 +448,11 @@ const (
         create: {
             ruleDetails: {
                 name: "%s"
-                rawIpRangeData: [%s]
+                rawIpRangeData: %s
                 ruleAction: %s
                 description: "%s"
                 eventSeverity: %s
-                effects: []
+                effects: [%s]
             }
 			%s
         }
@@ -459,14 +464,14 @@ const (
 	UPDATE_IP_RANGE_ALERT = `mutation {
     updateIpRangeRule(
         update: {
+            id: "%s"
             ruleDetails: {
-				id: "%s"
                 name: "%s"
-                rawIpRangeData: [%s]
+                rawIpRangeData: %s
                 ruleAction: %s
                 description: "%s"
                 eventSeverity: %s
-                effects: []
+                effects: [%s]
             }
 			%s
         }
@@ -478,14 +483,14 @@ const (
 	UPDATE_IP_RANGE_ALLOW = `mutation {
     updateIpRangeRule(
         update: {
+            id: "%s"
             ruleDetails: {
-				id: "%s"
                 name: "%s"
-                rawIpRangeData: [%s]
+                rawIpRangeData: %s
                 ruleAction: %s
                 description: "%s"
 				%s
-                effects: [%s]
+                effects: []
             }
 			%s
         }
@@ -498,17 +503,15 @@ const (
 	UPDATE_IP_RANGE_BLOCK = `mutation {
     updateIpRangeRule(
         update: {
+            id: "%s"
             ruleDetails: {
-				id: "%s"
                 name: "%s"
-                rawIpRangeData: [%s]
+                rawIpRangeData: %s
                 ruleAction: %s
                 description: "%s"
                 eventSeverity: %s
 				%s
-                effects: [
-                    %s
-                ]
+                effects: []
             }
             %s
         }
@@ -517,7 +520,7 @@ const (
         __typename
     }
 }`
-	REGION_READ_QUERY=`{
+	REGION_READ_QUERY = `{
     regionRules {
         results {
             id
@@ -572,7 +575,7 @@ const (
     }
 }
 `
-	IP_RANGE_READ_QUERY=`{
+	IP_RANGE_READ_QUERY = `{
   ipRangeRules {
     results {
       id

@@ -14,16 +14,21 @@ func GetDatSetQuery(id string, name string, description string, iconType string)
 }
 
 func GetOverridesCreateQuery(id string, name string, description string, dataSuppressionOverride string, environments []interface{}, spanFilter []interface{}) string {
-	keyPatterns := spanFilter[0].(map[string]interface{})["key_patterns"].([]interface{})
-	keyOperator := keyPatterns[0].(map[string]interface{})["operator"]
-	keyValue := keyPatterns[0].(map[string]interface{})["value"]
-	valuePatternString := ""
-	if valuePattern, ok := spanFilter[0].(map[string]interface{})["value_patterns"].([]interface{}); ok {
-		valueOp := valuePattern[0].(map[string]interface{})["operator"]
-		value := valuePattern[0].(map[string]interface{})["value"]
-		valuePatternString = fmt.Sprintf(VALUE_PATTERN_QUERY, valueOp, value)
+	spanFilterQuery := ""
+	if len(spanFilter) > 0 {
+		keyPatterns := spanFilter[0].(map[string]interface{})["key_patterns"].([]interface{})
+		keyOperator := keyPatterns[0].(map[string]interface{})["operator"]
+		keyValue := keyPatterns[0].(map[string]interface{})["value"]
+		valuePatternString := ""
+		if valuePattern, ok := spanFilter[0].(map[string]interface{})["value_patterns"].([]interface{}); ok {
+			if len(valuePattern) > 0 {
+				valueOp := valuePattern[0].(map[string]interface{})["operator"]
+				value := valuePattern[0].(map[string]interface{})["value"]
+				valuePatternString = fmt.Sprintf(VALUE_PATTERN_QUERY, valueOp, value)
+			}
+		}
+		spanFilterQuery = fmt.Sprintf(SPAN_FILTER_OVERRIDES_QUERY, keyOperator, keyValue, valuePatternString)
 	}
-	spanFilterQuery := fmt.Sprintf(SPAN_FILTER_OVERRIDES_QUERY, keyOperator, keyValue, valuePatternString)
 	envScopedString := ""
 	if len(environments) > 0 {
 		envScopedString = fmt.Sprintf(ENV_OVERRIDES_QUERY, common.InterfaceToStringSlice(environments))

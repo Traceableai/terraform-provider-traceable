@@ -3,11 +3,10 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"log"
 )
 
 func ResourceRegionRuleBlock() *schema.Resource {
@@ -32,7 +31,7 @@ func ResourceRegionRuleBlock() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Need to provide the action to be performed (BLOCK,BLOCK_ALL_EXCEPT)",
 				Optional:    true,
-				Default: "BLOCK",
+				Default:     "BLOCK",
 			},
 			"event_severity": {
 				Type:        schema.TypeString,
@@ -73,23 +72,6 @@ func ResourceRegionRuleBlock() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"inject_request_headers": {
-				Type:        schema.TypeList,
-				Description: "Inject Data in Request header?",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"header_key": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"header_value": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
 		},
 	}
 }
@@ -101,21 +83,21 @@ func resourceRegionRuleBlockCreate(d *schema.ResourceData, meta interface{}) err
 	regions := d.Get("regions").(*schema.Set).List()
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	inject_request_headers := d.Get("inject_request_headers").([]interface{})
 	environment := d.Get("environment").(*schema.Set).List()
-
-	exipiryDurationString := ReturnExipiryDuration(expiration)
+	exipiryDurationString := RegionRuleExpiryString(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
-
-	query := fmt.Sprintf(CREATE_REGION_RULE_BLOCK,name,strings.Join(common.InterfaceToStringSlice(regions), ","),rule_action,description,event_severity,exipiryDurationString,finalAgentEffectQuery,envQuery)
+	regionIds, ok := MapCountryNameToRegionId(regions, meta)
+	if ok != nil {
+		return fmt.Errorf("error: %s", ok)
+	}
+	query := fmt.Sprintf(CREATE_REGION_RULE_BLOCK, name, common.InterfaceToStringSlice(regionIds), rule_action, description, event_severity, exipiryDurationString, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createRegionRule")
+	id, err := common.GetIdFromResponse(responseStr, "createRegionRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -140,38 +122,43 @@ func resourceRegionRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 		d.SetId("")
 		return nil
 	}
-	ruleDetails := ruleData["ruleDetails"].(map[string]interface{})
-	d.Set("name", ruleDetails["name"].(string))
-	d.Set("description", ruleDetails["description"].(string))
-	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	event_severity, ok := ruleDetails["eventSeverity"].(string)
+	d.Set("name", ruleData["name"].(string))
+	d.Set("description", ruleData["description"].(string))
+	d.Set("rule_action", ruleData["type"].(string))
+	event_severity, ok := ruleData["eventSeverity"].(string)
 	if ok {
 		d.Set("event_severity", event_severity)
 	} else {
 		d.Set("event_severity", nil)
 	}
-	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	expiration, ok := ruleDetails["expiration"].(string)
+	expiration, ok := ruleData["expiration"]
 	if ok {
 		d.Set("expiration", expiration)
 	} else {
-		d.Set("expiration", nil)
+		d.Set("expiration", "")
 	}
 
-	rawIpRangeData := ruleDetails["rawIpRangeData"].([]interface{})
-	d.Set("regions", rawIpRangeData)
+	finalRegionsState := []interface{}{}
+	regionsData := ruleData["regions"].([]interface{})
+	for _, regions := range regionsData {
+		regionsMap := regions.(map[string]interface{})
+		countryName := regionsMap["name"].(string)
+		finalRegionsState = append(finalRegionsState, countryName)
+	}
+	d.Set("regions", finalRegionsState)
 
+	envFlag := false
 	if ruleScope, ok := ruleData["ruleScope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			}else{
-				d.Set("environment",[]interface{}{})
+				envFlag = true
 			}
 		}
 	}
-	injectedHeaders := SetInjectedHeaders(ruleDetails)
-	d.Set("inject_request_headers", injectedHeaders)
+	if !envFlag {
+		d.Set("environment", []interface{}{})
+	}
 	return nil
 }
 
@@ -183,21 +170,22 @@ func resourceRegionRuleBlockUpdate(d *schema.ResourceData, meta interface{}) err
 	regions := d.Get("regions").(*schema.Set).List()
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	inject_request_headers := d.Get("inject_request_headers").([]interface{})
 	environment := d.Get("environment").(*schema.Set).List()
 
-	exipiryDurationString := ReturnExipiryDuration(expiration)
+	exipiryDurationString := RegionRuleExpiryString(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
-
-	query := fmt.Sprintf(UPDATE_REGION_RULE_BLOCK,id,name,strings.Join(common.InterfaceToStringSlice(regions), ","),rule_action,description,event_severity,exipiryDurationString,finalAgentEffectQuery,envQuery)
+	regionIds, ok := MapCountryNameToRegionId(regions, meta)
+	if ok != nil {
+		return fmt.Errorf("error: %s", ok)
+	}
+	query := fmt.Sprintf(UPDATE_REGION_RULE_BLOCK, id, name, common.InterfaceToStringSlice(regionIds), rule_action, description, event_severity, exipiryDurationString, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql query %s", query)
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateRegionRule")
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateRegionRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -206,6 +194,6 @@ func resourceRegionRuleBlockUpdate(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceRegionRuleBlockDelete(d *schema.ResourceData, meta interface{}) error {
-	DeleteRegionRule(d,meta) //fix this
+	DeleteRegionRule(d, meta) //fix this
 	return nil
 }

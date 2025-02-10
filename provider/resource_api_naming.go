@@ -9,17 +9,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceApiExclusionRule() *schema.Resource {
+func ResourceApiNamingRule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApiExclusionRuleCreate,
-		Read:   resourceApiExclusionRuleRead,
-		Update: resourceApiExclusionRuleUpdate,
-		Delete: resourceApiExclusionRuleDelete,
+		Create: resourceApiNamingRuleCreate,
+		Read:   resourceApiNamingRuleRead,
+		Update: resourceApiNamingRuleUpdate,
+		Delete: resourceApiNamingRuleDelete,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
-				Description: "The name of the API exclusion rule",
+				Description: "The name of the API naming rule",
 				Required:    true,
 			},
 			"disabled": {
@@ -28,9 +28,16 @@ func resourceApiExclusionRule() *schema.Resource {
 				Required:    true,
 			},
 			"regexes": {
-				Type:        schema.TypeString,
-				Description: "http path regex pattern for the rule",
+				Type:        schema.TypeList,
+				Description: "List of regex patterns for the rule",
 				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
+			"values": {
+				Type:        schema.TypeList,
+				Description: "Corresponding values for the regex patterns",
+				Required:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"service_names": {
 				Type:        schema.TypeList,
@@ -47,20 +54,23 @@ func resourceApiExclusionRule() *schema.Resource {
 		},
 	}
 }
-func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) error {
+
+func resourceApiNamingRuleCreate(d *schema.ResourceData, meta interface{}) error {
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
-	regexes := d.Get("regexes").(string)
+	regexes := d.Get("regexes").([]interface{})
+	values := d.Get("values").([]interface{})
 	serviceNames := d.Get("service_names").([]interface{})
 	environmentNames := d.Get("environment_names").([]interface{})
 
+	if len(regexes) != len(values) {
+		return fmt.Errorf("the number of regexes (%d) does not match the number of values (%d)", len(regexes), len(values))
+	}
+	if CheckEmptySegments(regexes) || CheckEmptySegments(values) {
+		return fmt.Errorf("found empty values")
+	}
 	var spanFilters []string
 
-	// Checking if env name list is (empty -> all env case)
-	environmentNames, ok := d.Get("environment_names").([]interface{})
-	if !ok {
-		fmt.Println("environment_names is not a valid []interface{} type")
-	}
 	if len(environmentNames) > 0 {
 		firstElement, ok := environmentNames[0].(string) // Proper type assertion
 		if ok && firstElement != "" {
@@ -74,11 +84,6 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 		fmt.Println("The environment_names list is empty")
 	}
 
-	// Checking if service name list is (empty -> all services case)
-	serviceNames, ok2 := d.Get("service_names").([]interface{})
-	if !ok2 {
-		fmt.Println("service_names is not a valid []interface{} type")
-	}
 	if len(serviceNames) > 0 {
 		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
 		if ok2 && firstElement != "" {
@@ -92,34 +97,44 @@ func resourceApiExclusionRuleCreate(d *schema.ResourceData, meta interface{}) er
 		fmt.Println("The service_names list is empty")
 	}
 
-	spanFilters = append(spanFilters, fmt.Sprintf(`
-        {relationalSpanFilter: {field: URL,relationalOperator: REGEX_MATCH,value: "%s"}}`, regexes))
-
-	spanFilterQueryPart := fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
-
-	query := fmt.Sprintf(`mutation{createExcludeSpanRule(input:{name:"%s" disabled:%t spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id __typename}}`, name, disabled, spanFilterQueryPart)
-
-	var response map[string]interface{}
-	responseStr, err := ExecuteQuery(query, meta)
-	err = json.Unmarshal([]byte(responseStr), &response)
-	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+	// spanFilter part of the query willbe empty in case of all env and all services
+	spanFilterQueryPart := ""
+	if len(spanFilters) > 0 {
+		spanFilterQueryPart = fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
+	} else {
+		spanFilterQueryPart = "spanFilters: []" // No filters to apply
 	}
 
-	if response["data"] != nil && response["data"].(map[string]interface{})["createExcludeSpanRule"] != nil {
-		id := response["data"].(map[string]interface{})["createExcludeSpanRule"].(map[string]interface{})["id"].(string)
+	query := fmt.Sprintf(`mutation{createApiNamingRule(input:{name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, name, disabled, jsonifyList(regexes), jsonifyList(values), spanFilterQueryPart)
+	fmt.Printf("This is the query %s", query)
+	var response map[string]interface{}
+	responseStr, err := ExecuteQuery(query, meta)
+	if err != nil {
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
+	}
+	err = json.Unmarshal([]byte(responseStr), &response)
+	if err != nil {
+		return fmt.Errorf("error unmarshling response: %s", err)
+
+	}
+
+	log.Printf("GraphQL response: %s", responseStr)
+
+	if response["data"] != nil && response["data"].(map[string]interface{})["createApiNamingRule"] != nil {
+		id := response["data"].(map[string]interface{})["createApiNamingRule"].(map[string]interface{})["id"].(string)
 		d.SetId(id)
 	} else {
-		return fmt.Errorf(responseStr)
+		return fmt.Errorf("could not create API naming rule, no ID returned")
 	}
 
 	return nil
 }
 
-func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id()
+func resourceApiNamingRuleRead(d *schema.ResourceData, meta interface{}) error {
+	id := d.Id() // Get the resource ID set during creation
 
-	query := `{excludeSpanRules{results{id name disabled spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{relationalOperator key value field}}}}}}}`
+	// GraphQL query to read the API Naming Rule details
+	query := `{apiNamingRules{results{id name disabled apiNamingRuleConfig{apiNamingRuleConfigType segmentMatchingBasedRuleConfig{regexes values}}spanFilter{logicalSpanFilter{logicalOperator spanFilters{relationalSpanFilter{field relationalOperator value}}}}}}}`
 
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
@@ -128,17 +143,21 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 
 	var response map[string]interface{}
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
-		return fmt.Errorf("error parsing JSON response: %s", err)
+		return err
 	}
 
-	// Navigate through the response to find the rule with the matching ID
-	results := response["data"].(map[string]interface{})["excludeSpanRules"].(map[string]interface{})["results"].([]interface{})
+	results := response["data"].(map[string]interface{})["apiNamingRules"].(map[string]interface{})["results"].([]interface{})
 	for _, item := range results {
 		rule := item.(map[string]interface{})
 		if rule["id"].(string) == id {
-			// Set the Terraform state to match the fetched data
 			d.Set("name", rule["name"].(string))
 			d.Set("disabled", rule["disabled"].(bool))
+
+			config := rule["apiNamingRuleConfig"].(map[string]interface{})
+			if configType, ok := config["segmentMatchingBasedRuleConfig"].(map[string]interface{}); ok {
+				d.Set("regexes", configType["regexes"].([]interface{}))
+				d.Set("values", configType["values"].([]interface{}))
+			}
 
 			// Handle spanFilter data
 			if spanFilter, exists := rule["spanFilter"].(map[string]interface{}); exists {
@@ -152,8 +171,6 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 							value := filter["value"]
 
 							switch field {
-							case "URL":
-								d.Set("regexes", value.(string))
 							case "SERVICE_NAME":
 								serviceNames = append(serviceNames, convertToStringSlicetype(value)...)
 							case "ENVIRONMENT_NAME":
@@ -173,21 +190,21 @@ func resourceApiExclusionRuleRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id() // Retrieve the ID of the resource
+func resourceApiNamingRuleUpdate(d *schema.ResourceData, meta interface{}) error {
+	id := d.Id()
 	name := d.Get("name").(string)
 	disabled := d.Get("disabled").(bool)
-	regexes := d.Get("regexes").(string)
+	regexes := d.Get("regexes").([]interface{})
+	values := d.Get("values").([]interface{})
 	serviceNames := d.Get("service_names").([]interface{})
 	environmentNames := d.Get("environment_names").([]interface{})
 
+	if len(regexes) != len(values) {
+		return fmt.Errorf("the number of regexes (%d) does not match the number of values (%d)", len(regexes), len(values))
+	}
+
 	var spanFilters []string
 
-	// Checking if env name list is (empty -> all env case)
-	environmentNames, ok := d.Get("environment_names").([]interface{})
-	if !ok {
-		fmt.Println("environment_names is not a valid []interface{} type")
-	}
 	if len(environmentNames) > 0 {
 		firstElement, ok := environmentNames[0].(string) // Proper type assertion
 		if ok && firstElement != "" {
@@ -201,11 +218,6 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 		fmt.Println("The environment_names list is empty")
 	}
 
-	// Checking if service name list is (empty -> all services case)
-	serviceNames, ok2 := d.Get("service_names").([]interface{})
-	if !ok2 {
-		fmt.Println("service_names is not a valid []interface{} type")
-	}
 	if len(serviceNames) > 0 {
 		firstElement, ok2 := serviceNames[0].(string) // Proper type assertion
 		if ok2 && firstElement != "" {
@@ -219,58 +231,61 @@ func resourceApiExclusionRuleUpdate(d *schema.ResourceData, meta interface{}) er
 		fmt.Println("The service_names list is empty")
 	}
 
-	spanFilters = append(spanFilters, fmt.Sprintf(`
-        {relationalSpanFilter: {field: URL,relationalOperator: REGEX_MATCH,value: "%s"}}`, regexes))
+	spanFilterQueryPart := ""
+	if len(spanFilters) > 0 {
+		spanFilterQueryPart = fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
+	} else {
+		spanFilterQueryPart = "spanFilters: []" // No filters to apply
+	}
 
-	spanFilterQueryPart := fmt.Sprintf("spanFilters: [%s]", strings.Join(spanFilters, ","))
+	query := fmt.Sprintf(`mutation{updateApiNamingRule(input:{id:"%s" name:"%s" disabled:%t apiNamingRuleConfig:{apiNamingRuleConfigType:SEGMENT_MATCHING segmentMatchingBasedRuleConfig:{regexes:%s,values:%s}}spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id}}`, id, name, disabled, jsonifyList(regexes), jsonifyList(values), spanFilterQueryPart)
 
-	query := fmt.Sprintf(`mutation{updateExcludeSpanRule(input:{id:"%s" name:"%s" disabled:%t spanFilter:{logicalSpanFilter:{logicalOperator:AND,%s}}}){id __typename}}`, id, name, disabled, spanFilterQueryPart)
-
+	log.Printf((query))
 	var response map[string]interface{}
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL query: %s", err)
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
-
 	err = json.Unmarshal([]byte(responseStr), &response)
 	if err != nil {
-		return fmt.Errorf("Error parsing JSON response from update operation: %s", err)	
+		return fmt.Errorf("error unmarshaling response: %s", err)
 	}
 
-	if response["data"] == nil || response["data"].(map[string]interface{})["updateExcludeSpanRule"] == nil {
-		log.Printf("GraphQL update did not return expected results: %s", responseStr)
-		return fmt.Errorf("update operation did not return expected results")
-	}
-
-	log.Printf("Updated API Exclusion Rule: %s", responseStr)
-	if response["data"] != nil && response["data"].(map[string]interface{})["updateExcludeSpanRule"] != nil {
-		updatedId := response["data"].(map[string]interface{})["updateExcludeSpanRule"].(map[string]interface{})["id"].(string)
+	log.Printf("GraphQL response: %s", responseStr)
+	if response["data"] != nil && response["data"].(map[string]interface{})["updateApiNamingRule"] != nil {
+		updatedId := response["data"].(map[string]interface{})["updateApiNamingRule"].(map[string]interface{})["id"].(string)
 		d.SetId(updatedId)
 	} else {
-		return fmt.Errorf("could not update API exclusion rule, response data is incomplete")
+		return fmt.Errorf("could not update API naming rule, response data is incomplete")
 	}
+
 	return nil
 }
-func resourceApiExclusionRuleDelete(d *schema.ResourceData, meta interface{}) error {
+
+func resourceApiNamingRuleDelete(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id() // Retrieve the ID of the resource to delete
 
-	query := fmt.Sprintf(`mutation{deleteExcludeSpanRule(input:{id:%q}){success __typename}}`, id)
+	query := fmt.Sprintf(`
+mutation {deleteApiNamingRule(input: { id: "%s" }) {success,__typename}}`, id)
 
+	// Execute the GraphQL mutation
 	responseStr, err := ExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("Error while executing GraphQL mutation for deletion: %s", err)
+		return fmt.Errorf("error while executing GraphQL query: %s", err)
 	}
+
+	log.Printf("GraphQL response: %s", responseStr)
 
 	var response map[string]interface{}
 	if err := json.Unmarshal([]byte(responseStr), &response); err != nil {
-		return fmt.Errorf("Error parsing JSON response: %s", err)
+		return err
 	}
 
 	// Check the success field from the response to ensure the deletion was processed correctly
-	successResponse := response["data"].(map[string]interface{})["deleteExcludeSpanRule"].(map[string]interface{})
+	successResponse := response["data"].(map[string]interface{})["deleteApiNamingRule"].(map[string]interface{})
 	success := successResponse["success"].(bool)
 	if !success {
-		return fmt.Errorf("failed to delete API Exclusion Rule with ID %s", id)
+		return fmt.Errorf("failed to delete API Naming Rule with ID %s", id)
 	}
 
 	// If deletion was successful, remove the resource ID from the state

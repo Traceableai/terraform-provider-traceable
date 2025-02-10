@@ -3,11 +3,10 @@ package custom_signature
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"log"
+	"strings"
 )
 
 func ResourceCustomSignatureAlertRule() *schema.Resource {
@@ -120,8 +119,7 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
-				Optional:    true,
-				Default:     false,
+				Required:    true,
 			},
 			"alert_severity": {
 				Type:        schema.TypeString,
@@ -136,6 +134,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	name := d.Get("name").(string)
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
+	disabled := d.Get("disabled").(bool)
 	environments := d.Get("environments").(*schema.Set).List()
 	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
@@ -146,7 +145,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
-	finalAttributeBasedConditionsQuery,_ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
+	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
 		return fmt.Errorf("please provide on of finalReqResConditionsQuery or custom_sec_rule")
@@ -155,7 +154,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	customSecRuleQuery := ReturnCustomSecRuleQuery(custom_sec_rule)
 	finalAgentEffectQuery := ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(ALERT_CREATE_QUERY, name, description, rule_type, finalAgentEffectQuery, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
+	query := fmt.Sprintf(ALERT_CREATE_QUERY, name, description, disabled, rule_type, finalAgentEffectQuery, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, finalAttributeBasedConditionsQuery, envQuery)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
@@ -192,13 +191,17 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("disabled", ruleDetails["disabled"].(bool))
-	d.Set("rule_type", "NORMAL_DETECTION")
+	d.Set("rule_type", ruleDetails["ruleEffect"].(map[string]interface{})["eventType"].(string))
 
 	reqResConditions := []map[string]interface{}{}
 	injectedHeaders := []map[string]interface{}{}
 	attributeBasedConditions := []map[string]interface{}{}
 	if ruleEffect, ok := ruleDetails["ruleEffect"].(map[string]interface{}); ok {
-		d.Set("alert_severity", ruleEffect["eventSeverity"].(string))
+		if eventSeverity, ok := ruleEffect["eventSeverity"].(string); ok {
+			d.Set("alert_severity", eventSeverity)
+		} else {
+			d.Set("alert_severity", "")
+		}
 		if effects, ok := ruleEffect["effects"].([]interface{}); ok {
 			for _, effect := range effects {
 				effectMap := effect.(map[string]interface{})
@@ -298,11 +301,13 @@ func ResourceCustomSignatureAlertUpdate(d *schema.ResourceData, meta interface{}
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	alert_severity := d.Get("alert_severity").(string)
 	inject_request_headers := d.Get("inject_request_headers").([]interface{})
-	custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
+	if !strings.Contains(custom_sec_rule, `\n`) {
+		custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
+	}
 
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
-	finalAttributeBasedConditionsQuery,_ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
+	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
 		return fmt.Errorf("please provide on of finalReqResConditionsQuery or custom_sec_rule")
 	}
@@ -330,9 +335,9 @@ func ResourceCustomSignatureAlertUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func ResourceCustomSignatureAlertDelete(d *schema.ResourceData, meta interface{}) error {
-	err := DeleteCustomSignatureRule(d,meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	err := DeleteCustomSignatureRule(d, meta)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	return nil
 }

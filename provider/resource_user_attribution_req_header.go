@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceUserAttributionRequestHeaderRule() *schema.Resource {
+func ResourceUserAttributionRequestHeaderRule() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceUserAttributionRuleRequestHeaderCreate,
 		Read:   resourceUserAttributionRuleRequestHeaderRead,
@@ -156,7 +156,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 	} else if scopeType == "CUSTOM" {
 
 		if scopedQuery == "" {
-			return fmt.Errorf("Provide enviroment or url regex for custom scoped user attribution or remove one of them")
+			return fmt.Errorf("provide enviroment or url regex for custom scoped user attribution or remove one of them")
 		}
 		query = fmt.Sprintf(`mutation {
 			createUserAttributionRule(
@@ -186,7 +186,7 @@ func resourceUserAttributionRuleRequestHeaderCreate(d *schema.ResourceData, meta
 			}
 		  }`, name, category, authTypeQuery, user_id_location, parsingTargetUserId, parsingTargetUserRole, scopedQuery)
 	} else {
-		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
+		return fmt.Errorf("expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
 
 	var response map[string]interface{}
@@ -373,7 +373,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 			scopedQuery = fmt.Sprintf(`customScope: {urlScopes: [{urlMatchRegex: "%s"}]}`, url_regex)
 		}
 		if scopedQuery == "" {
-			return fmt.Errorf("Provide enviroment or url regex for custom scoped user attribution or remove one of them")
+			return fmt.Errorf("provide enviroment or url regex for custom scoped user attribution or remove one of them")
 		}
 		query = fmt.Sprintf(`mutation {
 			updateUserAttributionRule(
@@ -403,7 +403,7 @@ func resourceUserAttributionRuleRequestHeaderUpdate(d *schema.ResourceData, meta
 			}
 		  }`, name, category, id, disabled, rank, scopedQuery, authTypeQuery, user_id_location, parsingTargetUserId, parsingTargetUserRole)
 	} else {
-		return fmt.Errorf("Expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
+		return fmt.Errorf("expected values are CUSTOM or SYSTEM_WIDE for user attribution scope type")
 	}
 
 	var response map[string]interface{}

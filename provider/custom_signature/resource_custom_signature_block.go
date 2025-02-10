@@ -98,8 +98,7 @@ func ResourceCustomSignatureBlockRule() *schema.Resource {
 			"disabled": {
 				Type:        schema.TypeBool,
 				Description: "Flag to enable or disable the rule",
-				Optional:    true,
-				Default:     false,
+				Required:    true,
 			},
 			"alert_severity": {
 				Type:        schema.TypeString,
@@ -115,14 +114,14 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
 	environments := d.Get("environments").(*schema.Set).List()
-	// 	disabled := d.Get("disabled").(bool)
+	disabled := d.Get("disabled").(bool)
 	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	alert_severity := d.Get("alert_severity").(string)
 	custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
 
 	block_expiry_duration := d.Get("block_expiry_duration").(string)
-	
+
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
 
@@ -133,7 +132,7 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	customSecRuleQuery := ReturnCustomSecRuleQuery(custom_sec_rule)
 	exipiryDurationString := ReturnExipiryDuration(block_expiry_duration)
 
-	query := fmt.Sprintf(BLOCK_CREATE_QUERY, name, description, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
+	query := fmt.Sprintf(BLOCK_CREATE_QUERY, name, description, disabled, rule_type, alert_severity, finalReqResConditionsQuery, customSecRuleQuery, envQuery, exipiryDurationString)
 
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
@@ -171,10 +170,14 @@ func ResourceCustomSignatureBlockRead(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("name", ruleDetails["name"].(string))
 	d.Set("disabled", ruleDetails["disabled"].(bool))
-	d.Set("rule_type", "DETECTION_AND_BLOCKING")
+	d.Set("rule_type", ruleDetails["ruleEffect"].(map[string]interface{})["eventType"].(string))
 	reqResConditions := []map[string]interface{}{}
 	if ruleEffect, ok := ruleDetails["ruleEffect"].(map[string]interface{}); ok {
-		d.Set("alert_severity", ruleEffect["eventSeverity"].(string))
+		if eventSeverity, ok := ruleEffect["eventSeverity"].(string); ok {
+			d.Set("alert_severity", eventSeverity)
+		} else {
+			d.Set("alert_severity", "")
+		}
 	}
 	customSecRuleFlag := true
 	if ruleDefinition, ok := ruleDetails["ruleDefinition"].(map[string]interface{}); ok {
@@ -239,9 +242,11 @@ func ResourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	alert_severity := d.Get("alert_severity").(string)
 	block_expiry_duration := d.Get("block_expiry_duration").(string)
-
+	if !strings.Contains(custom_sec_rule, `\n`) {
+		custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
+	}
 	disabled := d.Get("disabled").(bool)
-	
+
 	envQuery := ReturnEnvScopedQuery(environments)
 	finalReqResConditionsQuery := ReturnReqResConditionsQuery(req_res_conditions)
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" {
@@ -271,9 +276,9 @@ func ResourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
 }
 
 func ResourceCustomSignatureBlockDelete(d *schema.ResourceData, meta interface{}) error {
-	err:=DeleteCustomSignatureRule(d,meta)
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	err := DeleteCustomSignatureRule(d, meta)
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	return nil
 }

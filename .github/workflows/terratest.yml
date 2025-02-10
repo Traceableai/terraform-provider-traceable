@@ -1,0 +1,85 @@
+name: Terraform Provider CI
+
+on:
+  workflow_dispatch:
+    inputs:
+     url:
+        description: "Env of tests to run"
+        default: "https://app-dev.traceable.ai/graphql"
+        required: true
+     jwt:
+        description: "Enter the jwt"
+        required: true
+  
+  
+env:
+  GO_VERSION: '1.22.2'
+  PYTHON_VERSION: '3.13.1'
+  TERRAFORM_VERSION: '1.10.0'
+
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        go mod tidy
+        sudo apt-get update
+        sudo apt-get install -y python3-pip
+        pip3 install --upgrade pip
+        pip3 install junit2html
+
+    - name: Verify installations
+      run: |
+        terraform --version
+        python3  --version
+        go version    
+
+    - name: Build provider
+      run: |
+        go build -o terraform-provider-traceable
+        rm -rf .terraformrc terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl .terraform
+        mmkdir -p  ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
+        mv terraform-provider-traceable ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
+
+    - name: Run tests
+      env:
+        JWT: ${{ matrix.jwt }}
+        URL: ${{ matrix.url}}
+
+      run: |
+        cd test
+        export PLATFORM_URL=${URL}
+        export TRACEABLE_API_KEY=${JWT}
+        go test -v ./... | tee test_output.log
+        terratest_log_parser -testlog test_output.log -outputdir test_results
+
+    - name: Convert test report
+      if: always()
+      run: |
+        cd test
+        junit2html test_results/report.xml test_reports/report.html
+
+    - name: Archive test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: |
+          test/report.html
+          test/test_output.log

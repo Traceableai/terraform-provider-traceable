@@ -1,11 +1,11 @@
 package data_classification
 
 import (
-	"fmt"
-	"log"
 	"encoding/json"
-	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"log"
 )
 
 func ResourceDataSetsRule() *schema.Resource {
@@ -39,16 +39,16 @@ func ResourceDataSetsRuleCreate(rData *schema.ResourceData, meta interface{}) er
 	name := rData.Get("name").(string)
 	description := rData.Get("description").(string)
 	iconType := rData.Get("icon_type").(string)
-	createQuery := GetDatSetQuery("",name,description,iconType)
+	createQuery := GetDatSetQuery("", name, description, iconType)
 	log.Printf("This is the graphql query %s", createQuery)
 	responseStr, err := common.CallExecuteQuery(createQuery, meta)
 	if err != nil {
-		return fmt.Errorf("error occured :%s",err)
+		return fmt.Errorf("error occured :%s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createDataSet")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	id, err := common.GetIdFromResponse(responseStr, "createDataSet")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	rData.SetId(id)
 	return nil
@@ -71,9 +71,9 @@ func ResourceDataSetsRuleRead(rData *schema.ResourceData, meta interface{}) erro
 		rData.SetId("")
 		return nil
 	}
-	rData.Set("name",ruleData["name"].(string))
-	rData.Set("description",ruleData["description"].(string))
-	rData.Set("iconType",ruleData["iconType"].(string))
+	rData.Set("name", ruleData["name"].(string))
+	rData.Set("description", ruleData["description"].(string))
+	rData.Set("iconType", ruleData["iconType"].(string))
 	return nil
 }
 
@@ -82,16 +82,16 @@ func ResourceDataSetsRuleUpdate(rData *schema.ResourceData, meta interface{}) er
 	name := rData.Get("name").(string)
 	description := rData.Get("description").(string)
 	iconType := rData.Get("icon_type").(string)
-	updateQuery := GetDatSetQuery(id,name,description,iconType)
+	updateQuery := GetDatSetQuery(id, name, description, iconType)
 	log.Printf("This is the graphql query %s", updateQuery)
 	responseStr, err := common.CallExecuteQuery(updateQuery, meta)
 	if err != nil {
-		return fmt.Errorf("error occured :%s",err)
+		return fmt.Errorf("error occured :%s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateDataSet")
-	if err!=nil {
-		return fmt.Errorf("error %s",err)
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateDataSet")
+	if err != nil {
+		return fmt.Errorf("error %s", err)
 	}
 	rData.SetId(updatedId)
 	return nil
