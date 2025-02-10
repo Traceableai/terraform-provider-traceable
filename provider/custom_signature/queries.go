@@ -345,7 +345,7 @@ const (
                                     }
                                 }`
 	ENVIRONMENT_SCOPE_QUERY = `ruleScope: {
-                                   environmentScope: { environmentIds: [%s] }
+                                   environmentScope: { environmentIds: %s }
                                }`
 	REQ_RES_CONDITION_QUERY = `{
 								clauseType: MATCH_EXPRESSION

@@ -6,9 +6,8 @@ import (
 	"strings"
 )
 
-
 func CheckEmptySegments(segments []interface{}) bool {
-	for _,seg := range segments{
+	for _, seg := range segments {
 		if seg == nil {
 			return true
 		}

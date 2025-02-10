@@ -3,12 +3,10 @@ package malicious_sources
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"log"
 )
 
 func ResourceEmailDomainBlock() *schema.Resource {
@@ -117,7 +115,7 @@ func resourceEmailDomainBlockCreate(d *schema.ResourceData, meta interface{}) er
 	exipiryDurationString := ReturnMalicousSourcesExipiryDuration(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
 	emailFraudScoreQuery := ReturnEmailFraudScoreQuery(email_fraud_score)
-	query := fmt.Sprintf(CREATE_EMAIL_DOMAIN_BLOCK, name, description, event_severity, rule_action, exipiryDurationString, data_leaked_email, disposable_email_domain, strings.Join(common.InterfaceToStringSlice(email_domains), ","), strings.Join(common.InterfaceToStringSlice(email_regexes), ","), emailFraudScoreQuery, envQuery)
+	query := fmt.Sprintf(CREATE_EMAIL_DOMAIN_BLOCK, name, description, event_severity, rule_action, exipiryDurationString, data_leaked_email, disposable_email_domain, common.InterfaceToStringSlice(email_domains), common.InterfaceToStringSlice(email_regexes), emailFraudScoreQuery, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)
@@ -162,26 +160,32 @@ func resourceEmailDomainBlockRead(d *schema.ResourceData, meta interface{}) erro
 		d.Set("rule_action", action["ruleActionType"])
 	}
 
-	condition := ruleData["conditions"].([]interface{})[0].(map[string]interface{})
+	condition := ruleDetails["conditions"].([]interface{})[0].(map[string]interface{})
 	emailDomainCondition := condition["emailDomainCondition"].(map[string]interface{})
 	d.Set("data_leaked_email", emailDomainCondition["dataLeakedEmail"])
 	d.Set("disposable_email_domain", emailDomainCondition["disposableEmailDomain"])
 	d.Set("email_regexes", emailDomainCondition["emailRegexes"].([]interface{}))
 	d.Set("email_domains", emailDomainCondition["emailDomains"].([]interface{}))
+	emailFraudScoreFlag := true
 	if emailFraudScore, ok := emailDomainCondition["emailFraudScore"].(map[string]interface{}); ok {
 		d.Set("email_fraud_score", emailFraudScore["minEmailFraudScoreLevel"])
-	} else {
-		d.Set("email_fraud_score", "")
+		emailFraudScoreFlag = false
+	}
+	if emailFraudScoreFlag {
+		d.Set("email_fraud_score", false)
 	}
 
-	if ruleScope, ok := ruleData["scope"].(map[string]interface{}); ok {
+	envFlag := true
+	if ruleScope, ok := ruleDetails["scope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			} else {
-				d.Set("environment", []interface{}{})
+				envFlag = false
 			}
 		}
+	}
+	if envFlag {
+		d.Set("environment", []interface{}{})
 	}
 	return nil
 }
@@ -201,9 +205,9 @@ func resourceEmailDomainBlockUpdate(d *schema.ResourceData, meta interface{}) er
 	environment := d.Get("environment").(*schema.Set).List()
 
 	exipiryDurationString := ReturnMalicousSourcesExipiryDuration(expiration)
-	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
+	envQuery := ReturnEnvScopedQuery(environment)
 	emailFraudScoreQuery := ReturnEmailFraudScoreQuery(email_fraud_score)
-	query := fmt.Sprintf(UPDATE_EMAIL_DOMAIN_BLOCK, id, name, description, event_severity, rule_action, exipiryDurationString, data_leaked_email, disposable_email_domain, strings.Join(common.InterfaceToStringSlice(email_domains), ","), strings.Join(common.InterfaceToStringSlice(email_regexes), ","), emailFraudScoreQuery, envQuery)
+	query := fmt.Sprintf(UPDATE_EMAIL_DOMAIN_BLOCK, id, name, description, event_severity, rule_action, exipiryDurationString, data_leaked_email, disposable_email_domain, common.InterfaceToStringSlice(email_domains), common.InterfaceToStringSlice(email_regexes), emailFraudScoreQuery, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)
