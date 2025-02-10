@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/notification"
-	"log"
-	"strings"
 )
 
 func ResourceDetectionConfigRule() *schema.Resource {
@@ -45,7 +45,7 @@ func ResourceDetectionConfigRule() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"disabled": {
 										Type:        schema.TypeBool,
-										Description: "Flag to enable/disable the detection config",
+										Description: "Flag to enable/disable the detection config(True/False)",
 										Required:    true,
 									},
 								},
@@ -98,6 +98,7 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
 	waapConfig := d.Get("waap_config").([]interface{})
 	firstWaapConfig := waapConfig[0].(map[string]interface{})
 	subRuleConfig := firstWaapConfig["subrule_config"].([]interface{})
+	if len(ruleConfig)>0{
 	subRuleId := subRuleConfig[0].(map[string]interface{})["sub_rule_id"].(string)
 
 	anomalyScope := GetConfigScope(environment)
@@ -154,24 +155,25 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
 	waapConfigs := d.Get("waap_config").([]interface{})
 	firstWaapConfig := waapConfigs[0].(map[string]interface{})
 	ruleId := firstWaapConfig["rule_id"].(string)
-
+	ruleConfigString := ""
+    configType, err := GetConfigType(ruleId)
 	ruleConfig := firstWaapConfig["rule_config"].([]interface{})
+	if len(ruleConfig)>0{
 	disabled := ruleConfig[0].(map[string]interface{})["disabled"].(bool)
-
+	ruleConfigString, err = GetRuleConfig(ruleId, configType, disabled)
+	}
 	subRuleConfig := firstWaapConfig["subrule_config"].([]interface{})
+	if len(subRuleConfig)>0{
 	subRuleId := subRuleConfig[0].(map[string]interface{})["sub_rule_id"].(string)
 	subRuleAction := subRuleConfig[0].(map[string]interface{})["sub_rule_action"].(string)
-
+	ruleConfigString, err = GetSubRuleConfig(subRuleId, subRuleAction, ruleId, configType)
+	}
 	configScope := GetConfigScope(environment)
-	configType, err := GetConfigType(ruleId)
+	
 	if err != nil {
 		return err
 	}
-	ruleConfigs, err := GetRuleConfig(ruleId, configType, disabled, subRuleId, subRuleAction)
-	if err != nil {
-		return err
-	}
-	query := fmt.Sprintf(UPDATE_WAAP_CONFIG, configScope, ruleConfigs)
+	query := fmt.Sprintf(UPDATE_WAAP_CONFIG, configScope, ruleConfigString)
 
 	var response map[string]interface{}
 
