@@ -443,7 +443,7 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 		if len(dataSetIds) == 0 && len(dataTypeIds) == 0 {
 			return fmt.Errorf("atmost one is required")
 		}
-		if len(dataSetIds) >0 && len(dataTypeIds)>0 {
+		if len(dataSetIds) > 0 && len(dataTypeIds) > 0 {
 			return fmt.Errorf("atmost one is required")
 		}
 	}
@@ -1025,7 +1025,7 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, id,ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, id, ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
