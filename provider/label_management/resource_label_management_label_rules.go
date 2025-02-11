@@ -106,29 +106,42 @@ func ResourceLabelApplicationRule() *schema.Resource {
 
 
 func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interface{}) error {
-	actionList, ok := rData.Get("action").([]interface{})
+	actionList := rData.Get("action").([]interface{})
 
-	actionMap, ok := actionList[0].(map[string]interface{})
-	if !ok {
-		return fmt.Errorf("invalid action structure")
-	}
+	actionMap := actionList[0].(map[string]interface{})
 
-	actionType, ok := actionMap["type"].(string)
-	if !ok || (actionType != "STATIC_LABELS" && actionType != "DYNAMIC_LABEL") {
-		return fmt.Errorf("invalid action type: must be either STATIC_LABELS or DYNAMIC_LABEL")
-	}
+	actionType := actionMap["type"].(string)
 
 	if actionType == "STATIC_LABELS" {
-		if _, exists := actionMap["dynamic_label_key"]; exists {
-			return fmt.Errorf("dynamic_label_key should not be present when type is STATIC_LABELS")
-		}
-	} else if actionType == "DYNAMIC_LABEL" {
-		if _, exists := actionMap["static_labels"]; exists {
-			return fmt.Errorf("static_labels should not be present when type is DYNAMIC_LABEL")
+		if dynamicLabelKey, exists := actionMap["dynamic_label_key"]; exists {
+
+			if strVal, isString := dynamicLabelKey.(string); isString && strVal == "" {
+				return fmt.Errorf("dynamic_label_key should not be present when type is STATIC_LABELS")
+			}
+
+			if keyList, isList := dynamicLabelKey.([]interface{}); isList && len(keyList) > 0 {
+				return fmt.Errorf("dynamic_label_key should not be present when type is STATIC_LABELS")
+			}
 		}
 	}
+
+	if actionType == "DYNAMIC_LABEL" {
+		if staticLabels, exists := actionMap["static_labels"]; exists {
+
+			if strVal, isString := staticLabels.(string); isString && strVal == "" {
+				return fmt.Errorf("static_labels should not be present when type is DYNAMIC_LABEL")
+			}
+
+			if labelList, isList := staticLabels.([]interface{}); isList && len(labelList) > 0 {
+				return fmt.Errorf("static_labels should not be present when type is DYNAMIC_LABEL")
+			}
+		}
+	}
+
 	return nil
 }
+
+
 
 func suppressConditionListDiff(k, old, new string, d *schema.ResourceData) bool {
 	return SuppressListDiff(old, new)
