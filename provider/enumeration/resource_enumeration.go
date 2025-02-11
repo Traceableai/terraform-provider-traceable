@@ -23,8 +23,7 @@ func ResourceEnumerationRule() *schema.Resource {
 			"rule_type": {
 				Type:        schema.TypeString,
 				Description: "ALERT or BLOCK",
-				Optional:    true,
-				Default:     "BLOCK",
+				Required:    true,
 			},
 			"name": {
 				Type:        schema.TypeString,
@@ -439,12 +438,12 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	isDataTypesConditionsEmpty := true
 	for _, data := range dataTypesConditions {
 		isDataTypesConditionsEmpty = false
-		dataTypeIds := data.(map[string]interface{})["data_type_ids"]
-		dataSetIds := data.(map[string]interface{})["data_sets_ids"]
-		if dataSetIds == "" && dataTypeIds == "" {
+		dataTypeIds := data.(map[string]interface{})["data_type_ids"].([]interface{})
+		dataSetIds := data.(map[string]interface{})["data_sets_ids"].([]interface{})
+		if len(dataSetIds) == 0 && len(dataTypeIds) == 0 {
 			return fmt.Errorf("atmost one is required")
 		}
-		if dataSetIds != "" && dataTypeIds != "" {
+		if len(dataSetIds) >0 && len(dataTypeIds)>0 {
 			return fmt.Errorf("atmost one is required")
 		}
 	}
@@ -585,7 +584,7 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 	log.Printf("This is the graphql query %s", createEnumerationQuery)
 	log.Printf("This is the graphql response %s", responseStr)
-	id, err := common.GetIdFromResponse(responseStr, "")
+	id, err := common.GetIdFromResponse(responseStr, "createRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -1026,7 +1025,7 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, ENUMERATION_QUERY_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, id,ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)

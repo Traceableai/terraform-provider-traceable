@@ -476,10 +476,8 @@ const (
                     leafCondition: {
                         conditionType: DATATYPE
                         datatypeCondition: {
-                            datasetIds: [%s]
-                            datatypeIds: [
-                                %s
-                            ]
+                            datasetIds: %s
+                            datatypeIds: %s
                             %s
                         }
                     }
