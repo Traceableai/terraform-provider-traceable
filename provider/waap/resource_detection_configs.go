@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/notification"
+	"log"
+	"strings"
 )
 
 func ResourceDetectionConfigRule() *schema.Resource {
@@ -94,13 +94,6 @@ func resourceDetectionConfigCreate(d *schema.ResourceData, meta interface{}) err
 func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error {
 	crs_id := d.Id()
 	environment := d.Get("environment").(string)
-
-	waapConfig := d.Get("waap_config").([]interface{})
-	firstWaapConfig := waapConfig[0].(map[string]interface{})
-	subRuleConfig := firstWaapConfig["subrule_config"].([]interface{})
-	if len(ruleConfig)>0{
-	subRuleId := subRuleConfig[0].(map[string]interface{})["sub_rule_id"].(string)
-
 	anomalyScope := GetConfigScope(environment)
 	readQuery := fmt.Sprintf(READ_QUERY, anomalyScope)
 	var response map[string]interface{}
@@ -113,32 +106,39 @@ func resourceDetectionConfigRead(d *schema.ResourceData, meta interface{}) error
 	if err != nil {
 		return fmt.Errorf("error:%s", err)
 	}
+	waapConfig := d.Get("waap_config").([]interface{})
+	firstWaapConfig := waapConfig[0].(map[string]interface{})
+	subRuleConfig := firstWaapConfig["subrule_config"].([]interface{})
 	fetchedWaapConfig := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "anomalyDetectionRuleConfigs", crs_id, "ruleId", "ruleName")
+	subRuleConfigArr := []map[string]interface{}{}
+	if len(subRuleConfig) > 0 {
+		subRuleId := subRuleConfig[0].(map[string]interface{})["sub_rule_id"].(string)
+		subRuleConfigs := fetchedWaapConfig["subRuleConfigs"].([]interface{})
+		anomalySubRuleAction := ""
+		for _, subRuleConfig := range subRuleConfigs {
+			subRuleConfigData := subRuleConfig.(map[string]interface{})
+			fetchedSubRuleId := subRuleConfigData["subRuleId"].(string)
+			if fetchedSubRuleId == subRuleId {
+				anomalySubRuleAction = subRuleConfigData["anomalySubRuleAction"].(string)
+				break
+			}
+		}
+		subRuleConfigObj := map[string]interface{}{
+			"sub_rule_id":     subRuleId,
+			"sub_rule_action": anomalySubRuleAction,
+		}
+		subRuleConfigArr = append(subRuleConfigArr, subRuleConfigObj)
+	}
 
 	disabled := fetchedWaapConfig["configStatus"].(map[string]interface{})["disabled"].(bool)
 	ruleId := notification.FindThreatByCrsId(crs_id)
-	subRuleConfigs := fetchedWaapConfig["subRuleConfigs"].([]interface{})
-	anomalySubRuleAction := ""
-	for _, subRuleConfig := range subRuleConfigs {
-		subRuleConfigData := subRuleConfig.(map[string]interface{})
-		fetchedSubRuleId := subRuleConfigData["subRuleId"].(string)
-		if fetchedSubRuleId == subRuleId {
-			anomalySubRuleAction = subRuleConfigData["anomalySubRuleAction"].(string)
-			break
-		}
-	}
+
 	ruleConfigArr := []map[string]interface{}{}
 	ruleConfigObj := map[string]interface{}{
 		"disabled": disabled,
 	}
 	ruleConfigArr = append(ruleConfigArr, ruleConfigObj)
 
-	subRuleConfigArr := []map[string]interface{}{}
-	subRuleConfigObj := map[string]interface{}{
-		"sub_rule_id":     subRuleId,
-		"sub_rule_action": anomalySubRuleAction,
-	}
-	subRuleConfigArr = append(subRuleConfigArr, subRuleConfigObj)
 	waapConfigArr := []map[string]interface{}{}
 	waapConfigStateObj := map[string]interface{}{
 		"rule_id":        ruleId,
@@ -156,20 +156,20 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
 	firstWaapConfig := waapConfigs[0].(map[string]interface{})
 	ruleId := firstWaapConfig["rule_id"].(string)
 	ruleConfigString := ""
-    configType, err := GetConfigType(ruleId)
+	configType, err := GetConfigType(ruleId)
 	ruleConfig := firstWaapConfig["rule_config"].([]interface{})
-	if len(ruleConfig)>0{
-	disabled := ruleConfig[0].(map[string]interface{})["disabled"].(bool)
-	ruleConfigString, err = GetRuleConfig(ruleId, configType, disabled)
+	if len(ruleConfig) > 0 {
+		disabled := ruleConfig[0].(map[string]interface{})["disabled"].(bool)
+		ruleConfigString, err = GetRuleConfig(ruleId, configType, disabled)
 	}
 	subRuleConfig := firstWaapConfig["subrule_config"].([]interface{})
-	if len(subRuleConfig)>0{
-	subRuleId := subRuleConfig[0].(map[string]interface{})["sub_rule_id"].(string)
-	subRuleAction := subRuleConfig[0].(map[string]interface{})["sub_rule_action"].(string)
-	ruleConfigString, err = GetSubRuleConfig(subRuleId, subRuleAction, ruleId, configType)
+	if len(subRuleConfig) > 0 {
+		subRuleId := subRuleConfig[0].(map[string]interface{})["sub_rule_id"].(string)
+		subRuleAction := subRuleConfig[0].(map[string]interface{})["sub_rule_action"].(string)
+		ruleConfigString, err = GetSubRuleConfig(subRuleId, subRuleAction, ruleId, configType)
 	}
 	configScope := GetConfigScope(environment)
-	
+
 	if err != nil {
 		return err
 	}

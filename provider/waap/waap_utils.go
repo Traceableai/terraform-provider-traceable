@@ -2,8 +2,8 @@ package waap
 
 import (
 	"fmt"
-	"strings"
 	"github.com/traceableai/terraform-provider-traceable/provider/notification"
+	"strings"
 )
 
 func GetConfigScope(environment string) string {
@@ -23,12 +23,12 @@ func GetConfigType(ruleId string) (string, error) {
 	}
 	return "API_DEFINITION_METADATA", nil
 }
-func GetSubRuleConfig(subRuleId string, subRuleAction string, ruleId string, configType string)(string, error) {
+func GetSubRuleConfig(subRuleId string, subRuleAction string, ruleId string, configType string) (string, error) {
 	ruleCrsId, err := GetRuleCrsId(ruleId)
 	if err != nil {
 		return "", err
 	}
-	ruleConfigs :=  ""
+	ruleConfigs := ""
 	if subRuleId != "" {
 		ruleConfigs = fmt.Sprintf(SUB_RULE_CONFIG, ruleCrsId, configType, subRuleId, subRuleAction)
 	}
