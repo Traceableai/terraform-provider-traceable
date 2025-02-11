@@ -1,6 +1,7 @@
 package label_management
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -14,7 +15,7 @@ func ResourceLabelApplicationRule() *schema.Resource {
 		Read:   resourceLabelApplicationRuleRead,
 		Update: resourceLabelApplicationRuleUpdate,
 		Delete: resourceLabelApplicationRuleDelete,
-
+		CustomizeDiff: validateSchema,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -71,7 +72,7 @@ func ResourceLabelApplicationRule() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"type": {
 							Type:        schema.TypeString,
-							Description: "The type of action (DYNAMIC_LABEL_KEY or STATIC_LABELS)",
+							Description: "The type of action (DYNAMIC_LABEL or STATIC_LABELS)",
 							Required:    true,
 						},
 						"entity_types": {
@@ -101,6 +102,32 @@ func ResourceLabelApplicationRule() *schema.Resource {
 			},
 		},
 	}
+}
+
+
+func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interface{}) error {
+	actionList, ok := rData.Get("action").([]interface{})
+
+	actionMap, ok := actionList[0].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("invalid action structure")
+	}
+
+	actionType, ok := actionMap["type"].(string)
+	if !ok || (actionType != "STATIC_LABELS" && actionType != "DYNAMIC_LABEL") {
+		return fmt.Errorf("invalid action type: must be either STATIC_LABELS or DYNAMIC_LABEL")
+	}
+
+	if actionType == "STATIC_LABELS" {
+		if _, exists := actionMap["dynamic_label_key"]; exists {
+			return fmt.Errorf("dynamic_label_key should not be present when type is STATIC_LABELS")
+		}
+	} else if actionType == "DYNAMIC_LABEL" {
+		if _, exists := actionMap["static_labels"]; exists {
+			return fmt.Errorf("static_labels should not be present when type is DYNAMIC_LABEL")
+		}
+	}
+	return nil
 }
 
 func suppressConditionListDiff(k, old, new string, d *schema.ResourceData) bool {

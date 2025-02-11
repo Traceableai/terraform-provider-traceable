@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"github.com/traceableai/terraform-provider-traceable/provider/common"
 )
 
 func BuildConditionList(conditions []interface{}) (string, error) {
@@ -85,12 +86,13 @@ func BuildAction(action map[string]interface{}) (string, error) {
 	dynamicLabelKey := ""
 	staticLabels := ""
 
-	if actionType == "DYNAMIC_LABEL_KEY" {
+	if actionType == "DYNAMIC_LABEL" {
 		dynamicLabelKey = fmt.Sprintf(`dynamicLabelKey: "%s"`, action["dynamic_label_key"].(string))
 	} else if actionType == "STATIC_LABELS" {
 		staticLabelsList := action["static_labels"].([]interface{})
-		labels, _ := json.Marshal(staticLabelsList)
-		staticLabels = fmt.Sprintf(`staticLabels: { ids: %s }`, string(labels))
+		// labels, _ := json.Marshal(staticLabelsList)
+		labels := common.InterfaceToStringSlice(staticLabelsList)
+		staticLabels = fmt.Sprintf(`staticLabels: { ids: %s }`, labels)
 	}
 
 	entityTypesList, _ := json.Marshal(entityTypes)
