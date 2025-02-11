@@ -32,7 +32,7 @@ variable "API_TOKEN" {
 provider "traceable" {
   platform_url = "platform url"
   api_token    = jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
-  x-traceable-client="terraform/v1.0.1"
+  provider_version="terraform/v1.0.1"
 }
 
 resource "traceable_user_attribution_rule_basic_auth" "test1" {
