@@ -71,6 +71,7 @@ jobs:
       run: |
         set -x
         cd test
+        go clean -testcache
         export PLATFORM_URL=${URL}
         export TRACEABLE_API_KEY=${JWT}
         go test -v ./... | tee test_output.log
