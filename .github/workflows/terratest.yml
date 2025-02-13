@@ -73,6 +73,7 @@ jobs:
         cd test
         go clean -testcache
         export PLATFORM_URL=${URL}
+        echo $PLATFORM_URL
         export TRACEABLE_API_KEY=${JWT}
         go test -v ./... | tee test_output.log
         terratest_log_parser -testlog test_output.log -outputdir test_results
