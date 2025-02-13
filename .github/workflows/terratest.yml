@@ -87,7 +87,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results
+        name: terrtest-test-results
         path: |
           set -x
           test/test_results/report.html
