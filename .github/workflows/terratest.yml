@@ -81,7 +81,7 @@ jobs:
       run: |
         set -x
         cd test
-        junit2html test_results/report.xml test_reports/report.html
+        junit2html test_results/report.xml test_results/report.html
 
     - name: Archive test results
       if: always()
@@ -90,5 +90,5 @@ jobs:
         name: test-results
         path: |
           set -x
-          test/test_reports/report.html
+          test/test_results/report.html
           test/test_output.log
