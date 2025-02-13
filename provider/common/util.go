@@ -32,7 +32,7 @@ func CallExecuteQuery(query string, meta interface{}) (string, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", api_token)
+	req.Header.Set("Authorization", "Bearer "+api_token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
