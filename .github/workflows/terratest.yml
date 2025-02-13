@@ -85,5 +85,5 @@ jobs:
         name: test-results
         path: |
           set -x
-          test/report.html
+          test/test_reports/report.html
           test/test_output.log
