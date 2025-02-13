@@ -76,7 +76,9 @@ jobs:
         echo $PLATFORM_URL
         export TRACEABLE_API_KEY=${JWT}
         go test -v ./... | tee test_output.log
+        TEST_EXIT_CODE=${PIPESTATUS[0]}
         terratest_log_parser -testlog test_output.log -outputdir test_results
+        exit $TEST_EXIT_CODE
 
     - name: Convert test report
       if: always()
