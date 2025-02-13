@@ -15,7 +15,7 @@ on:
 env:
   GO_VERSION: '1.22.2'
   PYTHON_VERSION: '3.13.1'
-  TERRAFORM_VERSION: '1.10.0'
+  TERRAFORM_VERSION: '1.9.0'
 
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
 
 
     - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v2
+      uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
     
