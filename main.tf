@@ -374,13 +374,24 @@ resource "traceable_rate_limiting_block" "sample_rule" {
     label_id_scope = ["External"]
 }
 
-resource "traceable_detection_policies" "enablelfi"{
-    config_name="typeAnomaly"
-    disabled=true
-}
-resource "traceable_detection_policies" "enablelfi"{
-    config_name="typeAnomaly"
-    disabled=true
+resource "traceable_label_management_label_rule" "name" {
+  name = "Terraform Testing aditya 1"
+  description = "New Label Rule"
+  enabled = true
+  condition_list {
+    key="enduser.id"
+    operator = "OPERATOR_EQUALS"
+    value = "AutoUser0"
+  }
+  action {
+    type = "DYNAMIC_LABEL"
+    entity_types = [ "API" ]
+    operation = "OPERATION_MERGE"
+    dynamic_labels{
+      attribute = "test"
+      regex = "hello(.*)"
+    }
+  }
 }
 
 resource "traceable_custom_signature_allow" "cs_allow" {

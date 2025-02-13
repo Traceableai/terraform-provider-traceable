@@ -4,17 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
-	"log"
 )
 
 func ResourceLabelApplicationRule() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceLabelApplicationRuleCreate,
-		Read:   resourceLabelApplicationRuleRead,
-		Update: resourceLabelApplicationRuleUpdate,
-		Delete: resourceLabelApplicationRuleDelete,
+		Create:        resourceLabelApplicationRuleCreate,
+		Read:          resourceLabelApplicationRuleRead,
+		Update:        resourceLabelApplicationRuleUpdate,
+		Delete:        resourceLabelApplicationRuleDelete,
 		CustomizeDiff: validateSchema,
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -86,10 +87,25 @@ func ResourceLabelApplicationRule() *schema.Resource {
 							Description: "The operation to perform",
 							Required:    true,
 						},
-						"dynamic_label_key": {
-							Type:        schema.TypeString,
+						"dynamic_labels": {
+							Type:        schema.TypeList,
 							Description: "The dynamic label key (if applicable)",
 							Optional:    true,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"attribute": {
+										Type:        schema.TypeString,
+										Description: "Attribute value",
+										Required:    true,
+									},
+									"regex": {
+										Type:        schema.TypeString,
+										Description: "Regex to match",
+										Optional:    true,
+									},
+								},
+							},
 						},
 						"static_labels": {
 							Type:        schema.TypeList,
@@ -104,44 +120,32 @@ func ResourceLabelApplicationRule() *schema.Resource {
 	}
 }
 
-
 func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interface{}) error {
 	actionList := rData.Get("action").([]interface{})
-
 	actionMap := actionList[0].(map[string]interface{})
-
 	actionType := actionMap["type"].(string)
-
+	if actionType != "DYNAMIC_LABEL" && actionType != "STATIC_LABELS" {
+		return fmt.Errorf("type accepts DYNAMIC_LABEL/STATIC_LABELS")
+	}
 	if actionType == "STATIC_LABELS" {
-		if dynamicLabelKey, exists := actionMap["dynamic_label_key"]; exists {
-
-			if strVal, isString := dynamicLabelKey.(string); isString && strVal == "" {
-				return fmt.Errorf("dynamic_label_key should not be present when type is STATIC_LABELS")
-			}
-
-			if keyList, isList := dynamicLabelKey.([]interface{}); isList && len(keyList) > 0 {
-				return fmt.Errorf("dynamic_label_key should not be present when type is STATIC_LABELS")
-			}
+		if dynamicLabels, exists := actionMap["dynamic_labels"]; exists && len(dynamicLabels.([]interface{})) > 0 {
+			return fmt.Errorf("dynamic_labels should not be present when type is STATIC_LABELS")
+		}
+		if staticLabels, exists := actionMap["static_labels"]; exists && len(staticLabels.([]interface{})) == 0 {
+			return fmt.Errorf("static_labels should be present when type is STATIC_LABELS")
 		}
 	}
 
 	if actionType == "DYNAMIC_LABEL" {
-		if staticLabels, exists := actionMap["static_labels"]; exists {
-
-			if strVal, isString := staticLabels.(string); isString && strVal == "" {
-				return fmt.Errorf("static_labels should not be present when type is DYNAMIC_LABEL")
-			}
-
-			if labelList, isList := staticLabels.([]interface{}); isList && len(labelList) > 0 {
-				return fmt.Errorf("static_labels should not be present when type is DYNAMIC_LABEL")
-			}
+		if staticLabels, exists := actionMap["static_labels"]; exists && len(staticLabels.([]interface{})) > 0 {
+			return fmt.Errorf("static_labels should not be present when type is DYNAMIC_LABEL")
+		}
+		if dynamicLabels, exists := actionMap["dynamic_labels"]; exists && len(dynamicLabels.([]interface{})) == 0 {
+			return fmt.Errorf("dynamic_labels should be present when type is DYNAMIC_LABEL")
 		}
 	}
-
 	return nil
 }
-
-
 
 func suppressConditionListDiff(k, old, new string, d *schema.ResourceData) bool {
 	return SuppressListDiff(old, new)
@@ -247,7 +251,7 @@ func resourceLabelApplicationRuleUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	query := fmt.Sprintf(LABEL_RULE_UPDATE_QUERY, id, name, description, enabled, conditionListStr, actionStr)
-
+	log.Println(query)
 	var response map[string]interface{}
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
