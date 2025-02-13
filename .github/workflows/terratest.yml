@@ -48,7 +48,12 @@ jobs:
       run: |
         terraform --version
         python3  --version
-        go version    
+        go version   
+        
+    - name: Install terratest_log_parser
+      run: |
+        go install github.com/gruntwork-io/terratest/modules/logger/terratest_log_parser@latest
+        export PATH=$PATH:$(go env GOPATH)/bin
 
     - name: Build provider
       run: |
