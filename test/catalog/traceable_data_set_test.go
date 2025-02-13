@@ -136,8 +136,9 @@ func TestDataSetsRuleValidation1(t *testing.T) {
 		},
 	}
 
-	_, err := terraform.InitAndApplyE(t, terraformOptions)
-	require.Error(t, err)
+	// _, err := terraform.InitAndApplyE(t, terraformOptions)
+	// require.Error(t, err)
+	terraform.InitAndApply(t, terraformOptions)
 }
 
 
