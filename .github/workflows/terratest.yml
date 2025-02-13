@@ -52,9 +52,10 @@ jobs:
 
     - name: Build provider
       run: |
+        set -x
         go build -o terraform-provider-traceable
         rm -rf .terraformrc terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl .terraform
-        mmkdir -p  ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
+        mkdir -p  ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
         mv terraform-provider-traceable ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
 
     - name: Run tests
@@ -63,6 +64,7 @@ jobs:
         URL: ${{ matrix.url}}
 
       run: |
+        set -x
         cd test
         export PLATFORM_URL=${URL}
         export TRACEABLE_API_KEY=${JWT}
@@ -72,6 +74,7 @@ jobs:
     - name: Convert test report
       if: always()
       run: |
+        set -x
         cd test
         junit2html test_results/report.xml test_reports/report.html
 
@@ -81,5 +84,6 @@ jobs:
       with:
         name: test-results
         path: |
+          set -x
           test/report.html
           test/test_output.log
