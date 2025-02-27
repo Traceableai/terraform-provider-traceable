@@ -316,7 +316,6 @@ const (
                                 sensitiveParamsEvaluationType: %s
                             }
                         }`
-
 	DYNAMIC_THRESHOLD_CONFIG_QUERY = `{
                                            apiAggregateType: %s
                                            userAggregateType: %s
@@ -331,7 +330,7 @@ const (
                                   leafCondition: {
                                       conditionType: USER_ID
                                       userIdCondition: {
-                                          userIdRegexes: [%s]
+                                          userIdRegexes: %s
                                           exclude: %t
                                       }
                                   }
@@ -340,7 +339,7 @@ const (
                                   leafCondition: {
                                       conditionType: USER_ID
                                       userIdCondition: {
-                                          userIds: [%s]
+                                          userIds: %s
                                           exclude: %t
                                       }
                                   }
@@ -350,7 +349,7 @@ const (
                                  leafCondition: {
                                      conditionType: REQUEST_SCANNER_TYPE
                                      requestScannerTypeCondition: {
-                                         scannerTypes: [%s]
+                                         scannerTypes: %s
                                          exclude: %t
                                      }
                                  }
@@ -360,26 +359,16 @@ const (
                                      leafCondition: {
                                          conditionType: IP_CONNECTION_TYPE
                                          ipConnectionTypeCondition: {
-                                             ipConnectionTypes: [%s]
+                                             ipConnectionTypes: %s
                                              exclude: %t
                                          }
                                      }
                                  }`
-  MULTI_VALUES_REQ_CONDITIONS = `{
-        leafCondition: {
-            conditionType: KEY_VALUE
-            keyValueCondition: {
-                metadataType: %s
-                keyCondition: { operator: %s, value: "%s" }
-                %s
-            }
-        }
-    }`
-  DATATYPE_VALUE_CONDITIONS = `valueCondition: { operator: %s, value: "%s" }`
+
 	IS_ASN_QUERY = `{
                         leafCondition: {
                             conditionType: IP_ASN
-                            ipAsnCondition: { ipAsnRegexes: [%s], exclude: %t }
+                            ipAsnCondition: { ipAsnRegexes: %s, exclude: %t }
                         }
                     }`
 
@@ -387,7 +376,7 @@ const (
                          leafCondition: {
                              conditionType: IP_ORGANISATION
                              ipOrganisationCondition: {
-                                 ipOrganisationRegexes: [%s]
+                                 ipOrganisationRegexes: %s
                                  exclude: %t
                              }
                          }
@@ -406,7 +395,7 @@ const (
 	USER_AGENT_QUERY = `{
                             leafCondition: {
                                 conditionType: USER_AGENT
-                                userAgentCondition: { userAgentRegexes: [%s], exclude: %t }
+                                userAgentCondition: { userAgentRegexes: %s, exclude: %t }
                             }
                         }`
 
@@ -414,7 +403,7 @@ const (
                                      leafCondition: {
                                          conditionType: IP_ADDRESS
                                          ipAddressCondition: {
-                                             rawInputIpData: [%s]
+                                             rawInputIpData: %s
                                              exclude: %t
                                          }
                                      }
@@ -433,7 +422,7 @@ const (
 	EMAIL_DOMAIN_QUERY = `{
                            leafCondition: {
                                conditionType: EMAIL_DOMAIN
-                               emailDomainCondition: { emailRegexes: [%s], exclude: %t }
+                               emailDomainCondition: { emailRegexes: %s, exclude: %t }
                            }
                        }`
 
@@ -441,7 +430,7 @@ const (
                                  leafCondition: {
                                      conditionType: IP_LOCATION_TYPE
                                      ipLocationTypeCondition: {
-                                         ipLocationTypes: [%s]
+                                         ipLocationTypes: %s
                                          exclude: %t
                                      }
                                  }
