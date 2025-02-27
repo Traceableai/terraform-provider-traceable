@@ -27,12 +27,12 @@ func ResourceEnumerationRule() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "Name of the enumeration rule",
+				Description: "Name of the rate limiting block rule",
 				Required:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "Description of the enumeration rule",
+				Description: "Description of the rate limiting rule",
 				Optional:    true,
 			},
 			"alert_severity": {
@@ -81,77 +81,23 @@ func ResourceEnumerationRule() *schema.Resource {
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"request_response_single_valued_conditions": {
+			"req_res_conditions": {
 				Type:        schema.TypeList,
-				Description: "Request payload single valued conditions for the rule",
+				Description: "Request/Response conditions for the rule",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: "Host/Http Method/User Agent/Request Body",
-						},
-						"operator": {
+						"metadata_type": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"value": {
+						"req_res_operator": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-					},
-				},
-			},
-			"request_response_multi_valued_conditions": {
-				Type:        schema.TypeList,
-				Description: "Request payload multi valued conditions for the rule",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"request_location": {
+						"req_res_value": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: "Query Param/Request Body Param/Request Cookie",
-						},
-						"key_patterns": {
-							Type:        schema.TypeList,
-							Description: "key operator and value",
-							Required:    true,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"operator": {
-										Type:        schema.TypeString,
-										Description: "key operator",
-										Required:    true,
-									},
-									"value": {
-										Type:        schema.TypeString,
-										Description: "value for key",
-										Required:    true,
-									},
-								},
-							},
-						},
-						"value_patterns": {
-							Type:        schema.TypeList,
-							Description: "value operator and value",
-							Optional:    true,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"operator": {
-										Type:        schema.TypeString,
-										Description: "value operator",
-										Required:    true,
-									},
-									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
-									},
-								},
-							},
 						},
 					},
 				},
@@ -488,13 +434,6 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
 	ipAddress := d.Get("ip_address").([]interface{})
 	userId := d.Get("user_id").([]interface{})
-	ruleType := d.Get("rule_type")
-
-	expiryDuration := d.Get("expiry_duration").(string)
-	if expiryDuration != "" && ruleType != "BLOCK"{
-		return fmt.Errorf("expiry_duration not expected here")
-	}
-
 
 	isDataTypesConditionsEmpty := true
 	for _, data := range dataTypesConditions {
@@ -586,8 +525,7 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 	ipAbuseVelocity := d.Get("ip_abuse_velocity").(string)
 	labelIdScope := d.Get("label_id_scope").([]interface{})
 	endpointIdScope := d.Get("endpoint_id_scope").([]interface{})
-	requestResponseSingleValuedConditions := d.Get("request_response_single_valued_conditions").([]interface{})
-	requestResponseMultiValuedConditions := d.Get("request_response_multi_valued_conditions").([]interface{})
+	reqResConditions := d.Get("req_res_conditions").([]interface{})
 	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
 	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
 	ipLocationType := d.Get("ip_location_type").([]interface{})
@@ -611,8 +549,7 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 		ipAbuseVelocity,
 		labelIdScope,
 		endpointIdScope,
-		requestResponseSingleValuedConditions,
-		requestResponseMultiValuedConditions,
+		reqResConditions,
 		attributeBasedConditions,
 		ipLocationType,
 		ipAddress,
@@ -682,17 +619,13 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 		firstThresholdActionConfigs := thresholdActionConfigs[0].(map[string]interface{})
 		thresholdActions := firstThresholdActionConfigs["actions"].([]interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
-		actionType := firstThresholdActions["actionType"].(string)
-		d.Set("rule_type",actionType)
-		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
-			if duration,ok := ruleTypeConfig["duration"].(string); ok{
-				d.Set("expiry_duration", duration)
-			}else{
-				d.Set("expiry_duration","")
-			}
-			if alertSev, ok := ruleTypeConfig["eventSeverity"].(string); ok {
-				if alertSev != "" {
-					d.Set("alert_severity", alertSev)
+		d.Set("rule_type", firstThresholdActions["actionType"])
+		if blockingConfig, ok := firstThresholdActions["block"].(map[string]interface{}); ok {
+			d.Set("expiry_duration", blockingConfig["duration"])
+
+			if blockingSeverity, ok := blockingConfig["eventSeverity"].(string); ok {
+				if blockingSeverity != "" {
+					d.Set("alert_severity", blockingSeverity)
 				}
 			}
 		}
@@ -736,8 +669,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("threshold_configs", finalThresholdConfigs)
 	}
 	conditionsArray := ruleDetails["conditions"].([]interface{})
-	finalReqResSingleValueConditionState := []map[string]interface{}{}
-	finalReqResMultiValueConditionState := []map[string]interface{}{}
+	finalReqResConditionsState := []map[string]interface{}{}
 	finalAttributeBasedConditionState := []map[string]interface{}{}
 	finalDataTypeConditionState := []map[string]interface{}{}
 
@@ -942,38 +874,15 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 					finalAttributeBasedConditionState = append(finalAttributeBasedConditionState, keyValueObj)
 				}
 			} else {
-				valuePatternObjSlice := []map[string]interface{}{}
-				keyPatternObjSlice := []map[string]interface{}{}
-				if keyCondition,ok := keyValueCondition["keyCondition"].(map[string]interface{});ok{
-					keyPatternObj := map[string]interface{}{
-						"operator" : keyCondition["operator"].(string),
-						"value" : keyCondition["value"].(string),
-					}
-					keyPatternObjSlice = append(keyPatternObjSlice, keyPatternObj)
-					if valueCondition,ok := keyValueCondition["valueCondition"].(map[string]interface{});ok{
-						valuePatternObj := map[string]interface{}{
-							"operator" : valueCondition["operator"].(string),
-							"value" : valueCondition["value"].(string),
-						}
-						valuePatternObjSlice = append(valuePatternObjSlice, valuePatternObj)
-					}
-					reqPayloadMultiValuedObj := map[string]interface{}{
-						"request_location": metadataType,
-						"key_patterns" : keyPatternObjSlice,
-						"value_patterns" : valuePatternObjSlice,
-					}
-					finalReqResMultiValueConditionState = append(finalReqResMultiValueConditionState, reqPayloadMultiValuedObj)
-				}else{
-					valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
-					operator := valueCondition["operator"].(string)
-					value := valueCondition["value"].(string)
-					reqPayloadSingleValuedObj := map[string]interface{}{
-						"request_location": metadataType,
-						"operator": operator,
-						"value":value,
-					}
-					finalReqResSingleValueConditionState = append(finalReqResSingleValueConditionState, reqPayloadSingleValuedObj)
+				valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
+				valueConditionValue := valueCondition["value"].(string)
+				valueConditionKey := valueCondition["operator"].(string)
+				reqResObj := map[string]interface{}{
+					"metadata_type":    metadataType,
+					"req_res_operator": valueConditionKey,
+					"req_res_value":    valueConditionValue,
 				}
+				finalReqResConditionsState = append(finalReqResConditionsState, reqResObj)
 			}
 
 		case "SCOPE":
@@ -1043,8 +952,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	d.Set("environments", envList)
-	d.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	d.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("req_res_conditions", finalReqResConditionsState)
 	d.Set("attribute_based_conditions", finalAttributeBasedConditionState)
 	d.Set("data_types_conditions", finalDataTypeConditionState)
 
@@ -1065,8 +973,7 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 	ipAbuseVelocity := d.Get("ip_abuse_velocity").(string)
 	labelIdScope := d.Get("label_id_scope").([]interface{})
 	endpointIdScope := d.Get("endpoint_id_scope").([]interface{})
-	requestResponseSingleValuedConditions := d.Get("request_response_single_valued_conditions").([]interface{})
-	requestResponseMultiValuedConditions := d.Get("request_response_multi_valued_conditions").([]interface{})
+	reqResConditions := d.Get("req_res_conditions").([]interface{})
 	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
 	ipLocationType := d.Get("ip_location_type").([]interface{})
 	ipAddress := d.Get("ip_address").([]interface{})
@@ -1090,8 +997,7 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 		ipAbuseVelocity,
 		labelIdScope,
 		endpointIdScope,
-		requestResponseSingleValuedConditions,
-		requestResponseMultiValuedConditions,
+		reqResConditions,
 		attributeBasedConditions,
 		ipLocationType,
 		ipAddress,

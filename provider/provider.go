@@ -8,7 +8,6 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/label_management"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
-	"github.com/traceableai/terraform-provider-traceable/provider/dlp"
 	"github.com/traceableai/terraform-provider-traceable/provider/waap"
 )
 

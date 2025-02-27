@@ -63,77 +63,23 @@ func ResourceRateLimitingRuleAlert() *schema.Resource {
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
-			"request_response_single_valued_conditions": {
+			"req_res_conditions": {
 				Type:        schema.TypeList,
-				Description: "Request payload single valued conditions for the rule",
+				Description: "Request/Response conditions for the rule",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
-							Description: "Host/Http Method/User Agent/Request Body",
-						},
-						"operator": {
+						"metadata_type": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"value": {
+						"req_res_operator": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-					},
-				},
-			},
-			"request_response_multi_valued_conditions": {
-				Type:        schema.TypeList,
-				Description: "Request payload multi valued conditions for the rule",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"request_location": {
+						"req_res_value": {
 							Type:     schema.TypeString,
 							Required: true,
-							Description: "Query Param/Request Body Param/Request Cookie",
-						},
-						"key_patterns": {
-							Type:        schema.TypeList,
-							Description: "key operator and value",
-							Required:    true,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"operator": {
-										Type:        schema.TypeString,
-										Description: "key operator",
-										Required:    true,
-									},
-									"value": {
-										Type:        schema.TypeString,
-										Description: "value for key",
-										Required:    true,
-									},
-								},
-							},
-						},
-						"value_patterns": {
-							Type:        schema.TypeList,
-							Description: "value operator and value",
-							Optional:    true,
-							MaxItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"operator": {
-										Type:        schema.TypeString,
-										Description: "value operator",
-										Required:    true,
-									},
-									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
-									},
-								},
-							},
 						},
 					},
 				},
@@ -519,8 +465,7 @@ func resourceRateLimitingRuleAlertCreate(d *schema.ResourceData, meta interface{
 	ip_abuse_velocity := d.Get("ip_abuse_velocity").(string)
 	label_id_scope := d.Get("label_id_scope").([]interface{})
 	endpoint_id_scope := d.Get("endpoint_id_scope").([]interface{})
-	requestResponseSingleValuedConditions := d.Get("request_response_single_valued_conditions").([]interface{})
-	requestResponseMultiValuedConditions := d.Get("request_response_multi_valued_conditions").([]interface{})
+	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
 	ip_location_type := d.Get("ip_location_type").([]interface{})
 	ip_address := d.Get("ip_address").([]interface{})
@@ -543,8 +488,7 @@ func resourceRateLimitingRuleAlertCreate(d *schema.ResourceData, meta interface{
 		ip_abuse_velocity,
 		label_id_scope,
 		endpoint_id_scope,
-		requestResponseSingleValuedConditions,
-		requestResponseMultiValuedConditions,
+		req_res_conditions,
 		attribute_based_conditions,
 		ip_location_type,
 		ip_address,
@@ -662,8 +606,7 @@ func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{})
 		d.Set("threshold_configs", finalThresholdConfigs)
 	}
 	conditionsArray := ruleDetails["conditions"].([]interface{})
-	finalReqResSingleValueConditionState := []map[string]interface{}{}
-	finalReqResMultiValueConditionState := []map[string]interface{}{}
+	finalReqResConditionsState := []map[string]interface{}{}
 	finalAttributeBasedConditionState := []map[string]interface{}{}
 
 	labelIdScopeFlag, endPointIdScopeFlag, ipReputationScopeFlag, ipLocationTypeScopeFlag, ipAbuseVelFlag, ipAddressFlag, emailDomainFlag, userAgentFlag, regionFlag, ipOrgFlag, ipAsnFlag, ipConnTypeFlag, reqScannerFlag, userIdFlag := true, true, true, true, true, true, true, true, true, true, true, true, true, true
@@ -852,38 +795,15 @@ func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{})
 					finalAttributeBasedConditionState = append(finalAttributeBasedConditionState, keyValueObj)
 				}
 			} else {
-				valuePatternObjSlice := []map[string]interface{}{}
-				keyPatternObjSlice := []map[string]interface{}{}
-				if keyCondition,ok := keyValueCondition["keyCondition"].(map[string]interface{});ok{
-					keyPatternObj := map[string]interface{}{
-						"operator" : keyCondition["operator"].(string),
-						"value" : keyCondition["value"].(string),
-					}
-					keyPatternObjSlice = append(keyPatternObjSlice, keyPatternObj)
-					if valueCondition,ok := keyValueCondition["valueCondition"].(map[string]interface{});ok{
-						valuePatternObj := map[string]interface{}{
-							"operator" : valueCondition["operator"].(string),
-							"value" : valueCondition["value"].(string),
-						}
-						valuePatternObjSlice = append(valuePatternObjSlice, valuePatternObj)
-					}
-					reqPayloadMultiValuedObj := map[string]interface{}{
-						"request_location": metadataType,
-						"key_patterns" : keyPatternObjSlice,
-						"value_patterns" : valuePatternObjSlice,
-					}
-					finalReqResMultiValueConditionState = append(finalReqResMultiValueConditionState, reqPayloadMultiValuedObj)
-				}else{
-					valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
-					operator := valueCondition["operator"].(string)
-					value := valueCondition["value"].(string)
-					reqPayloadSingleValuedObj := map[string]interface{}{
-						"request_location": metadataType,
-						"operator": operator,
-						"value":value,
-					}
-					finalReqResSingleValueConditionState = append(finalReqResSingleValueConditionState, reqPayloadSingleValuedObj)
+				valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
+				valueConditionValue := valueCondition["value"].(string)
+				valueConditionKey := valueCondition["operator"].(string)
+				reqResObj := map[string]interface{}{
+					"metadata_type":    metadataType,
+					"req_res_operator": valueConditionKey,
+					"req_res_value":    valueConditionValue,
 				}
+				finalReqResConditionsState = append(finalReqResConditionsState, reqResObj)
 			}
 
 		case "SCOPE":
@@ -953,8 +873,7 @@ func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{})
 		}
 	}
 	d.Set("environments", envList)
-	d.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	d.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("req_res_conditions", finalReqResConditionsState)
 	d.Set("attribute_based_conditions", finalAttributeBasedConditionState)
 
 	return nil
@@ -972,8 +891,7 @@ func resourceRateLimitingRuleAlertUpdate(d *schema.ResourceData, meta interface{
 	ip_abuse_velocity := d.Get("ip_abuse_velocity").(string)
 	label_id_scope := d.Get("label_id_scope").([]interface{})
 	endpoint_id_scope := d.Get("endpoint_id_scope").([]interface{})
-	requestResponseSingleValuedConditions := d.Get("request_response_single_valued_conditions").([]interface{})
-	requestResponseMultiValuedConditions := d.Get("request_response_multi_valued_conditions").([]interface{})
+	req_res_conditions := d.Get("req_res_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
 	ip_location_type := d.Get("ip_location_type").([]interface{})
 	ip_address := d.Get("ip_address").([]interface{})
@@ -997,8 +915,7 @@ func resourceRateLimitingRuleAlertUpdate(d *schema.ResourceData, meta interface{
 		ip_abuse_velocity,
 		label_id_scope,
 		endpoint_id_scope,
-		requestResponseSingleValuedConditions,
-		requestResponseMultiValuedConditions,
+		req_res_conditions,
 		attribute_based_conditions,
 		ip_location_type,
 		ip_address,
