@@ -1,4 +1,4 @@
-package enumeration
+package dlp
 
 import (
 	"context"
@@ -12,12 +12,12 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
 )
 
-func ResourceEnumerationRule() *schema.Resource {
+func ResourceDlpUserBasedRule() *schema.Resource {
 	return &schema.Resource{
-		Create:        resourceEnumerationCreate,
-		Read:          resourceEnumerationRead,
-		Update:        resourceEnumerationUpdate,
-		Delete:        resourceEnumerationDelete,
+		Create:        ResourceDlpUserBasedCreate,
+		Read:          ResourceDlpUserBasedRead,
+		Update:        ResourceDlpUserBasedUpdate,
+		Delete:        ResourceDlpUserBasedDelete,
 		CustomizeDiff: validateSchema,
 		Schema: map[string]*schema.Schema{
 			"rule_type": {
@@ -27,12 +27,12 @@ func ResourceEnumerationRule() *schema.Resource {
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Description: "Name of the enumeration rule",
+				Description: "Name of the dlp rule",
 				Required:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Description: "Description of the enumeration rule",
+				Description: "Description of the dlp rule",
 				Optional:    true,
 			},
 			"alert_severity": {
@@ -47,7 +47,7 @@ func ResourceEnumerationRule() *schema.Resource {
 			},
 			"expiry_duration": {
 				Type:        schema.TypeString,
-				Description: "Block for a given period",
+				Description: "Block for a given period of time",
 				Optional:    true,
 				ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
 					v := val.(string)
@@ -159,7 +159,8 @@ func ResourceEnumerationRule() *schema.Resource {
 			"data_types_conditions": {
 				Type:        schema.TypeList,
 				Description: "Datatypes/Datasets conditions for the rule",
-				Optional:    true,
+				Required:    true,
+				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"data_type_ids": {
@@ -186,38 +187,102 @@ func ResourceEnumerationRule() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Threshold configs types for the rule",
 				Required:    true,
-				MinItems:    1,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"api_aggregate_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "ACROSS_ENDPOINTS/PER_ENDPOINT",
-						},
-						"user_aggregate_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "PER_USER/ACROSS_USERS",
-						},
-						"unique_values_allowed": {
-							Type:        schema.TypeInt,
-							Required:    true,
-							Description: "Count of calls",
-						},
-						"duration": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "Duration for the total call count in 1min(PT60S)",
-						},
-						"threshold_config_type": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "SENSITIVE_PARAMS/PATH_PARAMS/REQUEST_BODY",
-						},
-						"sensitive_param_evaluation_type": {
-							Type:        schema.TypeString,
+						"rolling_window_threshold_config": {
+							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "SELECTED_DATA_TYPES/ALL",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"user_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "User aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"api_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "API aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"count_allowed": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Maximum number of calls allowed",
+									},
+									"duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Duration for the total call count (e.g., PT60S for 1 minute)",
+									},
+								},
+							},
+						},
+						"dynamic_threshold_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"user_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "User aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"api_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "API aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"percentage_exceeding_mean_allowed": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Percentage exceeding the calculated mean allowed",
+									},
+									"mean_calculation_duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Duration for mean calculation (e.g., PT60S for 1 minute)",
+									},
+									"duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Overall duration for evaluation (e.g., PT60S for 1 minute)",
+									},
+								},
+							},
+						},
+						"value_based_threshold_config": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"user_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "User aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"api_aggregate_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "API aggregation type: PER_USER/ACROSS_USERS",
+									},
+									"unique_values_allowed": {
+										Type:        schema.TypeInt,
+										Required:    true,
+										Description: "Number of unique values allowed",
+									},
+									"duration": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Duration for the total evaluation period (e.g., PT60S for 1 minute)",
+									},
+									"sensitive_params_evaluation_type": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Type of sensitive parameter evaluation",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -480,31 +545,27 @@ func ResourceEnumerationRule() *schema.Resource {
 		},
 	}
 }
-func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
-	labelScope := d.Get("label_id_scope").([]interface{})
-	endpointScope := d.Get("endpoint_id_scope").([]interface{})
-	thresholdConfigs := d.Get("threshold_configs").([]interface{})
-	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
-	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
-	ipAddress := d.Get("ip_address").([]interface{})
-	userId := d.Get("user_id").([]interface{})
-	ruleType := d.Get("rule_type")
-
-	expiryDuration := d.Get("expiry_duration").(string)
+func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interface{}) error {
+	labelScope := rData.Get("label_id_scope").([]interface{})
+	endpointScope := rData.Get("endpoint_id_scope").([]interface{})
+	dataTypesConditions := rData.Get("data_types_conditions").([]interface{})
+	attributeBasedConditions := rData.Get("attribute_based_conditions").([]interface{})
+	ipAddress := rData.Get("ip_address").([]interface{})
+	userId := rData.Get("user_id").([]interface{})
+	ruleType := rData.Get("rule_type")
+	
+	expiryDuration := rData.Get("expiry_duration").(string)
 	if expiryDuration != "" && ruleType != "BLOCK"{
 		return fmt.Errorf("expiry_duration not expected here")
 	}
 
-
-	isDataTypesConditionsEmpty := true
 	for _, data := range dataTypesConditions {
-		isDataTypesConditionsEmpty = false
-		dataTypeIds := data.(map[string]interface{})["data_type_ids"].([]interface{})
-		dataSetIds := data.(map[string]interface{})["data_sets_ids"].([]interface{})
-		if len(dataSetIds) == 0 && len(dataTypeIds) == 0 {
+		dataTypeIds := data.(map[string]interface{})["data_type_ids"]
+		dataSetIds := data.(map[string]interface{})["data_sets_ids"]
+		if dataSetIds == "" && dataTypeIds == "" {
 			return fmt.Errorf("atmost one is required")
 		}
-		if len(dataSetIds) > 0 && len(dataTypeIds) > 0 {
+		if dataSetIds != "" && dataTypeIds != "" {
 			return fmt.Errorf("atmost one is required")
 		}
 	}
@@ -549,20 +610,7 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	if len(labelScope) > 0 && len(endpointScope) > 0 {
 		return fmt.Errorf("require on of `label_id_scope` or `endpoint_id_scope`")
 	}
-	for _, thresholdConfig := range thresholdConfigs {
-		thresholdConfigData := thresholdConfig.(map[string]interface{})
-		thresholdConfigType := thresholdConfigData["threshold_config_type"]
-		sensitiveParamEvaluationType := thresholdConfigData["sensitive_param_evaluation_type"].(string)
-		if (thresholdConfigType == "REQUEST_BODY" || thresholdConfigType == "PATH_PARAMS") && sensitiveParamEvaluationType != "" {
-			return fmt.Errorf("not valid here sensitive_param_evaluation_type")
-		} else if thresholdConfigType == "SENSITIVE_PARAMS" {
-			if sensitiveParamEvaluationType == "" {
-				return fmt.Errorf("required sensitive_param_evaluation_type for SENSITIVE_PARAMS threshold_config_type")
-			} else if sensitiveParamEvaluationType == "SELECTED_DATA_TYPES" && isDataTypesConditionsEmpty {
-				return fmt.Errorf("no data types selected")
-			}
-		}
-	}
+	
 	for _, attBasedCondition := range attributeBasedConditions {
 		valueConditionOperator := attBasedCondition.(map[string]interface{})["value_condition_operator"]
 		valueConditionValue := attBasedCondition.(map[string]interface{})["value_condition_value"]
@@ -573,35 +621,35 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 	return nil
 }
 
-func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
-	name := d.Get("name").(string)
-	ruleType := d.Get("rule_type").(string)
-	description := d.Get("description").(string)
-	environments := d.Get("environments").([]interface{})
-	enabled := d.Get("enabled").(bool)
-	thresholdConfigs := d.Get("threshold_configs").([]interface{})
-	expiryDuration := d.Get("expiry_duration").(string)
-	alertSeverity := d.Get("alert_severity").(string)
-	ipReputation := d.Get("ip_reputation").(string)
-	ipAbuseVelocity := d.Get("ip_abuse_velocity").(string)
-	labelIdScope := d.Get("label_id_scope").([]interface{})
-	endpointIdScope := d.Get("endpoint_id_scope").([]interface{})
-	requestResponseSingleValuedConditions := d.Get("request_response_single_valued_conditions").([]interface{})
-	requestResponseMultiValuedConditions := d.Get("request_response_multi_valued_conditions").([]interface{})
-	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
-	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
-	ipLocationType := d.Get("ip_location_type").([]interface{})
-	ipAddress := d.Get("ip_address").([]interface{})
-	emailDomain := d.Get("email_domain").([]interface{})
-	regions := d.Get("regions").([]interface{})
-	userAgents := d.Get("user_agents").([]interface{})
-	ipOrganisation := d.Get("ip_organisation").([]interface{})
-	ipAsn := d.Get("ip_asn").([]interface{})
-	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	requestScannerType := d.Get("request_scanner_type").([]interface{})
-	userId := d.Get("user_id").([]interface{})
+func ResourceDlpUserBasedCreate(rData *schema.ResourceData, meta interface{}) error {
+	name := rData.Get("name").(string)
+	ruleType := rData.Get("rule_type").(string)
+	description := rData.Get("description").(string)
+	environments := rData.Get("environments").([]interface{})
+	enabled := rData.Get("enabled").(bool)
+	thresholdConfigs := rData.Get("threshold_configs").([]interface{})
+	expiryDuration := rData.Get("expiry_duration").(string)
+	alertSeverity := rData.Get("alert_severity").(string)
+	ipReputation := rData.Get("ip_reputation").(string)
+	ipAbuseVelocity := rData.Get("ip_abuse_velocity").(string)
+	labelIdScope := rData.Get("label_id_scope").([]interface{})
+	endpointIdScope := rData.Get("endpoint_id_scope").([]interface{})
+	requestResponseSingleValuedConditions := rData.Get("request_response_single_valued_conditions").([]interface{})
+	requestResponseMultiValuedConditions := rData.Get("request_response_multi_valued_conditions").([]interface{})
+	dataTypesConditions := rData.Get("data_types_conditions").([]interface{})
+	attributeBasedConditions := rData.Get("attribute_based_conditions").([]interface{})
+	ipLocationType := rData.Get("ip_location_type").([]interface{})
+	ipAddress := rData.Get("ip_address").([]interface{})
+	emailDomain := rData.Get("email_domain").([]interface{})
+	regions := rData.Get("regions").([]interface{})
+	userAgents := rData.Get("user_agents").([]interface{})
+	ipOrganisation := rData.Get("ip_organisation").([]interface{})
+	ipAsn := rData.Get("ip_asn").([]interface{})
+	ipConnectionType := rData.Get("ip_connection_type").([]interface{})
+	requestScannerType := rData.Get("request_scanner_type").([]interface{})
+	userId := rData.Get("user_id").([]interface{})
 
-	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryEnumeration(thresholdConfigs)
+	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryDlp(thresholdConfigs)
 	if err != nil {
 		return fmt.Errorf("err %s", err)
 	}
@@ -640,100 +688,123 @@ func resourceEnumerationCreate(d *schema.ResourceData, meta interface{}) error {
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY, ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY,DLP_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	log.Printf("This is the graphql query %s", createEnumerationQuery)
 	responseStr, err := common.CallExecuteQuery(createEnumerationQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", createEnumerationQuery)
 	log.Printf("This is the graphql response %s", responseStr)
-	id, err := common.GetIdFromResponse(responseStr, "createRateLimitingRule")
+	id,err := common.GetIdFromResponse(responseStr,"")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	d.SetId(id)
+	rData.SetId(id)
 	return nil
 }
 
-func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id()
+func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	var response map[string]interface{}
-	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES, ENUMERATION_QUERY_KEY)
+	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES,DLP_KEY)
+	log.Printf("This is the graphql query %s", readQuery)
 	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
-	log.Printf("This is the graphql query %s", readQuery)
 	log.Printf("This is the graphql response %s", responseStr)
 	err = json.Unmarshal([]byte(responseStr), &response)
 	ruleDetails := common.CallGetRuleDetailsFromRulesListUsingIdName(response, "rateLimitingRules", id)
 	if len(ruleDetails) == 0 {
-		d.SetId("")
+		rData.SetId("")
 		return nil
 	}
 	if err != nil {
 		_ = fmt.Errorf("Error:%s", err)
 	}
 	log.Printf("fetching from read %s", ruleDetails)
-	d.Set("name", ruleDetails["name"].(string))
-	d.Set("enabled", ruleDetails["enabled"].(bool))
-	d.Set("description", ruleDetails["description"].(string))
+	rData.Set("name", ruleDetails["name"].(string))
+	rData.Set("enabled", ruleDetails["enabled"].(bool))
+	rData.Set("description", ruleDetails["description"].(string))
 	if thresholdActionConfigs, ok := ruleDetails["thresholdActionConfigs"].([]interface{}); ok {
 		firstThresholdActionConfigs := thresholdActionConfigs[0].(map[string]interface{})
 		thresholdActions := firstThresholdActionConfigs["actions"].([]interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
 		actionType := firstThresholdActions["actionType"].(string)
-		d.Set("rule_type",actionType)
+		rData.Set("rule_type",actionType)
 		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
 			if duration,ok := ruleTypeConfig["duration"].(string); ok{
-				d.Set("expiry_duration", duration)
+				rData.Set("expiry_duration", duration)
 			}else{
-				d.Set("expiry_duration","")
+				rData.Set("expiry_duration","")
 			}
 			if alertSev, ok := ruleTypeConfig["eventSeverity"].(string); ok {
 				if alertSev != "" {
-					d.Set("alert_severity", alertSev)
+					rData.Set("alert_severity", alertSev)
 				}
 			}
 		}
 		thresholdConfigs := firstThresholdActionConfigs["thresholdConfigs"].([]interface{})
 		finalThresholdConfigs := []map[string]interface{}{}
+		rollingWindowThresholdConfigData := []map[string]interface{}{}
+		dynamicThresholdConfigData := []map[string]interface{}{}
+		valueBasedThresholdConfigData := []map[string]interface{}{}
 		for _, thresholdConfig := range thresholdConfigs {
-			var uniqueValuesAllowed float64
-			duration := ""
-			thresholdConfigType := ""
-			sensitiveParamsEvaluationTypeVal := ""
-			var thresholdConfigDataMap map[string]interface{}
 			thresholdConfigData := thresholdConfig.(map[string]interface{})
-			if valueBasedThresholdConfig, ok := thresholdConfigData["valueBasedThresholdConfig"].(map[string]interface{}); ok {
-				uniqueValuesAllowed = valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
-				duration = valueBasedThresholdConfig["duration"].(string)
-				thresholdConfigType = valueBasedThresholdConfig["valueType"].(string)
-				if sensitiveParamsEvaluationType, ok := thresholdConfigData["sensitiveParamsEvaluationType"].(string); ok {
-					sensitiveParamsEvaluationTypeVal = sensitiveParamsEvaluationType
-				}
+			thresholdConfigType := thresholdConfigData["thresholdConfigData"].(string)
+			switch thresholdConfigType{
+				case "ROLLING_WINDOW":
+					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+					userAggregateType := thresholdConfigData["userAggregateType"].(string)
+					rollingWindowThresholdConfig := thresholdConfigData["rollingWindowThresholdConfig"].(map[string]interface{})
+					countAllowed := rollingWindowThresholdConfig["countAllowed"].(float64)
+					duration := rollingWindowThresholdConfig["duration"].(string)
+					rollingWinObj := map[string]interface{}{
+						"user_aggregate_type":userAggregateType,
+						"api_aggregate_type":apiAggregateType,
+						"count_allowed":countAllowed,
+						"duration":duration,
+					}
+					rollingWindowThresholdConfigData = append(rollingWindowThresholdConfigData,rollingWinObj)
+				case "DYNAMIC":
+					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+					userAggregateType := thresholdConfigData["userAggregateType"].(string)
+					dynamicThresholdConfig := thresholdConfigData["dynamicThresholdConfig"].(map[string]interface{})
+					percentageExceedingMeanAllowed := dynamicThresholdConfig["percentageExceedingMeanAllowed"].(float64)
+					meanCalculationDuration := dynamicThresholdConfig["meanCalculationDuration"].(string)
+					duration := dynamicThresholdConfig["duration"].(string)
+					dynamicThresholdConfigObj := map[string]interface{}{
+						"user_aggregate_type":userAggregateType,
+						"api_aggregate_type":apiAggregateType,
+						"percentage_exceeding_mean_allowed":percentageExceedingMeanAllowed,
+						"mean_calculation_duration":meanCalculationDuration,
+						"duration":duration,
+					}
+					dynamicThresholdConfigData = append(dynamicThresholdConfigData,dynamicThresholdConfigObj)
+				case "VALUE_BASED":
+					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+					userAggregateType := thresholdConfigData["userAggregateType"].(string)
+					valueBasedThresholdConfig := thresholdConfigData["valueBasedThresholdConfig"].(map[string]interface{})
+					uniqueValuesAllowed := valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
+					sensitiveParamsEvaluationType := valueBasedThresholdConfig["sensitiveParamsEvaluationType"].(string)
+					duration := valueBasedThresholdConfig["duration"].(string)
+					valueBasedThresholdConfigObj := map[string]interface{}{
+						"user_aggregate_type":userAggregateType,
+						"api_aggregate_type":apiAggregateType,
+						"unique_values_allowed":uniqueValuesAllowed,
+						"duration":duration,
+						"sensitive_params_evaluation_type":sensitiveParamsEvaluationType,
+					}
+					valueBasedThresholdConfigData = append(valueBasedThresholdConfigData,valueBasedThresholdConfigObj)
 			}
-			if sensitiveParamsEvaluationTypeVal == "" {
-				thresholdConfigDataMap = map[string]interface{}{
-					"api_aggregate_type":    thresholdConfigData["apiAggregateType"].(string),
-					"user_aggregate_type":   thresholdConfigData["userAggregateType"].(string),
-					"threshold_config_type": thresholdConfigType,
-					"unique_values_allowed": uniqueValuesAllowed,
-					"duration":              duration,
-				}
-			} else {
-				thresholdConfigDataMap = map[string]interface{}{
-					"api_aggregate_type":              thresholdConfigData["apiAggregateType"].(string),
-					"user_aggregate_type":             thresholdConfigData["userAggregateType"].(string),
-					"threshold_config_type":           thresholdConfigType,
-					"unique_values_allowed":           uniqueValuesAllowed,
-					"duration":                        duration,
-					"sensitive_param_evaluation_type": sensitiveParamsEvaluationTypeVal,
-				}
-			}
-			finalThresholdConfigs = append(finalThresholdConfigs, thresholdConfigDataMap)
 		}
-		d.Set("threshold_configs", finalThresholdConfigs)
+		finalThresholdConfigsObj := map[string]interface{}{
+			"rolling_window_threshold_config":rollingWindowThresholdConfigData,
+			"dynamic_threshold_config":dynamicThresholdConfigData,
+			"value_based_threshold_config": valueBasedThresholdConfigData,
+		}
+		finalThresholdConfigs = append(finalThresholdConfigs, finalThresholdConfigsObj)
+		rData.Set("threshold_configs",finalThresholdConfigs)
 	}
 	conditionsArray := ruleDetails["conditions"].([]interface{})
 	finalReqResSingleValueConditionState := []map[string]interface{}{}
@@ -750,12 +821,12 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 		switch conditionType {
 		case "IP_REPUTATION":
 			minIpReputationSeverity := leafCondition["ipReputationCondition"].(map[string]interface{})["minIpReputationSeverity"].(string)
-			d.Set("ip_reputation", minIpReputationSeverity)
+			rData.Set("ip_reputation", minIpReputationSeverity)
 			ipReputationScopeFlag = false
 
 		case "IP_ABUSE_VELOCITY":
 			minIpAbuseVelocity := leafCondition["ipAbuseVelocityCondition"].(map[string]interface{})["minIpAbuseVelocity"].(string)
-			d.Set("ip_abuse_velocity", minIpAbuseVelocity)
+			rData.Set("ip_abuse_velocity", minIpAbuseVelocity)
 			ipAbuseVelFlag = false
 
 		case "IP_LOCATION_TYPE":
@@ -767,7 +838,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":           excludeIpLocationType,
 			}
 			finalConditionState = append(finalConditionState, ipLocationType)
-			d.Set("ip_location_type", finalConditionState)
+			rData.Set("ip_location_type", finalConditionState)
 			ipLocationTypeScopeFlag = false
 
 		case "IP_ADDRESS":
@@ -789,7 +860,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 			finalConditionState = append(finalConditionState, ipAddressObj)
-			d.Set("ip_address", finalConditionState)
+			rData.Set("ip_address", finalConditionState)
 			ipAddressFlag = false
 
 		case "EMAIL_DOMAIN":
@@ -801,7 +872,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":              excludeEmailRegex,
 			}
 			finalConditionState = append(finalConditionState, emailDomainObj)
-			d.Set("email_domain", finalConditionState)
+			rData.Set("email_domain", finalConditionState)
 			emailDomainFlag = false
 
 		case "USER_ID":
@@ -822,7 +893,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 			finalConditionState = append(finalConditionState, userIdObj)
-			d.Set("user_id", finalConditionState)
+			rData.Set("user_id", finalConditionState)
 			userIdFlag = false
 
 		case "USER_AGENT":
@@ -834,7 +905,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":          excludeUserAgents,
 			}
 			finalConditionState = append(finalConditionState, userAgentObj)
-			d.Set("user_agents", finalConditionState)
+			rData.Set("user_agents", finalConditionState)
 			userAgentFlag = false
 
 		case "IP_ORGANISATION":
@@ -846,7 +917,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":                 excludeIpOrg,
 			}
 			finalConditionState = append(finalConditionState, ipOrgObj)
-			d.Set("ip_organisation", finalConditionState)
+			rData.Set("ip_organisation", finalConditionState)
 			ipOrgFlag = false
 
 		case "IP_ASN":
@@ -858,7 +929,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":        excludeIpAsn,
 			}
 			finalConditionState = append(finalConditionState, ipAsnObj)
-			d.Set("ip_asn", finalConditionState)
+			rData.Set("ip_asn", finalConditionState)
 			ipAsnFlag = false
 
 		case "IP_CONNECTION_TYPE":
@@ -870,7 +941,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":                 excludeIpConnection,
 			}
 			finalConditionState = append(finalConditionState, ipConnectionObj)
-			d.Set("ip_connection_type", finalConditionState)
+			rData.Set("ip_connection_type", finalConditionState)
 			ipConnTypeFlag = false
 
 		case "DATATYPE":
@@ -878,15 +949,15 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 			dataSetsIds := dataTypeConditionMap["datasetIds"].([]interface{})
 			datatypeIds := dataTypeConditionMap["datatypeIds"].([]interface{})
 			location := "REQUEST_RESPONSE"
-			if dataLocation, ok := dataTypeConditionMap["dataLocation"].(string); ok {
-				location = dataLocation
+			if dataLocation,ok := dataTypeConditionMap["dataLocation"].(string); ok {
+				location=dataLocation
 			}
 			dataTypeConditionsObj := map[string]interface{}{
 				"data_type_ids": datatypeIds,
 				"data_sets_ids": dataSetsIds,
 				"data_location": location,
 			}
-			finalDataTypeConditionState = append(finalDataTypeConditionState, dataTypeConditionsObj)
+			finalDataTypeConditionState = append(finalDataTypeConditionState, dataTypeConditionsObj)			
 
 		case "REQUEST_SCANNER_TYPE":
 			requestScannerTypeCondition := leafCondition["requestScannerTypeCondition"].(map[string]interface{})
@@ -897,7 +968,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":            excludeScanner,
 			}
 			finalConditionState = append(finalConditionState, reqScannerObj)
-			d.Set("request_scanner_type", finalConditionState)
+			rData.Set("request_scanner_type", finalConditionState)
 			reqScannerFlag = false
 
 		case "REGION":
@@ -913,7 +984,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 				"exclude":     excludeRegion,
 			}
 			finalConditionState = append(finalConditionState, regionObj)
-			d.Set("regions", finalConditionState)
+			rData.Set("regions", finalConditionState)
 			regionFlag = false
 
 		case "KEY_VALUE":
@@ -982,58 +1053,58 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 			if scopeType == "LABEL" {
 				labelScope := scopeCondition["labelScope"].(map[string]interface{})
 				labelIds := labelScope["labelIds"].([]interface{})
-				d.Set("label_id_scope", labelIds)
+				rData.Set("label_id_scope", labelIds)
 				labelIdScopeFlag = false
 			} else if scopeType == "ENTITY" {
 				entityScope := scopeCondition["entityScope"].(map[string]interface{})
 				entityIds := entityScope["entityIds"].([]interface{})
-				d.Set("endpoint_id_scope", entityIds)
+				rData.Set("endpoint_id_scope", entityIds)
 				endPointIdScopeFlag = false
 			}
 		}
 	}
 
 	if ipAddressFlag {
-		d.Set("ip_address", []interface{}{})
+		rData.Set("ip_address", []interface{}{})
 	}
 	if labelIdScopeFlag {
-		d.Set("label_id_scope", []interface{}{})
+		rData.Set("label_id_scope", []interface{}{})
 	}
 	if endPointIdScopeFlag {
-		d.Set("endpoint_id_scope", []interface{}{})
+		rData.Set("endpoint_id_scope", []interface{}{})
 	}
 	if ipReputationScopeFlag {
-		d.Set("ip_reputation", "")
+		rData.Set("ip_reputation", "")
 	}
 	if ipLocationTypeScopeFlag {
-		d.Set("ip_location_type", []interface{}{})
+		rData.Set("ip_location_type", []interface{}{})
 	}
 	if ipAbuseVelFlag {
-		d.Set("ip_abuse_velocity", "")
+		rData.Set("ip_abuse_velocity", "")
 	}
 	if emailDomainFlag {
-		d.Set("email_domain", []interface{}{})
+		rData.Set("email_domain", []interface{}{})
 	}
 	if userAgentFlag {
-		d.Set("user_agents", []interface{}{})
+		rData.Set("user_agents", []interface{}{})
 	}
 	if regionFlag {
-		d.Set("regions", []interface{}{})
+		rData.Set("regions", []interface{}{})
 	}
 	if ipOrgFlag {
-		d.Set("ip_organisation", []interface{}{})
+		rData.Set("ip_organisation", []interface{}{})
 	}
 	if userIdFlag {
-		d.Set("user_id", []interface{}{})
+		rData.Set("user_id", []interface{}{})
 	}
 	if reqScannerFlag {
-		d.Set("request_scanner_type", []interface{}{})
+		rData.Set("request_scanner_type", []interface{}{})
 	}
 	if ipConnTypeFlag {
-		d.Set("ip_connection_type", []interface{}{})
+		rData.Set("ip_connection_type", []interface{}{})
 	}
 	if ipAsnFlag {
-		d.Set("ip_asn", []interface{}{})
+		rData.Set("ip_asn", []interface{}{})
 	}
 
 	var envList []interface{}
@@ -1042,45 +1113,45 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 			envList = environmentScope["environmentIds"].([]interface{})
 		}
 	}
-	d.Set("environments", envList)
-	d.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	d.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
-	d.Set("attribute_based_conditions", finalAttributeBasedConditionState)
-	d.Set("data_types_conditions", finalDataTypeConditionState)
+	rData.Set("environments", envList)
+	rData.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
+	rData.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	rData.Set("attribute_based_conditions", finalAttributeBasedConditionState)
+	rData.Set("data_types_conditions", finalDataTypeConditionState)
 
 	return nil
 }
 
-func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
-	name := d.Get("name").(string)
-	ruleType := d.Get("rule_type").(string)
-	description := d.Get("description").(string)
-	environments := d.Get("environments").([]interface{})
-	enabled := d.Get("enabled").(bool)
-	thresholdConfigs := d.Get("threshold_configs").([]interface{})
-	dataTypesConditions := d.Get("data_types_conditions").([]interface{})
-	expiryDuration := d.Get("expiry_duration").(string)
-	alertSeverity := d.Get("alert_severity").(string)
-	ipReputation := d.Get("ip_reputation").(string)
-	ipAbuseVelocity := d.Get("ip_abuse_velocity").(string)
-	labelIdScope := d.Get("label_id_scope").([]interface{})
-	endpointIdScope := d.Get("endpoint_id_scope").([]interface{})
-	requestResponseSingleValuedConditions := d.Get("request_response_single_valued_conditions").([]interface{})
-	requestResponseMultiValuedConditions := d.Get("request_response_multi_valued_conditions").([]interface{})
-	attributeBasedConditions := d.Get("attribute_based_conditions").([]interface{})
-	ipLocationType := d.Get("ip_location_type").([]interface{})
-	ipAddress := d.Get("ip_address").([]interface{})
-	emailDomain := d.Get("email_domain").([]interface{})
-	regions := d.Get("regions").([]interface{})
-	userAgents := d.Get("user_agents").([]interface{})
-	ipOrganisation := d.Get("ip_organisation").([]interface{})
-	ipAsn := d.Get("ip_asn").([]interface{})
-	ipConnectionType := d.Get("ip_connection_type").([]interface{})
-	requestScannerType := d.Get("request_scanner_type").([]interface{})
-	userId := d.Get("user_id").([]interface{})
-	id := d.Id()
+func ResourceDlpUserBasedUpdate(rData *schema.ResourceData, meta interface{}) error {
+	name := rData.Get("name").(string)
+	ruleType := rData.Get("rule_type").(string)
+	description := rData.Get("description").(string)
+	environments := rData.Get("environments").([]interface{})
+	enabled := rData.Get("enabled").(bool)
+	thresholdConfigs := rData.Get("threshold_configs").([]interface{})
+	dataTypesConditions := rData.Get("data_types_conditions").([]interface{})
+	expiryDuration := rData.Get("expiry_duration").(string)
+	alertSeverity := rData.Get("alert_severity").(string)
+	ipReputation := rData.Get("ip_reputation").(string)
+	ipAbuseVelocity := rData.Get("ip_abuse_velocity").(string)
+	labelIdScope := rData.Get("label_id_scope").([]interface{})
+	endpointIdScope := rData.Get("endpoint_id_scope").([]interface{})
+	requestResponseSingleValuedConditions := rData.Get("request_response_single_valued_conditions").([]interface{})
+	requestResponseMultiValuedConditions := rData.Get("request_response_multi_valued_conditions").([]interface{})
+	attributeBasedConditions := rData.Get("attribute_based_conditions").([]interface{})
+	ipLocationType := rData.Get("ip_location_type").([]interface{})
+	ipAddress := rData.Get("ip_address").([]interface{})
+	emailDomain := rData.Get("email_domain").([]interface{})
+	regions := rData.Get("regions").([]interface{})
+	userAgents := rData.Get("user_agents").([]interface{})
+	ipOrganisation := rData.Get("ip_organisation").([]interface{})
+	ipAsn := rData.Get("ip_asn").([]interface{})
+	ipConnectionType := rData.Get("ip_connection_type").([]interface{})
+	requestScannerType := rData.Get("request_scanner_type").([]interface{})
+	userId := rData.Get("user_id").([]interface{})
+	id := rData.Id()
 
-	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryEnumeration(thresholdConfigs)
+	finalThresholdConfigQuery, err := ReturnFinalThresholdConfigQueryDlp(thresholdConfigs)
 	if err != nil {
 		return fmt.Errorf("err %s", err)
 	}
@@ -1119,30 +1190,30 @@ func resourceEnumerationUpdate(d *schema.ResourceData, meta interface{}) error {
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, id, ENUMERATION_QUERY_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY,DLP_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	log.Printf("This is the graphql query %s", updateRateLimitQuery)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	log.Printf("This is the graphql query %s", updateRateLimitQuery)
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId, err := common.GetIdFromResponse(responseStr, "updateRateLimitingRule")
+	updatedId,err := common.GetIdFromResponse(responseStr,"updateRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	d.SetId(updatedId)
+	rData.SetId(updatedId)
 
 	return nil
 }
 
-func resourceEnumerationDelete(d *schema.ResourceData, meta interface{}) error {
-	id := d.Id()
+func ResourceDlpUserBasedDelete(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	query := fmt.Sprintf(rate_limiting.DELETE_RATE_LIMIT_QUERY, id)
 	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return err
 	}
 	log.Println(query)
-	d.SetId("")
+	rData.SetId("")
 	return nil
 }
