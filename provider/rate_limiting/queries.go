@@ -365,7 +365,7 @@ const (
                                          }
                                      }
                                  }`
-  MULTI_VALUES_REQ_CONDITIONS = `{
+	MULTI_VALUES_REQ_CONDITIONS = `{
         leafCondition: {
             conditionType: KEY_VALUE
             keyValueCondition: {
@@ -375,8 +375,8 @@ const (
             }
         }
     }`
-  DATATYPE_VALUE_CONDITIONS = `valueCondition: { operator: %s, value: "%s" }`
-	IS_ASN_QUERY = `{
+	DATATYPE_VALUE_CONDITIONS = `valueCondition: { operator: %s, value: "%s" }`
+	IS_ASN_QUERY              = `{
                         leafCondition: {
                             conditionType: IP_ASN
                             ipAsnCondition: { ipAsnRegexes: [%s], exclude: %t }

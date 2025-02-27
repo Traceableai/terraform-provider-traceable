@@ -519,9 +519,9 @@ resource "traceable_label_management_label_rule" "example_rule" {
   }
 
   action {
-    type         = "DYNAMIC_LABEL_KEY"
+    type         = "STATIC_LABEL"
     entity_types = ["request", "response"]
     operation    = "OPERATION_MERGE"
-    dynamic_label_key = "dynamic_label_key_example"
+    static_labels  =  ["Critical"]
   }
 }

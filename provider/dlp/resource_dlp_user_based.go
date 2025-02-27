@@ -88,8 +88,8 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "Host/Http Method/User Agent/Request Body",
 						},
 						"operator": {
@@ -110,8 +110,8 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "Query Param/Request Body Param/Request Cookie",
 						},
 						"key_patterns": {
@@ -147,8 +147,8 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 										Required:    true,
 									},
 									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 								},
 							},
@@ -160,7 +160,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Datatypes/Datasets conditions for the rule",
 				Required:    true,
-				MinItems: 1,
+				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"data_type_ids": {
@@ -191,8 +191,8 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"rolling_window_threshold_config": {
-							Type:        schema.TypeList,
-							Optional:    true,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"user_aggregate_type": {
@@ -219,8 +219,8 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 							},
 						},
 						"dynamic_threshold_config": {
-							Type:        schema.TypeList,
-							Optional:    true,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"user_aggregate_type": {
@@ -252,8 +252,8 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 							},
 						},
 						"value_based_threshold_config": {
-							Type:        schema.TypeList,
-							Optional:    true,
+							Type:     schema.TypeList,
+							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"user_aggregate_type": {
@@ -553,9 +553,9 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 	ipAddress := rData.Get("ip_address").([]interface{})
 	userId := rData.Get("user_id").([]interface{})
 	ruleType := rData.Get("rule_type")
-	
+
 	expiryDuration := rData.Get("expiry_duration").(string)
-	if expiryDuration != "" && ruleType != "BLOCK"{
+	if expiryDuration != "" && ruleType != "BLOCK" {
 		return fmt.Errorf("expiry_duration not expected here")
 	}
 
@@ -610,7 +610,7 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 	if len(labelScope) > 0 && len(endpointScope) > 0 {
 		return fmt.Errorf("require on of `label_id_scope` or `endpoint_id_scope`")
 	}
-	
+
 	for _, attBasedCondition := range attributeBasedConditions {
 		valueConditionOperator := attBasedCondition.(map[string]interface{})["value_condition_operator"]
 		valueConditionValue := attBasedCondition.(map[string]interface{})["value_condition_value"]
@@ -688,14 +688,14 @@ func ResourceDlpUserBasedCreate(rData *schema.ResourceData, meta interface{}) er
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY,DLP_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	createEnumerationQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_CREATE_QUERY, DLP_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	log.Printf("This is the graphql query %s", createEnumerationQuery)
 	responseStr, err := common.CallExecuteQuery(createEnumerationQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"")
+	id, err := common.GetIdFromResponse(responseStr, "")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -706,7 +706,7 @@ func ResourceDlpUserBasedCreate(rData *schema.ResourceData, meta interface{}) er
 func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) error {
 	id := rData.Id()
 	var response map[string]interface{}
-	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES,DLP_KEY)
+	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES, DLP_KEY)
 	log.Printf("This is the graphql query %s", readQuery)
 	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
@@ -731,12 +731,12 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 		thresholdActions := firstThresholdActionConfigs["actions"].([]interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
 		actionType := firstThresholdActions["actionType"].(string)
-		rData.Set("rule_type",actionType)
+		rData.Set("rule_type", actionType)
 		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
-			if duration,ok := ruleTypeConfig["duration"].(string); ok{
+			if duration, ok := ruleTypeConfig["duration"].(string); ok {
 				rData.Set("expiry_duration", duration)
-			}else{
-				rData.Set("expiry_duration","")
+			} else {
+				rData.Set("expiry_duration", "")
 			}
 			if alertSev, ok := ruleTypeConfig["eventSeverity"].(string); ok {
 				if alertSev != "" {
@@ -752,59 +752,59 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 		for _, thresholdConfig := range thresholdConfigs {
 			thresholdConfigData := thresholdConfig.(map[string]interface{})
 			thresholdConfigType := thresholdConfigData["thresholdConfigData"].(string)
-			switch thresholdConfigType{
-				case "ROLLING_WINDOW":
-					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
-					userAggregateType := thresholdConfigData["userAggregateType"].(string)
-					rollingWindowThresholdConfig := thresholdConfigData["rollingWindowThresholdConfig"].(map[string]interface{})
-					countAllowed := rollingWindowThresholdConfig["countAllowed"].(float64)
-					duration := rollingWindowThresholdConfig["duration"].(string)
-					rollingWinObj := map[string]interface{}{
-						"user_aggregate_type":userAggregateType,
-						"api_aggregate_type":apiAggregateType,
-						"count_allowed":countAllowed,
-						"duration":duration,
-					}
-					rollingWindowThresholdConfigData = append(rollingWindowThresholdConfigData,rollingWinObj)
-				case "DYNAMIC":
-					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
-					userAggregateType := thresholdConfigData["userAggregateType"].(string)
-					dynamicThresholdConfig := thresholdConfigData["dynamicThresholdConfig"].(map[string]interface{})
-					percentageExceedingMeanAllowed := dynamicThresholdConfig["percentageExceedingMeanAllowed"].(float64)
-					meanCalculationDuration := dynamicThresholdConfig["meanCalculationDuration"].(string)
-					duration := dynamicThresholdConfig["duration"].(string)
-					dynamicThresholdConfigObj := map[string]interface{}{
-						"user_aggregate_type":userAggregateType,
-						"api_aggregate_type":apiAggregateType,
-						"percentage_exceeding_mean_allowed":percentageExceedingMeanAllowed,
-						"mean_calculation_duration":meanCalculationDuration,
-						"duration":duration,
-					}
-					dynamicThresholdConfigData = append(dynamicThresholdConfigData,dynamicThresholdConfigObj)
-				case "VALUE_BASED":
-					apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
-					userAggregateType := thresholdConfigData["userAggregateType"].(string)
-					valueBasedThresholdConfig := thresholdConfigData["valueBasedThresholdConfig"].(map[string]interface{})
-					uniqueValuesAllowed := valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
-					sensitiveParamsEvaluationType := valueBasedThresholdConfig["sensitiveParamsEvaluationType"].(string)
-					duration := valueBasedThresholdConfig["duration"].(string)
-					valueBasedThresholdConfigObj := map[string]interface{}{
-						"user_aggregate_type":userAggregateType,
-						"api_aggregate_type":apiAggregateType,
-						"unique_values_allowed":uniqueValuesAllowed,
-						"duration":duration,
-						"sensitive_params_evaluation_type":sensitiveParamsEvaluationType,
-					}
-					valueBasedThresholdConfigData = append(valueBasedThresholdConfigData,valueBasedThresholdConfigObj)
+			switch thresholdConfigType {
+			case "ROLLING_WINDOW":
+				apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+				userAggregateType := thresholdConfigData["userAggregateType"].(string)
+				rollingWindowThresholdConfig := thresholdConfigData["rollingWindowThresholdConfig"].(map[string]interface{})
+				countAllowed := rollingWindowThresholdConfig["countAllowed"].(float64)
+				duration := rollingWindowThresholdConfig["duration"].(string)
+				rollingWinObj := map[string]interface{}{
+					"user_aggregate_type": userAggregateType,
+					"api_aggregate_type":  apiAggregateType,
+					"count_allowed":       countAllowed,
+					"duration":            duration,
+				}
+				rollingWindowThresholdConfigData = append(rollingWindowThresholdConfigData, rollingWinObj)
+			case "DYNAMIC":
+				apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+				userAggregateType := thresholdConfigData["userAggregateType"].(string)
+				dynamicThresholdConfig := thresholdConfigData["dynamicThresholdConfig"].(map[string]interface{})
+				percentageExceedingMeanAllowed := dynamicThresholdConfig["percentageExceedingMeanAllowed"].(float64)
+				meanCalculationDuration := dynamicThresholdConfig["meanCalculationDuration"].(string)
+				duration := dynamicThresholdConfig["duration"].(string)
+				dynamicThresholdConfigObj := map[string]interface{}{
+					"user_aggregate_type":               userAggregateType,
+					"api_aggregate_type":                apiAggregateType,
+					"percentage_exceeding_mean_allowed": percentageExceedingMeanAllowed,
+					"mean_calculation_duration":         meanCalculationDuration,
+					"duration":                          duration,
+				}
+				dynamicThresholdConfigData = append(dynamicThresholdConfigData, dynamicThresholdConfigObj)
+			case "VALUE_BASED":
+				apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
+				userAggregateType := thresholdConfigData["userAggregateType"].(string)
+				valueBasedThresholdConfig := thresholdConfigData["valueBasedThresholdConfig"].(map[string]interface{})
+				uniqueValuesAllowed := valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
+				sensitiveParamsEvaluationType := valueBasedThresholdConfig["sensitiveParamsEvaluationType"].(string)
+				duration := valueBasedThresholdConfig["duration"].(string)
+				valueBasedThresholdConfigObj := map[string]interface{}{
+					"user_aggregate_type":              userAggregateType,
+					"api_aggregate_type":               apiAggregateType,
+					"unique_values_allowed":            uniqueValuesAllowed,
+					"duration":                         duration,
+					"sensitive_params_evaluation_type": sensitiveParamsEvaluationType,
+				}
+				valueBasedThresholdConfigData = append(valueBasedThresholdConfigData, valueBasedThresholdConfigObj)
 			}
 		}
 		finalThresholdConfigsObj := map[string]interface{}{
-			"rolling_window_threshold_config":rollingWindowThresholdConfigData,
-			"dynamic_threshold_config":dynamicThresholdConfigData,
-			"value_based_threshold_config": valueBasedThresholdConfigData,
+			"rolling_window_threshold_config": rollingWindowThresholdConfigData,
+			"dynamic_threshold_config":        dynamicThresholdConfigData,
+			"value_based_threshold_config":    valueBasedThresholdConfigData,
 		}
 		finalThresholdConfigs = append(finalThresholdConfigs, finalThresholdConfigsObj)
-		rData.Set("threshold_configs",finalThresholdConfigs)
+		rData.Set("threshold_configs", finalThresholdConfigs)
 	}
 	conditionsArray := ruleDetails["conditions"].([]interface{})
 	finalReqResSingleValueConditionState := []map[string]interface{}{}
@@ -949,15 +949,15 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 			dataSetsIds := dataTypeConditionMap["datasetIds"].([]interface{})
 			datatypeIds := dataTypeConditionMap["datatypeIds"].([]interface{})
 			location := "REQUEST_RESPONSE"
-			if dataLocation,ok := dataTypeConditionMap["dataLocation"].(string); ok {
-				location=dataLocation
+			if dataLocation, ok := dataTypeConditionMap["dataLocation"].(string); ok {
+				location = dataLocation
 			}
 			dataTypeConditionsObj := map[string]interface{}{
 				"data_type_ids": datatypeIds,
 				"data_sets_ids": dataSetsIds,
 				"data_location": location,
 			}
-			finalDataTypeConditionState = append(finalDataTypeConditionState, dataTypeConditionsObj)			
+			finalDataTypeConditionState = append(finalDataTypeConditionState, dataTypeConditionsObj)
 
 		case "REQUEST_SCANNER_TYPE":
 			requestScannerTypeCondition := leafCondition["requestScannerTypeCondition"].(map[string]interface{})
@@ -1015,33 +1015,33 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 			} else {
 				valuePatternObjSlice := []map[string]interface{}{}
 				keyPatternObjSlice := []map[string]interface{}{}
-				if keyCondition,ok := keyValueCondition["keyCondition"].(map[string]interface{});ok{
+				if keyCondition, ok := keyValueCondition["keyCondition"].(map[string]interface{}); ok {
 					keyPatternObj := map[string]interface{}{
-						"operator" : keyCondition["operator"].(string),
-						"value" : keyCondition["value"].(string),
+						"operator": keyCondition["operator"].(string),
+						"value":    keyCondition["value"].(string),
 					}
 					keyPatternObjSlice = append(keyPatternObjSlice, keyPatternObj)
-					if valueCondition,ok := keyValueCondition["valueCondition"].(map[string]interface{});ok{
+					if valueCondition, ok := keyValueCondition["valueCondition"].(map[string]interface{}); ok {
 						valuePatternObj := map[string]interface{}{
-							"operator" : valueCondition["operator"].(string),
-							"value" : valueCondition["value"].(string),
+							"operator": valueCondition["operator"].(string),
+							"value":    valueCondition["value"].(string),
 						}
 						valuePatternObjSlice = append(valuePatternObjSlice, valuePatternObj)
 					}
 					reqPayloadMultiValuedObj := map[string]interface{}{
 						"request_location": metadataType,
-						"key_patterns" : keyPatternObjSlice,
-						"value_patterns" : valuePatternObjSlice,
+						"key_patterns":     keyPatternObjSlice,
+						"value_patterns":   valuePatternObjSlice,
 					}
 					finalReqResMultiValueConditionState = append(finalReqResMultiValueConditionState, reqPayloadMultiValuedObj)
-				}else{
+				} else {
 					valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
 					operator := valueCondition["operator"].(string)
 					value := valueCondition["value"].(string)
 					reqPayloadSingleValuedObj := map[string]interface{}{
 						"request_location": metadataType,
-						"operator": operator,
-						"value":value,
+						"operator":         operator,
+						"value":            value,
 					}
 					finalReqResSingleValueConditionState = append(finalReqResSingleValueConditionState, reqPayloadSingleValuedObj)
 				}
@@ -1190,14 +1190,14 @@ func ResourceDlpUserBasedUpdate(rData *schema.ResourceData, meta interface{}) er
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY,DLP_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, DLP_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	log.Printf("This is the graphql query %s", updateRateLimitQuery)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateRateLimitingRule")
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}

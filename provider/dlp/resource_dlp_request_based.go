@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
+	"log"
 )
 
 func ResourceDlpRequestBasedRule() *schema.Resource {
@@ -74,8 +74,8 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "Host/Http Method/User Agent/Request Body",
 						},
 						"operator": {
@@ -96,8 +96,8 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "Query Param/Request Body Param/Request Cookie",
 						},
 						"key_patterns": {
@@ -133,8 +133,8 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 										Required:    true,
 									},
 									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 								},
 							},
@@ -146,7 +146,7 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Datatypes/Datasets conditions for the rule",
 				Required:    true,
-				MaxItems: 1,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"data_types": {
@@ -157,24 +157,24 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"data_type_ids": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Elem:        &schema.Schema{Type: schema.TypeString},
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 									"data_sets_ids": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Elem:        &schema.Schema{Type: schema.TypeString},
+										Type:     schema.TypeList,
+										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 								},
 							},
 						},
-						
+
 						"custom_location_data_type_key_value_pair_matching": {
 							Type:        schema.TypeBool,
 							Description: "Enable to look for data type key in a custom location",
 							Optional:    true,
-							Default: false,
+							Default:     false,
 						},
 						"custom_location_attribute": {
 							Type:        schema.TypeString,
@@ -216,7 +216,7 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 				Type:        schema.TypeList,
 				Description: "Service scope and url regex",
 				Required:    true,
-				MaxItems: 1,
+				MaxItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"service_ids": {
@@ -242,32 +242,32 @@ func validateSchemaRequestBased(ctx context.Context, rData *schema.ResourceDiff,
 	ruleType := rData.Get("rule_type").(string)
 	alertSeverity := rData.Get("alert_severity").(string)
 	expiryDuration := rData.Get("expiry_duration").(string)
-	if expiryDuration != "" && ruleType == "ALERT"{
+	if expiryDuration != "" && ruleType == "ALERT" {
 		return fmt.Errorf("expiry_duration not required here")
 	}
-	if ruleType=="ALLOW" && alertSeverity != ""{
+	if ruleType == "ALLOW" && alertSeverity != "" {
 		return fmt.Errorf("alert_severity not required here")
 	}
 	if ruleType != "ALLOW" && alertSeverity == "" {
 		return fmt.Errorf("required feild missing alert_severity")
 	}
-	
+
 	for _, data := range dataTypesConditions {
 		customLocationDataTypeKeyValuePairMatching := data.(map[string]interface{})["custom_location_data_type_key_value_pair_matching"].(bool)
 		customLocationAttribute := data.(map[string]interface{})["custom_location_attribute"].(string)
 		customLocationAttributeKeyOperator := data.(map[string]interface{})["custom_location_attribute_key_operator"].(string)
 		customLocationAttributeKeyValue := data.(map[string]interface{})["custom_location_attribute_value"].(string)
-		if customLocationDataTypeKeyValuePairMatching{
-			if customLocationAttribute=="" || customLocationAttributeKeyOperator=="" || customLocationAttributeKeyValue==""{
+		if customLocationDataTypeKeyValuePairMatching {
+			if customLocationAttribute == "" || customLocationAttributeKeyOperator == "" || customLocationAttributeKeyValue == "" {
 				return fmt.Errorf("required attributes are missing")
 			}
-		}else{
-			if customLocationAttribute!="" || customLocationAttributeKeyOperator!="" || customLocationAttributeKeyValue!=""{
+		} else {
+			if customLocationAttribute != "" || customLocationAttributeKeyOperator != "" || customLocationAttributeKeyValue != "" {
 				return fmt.Errorf("attributes not expected here")
 			}
 		}
 		if customLocationAttribute == "REQUEST_BODY" {
-			if customLocationAttributeKeyOperator!="" || customLocationAttributeKeyValue!="" {
+			if customLocationAttributeKeyOperator != "" || customLocationAttributeKeyValue != "" {
 				return fmt.Errorf("attributes not required in this context")
 			}
 		}
@@ -290,7 +290,7 @@ func ResourceDlpRequestBasedCreate(rData *schema.ResourceData, meta interface{})
 	ipAddress := rData.Get("ip_address").([]interface{})
 	targetScope := rData.Get("target_scope").([]interface{})
 	regions := rData.Get("regions").([]interface{})
-	
+
 	finalConditionsQuery := GetConditionsStringDlp(
 		targetScope,
 		ipAddress,
@@ -307,15 +307,15 @@ func ResourceDlpRequestBasedCreate(rData *schema.ResourceData, meta interface{})
 	if len(environments) > 0 {
 		finalEnvironmentQuery = fmt.Sprintf(rate_limiting.ENVIRONMENT_SCOPE_QUERY, common.ReturnQuotedStringList(environments))
 	}
-	transactionActionConfigs := GetTransactionActionConfigs(ruleType,alertSeverity,expiryDuration)
-	createDlpReqBasedQuery := fmt.Sprintf(DLP_REQUEST_BASED_QUERY_CREATE, finalConditionsQuery, enabled, name, description,transactionActionConfigs,finalEnvironmentQuery)
+	transactionActionConfigs := GetTransactionActionConfigs(ruleType, alertSeverity, expiryDuration)
+	createDlpReqBasedQuery := fmt.Sprintf(DLP_REQUEST_BASED_QUERY_CREATE, finalConditionsQuery, enabled, name, description, transactionActionConfigs, finalEnvironmentQuery)
 	log.Printf("This is the graphql query %s", createDlpReqBasedQuery)
 	responseStr, err := common.CallExecuteQuery(createDlpReqBasedQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	id,err := common.GetIdFromResponse(responseStr,"createRateLimitingRule")
+	id, err := common.GetIdFromResponse(responseStr, "createRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -326,7 +326,7 @@ func ResourceDlpRequestBasedCreate(rData *schema.ResourceData, meta interface{})
 func ResourceDlpRequestBasedRead(rData *schema.ResourceData, meta interface{}) error {
 	id := rData.Id()
 	var response map[string]interface{}
-	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES,DLP_KEY)
+	readQuery := fmt.Sprintf(rate_limiting.FETCH_RATE_LIMIT_RULES, DLP_KEY)
 	log.Printf("This is the graphql query %s", readQuery)
 	responseStr, err := common.CallExecuteQuery(readQuery, meta)
 	if err != nil {
@@ -346,32 +346,32 @@ func ResourceDlpRequestBasedRead(rData *schema.ResourceData, meta interface{}) e
 	rData.Set("name", ruleDetails["name"].(string))
 	rData.Set("enabled", ruleDetails["enabled"].(bool))
 	rData.Set("description", ruleDetails["description"].(string))
-	if transactionActionConfigs,ok := ruleDetails["transactionActionConfigs"].(map[string]interface{});ok{
+	if transactionActionConfigs, ok := ruleDetails["transactionActionConfigs"].(map[string]interface{}); ok {
 		action := transactionActionConfigs["action"].(map[string]interface{})
 		actionType := action["actionType"].(string)
-		rData.Set("rule_type",actionType)
-		switch actionType{
+		rData.Set("rule_type", actionType)
+		switch actionType {
 		case "ALLOW":
-			rData.Set("alert_severity","")
+			rData.Set("alert_severity", "")
 			allow := action["allow"].(map[string]interface{})
-			if duration,ok := allow["duration"].(string);ok{
-				rData.Set("expiry_duration",duration)
-			}else{
-				rData.Set("expiry_duration","")
+			if duration, ok := allow["duration"].(string); ok {
+				rData.Set("expiry_duration", duration)
+			} else {
+				rData.Set("expiry_duration", "")
 			}
 		case "ALERT":
-			rData.Set("expiry_duration","")
+			rData.Set("expiry_duration", "")
 			alert := action["alert"].(map[string]interface{})
 			severity := alert["eventSeverity"].(string)
-			rData.Set("alert_severity",severity)
+			rData.Set("alert_severity", severity)
 		case "BLOCK":
 			block := action["block"].(map[string]interface{})
 			severity := block["eventSeverity"].(string)
-			rData.Set("alert_severity",severity)
-			if duration,ok := block["duration"].(string);ok{
-				rData.Set("expiry_duration",duration)
-			}else{
-				rData.Set("expiry_duration","")
+			rData.Set("alert_severity", severity)
+			if duration, ok := block["duration"].(string); ok {
+				rData.Set("expiry_duration", duration)
+			} else {
+				rData.Set("expiry_duration", "")
 			}
 		}
 	}
@@ -412,43 +412,42 @@ func ResourceDlpRequestBasedRead(rData *schema.ResourceData, meta interface{}) e
 			dataTypesObjSlice = append(dataTypesObjSlice, dataTypesObj)
 			finalDataTypeConditionsObj := []map[string]interface{}{}
 			var dataTypeConditionsObj map[string]interface{}
-			if datatypeMatching,ok := dataTypeConditionMap["datatypeMatching"].(map[string]interface{});ok{
-				rData.Set("custom_location_data_type_key_value_pair_matching",true)
+			if datatypeMatching, ok := dataTypeConditionMap["datatypeMatching"].(map[string]interface{}); ok {
+				rData.Set("custom_location_data_type_key_value_pair_matching", true)
 				regexBasedMatching := datatypeMatching["regexBasedMatching"].(map[string]interface{})
 				customMatchingLocation := regexBasedMatching["customMatchingLocation"].(map[string]interface{})
 				metadataType := customMatchingLocation["metadataType"].(string)
-				if metadataType == "REQUEST_BODY"{
+				if metadataType == "REQUEST_BODY" {
 					dataTypeConditionsObj = map[string]interface{}{
-						"data_types" : dataTypesObjSlice,
-						"custom_location_data_type_key_value_pair_matching" : true,
-						"custom_location_attribute" : metadataType,
-						"custom_location_attribute_key_operator" : "",
-						"custom_location_attribute_value": "",
+						"data_types": dataTypesObjSlice,
+						"custom_location_data_type_key_value_pair_matching": true,
+						"custom_location_attribute":                         metadataType,
+						"custom_location_attribute_key_operator":            "",
+						"custom_location_attribute_value":                   "",
 					}
-				}else{
+				} else {
 					keyCondition := customMatchingLocation["keyCondition"].(map[string]interface{})
 					operator := keyCondition["operator"].(string)
 					value := keyCondition["value"].(string)
 					dataTypeConditionsObj = map[string]interface{}{
-						"data_types" : dataTypesObjSlice,
-						"custom_location_data_type_key_value_pair_matching" : true,
-						"custom_location_attribute" : metadataType,
-						"custom_location_attribute_key_operator" : operator,
-						"custom_location_attribute_value": value,
+						"data_types": dataTypesObjSlice,
+						"custom_location_data_type_key_value_pair_matching": true,
+						"custom_location_attribute":                         metadataType,
+						"custom_location_attribute_key_operator":            operator,
+						"custom_location_attribute_value":                   value,
 					}
 				}
-			}else{
+			} else {
 				dataTypeConditionsObj = map[string]interface{}{
-					"data_types" : dataTypesObjSlice,
-					"custom_location_data_type_key_value_pair_matching" : false,
-					"custom_location_attribute" : "",
-					"custom_location_attribute_key_operator" : "",
-					"custom_location_attribute_value": "",
+					"data_types": dataTypesObjSlice,
+					"custom_location_data_type_key_value_pair_matching": false,
+					"custom_location_attribute":                         "",
+					"custom_location_attribute_key_operator":            "",
+					"custom_location_attribute_value":                   "",
 				}
 			}
 			finalDataTypeConditionsObj = append(finalDataTypeConditionsObj, dataTypeConditionsObj)
-			rData.Set("data_types_conditions",finalDataTypeConditionsObj)
-
+			rData.Set("data_types_conditions", finalDataTypeConditionsObj)
 
 		case "REGION":
 			regionCondition := leafCondition["regionCondition"].(map[string]interface{})
@@ -461,33 +460,33 @@ func ResourceDlpRequestBasedRead(rData *schema.ResourceData, meta interface{}) e
 			metadataType := keyValueCondition["metadataType"].(string)
 			valuePatternObjSlice := []map[string]interface{}{}
 			keyPatternObjSlice := []map[string]interface{}{}
-			if keyCondition,ok := keyValueCondition["keyCondition"].(map[string]interface{});ok{
+			if keyCondition, ok := keyValueCondition["keyCondition"].(map[string]interface{}); ok {
 				keyPatternObj := map[string]interface{}{
-					"operator" : keyCondition["operator"].(string),
-					"value" : keyCondition["value"].(string),
+					"operator": keyCondition["operator"].(string),
+					"value":    keyCondition["value"].(string),
 				}
 				keyPatternObjSlice = append(keyPatternObjSlice, keyPatternObj)
-				if valueCondition,ok := keyValueCondition["valueCondition"].(map[string]interface{});ok{
+				if valueCondition, ok := keyValueCondition["valueCondition"].(map[string]interface{}); ok {
 					valuePatternObj := map[string]interface{}{
-						"operator" : valueCondition["operator"].(string),
-						"value" : valueCondition["value"].(string),
+						"operator": valueCondition["operator"].(string),
+						"value":    valueCondition["value"].(string),
 					}
 					valuePatternObjSlice = append(valuePatternObjSlice, valuePatternObj)
 				}
 				reqPayloadMultiValuedObj := map[string]interface{}{
 					"request_location": metadataType,
-					"key_patterns" : keyPatternObjSlice,
-					"value_patterns" : valuePatternObjSlice,
+					"key_patterns":     keyPatternObjSlice,
+					"value_patterns":   valuePatternObjSlice,
 				}
 				finalReqPayloadMultiValueConditionState = append(finalReqPayloadMultiValueConditionState, reqPayloadMultiValuedObj)
-			}else{
+			} else {
 				valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
 				operator := valueCondition["operator"].(string)
 				value := valueCondition["value"].(string)
 				reqPayloadSingleValuedObj := map[string]interface{}{
 					"request_location": metadataType,
-					"operator": operator,
-					"value":value,
+					"operator":         operator,
+					"value":            value,
 				}
 				finalReqPayloadSingleValueConditionState = append(finalReqPayloadSingleValueConditionState, reqPayloadSingleValuedObj)
 			}
@@ -506,12 +505,12 @@ func ResourceDlpRequestBasedRead(rData *schema.ResourceData, meta interface{}) e
 		}
 	}
 	targetScopeObj := map[string]interface{}{
-		"service_ids":serviceIds,
-		"url_regex":urlRegexes,
+		"service_ids": serviceIds,
+		"url_regex":   urlRegexes,
 	}
 	targetScopeSlice := []map[string]interface{}{}
 	targetScopeSlice = append(targetScopeSlice, targetScopeObj)
-	rData.Set("target_scope",targetScopeSlice)
+	rData.Set("target_scope", targetScopeSlice)
 	if ipAddressFlag {
 		rData.Set("ip_address", []interface{}{})
 	}
@@ -551,7 +550,7 @@ func ResourceDlpRequestBasedUpdate(rData *schema.ResourceData, meta interface{})
 	ipAddress := rData.Get("ip_address").([]interface{})
 	targetScope := rData.Get("target_scope").([]interface{})
 	regions := rData.Get("regions").([]interface{})
-	
+
 	finalConditionsQuery := GetConditionsStringDlp(
 		targetScope,
 		ipAddress,
@@ -568,15 +567,15 @@ func ResourceDlpRequestBasedUpdate(rData *schema.ResourceData, meta interface{})
 	if len(environments) > 0 {
 		finalEnvironmentQuery = fmt.Sprintf(rate_limiting.ENVIRONMENT_SCOPE_QUERY, common.ReturnQuotedStringList(environments))
 	}
-	transactionActionConfigs := GetTransactionActionConfigs(ruleType,alertSeverity,expiryDuration)
-	createDlpReqBasedQuery := fmt.Sprintf(DLP_REQUEST_BASED_QUERY_UPDATE,id, finalConditionsQuery, enabled, name, description,transactionActionConfigs,finalEnvironmentQuery)
+	transactionActionConfigs := GetTransactionActionConfigs(ruleType, alertSeverity, expiryDuration)
+	createDlpReqBasedQuery := fmt.Sprintf(DLP_REQUEST_BASED_QUERY_UPDATE, id, finalConditionsQuery, enabled, name, description, transactionActionConfigs, finalEnvironmentQuery)
 	log.Printf("This is the graphql query %s", createDlpReqBasedQuery)
 	responseStr, err := common.CallExecuteQuery(createDlpReqBasedQuery, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	updatedId,err := common.GetIdFromResponse(responseStr,"updateRateLimitingRule")
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
