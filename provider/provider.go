@@ -4,11 +4,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"github.com/traceableai/terraform-provider-traceable/provider/dlp"
 	"github.com/traceableai/terraform-provider-traceable/provider/enumeration"
 	"github.com/traceableai/terraform-provider-traceable/provider/label_management"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
-	"github.com/traceableai/terraform-provider-traceable/provider/dlp"
 	"github.com/traceableai/terraform-provider-traceable/provider/waap"
 )
 
@@ -41,6 +41,8 @@ func Provider() *schema.Provider {
 			"traceable_email_domain_alert":  malicious_sources.ResourceEmailDomainAlert(),
 			"traceable_ip_type_rule_alert":  malicious_sources.ResourceIpTypeRuleAlert(),
 			"traceable_ip_type_rule_block":  malicious_sources.ResourceIpTypeRuleBlock(),
+			"traceable_dlp_request_based":   dlp.ResourceDlpRequestBasedRule(),
+			"traceable_dlp_user_based":      dlp.ResourceDlpUserBasedRule(),
 			// "traceable_user_attribution_rule_basic_auth":                  ResourceUserAttributionBasicAuthRule(),
 			// "traceable_user_attribution_rule_req_header":                  ResourceUserAttributionRequestHeaderRule(),
 			// "traceable_user_attribution_rule_jwt_authentication":          ResourceUserAttributionJwtAuthRule(),

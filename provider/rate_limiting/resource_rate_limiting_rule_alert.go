@@ -70,8 +70,8 @@ func ResourceRateLimitingRuleAlert() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "Host/Http Method/User Agent/Request Body",
 						},
 						"operator": {
@@ -92,8 +92,8 @@ func ResourceRateLimitingRuleAlert() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"request_location": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
 							Description: "Query Param/Request Body Param/Request Cookie",
 						},
 						"key_patterns": {
@@ -129,8 +129,8 @@ func ResourceRateLimitingRuleAlert() *schema.Resource {
 										Required:    true,
 									},
 									"value": {
-										Type:        schema.TypeString,
-										Required:    true,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 								},
 							},
@@ -854,33 +854,33 @@ func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{})
 			} else {
 				valuePatternObjSlice := []map[string]interface{}{}
 				keyPatternObjSlice := []map[string]interface{}{}
-				if keyCondition,ok := keyValueCondition["keyCondition"].(map[string]interface{});ok{
+				if keyCondition, ok := keyValueCondition["keyCondition"].(map[string]interface{}); ok {
 					keyPatternObj := map[string]interface{}{
-						"operator" : keyCondition["operator"].(string),
-						"value" : keyCondition["value"].(string),
+						"operator": keyCondition["operator"].(string),
+						"value":    keyCondition["value"].(string),
 					}
 					keyPatternObjSlice = append(keyPatternObjSlice, keyPatternObj)
-					if valueCondition,ok := keyValueCondition["valueCondition"].(map[string]interface{});ok{
+					if valueCondition, ok := keyValueCondition["valueCondition"].(map[string]interface{}); ok {
 						valuePatternObj := map[string]interface{}{
-							"operator" : valueCondition["operator"].(string),
-							"value" : valueCondition["value"].(string),
+							"operator": valueCondition["operator"].(string),
+							"value":    valueCondition["value"].(string),
 						}
 						valuePatternObjSlice = append(valuePatternObjSlice, valuePatternObj)
 					}
 					reqPayloadMultiValuedObj := map[string]interface{}{
 						"request_location": metadataType,
-						"key_patterns" : keyPatternObjSlice,
-						"value_patterns" : valuePatternObjSlice,
+						"key_patterns":     keyPatternObjSlice,
+						"value_patterns":   valuePatternObjSlice,
 					}
 					finalReqResMultiValueConditionState = append(finalReqResMultiValueConditionState, reqPayloadMultiValuedObj)
-				}else{
+				} else {
 					valueCondition := keyValueCondition["valueCondition"].(map[string]interface{})
 					operator := valueCondition["operator"].(string)
 					value := valueCondition["value"].(string)
 					reqPayloadSingleValuedObj := map[string]interface{}{
 						"request_location": metadataType,
-						"operator": operator,
-						"value":value,
+						"operator":         operator,
+						"value":            value,
 					}
 					finalReqResSingleValueConditionState = append(finalReqResSingleValueConditionState, reqPayloadSingleValuedObj)
 				}

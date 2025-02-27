@@ -3,8 +3,8 @@ package label_management
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
+	"strings"
 )
 
 func BuildConditionList(conditions []interface{}) (string, error) {
@@ -87,10 +87,19 @@ func BuildAction(action map[string]interface{}) (string, error) {
 	staticLabels := ""
 
 	if actionType == "DYNAMIC_LABEL" {
-		dynamicLabelKey = fmt.Sprintf(`dynamicLabelKey: "%s"`, action["dynamic_label_key"].(string))
+		dynamicLabels := action["dynamic_labels"].([]interface{})[0].(map[string]interface{})
+		attribute := dynamicLabels["attribute"]
+		if regex, exist := dynamicLabels["regex"].(string); exist && regex != "" {
+			dynamicLabelKey = fmt.Sprintf(`dynamicLabel: {
+				expression: "${%s}"
+				tokenExtractionRules: [{ key: "%s", regexCapture: "%s" }]
+				}`, attribute, attribute, regex)
+		} else {
+			actionType = "DYNAMIC_LABEL_KEY"
+			dynamicLabelKey = fmt.Sprintf(`dynamicLabelKey: "%s"`, attribute)
+		}
 	} else if actionType == "STATIC_LABELS" {
 		staticLabelsList := action["static_labels"].([]interface{})
-		// labels, _ := json.Marshal(staticLabelsList)
 		labels := common.InterfaceToStringSlice(staticLabelsList)
 		staticLabels = fmt.Sprintf(`staticLabels: { ids: %s }`, labels)
 	}
@@ -149,8 +158,23 @@ func ParseAction(action map[string]interface{}) []interface{} {
 		"operation":    action["operation"].(string),
 	}
 
-	if action["type"] == "DYNAMIC_LABEL_KEY" {
-		parsedAction["dynamic_label_key"] = action["dynamicLabelKey"].(string)
+	if action["type"] == "DYNAMIC_LABEL" {
+		if dynamicLabelKey, exist := action["dynamicLabelKey"]; exist {
+			parsedActionDynamicLabels := map[string]interface{}{
+				"attribute": dynamicLabelKey,
+				"regex":     "",
+			}
+			parsedAction["dynamic_labels"] = parsedActionDynamicLabels
+		} else if dynamicLabels, exist := action["dynamicLabel"]; exist {
+			tokenExtractionRulesMap := dynamicLabels.(map[string]interface{})
+			key := tokenExtractionRulesMap["key"]
+			regex := tokenExtractionRulesMap["regex"]
+			parsedActionDynamicLabels := map[string]interface{}{
+				"attribute": key,
+				"regex":     regex,
+			}
+			parsedAction["dynamic_labels"] = parsedActionDynamicLabels
+		}
 	} else if action["type"] == "STATIC_LABELS" {
 		staticLabels := action["staticLabels"].(map[string]interface{})["ids"].([]interface{})
 		if len(staticLabels) > 0 {

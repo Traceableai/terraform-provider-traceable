@@ -1,7 +1,7 @@
 package dlp
 
 const (
-	DLP_KEY = `DATA_EXFILTRATION`
+	DLP_KEY       = `DATA_EXFILTRATION`
 	SERVICE_SCOPE = `{
                     leafCondition: {
                         conditionType: SCOPE
@@ -34,7 +34,7 @@ const (
 			sensitiveParamsEvaluationType: %s
 		}
 	}`
-	
+
 	MULTI_VALUES_REQ_CONDITIONS = `{
                     leafCondition: {
                         conditionType: KEY_VALUE
@@ -45,9 +45,9 @@ const (
                         }
                     }
                 }`
-				DATATYPE_VALUE_CONDITIONS = `valueCondition: { operator: %s, value: "%s" }`
-	DATATYPE_KEY_CONDITIONS = `keyCondition: { operator: %s, value: "%s" }`
-	ALERT_TRANSACTION_CONFIGS = ` action: { actionType: %s, alert: { eventSeverity: %s } }`
+	DATATYPE_VALUE_CONDITIONS            = `valueCondition: { operator: %s, value: "%s" }`
+	DATATYPE_KEY_CONDITIONS              = `keyCondition: { operator: %s, value: "%s" }`
+	ALERT_TRANSACTION_CONFIGS            = ` action: { actionType: %s, alert: { eventSeverity: %s } }`
 	BLOCK_INDEFINITE_TRANSACTION_CONFIGS = `action: {
                     actionType: %s
                     block: { eventSeverity: %s }
@@ -57,8 +57,8 @@ const (
                     block: { eventSeverity: %s, duration: "%s" }
                 }`
 	ALLOW_INDEFINITE_TRANSACTION_CONFIGS = `action: { actionType: %s }`
-	ALLOW_WITH_EXPIRY = `action: { actionType: %s, allow: { duration: "%s" } }`
-	DLP_REQUEST_BASED_QUERY_CREATE = `mutation {
+	ALLOW_WITH_EXPIRY                    = `action: { actionType: %s, allow: { duration: "%s" } }`
+	DLP_REQUEST_BASED_QUERY_CREATE       = `mutation {
     createRateLimitingRule(
         rateLimitingRuleData: {
             category: DATA_EXFILTRATION
