@@ -46,8 +46,8 @@ func ReturnConditionsStringRateLimit(
 		finalDataTypesConditionsQuery               	string
 	)
 
-	switch {
-	case len(userId) > 0:
+	if len(userId) > 0 {
+
 		userIdData := userId[0].(map[string]interface{})
 		excludeUserId := userIdData["exclude"].(bool)
 		if userIdRegexes, ok := userIdData["user_id_regexes"].([]interface{}); ok && len(userIdRegexes) > 0 {
@@ -55,36 +55,46 @@ func ReturnConditionsStringRateLimit(
 		} else if userIds, ok := userIdData["user_ids"].([]interface{}); ok && len(userIds) > 0 {
 			finalUserIdQuery = fmt.Sprintf(USER_ID_LIST_QUERY, common.ReturnQuotedStringList(userIds), excludeUserId)
 		}
+	}
 
-	case len(requestScannerType) > 0:
+	if len(requestScannerType) > 0 {
+
 		scannerData := requestScannerType[0].(map[string]interface{})
 		excludeScannerType := scannerData["exclude"].(bool)
 		if scannerTypes, ok := scannerData["scanner_types_list"].([]interface{}); ok && len(scannerTypes) > 0 {
 			finalRequestScannerQuery = fmt.Sprintf(REQUEST_SCANNER_TYPE_QUERY, common.ReturnQuotedStringList(scannerTypes), excludeScannerType)
 		}
+	}
 
-	case len(ipConnectionType) > 0:
+	if len(ipConnectionType) > 0 {
+
 		connectionData := ipConnectionType[0].(map[string]interface{})
 		excludeIpConnectionType := connectionData["exclude"].(bool)
 		if connectionTypes, ok := connectionData["ip_connection_type_list"].([]interface{}); ok && len(connectionTypes) > 0 {
 			finalIpConnectionTypeQuery = fmt.Sprintf(IP_CONNECTION_TYPE_QUERY, common.ReturnQuotedStringList(connectionTypes), excludeIpConnectionType)
 		}
+	}
 
-	case len(ipAsn) > 0:
+	if len(ipAsn) > 0 {
+
 		asnData := ipAsn[0].(map[string]interface{})
 		excludeIpAsnType := asnData["exclude"].(bool)
 		if asnRegexes, ok := asnData["ip_asn_regexes"].([]interface{}); ok && len(asnRegexes) > 0 {
 			finalIpAsnQuery = fmt.Sprintf(IS_ASN_QUERY, common.ReturnQuotedStringList(asnRegexes), excludeIpAsnType)
 		}
+	}
 
-	case len(ipOrganisation) > 0:
+	if len(ipOrganisation) > 0 {
+
 		orgData := ipOrganisation[0].(map[string]interface{})
 		excludeIpOrg := orgData["exclude"].(bool)
 		if orgRegexes, ok := orgData["ip_organisation_regexes"].([]interface{}); ok && len(orgRegexes) > 0 {
 			finalIpOrganisationQuery = fmt.Sprintf(IP_ORGANISATION_QUERY, common.ReturnQuotedStringList(orgRegexes), excludeIpOrg)
 		}
+	}
 
-	case len(regions) > 0:
+	if len(regions) > 0 {
+
 		regionData := regions[0].(map[string]interface{})
 		excludeRegions := regionData["exclude"].(bool)
 		if regionIds, ok := regionData["regions_ids"].([]interface{}); ok && len(regionIds) > 0 {
@@ -95,15 +105,19 @@ func ReturnConditionsStringRateLimit(
 			regionIdentifiers = regionIdentifiers[:len(regionIdentifiers)-1]
 			finalRegionsQuery = fmt.Sprintf(REGION_QUERY, excludeRegions, regionIdentifiers)
 		}
+	}
 
-	case len(userAgents) > 0:
+	if len(userAgents) > 0 {
+
 		uaData := userAgents[0].(map[string]interface{})
 		excludeUserAgents := uaData["exclude"].(bool)
 		if uaList, ok := uaData["user_agents_list"].([]interface{}); ok && len(uaList) > 0 {
 			finalUserAgentsQuery = fmt.Sprintf(USER_AGENT_QUERY, common.ReturnQuotedStringList(uaList), excludeUserAgents)
 		}
+	}
 
-	case len(ipAddress) > 0:
+	if len(ipAddress) > 0 {
+
 		ipData := ipAddress[0].(map[string]interface{})
 		excludeIpAddress := ipData["exclude"].(bool)
 		if ipList, ok := ipData["ip_address_list"].([]interface{}); ok && len(ipList) > 0 {
@@ -111,28 +125,38 @@ func ReturnConditionsStringRateLimit(
 		} else if ipType, ok := ipData["ip_address_type"].(string); ok && ipType != "" {
 			finalIpAddressQuery = fmt.Sprintf(ALL_EXTERNAL_IP_ADDRESS_QUERY, ipType, excludeIpAddress)
 		}
+	}
 
-	case len(emailDomain) > 0:
+	if len(emailDomain) > 0 {
+
 		emailData := emailDomain[0].(map[string]interface{})
 		excludeEmailDomain := emailData["exclude"].(bool)
 		if emailRegexes, ok := emailData["email_domain_regexes"].([]interface{}); ok && len(emailRegexes) > 0 {
 			finalEmailDomainQuery = fmt.Sprintf(EMAIL_DOMAIN_QUERY, common.ReturnQuotedStringList(emailRegexes), excludeEmailDomain)
 		}
+	}
 
-	case len(ipLocationType) > 0:
+	if len(ipLocationType) > 0 {
+
 		locationData := ipLocationType[0].(map[string]interface{})
 		excludeIpLocation := locationData["exclude"].(bool)
 		if locationTypes, ok := locationData["ip_location_types"].([]interface{}); ok && len(locationTypes) > 0 {
 			finalIpLocationQuery = fmt.Sprintf(IP_LOCATION_TYPE_QUERY, common.ReturnQuotedStringList(locationTypes), excludeIpLocation)
 		}
+	}
 
-	case ipAbuseVelocity != "":
+	if ipAbuseVelocity != "" {
+
 		finalIpAbuseVelocityQuery = fmt.Sprintf(IP_ABUSE_VELOCITY_QUERY, ipAbuseVelocity)
+	}
 
-	case ipReputation != "":
+	if ipReputation != "" {
+
 		finalIpReputationQuery = fmt.Sprintf(IP_REPUTATION_QUERY, ipReputation)
+	}
 
-	case len(attributeBasedConditions) > 0:
+	if len(attributeBasedConditions) > 0 {
+
 		valueTemplatedQuery := `valueCondition: { operator: %s, value: "%s" }`
 		for _, condition := range attributeBasedConditions {
 			condData := condition.(map[string]interface{})
@@ -145,8 +169,10 @@ func ReturnConditionsStringRateLimit(
 				finalAttributedBasedConditionsQuery += fmt.Sprintf(ATTRIBUTE_BASED_CONDITIONS_QUERY, keyOperator, keyValue, "")
 			}
 		}
+	}
 
-	case len(requestResponseSingleValuedConditions)>0:
+	if len(requestResponseSingleValuedConditions) > 0 {
+
 		for _,requestPayloadSingleValuedCondition := range requestResponseSingleValuedConditions{
 			requestPayloadSingleValuedConditionData := requestPayloadSingleValuedCondition.(map[string]interface{})
 			requestLocation := requestPayloadSingleValuedConditionData["request_location"].(string)
@@ -154,7 +180,10 @@ func ReturnConditionsStringRateLimit(
 			keyValue := requestPayloadSingleValuedConditionData["value"].(string)
 			finalRequestResponseSingleValuedConditionsQuery += fmt.Sprintf(REQ_RES_CONDITIONS_QUERY,requestLocation,keyOp,keyValue)
 		}
-	case len(requestResponseMultiValuedConditions)>0:
+    
+  }
+  if len(requestResponseMultiValuedConditions)>0 {
+    
 		for _,requestPayloadMultiValuedCondition := range requestResponseMultiValuedConditions{
 			requestPayloadMultiValuedConditionData := requestPayloadMultiValuedCondition.(map[string]interface{})
 			requestLocation := requestPayloadMultiValuedConditionData["request_location"].(string)
@@ -168,9 +197,11 @@ func ReturnConditionsStringRateLimit(
 				valQuery = fmt.Sprintf(DATATYPE_VALUE_CONDITIONS,valueOp,value)
 			}
 			finalRequestResponseMultiValuedConditionsQuery += fmt.Sprintf(MULTI_VALUES_REQ_CONDITIONS,requestLocation,keyOp,keyValue,valQuery)
-		}
+    }
+	}
 
-	case len(dataTypesConditions) > 0:
+	if len(dataTypesConditions) > 0 {
+
 		for _, condition := range dataTypesConditions {
 			condData := condition.(map[string]interface{})
 			dataTypeIds := condData["data_type_ids"].([]interface{})
@@ -181,7 +212,7 @@ func ReturnConditionsStringRateLimit(
 				dataLocationQuery = fmt.Sprintf(DATA_LOCATION_STRING, dataLocation)
 			}
 
-			finalDataTypesConditionsQuery += fmt.Sprintf(DATA_TYPES_CONDITIONS_QUERY, common.ReturnQuotedStringList(dataSetIds), common.ReturnQuotedStringList(dataTypeIds), dataLocationQuery)
+			finalDataTypesConditionsQuery += fmt.Sprintf(DATA_TYPES_CONDITIONS_QUERY, common.InterfaceToStringSlice(dataSetIds), common.InterfaceToStringSlice(dataTypeIds), dataLocationQuery)
 		}
 	}
 
@@ -194,7 +225,7 @@ func ReturnConditionsStringRateLimit(
 	finalConditionsQuery := finalScopedQuery + finalRequestResponseSingleValuedConditionsQuery+finalRequestResponseMultiValuedConditionsQuery + finalAttributedBasedConditionsQuery +
 		finalIpReputationQuery + finalIpAbuseVelocityQuery + finalIpLocationQuery +
 		finalEmailDomainQuery + finalIpAddressQuery + finalUserAgentsQuery + finalRegionsQuery +
-		finalIpOrganisationQuery + finalIpAsnQuery + finalIpConnectionTypeQuery + finalRequestScannerQuery + finalUserIdQuery
+		finalIpOrganisationQuery + finalIpAsnQuery + finalIpConnectionTypeQuery + finalRequestScannerQuery + finalUserIdQuery + finalDataTypesConditionsQuery
 
 	return finalConditionsQuery, nil
 }
