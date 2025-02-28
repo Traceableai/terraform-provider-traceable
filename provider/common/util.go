@@ -148,7 +148,7 @@ func GetIdFromResponse(responseStr string, graphQlResponseKey string) (string, e
 	}
 	responseData, ok := response["data"].(map[string]interface{})
 	if !ok {
-		return "", fmt.Errorf("some error eccorred while fetching response")
+		return "", fmt.Errorf("some error occurred while fetching response")
 	}
 	updatedId, _ := responseData[graphQlResponseKey].(map[string]interface{})["id"].(string)
 	return updatedId, nil
