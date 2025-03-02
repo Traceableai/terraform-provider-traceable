@@ -406,7 +406,7 @@ const (
 	USER_AGENT_QUERY = `{
                             leafCondition: {
                                 conditionType: USER_AGENT
-                                userAgentCondition: { userAgentRegexes: [%s], exclude: %t }
+                                userAgentCondition: { userAgentRegexes: %s, exclude: %t }
                             }
                         }`
 
