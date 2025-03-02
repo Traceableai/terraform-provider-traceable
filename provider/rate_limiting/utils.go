@@ -142,7 +142,7 @@ func ReturnConditionsStringRateLimit(
 		locationData := ipLocationType[0].(map[string]interface{})
 		excludeIpLocation := locationData["exclude"].(bool)
 		if locationTypes, ok := locationData["ip_location_types"].([]interface{}); ok && len(locationTypes) > 0 {
-			finalIpLocationQuery = fmt.Sprintf(IP_LOCATION_TYPE_QUERY, common.ReturnQuotedStringList(locationTypes), excludeIpLocation)
+			finalIpLocationQuery = fmt.Sprintf(IP_LOCATION_TYPE_QUERY, common.InterfaceToEnumStringSlice(locationTypes), excludeIpLocation)
 		}
 	}
 
