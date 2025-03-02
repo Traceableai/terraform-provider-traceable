@@ -72,7 +72,7 @@ func ReturnConditionsStringRateLimit(
 		connectionData := ipConnectionType[0].(map[string]interface{})
 		excludeIpConnectionType := connectionData["exclude"].(bool)
 		if connectionTypes, ok := connectionData["ip_connection_type_list"].([]interface{}); ok && len(connectionTypes) > 0 {
-			finalIpConnectionTypeQuery = fmt.Sprintf(IP_CONNECTION_TYPE_QUERY, common.ReturnQuotedStringList(connectionTypes), excludeIpConnectionType)
+			finalIpConnectionTypeQuery = fmt.Sprintf(IP_CONNECTION_TYPE_QUERY, common.InterfaceToEnumStringSlice(connectionTypes), excludeIpConnectionType)
 		}
 	}
 

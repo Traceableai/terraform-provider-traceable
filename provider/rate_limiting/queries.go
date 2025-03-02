@@ -441,7 +441,7 @@ const (
                                  leafCondition: {
                                      conditionType: IP_LOCATION_TYPE
                                      ipLocationTypeCondition: {
-                                         ipLocationTypes: [%s]
+                                         ipLocationTypes: %s
                                          exclude: %t
                                      }
                                  }
