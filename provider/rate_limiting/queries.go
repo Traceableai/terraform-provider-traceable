@@ -350,7 +350,7 @@ const (
                                  leafCondition: {
                                      conditionType: REQUEST_SCANNER_TYPE
                                      requestScannerTypeCondition: {
-                                         scannerTypes: [%s]
+                                         scannerTypes: %s
                                          exclude: %t
                                      }
                                  }
@@ -360,7 +360,7 @@ const (
                                      leafCondition: {
                                          conditionType: IP_CONNECTION_TYPE
                                          ipConnectionTypeCondition: {
-                                             ipConnectionTypes: [%s]
+                                             ipConnectionTypes: %s
                                              exclude: %t
                                          }
                                      }
@@ -379,7 +379,7 @@ const (
 	IS_ASN_QUERY              = `{
                         leafCondition: {
                             conditionType: IP_ASN
-                            ipAsnCondition: { ipAsnRegexes: [%s], exclude: %t }
+                            ipAsnCondition: { ipAsnRegexes: %s, exclude: %t }
                         }
                     }`
 
@@ -387,7 +387,7 @@ const (
                          leafCondition: {
                              conditionType: IP_ORGANISATION
                              ipOrganisationCondition: {
-                                 ipOrganisationRegexes: [%s]
+                                 ipOrganisationRegexes: %s
                                  exclude: %t
                              }
                          }
@@ -414,7 +414,7 @@ const (
                                      leafCondition: {
                                          conditionType: IP_ADDRESS
                                          ipAddressCondition: {
-                                             rawInputIpData: [%s]
+                                             rawInputIpData: %s
                                              exclude: %t
                                          }
                                      }
@@ -433,7 +433,7 @@ const (
 	EMAIL_DOMAIN_QUERY = `{
                            leafCondition: {
                                conditionType: EMAIL_DOMAIN
-                               emailDomainCondition: { emailRegexes: [%s], exclude: %t }
+                               emailDomainCondition: { emailRegexes: %s, exclude: %t }
                            }
                        }`
 
