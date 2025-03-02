@@ -51,6 +51,7 @@ func ReturnConditionsStringRateLimit(
 		userIdData := userId[0].(map[string]interface{})
 		excludeUserId := userIdData["exclude"].(bool)
 		if userIdRegexes, ok := userIdData["user_id_regexes"].([]interface{}); ok && len(userIdRegexes) > 0 {
+
 			finalUserIdQuery = fmt.Sprintf(USER_ID_REGEXES_QUERY, common.ReturnQuotedStringList(userIdRegexes), excludeUserId)
 		} else if userIds, ok := userIdData["user_ids"].([]interface{}); ok && len(userIds) > 0 {
 			finalUserIdQuery = fmt.Sprintf(USER_ID_LIST_QUERY, common.ReturnQuotedStringList(userIds), excludeUserId)
