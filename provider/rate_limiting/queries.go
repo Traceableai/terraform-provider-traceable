@@ -331,7 +331,7 @@ const (
                                   leafCondition: {
                                       conditionType: USER_ID
                                       userIdCondition: {
-                                          userIdRegexes: [%s]
+                                          userIdRegexes: %s
                                           exclude: %t
                                       }
                                   }
@@ -340,7 +340,7 @@ const (
                                   leafCondition: {
                                       conditionType: USER_ID
                                       userIdCondition: {
-                                          userIds: [%s]
+                                          userIds: %s
                                           exclude: %t
                                       }
                                   }
