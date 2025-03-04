@@ -560,12 +560,12 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 	}
 
 	for _, data := range dataTypesConditions {
-		dataTypeIds := data.(map[string]interface{})["data_type_ids"]
-		dataSetIds := data.(map[string]interface{})["data_sets_ids"]
-		if dataSetIds == "" && dataTypeIds == "" {
+		dataTypeIds := data.(map[string]interface{})["data_type_ids"].([]interface{})
+		dataSetIds := data.(map[string]interface{})["data_sets_ids"].([]interface{})
+		if len(dataSetIds) == 0 && len(dataTypeIds) == 0 {
 			return fmt.Errorf("atmost one is required")
 		}
-		if dataSetIds != "" && dataTypeIds != "" {
+		if len(dataSetIds) != 0 && len(dataTypeIds) != 0 {
 			return fmt.Errorf("atmost one is required")
 		}
 	}
@@ -695,7 +695,7 @@ func ResourceDlpUserBasedCreate(rData *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	id, err := common.GetIdFromResponse(responseStr, "")
+	id, err := common.GetIdFromResponse(responseStr, "createRateLimitingRule")
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
@@ -751,7 +751,7 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 		valueBasedThresholdConfigData := []map[string]interface{}{}
 		for _, thresholdConfig := range thresholdConfigs {
 			thresholdConfigData := thresholdConfig.(map[string]interface{})
-			thresholdConfigType := thresholdConfigData["thresholdConfigData"].(string)
+			thresholdConfigType := thresholdConfigData["thresholdConfigType"].(string)
 			switch thresholdConfigType {
 			case "ROLLING_WINDOW":
 				apiAggregateType := thresholdConfigData["apiAggregateType"].(string)
@@ -1190,7 +1190,7 @@ func ResourceDlpUserBasedUpdate(rData *schema.ResourceData, meta interface{}) er
 	if expiryDuration != "" {
 		actionsBlockQuery = fmt.Sprintf(`{ eventSeverity: %s, duration: "%s" }`, alertSeverity, expiryDuration)
 	}
-	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, DLP_KEY, id, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
+	updateRateLimitQuery := fmt.Sprintf(rate_limiting.RATE_LIMITING_UPDATE_QUERY, id, DLP_KEY, finalConditionsQuery, enabled, name, ruleType, strings.ToLower(ruleType), actionsBlockQuery, finalThresholdConfigQuery, finalEnvironmentQuery, description)
 	log.Printf("This is the graphql query %s", updateRateLimitQuery)
 	responseStr, err := common.CallExecuteQuery(updateRateLimitQuery, meta)
 	if err != nil {
