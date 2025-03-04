@@ -49,14 +49,24 @@ func ReturnFinalThresholdConfigQueryDlp(thresholdConfigs []interface{}) (string,
 
 func GetConditionsStringDlp(targetScope []interface{}, ipAddress []interface{}, regions []interface{}, ipLocationTypes []interface{}, dataTypesConditions []interface{}, requestPayloadSingleValuedConditions []interface{}, requestPayloadMultiValuedConditions []interface{}) string {
 	finalConditionsQuery := ""
-	switch {
-	case len(ipAddress) > 0:
+	if len(ipAddress) > 0 {
+
 		finalConditionsQuery += fmt.Sprintf(rate_limiting.RAW_INPUT_IP_ADDRESS_QUERY, common.InterfaceToStringSlice(ipAddress), false)
-	case len(regions) > 0:
-		finalConditionsQuery += fmt.Sprintf(rate_limiting.REGION_QUERY, false, common.InterfaceToStringSlice(regions))
-	case len(ipLocationTypes) > 0:
-		finalConditionsQuery += fmt.Sprintf(rate_limiting.IP_LOCATION_TYPE_QUERY, common.InterfaceToStringSlice(ipLocationTypes), false)
-	case len(dataTypesConditions) > 0:
+	}
+	if len(regions) > 0 {
+		regionIdentifiers := ""
+		for _, region := range regions {
+			regionIdentifiers += fmt.Sprintf(`{ countryIsoCode: "%s" },`, region.(string))
+		}
+		regionIdentifiers = regionIdentifiers[:len(regionIdentifiers)-1]
+		finalConditionsQuery += fmt.Sprintf(rate_limiting.REGION_QUERY, false, regionIdentifiers)
+	}
+	if len(ipLocationTypes) > 0 {
+
+		finalConditionsQuery += fmt.Sprintf(rate_limiting.IP_LOCATION_TYPE_QUERY, common.InterfaceToEnumStringSlice(ipLocationTypes), false)
+	}
+	if len(dataTypesConditions) > 0 {
+
 		dataTypesConditionsData := dataTypesConditions[0].(map[string]interface{})
 		dataTypes := dataTypesConditionsData["data_types"].([]interface{})
 		dataTypeIds := dataTypes[0].(map[string]interface{})["data_type_ids"].([]interface{})
@@ -75,7 +85,9 @@ func GetConditionsStringDlp(targetScope []interface{}, ipAddress []interface{}, 
 			dataLocationString := fmt.Sprintf(rate_limiting.DATA_LOCATION_STRING, "REQUEST")
 			finalConditionsQuery += fmt.Sprintf(rate_limiting.DATA_TYPES_CONDITIONS_QUERY, common.InterfaceToStringSlice(dataSetIds), common.InterfaceToStringSlice(dataTypeIds), dataLocationString)
 		}
-	case len(requestPayloadSingleValuedConditions) > 0:
+	}
+	if len(requestPayloadSingleValuedConditions) > 0 {
+
 		for _, requestPayloadSingleValuedCondition := range requestPayloadSingleValuedConditions {
 			requestPayloadSingleValuedConditionData := requestPayloadSingleValuedCondition.(map[string]interface{})
 			requestLocation := requestPayloadSingleValuedConditionData["request_location"].(string)
@@ -83,7 +95,9 @@ func GetConditionsStringDlp(targetScope []interface{}, ipAddress []interface{}, 
 			keyValue := requestPayloadSingleValuedConditionData["value"].(string)
 			finalConditionsQuery += fmt.Sprintf(rate_limiting.REQ_RES_CONDITIONS_QUERY, requestLocation, keyOp, keyValue)
 		}
-	case len(requestPayloadMultiValuedConditions) > 0:
+	}
+	if len(requestPayloadMultiValuedConditions) > 0 {
+
 		for _, requestPayloadMultiValuedCondition := range requestPayloadMultiValuedConditions {
 			requestPayloadMultiValuedConditionData := requestPayloadMultiValuedCondition.(map[string]interface{})
 			requestLocation := requestPayloadMultiValuedConditionData["request_location"].(string)
@@ -98,7 +112,9 @@ func GetConditionsStringDlp(targetScope []interface{}, ipAddress []interface{}, 
 			}
 			finalConditionsQuery += fmt.Sprintf(MULTI_VALUES_REQ_CONDITIONS, requestLocation, keyOp, keyValue, valQuery)
 		}
-	case len(targetScope) > 0:
+	}
+	if len(targetScope) > 0 {
+
 		targetScopeVal := targetScope[0].(map[string]interface{})
 		serviceIds := targetScopeVal["service_ids"].([]interface{})
 		urlRegex := targetScopeVal["url_regex"].([]interface{})

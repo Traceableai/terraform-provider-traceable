@@ -89,7 +89,7 @@ func Provider() *schema.Provider {
 			//"traceable_syslog_integration":    DataSourceSyslogIntegration(),
 			"traceable_endpoint_id": dataSourceEndpointId(),
 			"traceable_service_id":  dataSourceServiceId(),
-			"traceable_data_set_id":  data_classification.DataSourceDatSetId(),
+			"traceable_data_set_id": data_classification.DataSourceDatSetId(),
 			// "traceable_agent_token":           DataSourceAgentToken(),
 		},
 		ConfigureFunc: graphqlConfigure,
