@@ -107,8 +107,8 @@ const (
                     leafCondition: {
                         conditionType: DATATYPE
                         datatypeCondition: {
-                            datasetIds: [%s]
-                            datatypeIds: [%s]
+                            datasetIds: %s
+                            datatypeIds: %s
                             dataLocation: REQUEST
                             datatypeMatching: {
                                 datatypeMatchingType: REGEX_BASED_MATCHING
