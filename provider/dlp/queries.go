@@ -8,7 +8,7 @@ const (
                         scopeCondition: {
                             scopeType: ENTITY
                             entityScope: {
-                                entityIds: [%s]
+                                entityIds: %s
                                 entityType: SERVICE
                             }
                         }
@@ -19,7 +19,7 @@ const (
                         conditionType: SCOPE
                         scopeCondition: {
                             scopeType: URL
-                            urlScope: { urlRegexes: [%s] }
+                            urlScope: { urlRegexes: %s }
                         }
                     }
                 }`
@@ -82,7 +82,7 @@ const (
 }`
 	DLP_REQUEST_BASED_QUERY_UPDATE = `mutation {
     updateRateLimitingRule(
-        rateLimitingRuleData: {
+        rateLimitingRule: {
 			id: "%s"
             category: DATA_EXFILTRATION
             conditions: [
@@ -107,8 +107,8 @@ const (
                     leafCondition: {
                         conditionType: DATATYPE
                         datatypeCondition: {
-                            datasetIds: [%s]
-                            datatypeIds: [%s]
+                            datasetIds: %s
+                            datatypeIds: %s
                             dataLocation: REQUEST
                             datatypeMatching: {
                                 datatypeMatchingType: REGEX_BASED_MATCHING
