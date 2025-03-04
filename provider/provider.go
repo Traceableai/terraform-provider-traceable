@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"github.com/traceableai/terraform-provider-traceable/provider/data_classification"
 	"github.com/traceableai/terraform-provider-traceable/provider/dlp"
 	"github.com/traceableai/terraform-provider-traceable/provider/enumeration"
 	"github.com/traceableai/terraform-provider-traceable/provider/label_management"
@@ -78,9 +79,9 @@ func Provider() *schema.Provider {
 			"traceable_custom_signature_testing":    custom_signature.ResourceCustomSignatureTestingRule(),
 			// "traceable_api_exclusion_rule":                       ResourceApiExclusionRule(),
 			// "traceable_agent_token":                              ResourceAgentToken(),
-			// "traceable_data_classification_rule":                   data_classification.ResourceDataClassification(),
-			// "traceable_data_classification_overrides":                   data_classification.ResourceDataClassificationOverrides(),
-			// "traceable_data_sets":                   data_classification.ResourceDataSetsRule(),
+			"traceable_data_classification_rule":      data_classification.ResourceDataClassification(),
+			"traceable_data_classification_overrides": data_classification.ResourceDataClassificationOverrides(),
+			"traceable_data_sets":                     data_classification.ResourceDataSetsRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			// "traceable_notification_channels": DataSourceNotificationChannel(),
