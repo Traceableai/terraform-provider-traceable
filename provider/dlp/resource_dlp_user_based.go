@@ -177,7 +177,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 						},
 						"data_location": {
 							Type:        schema.TypeString,
-							Description: "Where to look",
+							Description: "Where to look(REQUEST_RESPONSE/REQUEST/RESPONSE)",
 							Required:    true,
 						},
 					},
@@ -264,7 +264,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 									"api_aggregate_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "API aggregation type: PER_USER/ACROSS_USERS",
+										Description: "API aggregation type: PER_ENDPOINT/ACROSS_ENDPOINT",
 									},
 									"unique_values_allowed": {
 										Type:        schema.TypeInt,
@@ -279,7 +279,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 									"sensitive_params_evaluation_type": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Type of sensitive parameter evaluation",
+										Description: "Type of sensitive parameter evaluation(SELECTED_DATA_TYPES/ALL)",
 									},
 								},
 							},
@@ -553,6 +553,9 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 	ipAddress := rData.Get("ip_address").([]interface{})
 	userId := rData.Get("user_id").([]interface{})
 	ruleType := rData.Get("rule_type")
+	thresholdConfigs := rData.Get("threshold_configs").([]interface{})
+	firstThresholdConfigs := thresholdConfigs[0].(map[string]interface{})
+	valueBasedThresholdConfig := firstThresholdConfigs["value_based_threshold_config"].([]interface{})
 
 	expiryDuration := rData.Get("expiry_duration").(string)
 	if expiryDuration != "" && ruleType != "BLOCK" {
@@ -562,6 +565,16 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 	for _, data := range dataTypesConditions {
 		dataTypeIds := data.(map[string]interface{})["data_type_ids"].([]interface{})
 		dataSetIds := data.(map[string]interface{})["data_sets_ids"].([]interface{})
+		dataLocation := data.(map[string]interface{})["data_location"].(string)
+		if dataLocation == "REQUEST" {
+			for _,valBasThConf := range valueBasedThresholdConfig{
+				valBasThConfData := valBasThConf.(map[string]interface{})
+				sensitiveParamsEvaluationType := valBasThConfData["sensitive_params_evaluation_type"].(string)
+				if sensitiveParamsEvaluationType != "ALL" {
+					return fmt.Errorf("sensitive_params_evaluation_type not valid with data_location REQUEST")
+				}
+			}
+		}
 		if len(dataSetIds) == 0 && len(dataTypeIds) == 0 {
 			return fmt.Errorf("atmost one is required")
 		}
