@@ -253,7 +253,7 @@ func ResourceRateLimitingRuleAlert() *schema.Resource {
 						},
 						"ip_address_type": {
 							Type:        schema.TypeString,
-							Description: "Accepts one value ALL_EXTERNAL",
+							Description: "Accepts ALL_INTERNAL/ALL_EXTERNAL",
 							Optional:    true,
 						},
 					},
@@ -490,7 +490,7 @@ func validateSchemaAlert(ctx context.Context, d *schema.ResourceDiff, meta inter
 		thresholdConfigType := thresholdConfigData["threshold_config_type"]
 		dynamicMeanCalculationDuration := thresholdConfigData["dynamic_mean_calculation_duration"].(string)
 		if thresholdConfigType == "ROLLING_WINDOW" && dynamicMeanCalculationDuration != "" {
-			return fmt.Errorf("not valid here dynamicMeanCalculationDuration")
+			return fmt.Errorf("not valid here dynamic_mean_calculation_duration")
 		} else if thresholdConfigType == "DYNAMIC" {
 			if dynamicMeanCalculationDuration == "" {
 				return fmt.Errorf("required dynamic_mean_calculation_duration for dynamic threshold_config_type")
