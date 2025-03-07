@@ -598,8 +598,10 @@ func resourceRateLimitingRuleBlockCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	id := response["data"].(map[string]interface{})["createRateLimitingRule"].(map[string]interface{})["id"].(string)
-
+	id, err := common.GetIdFromResponse(responseStr, "createRateLimitingRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(id)
 
 	return nil
@@ -1058,8 +1060,10 @@ func resourceRateLimitingRuleBlockUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	updatedId := response["data"].(map[string]interface{})["updateRateLimitingRule"].(map[string]interface{})["id"].(string)
-
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateRateLimitingRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(updatedId)
 
 	return nil

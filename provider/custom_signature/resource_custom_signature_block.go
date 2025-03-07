@@ -189,8 +189,10 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	id := response["data"].(map[string]interface{})["createCustomSignatureRule"].(map[string]interface{})["id"].(string)
-
+	id, err := common.GetIdFromResponse(responseStr, "createCustomSignatureRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(id)
 	return nil
 }
@@ -330,8 +332,10 @@ func ResourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	updatedId := response["data"].(map[string]interface{})["updateCustomSignatureRule"].(map[string]interface{})["id"].(string)
-
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateCustomSignatureRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(updatedId)
 	return nil
 }
