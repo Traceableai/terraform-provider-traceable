@@ -50,20 +50,22 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 						"match_category": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "REQUEST/RESPONSE",
+							Description: "Accepts these two values REQUEST/RESPONSE",
 						},
 						"match_key": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Host/Http Method/User Agent/Request Body",
+							Description: "Possible values HTTP_METHOD/PARAMETER_VALUE/PARAMETER_NAME/HEADER_VALUE",
 						},
 						"match_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "These oprators are applied on match_key they varied based on the match_key",
+							Required:    true,
 						},
 						"match_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Value on which the operator will be applied",
+							Required:    true,
 						},
 					},
 				},
@@ -77,28 +79,32 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 						"match_category": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "REQUEST/RESPONSE",
+							Description: "Accepts these two values REQUEST/RESPONSE",
 						},
 						"key_value_tag": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Host/Http Method/User Agent/Request Body",
+							Description: "Accept these values COOKIE/PARAMETER/HEADER",
 						},
 						"key_match_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "These oprators are applied on match_key they varied based on the match_key",
 						},
 						"match_key": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "String value for the key",
 						},
 						"value_match_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Operator for the value possible values EQUALS/CONTAINS/NOT_EQUAL",
+							Required:    true,
 						},
 						"match_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Value on which the operator will be applied",
+							Required:    true,
 						},
 					},
 				},
@@ -110,12 +116,14 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_condition_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "key operator",
+							Required:    true,
 						},
 						"key_condition_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "key value",
+							Required:    true,
 						},
 						"value_condition_operator": {
 							Type:     schema.TypeString,
@@ -135,12 +143,14 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"header_key": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Request header key",
+							Required:    true,
 						},
 						"header_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Request header value",
+							Required:    true,
 						},
 					},
 				},
@@ -182,7 +192,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
 
 	envQuery := ReturnEnvScopedQuery(environments)
-	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions,requestPayloadMultiValuedConditions)
+	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions, requestPayloadMultiValuedConditions)
 	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
@@ -266,8 +276,8 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 			if clauses, ok := clauseGroup["clauses"].([]interface{}); ok {
 				for _, clause := range clauses {
 					if clauseMap, ok := clause.(map[string]interface{}); ok {
-						if clauseType, exists := clauseMap["clauseType"].(string); exists && (clauseType == "MATCH_EXPRESSION" || clauseType=="KEY_VALUE_EXPRESSION") {
-							if clauseType=="MATCH_EXPRESSION"{
+						if clauseType, exists := clauseMap["clauseType"].(string); exists && (clauseType == "MATCH_EXPRESSION" || clauseType == "KEY_VALUE_EXPRESSION") {
+							if clauseType == "MATCH_EXPRESSION" {
 								if matchExpression, ok := clauseMap["matchExpression"].(map[string]interface{}); ok {
 									reqResCondition := map[string]interface{}{
 										"match_key":      matchExpression["matchKey"],
@@ -277,15 +287,15 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 									}
 									singleValuedReqResConditions = append(singleValuedReqResConditions, reqResCondition)
 								}
-							}else if clauseType=="KEY_VALUE_EXPRESSION"{
+							} else if clauseType == "KEY_VALUE_EXPRESSION" {
 								if keyValueExpression, ok := clauseMap["keyValueExpression"].(map[string]interface{}); ok {
 									reqResCondition := map[string]interface{}{
-										"match_key":      keyValueExpression["matchKey"],
-										"match_value":    keyValueExpression["matchValue"],
-										"key_value_tag":    keyValueExpression["keyValueTag"],
+										"match_key":            keyValueExpression["matchKey"],
+										"match_value":          keyValueExpression["matchValue"],
+										"key_value_tag":        keyValueExpression["keyValueTag"],
 										"value_match_operator": keyValueExpression["valueMatchOperator"],
-										"match_category": keyValueExpression["matchCategory"],
-										"key_match_operator": keyValueExpression["keyMatchOperator"],
+										"match_category":       keyValueExpression["matchCategory"],
+										"key_match_operator":   keyValueExpression["keyMatchOperator"],
 									}
 									multiValuedReqResConditions = append(multiValuedReqResConditions, reqResCondition)
 								}
@@ -361,7 +371,7 @@ func ResourceCustomSignatureAlertUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	envQuery := ReturnEnvScopedQuery(environments)
-	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions,requestPayloadMultiValuedConditions)
+	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions, requestPayloadMultiValuedConditions)
 	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
 		return fmt.Errorf("please provide on of finalReqResConditionsQuery or custom_sec_rule")

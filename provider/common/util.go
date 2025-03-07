@@ -143,6 +143,9 @@ func InterfaceToEnumStringSlice(arr []interface{}) []string {
 func GetIdFromResponse(responseStr string, graphQlResponseKey string) (string, error) {
 	var response map[string]interface{}
 	err := json.Unmarshal([]byte(responseStr), &response)
+	if strings.Contains(responseStr, "Validation error") || strings.Contains(responseStr, "DataFetchingException") {
+		return "", fmt.Errorf("graphql response failed please check your input")
+	}
 	if err != nil {
 		return "", fmt.Errorf("error: %s", err)
 	}

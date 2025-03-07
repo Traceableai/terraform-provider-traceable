@@ -65,13 +65,13 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 			},
 			"label_id_scope": {
 				Type:        schema.TypeList,
-				Description: "Filter endpoints by labels you want to apply this rule",
+				Description: "Label ids to scope the rules on labels",
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"endpoint_id_scope": {
 				Type:        schema.TypeList,
-				Description: "List of endpoint ids",
+				Description: "List of endpoint ids to scope this rule on endpoint",
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
@@ -90,15 +90,17 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 						"request_location": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Host/Http Method/User Agent/Request Body",
+							Description: "Possible values HTTP_METHOD/PARAMETER_VALUE/PARAMETER_NAME/HEADER_VALUE",
 						},
 						"operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Accept NOT_EQUAL/EQUALS/MATCHES_REGEX",
 						},
 						"value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "value for request/response payload",
 						},
 					},
 				},
@@ -112,7 +114,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 						"request_location": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Query Param/Request Body Param/Request Cookie",
+							Description: "QUERY_PARAM/COOKIE/HEADER",
 						},
 						"key_patterns": {
 							Type:        schema.TypeList,
@@ -567,7 +569,7 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 		dataSetIds := data.(map[string]interface{})["data_sets_ids"].([]interface{})
 		dataLocation := data.(map[string]interface{})["data_location"].(string)
 		if dataLocation == "REQUEST" {
-			for _,valBasThConf := range valueBasedThresholdConfig{
+			for _, valBasThConf := range valueBasedThresholdConfig {
 				valBasThConfData := valBasThConf.(map[string]interface{})
 				sensitiveParamsEvaluationType := valBasThConfData["sensitive_params_evaluation_type"].(string)
 				if sensitiveParamsEvaluationType != "ALL" {

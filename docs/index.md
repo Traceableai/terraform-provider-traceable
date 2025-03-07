@@ -26,3 +26,4 @@ provider "traceable" {
 
 - `api_token` (String) platform api token
 - `platform_url` (String) Platform url where we need to create rules
+- `provider_version` (String) Traceable provider version

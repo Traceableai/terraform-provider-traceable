@@ -55,7 +55,7 @@ func ResourceDataClassificationOverrides() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "Key operator",
+										Description: "Key operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {
@@ -75,7 +75,7 @@ func ResourceDataClassificationOverrides() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "Value operator",
+										Description: "Value operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {

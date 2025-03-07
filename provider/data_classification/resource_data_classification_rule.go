@@ -42,12 +42,12 @@ func ResourceDataClassification() *schema.Resource {
 			},
 			"data_suppression": {
 				Type:        schema.TypeString,
-				Description: "Data supression for the data type",
+				Description: "Data supression for the data type (RAW/REDACT/OBFUSCATE)",
 				Required:    true,
 			},
 			"sensitivity": {
 				Type:        schema.TypeString,
-				Description: "Sensitivity of the data type",
+				Description: "Sensitivity of the data type (LOW/HIGH/MEDIUM/CRITICAL)",
 				Required:    true,
 			},
 			"scoped_patterns": {
@@ -71,12 +71,12 @@ func ResourceDataClassification() *schema.Resource {
 						},
 						"match_type": {
 							Type:        schema.TypeString,
-							Description: "Match or exclude",
+							Description: "Match or exclude (IGNORE/MATCH)",
 							Required:    true,
 						},
 						"locations": {
 							Type:        schema.TypeList,
-							Description: "where to look for the data type",
+							Description: "where to look for the data type (ANY/QUERY/REQUEST_HEADER/RESPONSE_HEADER/REQUEST_BODY/RESPONSE_BODY/REQUEST_COOKIE)",
 							Required:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -99,7 +99,7 @@ func ResourceDataClassification() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "key operator",
+										Description: "key operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {
@@ -112,14 +112,14 @@ func ResourceDataClassification() *schema.Resource {
 						},
 						"value_patterns": {
 							Type:        schema.TypeList,
-							Description: "key operator and value",
+							Description: "key operator and value ",
 							Optional:    true,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "value operator",
+										Description: "value operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {
@@ -164,7 +164,7 @@ func ResourceDataClassificationCreate(rData *schema.ResourceData, meta interface
 func ResourceDataClassificationRead(rData *schema.ResourceData, meta interface{}) error {
 	id := rData.Id()
 	log.Println("Id from read ", id)
-	responseStr, err := common.CallExecuteQuery(READ_QUERY, meta)
+	responseStr, err := common.CallExecuteQuery(DATA_TYPE_READ_QUERY, meta)
 	if err != nil {
 		return err
 	}

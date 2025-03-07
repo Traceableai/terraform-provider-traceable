@@ -185,12 +185,14 @@ func ResourceRateLimitingRuleAlert() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_condition_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "key operator",
+							Required:    true,
 						},
 						"key_condition_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "key value",
+							Required:    true,
 						},
 						"value_condition_operator": {
 							Type:     schema.TypeString,
