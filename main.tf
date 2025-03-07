@@ -366,10 +366,10 @@ resource "traceable_rate_limiting_block" "sample_rule" {
         user_id_regexes = ["sample","test"]
         exclude=false
     }
-    req_res_conditions {
-          metadata_type    = "HTTP_METHOD"
-          req_res_operator = "EQUALS"
-          req_res_value    = "zfcd"
+    request_response_single_valued_conditions {
+          request_location    = "HTTP_METHOD"
+          operator =   "EQUALS"
+          value     = "zfcd"
         }
     label_id_scope = ["External"]
 }

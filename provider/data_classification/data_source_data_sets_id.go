@@ -18,6 +18,11 @@ func DataSourceDatSetId() *schema.Resource {
 				Description: "Name of the data set",
 				Required:    true,
 			},
+			"data_set_id": {
+				Type:        schema.TypeString,
+				Description: "Id of the data set",
+				Computed:    true,
+			},
 		},
 	}
 }
