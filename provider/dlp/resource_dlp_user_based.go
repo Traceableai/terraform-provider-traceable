@@ -362,7 +362,7 @@ func ResourceDlpUserBasedRule() *schema.Resource {
 						},
 						"ip_address_type": {
 							Type:        schema.TypeString,
-							Description: "Accepts one value ALL_EXTERNAL",
+							Description: "Accepts ALL_INTERNAL/ALL_EXTERNAL",
 							Optional:    true,
 						},
 					},
