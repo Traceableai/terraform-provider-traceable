@@ -567,7 +567,7 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 		dataSetIds := data.(map[string]interface{})["data_sets_ids"].([]interface{})
 		dataLocation := data.(map[string]interface{})["data_location"].(string)
 		if dataLocation == "REQUEST" {
-			for _,valBasThConf := range valueBasedThresholdConfig{
+			for _, valBasThConf := range valueBasedThresholdConfig {
 				valBasThConfData := valBasThConf.(map[string]interface{})
 				sensitiveParamsEvaluationType := valBasThConfData["sensitive_params_evaluation_type"].(string)
 				if sensitiveParamsEvaluationType != "ALL" {
