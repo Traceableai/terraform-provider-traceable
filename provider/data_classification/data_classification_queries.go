@@ -5,7 +5,7 @@ const (
 	ENV_SCOPED_QUERY    = `scope: {
 						type: ENVIRONMENT
 						environmentScope: {
-							environmentIds: [%s]
+							environmentIds: %s
 						}
 					}`
 	CREATE_DATA_SET_QUERY = `mutation {
@@ -26,9 +26,9 @@ const (
 		}`
 	SCOPED_PATTERN_QUERY = `{
 				name: "%s"
-				urlMatchPatterns: [%s]
+				urlMatchPatterns: %s
 				patternType: %s
-				locations: [%s]
+				locations: %s
 				matchType: %s
 				%s
 				keyPattern: { operator: %s, value: "%s" }
@@ -86,9 +86,7 @@ const (
 					enabled: %t
 					dataSuppression: %s
 					sensitivity: %s
-					datasetIds: [
-						%s
-					]
+					datasetIds: %s
 				}
 			) {
 				id
@@ -98,7 +96,8 @@ const (
 		}`
 	UPDATE_QUERY = `mutation {
 			updateDataType(
-				dataTypeRule: {
+				dataType: {
+					id: "%s"
 					name: "%s"
 					description: "%s"
 					scopedPatterns: [
@@ -107,9 +106,7 @@ const (
 					enabled: %t
 					dataSuppression: %s
 					sensitivity: %s
-					datasetIds: [
-						%s
-					]
+					datasetIds: %s
 				}
 			) {
 				id

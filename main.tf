@@ -30,7 +30,7 @@ variable "API_TOKEN" {
 }
 
 provider "traceable" {
-  platform_url = "platform url"
+  platform_url = "platform_url"
   api_token    = jsondecode(data.aws_secretsmanager_secret_version.api_token.secret_string)["api_token"]
   provider_version="terraform/v1.0.1"
 }

@@ -367,7 +367,7 @@ const (
                                 matchValue: "%s"
                             }
                         }`
-                            
+
 	ATTRIBUTE_VALUE_CONDITION_QUERY = `valueCondition: { operator: %s, value: "%s" }`
 	ATTRIBUTES_BASED_QUERY          = ` {
 								clauseType: ATTRIBUTE_KEY_VALUE_EXPRESSION
