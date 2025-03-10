@@ -1,0 +1,55 @@
+
+scalar Long
+
+type DataSet {
+ 
+  description: String
+
+  """An icon used to represent this Dataset visually"""
+  iconType: String
+  id: String!
+  name: String!
+}
+enum SystemDataSetsVersion {
+  """VERSION_1"""
+  VERSION_1
+
+  """DEFAULT"""
+  DEFAULT
+}
+
+
+
+input InputDataSetCreate {
+  description: String
+  enabled: Boolean
+  iconType: String
+  name: String!
+}
+
+type DataSetResultSet {
+  count: Long!
+  results: [DataSet]!
+  total: Long!
+}
+input InputDataSetUpdate {
+  description: String
+  enabled: Boolean
+  iconType: String
+  id: String!
+  name: String!
+  
+}
+
+type Query{
+    dataSets(
+    """Override the system data sets used with a specific version"""
+    version: SystemDataSetsVersion
+  ): DataSetResultSet!
+}
+
+type Mutation {
+  createDataSet(dataSetCreate: InputDataSetCreate!): DataSet!
+  deleteDataSet(id: String!): Boolean!
+  updateDataSet(dataSetUpdate: InputDataSetUpdate!): DataSet!
+  }

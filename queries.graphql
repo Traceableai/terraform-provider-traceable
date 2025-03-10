@@ -1,0 +1,39 @@
+# @genqlient(omitempty: true)
+query dataSets {
+    dataSets{
+      count
+      results{
+         id
+         name
+         description
+         iconType
+      }
+      total
+      
+    }
+}
+
+
+mutation createDataSet($dataSetCreate: InputDataSetCreate!){
+   createDataSet(dataSetCreate:$dataSetCreate){
+    id
+    name
+    description
+    iconType
+   }
+}
+
+mutation deleteDataSet($id: String!){
+   deleteDataSet(id:$id)
+}
+
+mutation updateDataSet($dataSetUpdate:InputDataSetUpdate!){
+  updateDataSet(dataSetUpdate:$dataSetUpdate){
+    id
+    name
+    description
+    iconType
+  }
+}
+
+

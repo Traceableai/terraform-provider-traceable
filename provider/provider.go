@@ -1,106 +1,142 @@
 package provider
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/traceableai/terraform-provider-traceable/provider/common"
-	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"context"
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/traceableai/terraform-provider-traceable/provider/api"
 	"github.com/traceableai/terraform-provider-traceable/provider/data_classification"
-	"github.com/traceableai/terraform-provider-traceable/provider/dlp"
-	"github.com/traceableai/terraform-provider-traceable/provider/enumeration"
-	"github.com/traceableai/terraform-provider-traceable/provider/label_management"
-	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
-	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
-	"github.com/traceableai/terraform-provider-traceable/provider/waap"
 )
 
-func Provider() *schema.Provider {
-	return &schema.Provider{
-		Schema: map[string]*schema.Schema{
-			"platform_url": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Platform url where we need to create rules",
+// Ensure provider implements provider.Provider
+var _ provider.Provider = &traceableProvider{}
+
+type traceableProvider struct{
+	version string
+}
+
+
+type traceableProviderModel struct {
+	PlatformUrl types.String `tfsdk:"platform_url"`
+	ApiToken  types.String    `tfsdk:"api_token"`
+}
+
+// Metadata function
+func (p *traceableProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	fmt.Println("metadata intializattion")
+	resp.TypeName = "traceable"
+	resp.Version =p.version
+}
+
+// Schema function
+func (p *traceableProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+	fmt.Println("schema intializattion")
+	resp.Schema = schema.Schema{
+		MarkdownDescription: `
+The  provider allows you to interact with Traceable Platform, managing resources on it. 
+It supports creating and
+
+Refer to the official [Traceable Documentation](https://traceable.ai) for more details.
+		`,
+		Attributes: map[string]schema.Attribute{
+			"platform_url": schema.StringAttribute{
+				Required : true,
+				// MarkdownDescription: fmt.Sprintf("The Api Url to be used: Leave blank to use: https://cosmo-cp.wundergraph.com or use the %s environment variable", utils.EnvCosmoApiUrl),
 			},
-			"api_token": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "platform api token",
-			},
-			"provider_version": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Traceable provider version",
+			"api_token": schema.StringAttribute{
+				Required : true,
+				Sensitive: true,
+				// MarkdownDescription: fmt.Sprintf("The Api Key to be used: Leave blank to use the %s environment variable", utils.EnvCosmoApiKey),
 			},
 		},
-		ResourcesMap: map[string]*schema.Resource{
-			"traceable_ip_range_rule_block": malicious_sources.ResourceIpRangeRuleBlock(),
-			"traceable_ip_range_rule_allow": malicious_sources.ResourceIpRangeRuleAllow(),
-			"traceable_ip_range_rule_alert": malicious_sources.ResourceIpRangeRuleAlert(),
-			"traceable_region_rule_block":   malicious_sources.ResourceRegionRuleBlock(),
-			"traceable_region_rule_alert":   malicious_sources.ResourceRegionRuleAlert(),
-			"traceable_email_domain_block":  malicious_sources.ResourceEmailDomainBlock(),
-			"traceable_email_domain_alert":  malicious_sources.ResourceEmailDomainAlert(),
-			"traceable_ip_type_rule_alert":  malicious_sources.ResourceIpTypeRuleAlert(),
-			"traceable_ip_type_rule_block":  malicious_sources.ResourceIpTypeRuleBlock(),
-			"traceable_dlp_request_based":   dlp.ResourceDlpRequestBasedRule(),
-			"traceable_dlp_user_based":      dlp.ResourceDlpUserBasedRule(),
-			// "traceable_user_attribution_rule_basic_auth":                  ResourceUserAttributionBasicAuthRule(),
-			// "traceable_user_attribution_rule_req_header":                  ResourceUserAttributionRequestHeaderRule(),
-			// "traceable_user_attribution_rule_jwt_authentication":          ResourceUserAttributionJwtAuthRule(),
-			// "traceable_user_attribution_rule_response_body":               ResourceUserAttributionResponseBodyRule(),
-			// "traceable_user_attribution_rule_custom_json":                 ResourceUserAttributionCustomJsonRule(),
-			// "traceable_user_attribution_rule_custom_token":                ResourceUserAttributionCustomTokenRule(),
-			// "traceable_notification_channel":                              notification.ResourceNotificationChannelRule(),
-			// "traceable_notification_rule_logged_threat_activity":          notification.ResourceNotificationRuleLoggedThreatActivity(),
-			// "traceable_notification_rule_protection_configuration_change": notification.ResourceNotificationRuleProtectionConfig(),
-			// "traceable_notification_rule_team_activity":                   notification.ResourceNotificationRuleTeamActivity(),
-			// "traceable_notification_rule_api_naming":                      notification.ResourceNotificationRuleApiNaming(),
-			// "traceable_notification_rule_api_documentation":               notification.ResourceNotificationRuleApiDocumentation(),
-			// "traceable_notification_rule_data_collection":                 notification.ResourceNotificationRuleDataCollection(),
-			// "traceable_notification_rule_risk_scoring":                    notification.ResourceNotificationRuleRiskScoring(),
-			// "traceable_notification_rule_exclude_rule":                    notification.ResourceNotificationRuleExcludeRule(),
-			// "traceable_notification_rule_blocked_threat_activity":         notification.ResourceNotificationRuleBlockedThreatActivity(),
-			// "traceable_notification_rule_threat_actor_status":             notification.ResourceNotificationRuleThreatActorStatusChange(),
-			// "traceable_notification_rule_actor_severity_change":           notification.ResourceNotificationRuleActorSeverityChange(),
-			// "traceable_notification_rule_label_configuration":             notification.ResourceNotificationRuleLabelConfiguration(),
-			// "traceable_notification_rule_notification_configuration":      notification.ResourceNotificationRuleNotificationConfiguration(),
-			// "traceable_notification_rule_data_class_configuration":        notification.ResourceNotificationRuleDataClassificationConfig(),
-			// "traceable_notification_rule_posture_events":                  notification.ResourceNotificationRulePostureEvents(),
-			"traceable_api_naming_rule":             ResourceApiNamingRule(),
-			"traceable_label_management_label":      label_management.ResourceLabelCreationRule(),
-			"traceable_label_management_label_rule": label_management.ResourceLabelApplicationRule(),
-			"traceable_rate_limiting_block":         rate_limiting.ResourceRateLimitingRuleBlock(),
-			"traceable_rate_limiting_alert":         rate_limiting.ResourceRateLimitingRuleAlert(),
-			"traceable_enumeration_rule":            enumeration.ResourceEnumerationRule(),
-			"traceable_detection_policies":          waap.ResourceDetectionConfigRule(),
-			"traceable_custom_signature_allow":      custom_signature.ResourceCustomSignatureAllowRule(),
-			"traceable_custom_signature_block":      custom_signature.ResourceCustomSignatureBlockRule(),
-			"traceable_custom_signature_alert":      custom_signature.ResourceCustomSignatureAlertRule(),
-			"traceable_custom_signature_testing":    custom_signature.ResourceCustomSignatureTestingRule(),
-			// "traceable_api_exclusion_rule":                       ResourceApiExclusionRule(),
-			// "traceable_agent_token":                              ResourceAgentToken(),
-			"traceable_data_classification_rule":      data_classification.ResourceDataClassification(),
-			"traceable_data_classification_overrides": data_classification.ResourceDataClassificationOverrides(),
-			"traceable_data_sets":                     data_classification.ResourceDataSetsRule(),
-		},
-		DataSourcesMap: map[string]*schema.Resource{
-			// "traceable_notification_channels": DataSourceNotificationChannel(),
-			//"traceable_splunk_integration":    DataSourceSplunkIntegration(),
-			//"traceable_syslog_integration":    DataSourceSyslogIntegration(),
-			"traceable_endpoint_id": dataSourceEndpointId(),
-			"traceable_service_id":  dataSourceServiceId(),
-			"traceable_data_set_id": data_classification.DataSourceDatSetId(),
-			// "traceable_agent_token":           DataSourceAgentToken(),
-		},
-		ConfigureFunc: graphqlConfigure,
 	}
 }
 
-func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
-	config := &common.GraphqlProviderConfig{
-		GQLServerUrl:             d.Get("platform_url").(string),
-		ApiToken:                 d.Get("api_token").(string),
-		TraceableProviderVersion: d.Get("provider_version").(string),
+// Configure function - Extracts Terraform version
+func (p *traceableProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+
+
+
+
+	var data traceableProviderModel
+	fmt.Println("Reading provider configuration...")
+
+
+	diags := req.Config.Get(ctx, &data)
+	resp.Diagnostics.Append(diags...)
+
+	// Debug: Print diagnostics
+	if diags.HasError() {
+		fmt.Println("Error reading config:", diags)
+		return
 	}
-	return config, nil
+		tfVersion := req.TerraformVersion
+
+	
+
+	if tfVersion == "" {
+		resp.Diagnostics.AddWarning("Terraform Version Missing", "Unable to determine Terraform version from request.")
+	}
+  url := data.PlatformUrl.ValueString()
+	token := data.ApiToken.ValueString()
+
+	if url == "" {
+		resp.Diagnostics.AddError(
+			"Missing Platform URL",
+			"The platform_url attribute is required. Please provide a valid Traceable Platform URL.")
+		return
+	}
+	if token == "" {
+		resp.Diagnostics.AddError(
+			"Missing API Token",
+			"The api_token attribute is required. Please provide a valid Traceable API token.")
+		return
+	}
+	client:=api.NewClient(url,token,tfVersion)
+	if client == nil {
+		resp.Diagnostics.AddError("Failed to initialize API client", "The client could not be created. Check API URL and token.")
+		return
+	}
+	resp.DataSourceData = &client
+	resp.ResourceData = &client
+	fmt.Printf("Traceable client successfully initialized for %s\n", url)
+
 }
+
+
+func (p * traceableProvider) Resources(ctx context.Context) []func() resource.Resource {
+	fmt.Println("resouces intializattion")
+
+	return []func() resource.Resource{
+		data_classification.NewDataSetResource,		
+	}
+}
+
+
+func (p * traceableProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+
+	return []func() datasource.DataSource{
+		
+	}
+}
+
+
+func New(version string) func() provider.Provider {
+
+	return func() provider.Provider {
+		return &traceableProvider{
+			version: version,
+		}
+
+	}
+
+}
+
+
+
+

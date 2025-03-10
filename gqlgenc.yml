@@ -1,0 +1,9 @@
+schema:
+  - provider/schema/*.graphql
+operations:
+  - queries.graphql
+generated: genqlient.go
+package: main
+models:
+  Long:
+    type: int64
