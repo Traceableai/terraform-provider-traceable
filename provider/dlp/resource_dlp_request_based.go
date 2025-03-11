@@ -261,7 +261,7 @@ func validateSchemaRequestBased(ctx context.Context, rData *schema.ResourceDiff,
 		if customLocationDataTypeKeyValuePairMatching {
 			if customLocationAttribute == "REQUEST_BODY" {
 				if customLocationAttributeKeyOperator != "" || customLocationAttributeKeyValue != "" {
-					return fmt.Errorf("attributes not required in this context")
+					return fmt.Errorf("custom_location_attribute_key_operator or custom_location_attribute_value not required in this context")
 				}
 			} else if customLocationAttribute == "" || customLocationAttributeKeyOperator == "" || customLocationAttributeKeyValue == "" {
 				return fmt.Errorf("required attributes are missing")
