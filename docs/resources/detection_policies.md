@@ -32,7 +32,7 @@ description: |-
 
 Required:
 
-- `rule_id` (String) Rule id for the detection config
+- `rule_id` (String) Rule id for the detection config (XSS/LFI/RFI/bola/userIdBola)
 
 Optional:
 
@@ -52,5 +52,5 @@ Required:
 
 Required:
 
-- `sub_rule_action` (String) Action for sub rules
-- `sub_rule_id` (String) Sub rule Id
+- `sub_rule_action` (String) Action for sub rules (MONITOR/DISABLE/BLOCK)
+- `sub_rule_id` (String) Sub rule Id's (crs_941420/crs_941290/crs_941240)
