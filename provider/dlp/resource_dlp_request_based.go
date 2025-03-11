@@ -259,18 +259,18 @@ func validateSchemaRequestBased(ctx context.Context, rData *schema.ResourceDiff,
 		customLocationAttribute := data.(map[string]interface{})["custom_location_attribute"].(string)
 		customLocationAttributeKeyOperator := data.(map[string]interface{})["custom_location_attribute_key_operator"].(string)
 		customLocationAttributeKeyValue := data.(map[string]interface{})["custom_location_attribute_value"].(string)
+
 		if customLocationDataTypeKeyValuePairMatching {
-			if customLocationAttribute == "" || customLocationAttributeKeyOperator == "" || customLocationAttributeKeyValue == "" {
+			if customLocationAttribute == "REQUEST_BODY" {
+				if customLocationAttributeKeyOperator != "" || customLocationAttributeKeyValue != "" {
+					return fmt.Errorf("custom_location_attribute_key_operator or custom_location_attribute_value not required in this context")
+				}
+			} else if customLocationAttribute == "" || customLocationAttributeKeyOperator == "" || customLocationAttributeKeyValue == "" {
 				return fmt.Errorf("required attributes are missing")
 			}
 		} else {
 			if customLocationAttribute != "" || customLocationAttributeKeyOperator != "" || customLocationAttributeKeyValue != "" {
 				return fmt.Errorf("attributes not expected here")
-			}
-		}
-		if customLocationAttribute == "REQUEST_BODY" {
-			if customLocationAttributeKeyOperator != "" || customLocationAttributeKeyValue != "" {
-				return fmt.Errorf("attributes not required in this context")
 			}
 		}
 	}
@@ -357,6 +357,7 @@ func ResourceDlpRequestBasedRead(rData *schema.ResourceData, meta interface{}) e
 			rData.Set("alert_severity", "")
 			allow := action["allow"].(map[string]interface{})
 			if duration, ok := allow["duration"].(string); ok {
+				duration, _ = common.ConvertDurationToSeconds(duration)
 				rData.Set("expiry_duration", duration)
 			} else {
 				rData.Set("expiry_duration", "")

@@ -494,8 +494,13 @@ func validateSchemaAlert(ctx context.Context, d *schema.ResourceDiff, meta inter
 		if thresholdConfigType == "ROLLING_WINDOW" && dynamicMeanCalculationDuration != "" {
 			return fmt.Errorf("not valid here dynamic_mean_calculation_duration")
 		} else if thresholdConfigType == "DYNAMIC" {
+			apiAggregateType := thresholdConfigData["api_aggregate_type"].(string)
+			userAggregateType := thresholdConfigData["user_aggregate_type"].(string)
 			if dynamicMeanCalculationDuration == "" {
 				return fmt.Errorf("required dynamic_mean_calculation_duration for dynamic threshold_config_type")
+			}
+			if apiAggregateType != "PER_ENDPOINT" || userAggregateType != "PER_USER" {
+				return fmt.Errorf("invalid aggregate type for DYNAMIC")
 			}
 		}
 	}
@@ -654,6 +659,8 @@ func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{})
 					dynamic_mean_calculation_duration = dynamicMeanCalculationDuration
 				}
 			}
+			duration,_ = common.ConvertDurationToSeconds(duration)
+			dynamic_mean_calculation_duration,_ = common.ConvertDurationToSeconds(dynamic_mean_calculation_duration)
 			thresholdConfigDataMap := map[string]interface{}{
 				"api_aggregate_type":                thresholdConfigData["apiAggregateType"].(string),
 				"rolling_window_count_allowed":      count_allowed,
@@ -957,8 +964,8 @@ func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{})
 		}
 	}
 	d.Set("environments", envList)
-	d.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	d.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("request_response_single_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("request_response_multi_valued_conditions", finalReqResMultiValueConditionState)
 	d.Set("attribute_based_conditions", finalAttributeBasedConditionState)
 
 	return nil

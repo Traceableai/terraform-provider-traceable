@@ -120,8 +120,9 @@ func resourceIpRangeRuleAllowRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
 
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
-	expiration, ok := ruleDetails["expiration"]
+	expiration, ok := ruleDetails["expiration"].(string)
 	if ok {
+		expiration, _ = common.ConvertDurationToSeconds(expiration)
 		d.Set("expiration", expiration)
 	} else {
 		d.Set("expiration", "")

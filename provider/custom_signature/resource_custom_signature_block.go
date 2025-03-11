@@ -35,14 +35,14 @@ func ResourceCustomSignatureBlockRule() *schema.Resource {
 				Optional:    true,
 			},
 			"environments": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Description: "Environment of the custom signature allow rule (Leave empty array for all env)",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"request_response_single_valued_conditions": {
+			"request_payload_single_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload single valued conditions for the rule",
 				Optional:    true,
@@ -71,7 +71,7 @@ func ResourceCustomSignatureBlockRule() *schema.Resource {
 					},
 				},
 			},
-			"request_response_multi_valued_conditions": {
+			"request_payload_multi_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload multi valued conditions for the rule",
 				Optional:    true,
@@ -156,7 +156,7 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	name := d.Get("name").(string)
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	disabled := d.Get("disabled").(bool)
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
@@ -262,8 +262,8 @@ func ResourceCustomSignatureBlockRead(d *schema.ResourceData, meta interface{}) 
 						}
 					}
 				}
-				d.Set("request_response_multi_valued_conditions", multiValuedReqResConditions)
-				d.Set("request_response_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_multi_valued_conditions", multiValuedReqResConditions)
 			}
 		}
 	}
@@ -299,7 +299,7 @@ func ResourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
 	id := d.Id()
 	description := d.Get("description").(string)
 	rule_type := d.Get("rule_type").(string)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)

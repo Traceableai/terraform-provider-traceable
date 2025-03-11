@@ -35,14 +35,14 @@ func ResourceCustomSignatureAllowRule() *schema.Resource {
 				Optional:    true,
 			},
 			"environments": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Description: "Environment of the custom signature allow rule",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"request_response_single_valued_conditions": {
+			"request_payload_single_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload single valued conditions for the rule",
 				Optional:    true,
@@ -71,7 +71,7 @@ func ResourceCustomSignatureAllowRule() *schema.Resource {
 					},
 				},
 			},
-			"request_response_multi_valued_conditions": {
+			"request_payload_multi_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload multi valued conditions for the rule",
 				Optional:    true,
@@ -149,7 +149,7 @@ func ResourceCustomSignatureAllowCreate(d *schema.ResourceData, meta interface{}
 	name := d.Get("name").(string)
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	disabled := d.Get("disabled").(bool)
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
@@ -221,8 +221,8 @@ func ResourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
 							if clauseType == "MATCH_EXPRESSION" {
 								if matchExpression, ok := clauseMap["matchExpression"].(map[string]interface{}); ok {
 									reqResCondition := map[string]interface{}{
-										"match_key":      matchExpression["matchKey"],
 										"match_category": matchExpression["matchCategory"],
+										"match_key":      matchExpression["matchKey"],
 										"match_operator": matchExpression["matchOperator"],
 										"match_value":    matchExpression["matchValue"],
 									}
@@ -248,8 +248,8 @@ func ResourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
 						}
 					}
 				}
-				d.Set("request_response_multi_valued_conditions", multiValuedReqResConditions)
-				d.Set("request_response_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_multi_valued_conditions", multiValuedReqResConditions)
 			}
 		}
 	}
@@ -285,7 +285,7 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	id := d.Id()
 	description := d.Get("description").(string)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)

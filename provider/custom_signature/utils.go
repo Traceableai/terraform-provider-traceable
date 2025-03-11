@@ -30,7 +30,7 @@ func ReturnReqResConditionsQuery(requestResponseSingleValuedConditions []interfa
 	if len(requestResponseSingleValuedConditions) > 0 {
 		for _, requestPayloadSingleValuedCondition := range requestResponseSingleValuedConditions {
 			requestPayloadSingleValuedConditionData := requestPayloadSingleValuedCondition.(map[string]interface{})
-			matchKey := requestPayloadSingleValuedConditionData["matchKey"].(string)
+			matchKey := requestPayloadSingleValuedConditionData["match_key"].(string)
 			matchCategory := requestPayloadSingleValuedConditionData["match_category"].(string)
 			matchOp := requestPayloadSingleValuedConditionData["match_operator"].(string)
 			matchVal := requestPayloadSingleValuedConditionData["match_value"].(string)

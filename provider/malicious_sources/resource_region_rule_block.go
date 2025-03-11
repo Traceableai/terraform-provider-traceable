@@ -131,8 +131,9 @@ func resourceRegionRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 	} else {
 		d.Set("event_severity", nil)
 	}
-	expiration, ok := ruleData["expiration"]
+	expiration, ok := ruleData["expiration"].(string)
 	if ok {
+		expiration, _ = common.ConvertDurationToSeconds(expiration)
 		d.Set("expiration", expiration)
 	} else {
 		d.Set("expiration", "")

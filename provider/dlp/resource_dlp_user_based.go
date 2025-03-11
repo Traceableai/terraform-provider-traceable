@@ -625,7 +625,16 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 	if len(labelScope) > 0 && len(endpointScope) > 0 {
 		return fmt.Errorf("require on of `label_id_scope` or `endpoint_id_scope`")
 	}
+	dynamicThresholdConfigs := firstThresholdConfigs["dynamic_threshold_config"].([]interface{})
 
+	for _, dynamicThresholdConfig := range dynamicThresholdConfigs {
+		dynamicThresholdConfigMap := dynamicThresholdConfig.(map[string]interface{})
+		userAggregateType := dynamicThresholdConfigMap["user_aggregate_type"].(string)
+		apiAggregateType := dynamicThresholdConfigMap["api_aggregate_type"].(string)
+		if userAggregateType != "PER_USER" || apiAggregateType != "PER_ENDPOINT" {
+			return fmt.Errorf("invalid value of user_aggregate_type or api_aggregate_type for DYNAMIC threshold_config")
+		}
+	}
 	for _, attBasedCondition := range attributeBasedConditions {
 		valueConditionOperator := attBasedCondition.(map[string]interface{})["value_condition_operator"]
 		valueConditionValue := attBasedCondition.(map[string]interface{})["value_condition_value"]
@@ -749,6 +758,7 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 		rData.Set("rule_type", actionType)
 		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
 			if duration, ok := ruleTypeConfig["duration"].(string); ok {
+				duration, _ = common.ConvertDurationToSeconds(duration)
 				rData.Set("expiry_duration", duration)
 			} else {
 				rData.Set("expiry_duration", "")
@@ -773,7 +783,7 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 				userAggregateType := thresholdConfigData["userAggregateType"].(string)
 				rollingWindowThresholdConfig := thresholdConfigData["rollingWindowThresholdConfig"].(map[string]interface{})
 				countAllowed := rollingWindowThresholdConfig["countAllowed"].(float64)
-				duration := rollingWindowThresholdConfig["duration"].(string)
+				duration,_ := common.ConvertDurationToSeconds(rollingWindowThresholdConfig["duration"].(string))
 				rollingWinObj := map[string]interface{}{
 					"user_aggregate_type": userAggregateType,
 					"api_aggregate_type":  apiAggregateType,
@@ -786,8 +796,8 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 				userAggregateType := thresholdConfigData["userAggregateType"].(string)
 				dynamicThresholdConfig := thresholdConfigData["dynamicThresholdConfig"].(map[string]interface{})
 				percentageExceedingMeanAllowed := dynamicThresholdConfig["percentageExceedingMeanAllowed"].(float64)
-				meanCalculationDuration := dynamicThresholdConfig["meanCalculationDuration"].(string)
-				duration := dynamicThresholdConfig["duration"].(string)
+				meanCalculationDuration,_ := common.ConvertDurationToSeconds(dynamicThresholdConfig["meanCalculationDuration"].(string))
+				duration,_ := common.ConvertDurationToSeconds(dynamicThresholdConfig["duration"].(string))
 				dynamicThresholdConfigObj := map[string]interface{}{
 					"user_aggregate_type":               userAggregateType,
 					"api_aggregate_type":                apiAggregateType,
@@ -802,7 +812,7 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 				valueBasedThresholdConfig := thresholdConfigData["valueBasedThresholdConfig"].(map[string]interface{})
 				uniqueValuesAllowed := valueBasedThresholdConfig["uniqueValuesAllowed"].(float64)
 				sensitiveParamsEvaluationType := valueBasedThresholdConfig["sensitiveParamsEvaluationType"].(string)
-				duration := valueBasedThresholdConfig["duration"].(string)
+				duration,_ := common.ConvertDurationToSeconds(valueBasedThresholdConfig["duration"].(string))
 				valueBasedThresholdConfigObj := map[string]interface{}{
 					"user_aggregate_type":              userAggregateType,
 					"api_aggregate_type":               apiAggregateType,
@@ -1129,8 +1139,8 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	rData.Set("environments", envList)
-	rData.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	rData.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	rData.Set("request_response_single_valued_conditions", finalReqResSingleValueConditionState)
+	rData.Set("request_response_multi_valued_conditions", finalReqResMultiValueConditionState)
 	rData.Set("attribute_based_conditions", finalAttributeBasedConditionState)
 	rData.Set("data_types_conditions", finalDataTypeConditionState)
 

@@ -142,8 +142,8 @@ func ResourceDataClassificationCreate(rData *schema.ResourceData, meta interface
 	sensitivity := rData.Get("sensitivity").(string)
 	dataSuppression := rData.Get("data_suppression").(string)
 	enabled := rData.Get("enabled").(bool)
-	dataSets := rData.Get("data_sets").(*schema.Set).List()
-	scopedPatterns := rData.Get("scoped_patterns").(*schema.Set).List()
+	dataSets := rData.Get("data_sets").([]interface{})
+	scopedPatterns := rData.Get("scoped_patterns").([]interface{})
 
 	scopedPatternQuery := GetScopedPatternQuery(scopedPatterns)
 	query := fmt.Sprintf(CREATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
@@ -234,27 +234,28 @@ func ResourceDataClassificationRead(rData *schema.ResourceData, meta interface{}
 }
 
 func ResourceDataClassificationUpdate(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	name := rData.Get("name").(string)
 	description := rData.Get("description").(string)
 	sensitivity := rData.Get("sensitivity").(string)
 	dataSuppression := rData.Get("data_suppression").(string)
 	enabled := rData.Get("enabled").(bool)
-	dataSets := rData.Get("data_sets").(*schema.Set).List()
-	scopedPatterns := rData.Get("scoped_patterns").(*schema.Set).List()
+	dataSets := rData.Get("data_sets").([]interface{})
+	scopedPatterns := rData.Get("scoped_patterns").([]interface{})
 
 	scopedPatternQuery := GetScopedPatternQuery(scopedPatterns)
-	query := fmt.Sprintf(UPDATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
+	query := fmt.Sprintf(UPDATE_QUERY, id, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
 	log.Printf("This is the graphql query %s", query)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	id, err := common.GetIdFromResponse(responseStr, "updateDataType")
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateDataType")
 	if err != nil {
 		return fmt.Errorf("error %s", err)
 	}
-	rData.SetId(id)
+	rData.SetId(updatedId)
 	return nil
 }
 
