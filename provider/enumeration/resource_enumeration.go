@@ -713,6 +713,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 					sensitiveParamsEvaluationTypeVal = sensitiveParamsEvaluationType
 				}
 			}
+			duration,_ = common.ConvertDurationToSeconds(duration)
 			if sensitiveParamsEvaluationTypeVal == "" {
 				thresholdConfigDataMap = map[string]interface{}{
 					"api_aggregate_type":    thresholdConfigData["apiAggregateType"].(string),

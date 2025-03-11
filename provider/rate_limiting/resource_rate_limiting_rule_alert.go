@@ -655,6 +655,8 @@ func resourceRateLimitingRuleAlertRead(d *schema.ResourceData, meta interface{})
 					dynamic_mean_calculation_duration = dynamicMeanCalculationDuration
 				}
 			}
+			duration,_ = common.ConvertDurationToSeconds(duration)
+			dynamic_mean_calculation_duration,_ = common.ConvertDurationToSeconds(dynamic_mean_calculation_duration)
 			thresholdConfigDataMap := map[string]interface{}{
 				"api_aggregate_type":                thresholdConfigData["apiAggregateType"].(string),
 				"rolling_window_count_allowed":      count_allowed,
