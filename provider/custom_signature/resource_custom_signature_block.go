@@ -51,20 +51,22 @@ func ResourceCustomSignatureBlockRule() *schema.Resource {
 						"match_category": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "REQUEST/RESPONSE",
+							Description: "Accepts these two values REQUEST/RESPONSE",
 						},
 						"match_key": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Host/Http Method/User Agent/Request Body",
+							Description: "Possible values HTTP_METHOD/PARAMETER_VALUE/PARAMETER_NAME/HEADER_VALUE",
 						},
 						"match_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "These oprators are applied on match_key they varied based on the match_key",
+							Required:    true,
 						},
 						"match_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Value on which the operator will be applied",
+							Required:    true,
 						},
 					},
 				},
@@ -78,28 +80,32 @@ func ResourceCustomSignatureBlockRule() *schema.Resource {
 						"match_category": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "REQUEST/RESPONSE",
+							Description: "Accepts these two values REQUEST/RESPONSE",
 						},
 						"key_value_tag": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Host/Http Method/User Agent/Request Body",
+							Description: "Accept these values COOKIE/PARAMETER/HEADER",
 						},
 						"key_match_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "These oprators are applied on match_key they varied based on the match_key",
 						},
 						"match_key": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "String value for the key",
 						},
 						"value_match_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Operator for the value possible values EQUALS/CONTAINS/NOT_EQUAL",
+							Required:    true,
 						},
 						"match_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "Value on which the operator will be applied",
+							Required:    true,
 						},
 					},
 				},
@@ -183,8 +189,10 @@ func ResourceCustomSignatureBlockCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	id := response["data"].(map[string]interface{})["createCustomSignatureRule"].(map[string]interface{})["id"].(string)
-
+	id, err := common.GetIdFromResponse(responseStr, "createCustomSignatureRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(id)
 	return nil
 }
@@ -324,8 +332,10 @@ func ResourceCustomSignatureBlockUpdate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	updatedId := response["data"].(map[string]interface{})["updateCustomSignatureRule"].(map[string]interface{})["id"].(string)
-
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateCustomSignatureRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(updatedId)
 	return nil
 }

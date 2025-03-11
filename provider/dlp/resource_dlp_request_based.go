@@ -76,15 +76,17 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 						"request_location": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Host/Http Method/User Agent/Request Body",
+							Description: "Possible values HTTP_METHOD/PARAMETER_VALUE/PARAMETER_NAME/HEADER_VALUE",
 						},
 						"operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Accept NOT_EQUAL/EQUALS/MATCHES_REGEX",
 						},
 						"value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "value for request/response payload",
 						},
 					},
 				},
@@ -98,7 +100,7 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 						"request_location": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Query Param/Request Body Param/Request Cookie",
+							Description: "QUERY_PARAM/COOKIE/HEADER",
 						},
 						"key_patterns": {
 							Type:        schema.TypeList,
@@ -183,7 +185,7 @@ func ResourceDlpRequestBasedRule() *schema.Resource {
 						},
 						"custom_location_attribute_key_operator": {
 							Type:        schema.TypeString,
-							Description: "Match regex/Match exactly",
+							Description: "MATCH_REGEX/MATCH_EXACTLY",
 							Optional:    true,
 						},
 						"custom_location_attribute_value": {

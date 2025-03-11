@@ -33,7 +33,7 @@ func ResourceDetectionConfigRule() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"rule_id": {
 							Type:        schema.TypeString,
-							Description: "Rule id for the detection config",
+							Description: "Rule id for the detection config (XSS/LFI/RFI/bola/userIdBola)",
 							Required:    true,
 						},
 						"rule_config": {
@@ -60,12 +60,12 @@ func ResourceDetectionConfigRule() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"sub_rule_id": {
 										Type:        schema.TypeString,
-										Description: "Sub rule Id",
+										Description: "Sub rule Id's (crs_941420/crs_941290/crs_941240)",
 										Required:    true,
 									},
 									"sub_rule_action": {
 										Type:        schema.TypeString,
-										Description: "Action for sub rules",
+										Description: "Action for sub rules (MONITOR/DISABLE/BLOCK)",
 										Required:    true,
 									},
 								},

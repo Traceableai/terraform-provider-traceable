@@ -185,12 +185,14 @@ func ResourceRateLimitingRuleAlert() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"key_condition_operator": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "key operator",
+							Required:    true,
 						},
 						"key_condition_value": {
-							Type:     schema.TypeString,
-							Required: true,
+							Type:        schema.TypeString,
+							Description: "key value",
+							Required:    true,
 						},
 						"value_condition_operator": {
 							Type:     schema.TypeString,
@@ -586,10 +588,12 @@ func resourceRateLimitingRuleAlertCreate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	id := response["data"].(map[string]interface{})["createRateLimitingRule"].(map[string]interface{})["id"].(string)
 
+	id, err := common.GetIdFromResponse(responseStr, "createRateLimitingRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(id)
-
 	return nil
 }
 
@@ -1042,10 +1046,11 @@ func resourceRateLimitingRuleAlertUpdate(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
-	updatedId := response["data"].(map[string]interface{})["updateRateLimitingRule"].(map[string]interface{})["id"].(string)
-
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateRateLimitingRule")
+	if err != nil {
+		return fmt.Errorf("%s", err)
+	}
 	d.SetId(updatedId)
-
 	return nil
 }
 

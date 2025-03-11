@@ -114,6 +114,7 @@ const (
 				description
 			}
 		}`
+
 	DATA_SET_READ_QUERY = `{
 	dataSets {
 		results {
@@ -231,7 +232,7 @@ const (
 		__typename
 	}
 	}`
-	READ_QUERY = `{
+	DATA_TYPE_READ_QUERY = `{
 			dataTypes {
 				results {
 					id
