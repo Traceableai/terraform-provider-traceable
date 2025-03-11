@@ -685,6 +685,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 		d.Set("rule_type", actionType)
 		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
 			if duration, ok := ruleTypeConfig["duration"].(string); ok {
+				duration, _ = common.ConvertDurationToSeconds(duration)
 				d.Set("expiry_duration", duration)
 			} else {
 				d.Set("expiry_duration", "")
@@ -712,6 +713,7 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 					sensitiveParamsEvaluationTypeVal = sensitiveParamsEvaluationType
 				}
 			}
+			duration,_ = common.ConvertDurationToSeconds(duration)
 			if sensitiveParamsEvaluationTypeVal == "" {
 				thresholdConfigDataMap = map[string]interface{}{
 					"api_aggregate_type":    thresholdConfigData["apiAggregateType"].(string),
@@ -1042,8 +1044,8 @@ func resourceEnumerationRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	d.Set("environments", envList)
-	d.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	d.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("request_response_single_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("request_response_multi_valued_conditions", finalReqResMultiValueConditionState)
 	d.Set("attribute_based_conditions", finalAttributeBasedConditionState)
 	d.Set("data_types_conditions", finalDataTypeConditionState)
 

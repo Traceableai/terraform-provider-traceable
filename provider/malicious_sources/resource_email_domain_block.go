@@ -153,7 +153,8 @@ func resourceEmailDomainBlockRead(d *schema.ResourceData, meta interface{}) erro
 	if action, ok := ruleDetails["action"].(map[string]interface{}); ok {
 		d.Set("event_severity", action["eventSeverity"])
 		if expirationDetails, ok := action["expirationDetails"].(map[string]interface{}); ok {
-			d.Set("expiration", expirationDetails["expirationDuration"].(string))
+			expirationDuration, _ := common.ConvertDurationToSeconds(expirationDetails["expirationDuration"].(string))
+			d.Set("expiration", expirationDuration)
 		} else {
 			d.Set("expiration", "")
 		}

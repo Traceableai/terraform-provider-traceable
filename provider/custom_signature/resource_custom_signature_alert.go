@@ -34,14 +34,14 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 				Optional:    true,
 			},
 			"environments": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Description: "Environment of the custom signature allow rule",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"request_response_single_valued_conditions": {
+			"request_payload_single_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload single valued conditions for the rule",
 				Optional:    true,
@@ -68,7 +68,7 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 					},
 				},
 			},
-			"request_response_multi_valued_conditions": {
+			"request_payload_multi_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload multi valued conditions for the rule",
 				Optional:    true,
@@ -172,7 +172,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
 	disabled := d.Get("disabled").(bool)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
@@ -316,8 +316,8 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 					}
 				}
 				d.Set("attribute_based_conditions", attributeBasedConditions)
-				d.Set("request_response_multi_valued_conditions", multiValuedReqResConditions)
-				d.Set("request_response_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_multi_valued_conditions", multiValuedReqResConditions)
 			}
 		}
 	}
@@ -349,7 +349,7 @@ func ResourceCustomSignatureAlertUpdate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
 	disabled := d.Get("disabled").(bool)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})

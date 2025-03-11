@@ -355,6 +355,7 @@ func ResourceDlpRequestBasedRead(rData *schema.ResourceData, meta interface{}) e
 			rData.Set("alert_severity", "")
 			allow := action["allow"].(map[string]interface{})
 			if duration, ok := allow["duration"].(string); ok {
+				duration, _ = common.ConvertDurationToSeconds(duration)
 				rData.Set("expiry_duration", duration)
 			} else {
 				rData.Set("expiry_duration", "")

@@ -508,6 +508,10 @@ func validateSchema(ctx context.Context, d *schema.ResourceDiff, meta interface{
 			if dynamicMeanCalculationDuration == "" {
 				return fmt.Errorf("required dynamic_mean_calculation_duration for dynamic threshold_config_type")
 			}
+			apiAggregateType := thresholdConfigData["api_aggregate_type"].(string)
+			if apiAggregateType != "PER_ENDPOINT" {
+				return fmt.Errorf("for DYNAMIC threshold config api_aggregate_type should be PER_ENDPOINT")
+			}
 		}
 	}
 	for _, attBasedCondition := range attribute_based_conditions {
@@ -634,7 +638,8 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 		firstThresholdActions := thresholdActions[0].(map[string]interface{})
 		d.Set("rule_type", firstThresholdActions["actionType"])
 		if blockingConfig, ok := firstThresholdActions["block"].(map[string]interface{}); ok {
-			d.Set("block_expiry_duration", blockingConfig["duration"])
+			blockingExpirationDuration, _ := common.ConvertDurationToSeconds(blockingConfig["duration"].(string))
+			d.Set("block_expiry_duration", blockingExpirationDuration)
 
 			if blockingSeverity, ok := blockingConfig["eventSeverity"].(string); ok {
 				if blockingSeverity != "" {
@@ -669,6 +674,8 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 					dynamic_mean_calculation_duration = dynamicMeanCalculationDuration
 				}
 			}
+			duration, _ = common.ConvertDurationToSeconds(duration)
+			dynamic_mean_calculation_duration, _ = common.ConvertDurationToSeconds(dynamic_mean_calculation_duration)
 			thresholdConfigDataMap := map[string]interface{}{
 				"api_aggregate_type":                thresholdConfigData["apiAggregateType"].(string),
 				"rolling_window_count_allowed":      count_allowed,
@@ -972,8 +979,8 @@ func resourceRateLimitingRuleBlockRead(d *schema.ResourceData, meta interface{})
 		}
 	}
 	d.Set("environments", envList)
-	d.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	d.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("request_response_single_valued_conditions", finalReqResSingleValueConditionState)
+	d.Set("request_response_multi_valued_conditions", finalReqResMultiValueConditionState)
 	d.Set("attribute_based_conditions", finalAttributeBasedConditionState)
 
 	return nil
