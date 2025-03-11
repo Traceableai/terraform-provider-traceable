@@ -152,7 +152,7 @@ func ResourceCustomSignatureAllowCreate(d *schema.ResourceData, meta interface{}
 	allow_expiry_duration := d.Get("allow_expiry_duration").(string)
 
 	envQuery := ReturnEnvScopedQuery(environments)
-	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions,requestPayloadMultiValuedConditions)
+	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions, requestPayloadMultiValuedConditions)
 	customSecRuleQuery := ReturnCustomSecRuleQuery(custom_sec_rule)
 
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" {
@@ -208,8 +208,8 @@ func ResourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
 			if clauses, ok := clauseGroup["clauses"].([]interface{}); ok {
 				for _, clause := range clauses {
 					if clauseMap, ok := clause.(map[string]interface{}); ok {
-						if clauseType, exists := clauseMap["clauseType"].(string); exists && (clauseType == "MATCH_EXPRESSION" || clauseType=="KEY_VALUE_EXPRESSION") {
-							if clauseType=="MATCH_EXPRESSION"{
+						if clauseType, exists := clauseMap["clauseType"].(string); exists && (clauseType == "MATCH_EXPRESSION" || clauseType == "KEY_VALUE_EXPRESSION") {
+							if clauseType == "MATCH_EXPRESSION" {
 								if matchExpression, ok := clauseMap["matchExpression"].(map[string]interface{}); ok {
 									reqResCondition := map[string]interface{}{
 										"match_key":      matchExpression["matchKey"],
@@ -219,15 +219,15 @@ func ResourceCustomSignatureAllowRead(d *schema.ResourceData, meta interface{}) 
 									}
 									singleValuedReqResConditions = append(singleValuedReqResConditions, reqResCondition)
 								}
-							}else if clauseType=="KEY_VALUE_EXPRESSION"{
+							} else if clauseType == "KEY_VALUE_EXPRESSION" {
 								if keyValueExpression, ok := clauseMap["keyValueExpression"].(map[string]interface{}); ok {
 									reqResCondition := map[string]interface{}{
-										"match_key":      keyValueExpression["matchKey"],
-										"match_value":    keyValueExpression["matchValue"],
-										"key_value_tag":    keyValueExpression["keyValueTag"],
+										"match_key":            keyValueExpression["matchKey"],
+										"match_value":          keyValueExpression["matchValue"],
+										"key_value_tag":        keyValueExpression["keyValueTag"],
 										"value_match_operator": keyValueExpression["valueMatchOperator"],
-										"match_category": keyValueExpression["matchCategory"],
-										"key_match_operator": keyValueExpression["keyMatchOperator"],
+										"match_category":       keyValueExpression["matchCategory"],
+										"key_match_operator":   keyValueExpression["keyMatchOperator"],
 									}
 									multiValuedReqResConditions = append(multiValuedReqResConditions, reqResCondition)
 								}
@@ -278,7 +278,7 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 	description := d.Get("description").(string)
 	environments := d.Get("environments").(*schema.Set).List()
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
-	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})	
+	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
 	custom_sec_rule := d.Get("custom_sec_rule").(string)
 	if !strings.Contains(custom_sec_rule, `\n`) {
 		custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
@@ -288,7 +288,7 @@ func ResourceCustomSignatureAllowUpdate(d *schema.ResourceData, meta interface{}
 	disabled := d.Get("disabled").(bool)
 
 	envQuery := ReturnEnvScopedQuery(environments)
-	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions,requestPayloadMultiValuedConditions)
+	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions, requestPayloadMultiValuedConditions)
 
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" {
 		return fmt.Errorf("please provide on of finalReqResConditionsQuery or custom_sec_rule")
