@@ -128,7 +128,8 @@ func resourceIpTypeRuleBlockRead(d *schema.ResourceData, meta interface{}) error
 		d.Set("rule_action", action["ruleActionType"].(string))
 		expirationFlag := true
 		if expirationDetails, ok := action["expirationDetails"].(map[string]interface{}); ok {
-			d.Set("expiration", expirationDetails["expirationDuration"].(string))
+			expirtyTime, _ := common.ConvertDurationToSeconds(expirationDetails["expirationDuration"].(string))
+			d.Set("expiration", expirtyTime)
 			expirationFlag = false
 		}
 		if expirationFlag {

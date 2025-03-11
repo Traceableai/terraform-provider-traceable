@@ -25,16 +25,16 @@ func ReturnEnvScopedQuery(environments []interface{}) string {
 	return envQuery
 }
 
-func ReturnReqResConditionsQuery(requestResponseSingleValuedConditions []interface{},requestResponseMultiValuedConditions []interface{}) string {
+func ReturnReqResConditionsQuery(requestResponseSingleValuedConditions []interface{}, requestResponseMultiValuedConditions []interface{}) string {
 	finalConditionsQuery := ""
 	if len(requestResponseSingleValuedConditions) > 0 {
 		for _, requestPayloadSingleValuedCondition := range requestResponseSingleValuedConditions {
 			requestPayloadSingleValuedConditionData := requestPayloadSingleValuedCondition.(map[string]interface{})
-			matchKey := requestPayloadSingleValuedConditionData["matchKey"].(string)
+			matchKey := requestPayloadSingleValuedConditionData["match_key"].(string)
 			matchCategory := requestPayloadSingleValuedConditionData["match_category"].(string)
 			matchOp := requestPayloadSingleValuedConditionData["match_operator"].(string)
 			matchVal := requestPayloadSingleValuedConditionData["match_value"].(string)
-			finalConditionsQuery += fmt.Sprintf(SINGLE_VALUED_REQ_RES_CONDITION_QUERY, matchKey, matchCategory,matchOp, matchVal)
+			finalConditionsQuery += fmt.Sprintf(SINGLE_VALUED_REQ_RES_CONDITION_QUERY, matchKey, matchCategory, matchOp, matchVal)
 		}
 	}
 	if len(requestResponseMultiValuedConditions) > 0 {
@@ -46,7 +46,7 @@ func ReturnReqResConditionsQuery(requestResponseSingleValuedConditions []interfa
 			matchKey := requestPayloadMultiValuedConditionData["match_key"].(string)
 			valueMatchOperator := requestPayloadMultiValuedConditionData["value_match_operator"].(string)
 			matchValue := requestPayloadMultiValuedConditionData["match_value"].(string)
-			finalConditionsQuery += fmt.Sprintf(MULTI_VALUED_REQ_RES_CONDITION_QUERY,keyValueTag, matchCategory, keyMatchOperator, matchKey, valueMatchOperator,matchValue)
+			finalConditionsQuery += fmt.Sprintf(MULTI_VALUED_REQ_RES_CONDITION_QUERY, keyValueTag, matchCategory, keyMatchOperator, matchKey, valueMatchOperator, matchValue)
 		}
 	}
 	return finalConditionsQuery

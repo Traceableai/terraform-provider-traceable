@@ -34,14 +34,14 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 				Optional:    true,
 			},
 			"environments": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Description: "Environment of the custom signature allow rule",
 				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"request_response_single_valued_conditions": {
+			"request_payload_single_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload single valued conditions for the rule",
 				Optional:    true,
@@ -68,7 +68,7 @@ func ResourceCustomSignatureAlertRule() *schema.Resource {
 					},
 				},
 			},
-			"request_response_multi_valued_conditions": {
+			"request_payload_multi_valued_conditions": {
 				Type:        schema.TypeList,
 				Description: "Request payload multi valued conditions for the rule",
 				Optional:    true,
@@ -172,7 +172,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
 	disabled := d.Get("disabled").(bool)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
@@ -182,7 +182,7 @@ func ResourceCustomSignatureAlertCreate(d *schema.ResourceData, meta interface{}
 	custom_sec_rule = strings.TrimSpace(EscapeString(custom_sec_rule))
 
 	envQuery := ReturnEnvScopedQuery(environments)
-	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions,requestPayloadMultiValuedConditions)
+	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions, requestPayloadMultiValuedConditions)
 	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
@@ -266,8 +266,8 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 			if clauses, ok := clauseGroup["clauses"].([]interface{}); ok {
 				for _, clause := range clauses {
 					if clauseMap, ok := clause.(map[string]interface{}); ok {
-						if clauseType, exists := clauseMap["clauseType"].(string); exists && (clauseType == "MATCH_EXPRESSION" || clauseType=="KEY_VALUE_EXPRESSION") {
-							if clauseType=="MATCH_EXPRESSION"{
+						if clauseType, exists := clauseMap["clauseType"].(string); exists && (clauseType == "MATCH_EXPRESSION" || clauseType == "KEY_VALUE_EXPRESSION") {
+							if clauseType == "MATCH_EXPRESSION" {
 								if matchExpression, ok := clauseMap["matchExpression"].(map[string]interface{}); ok {
 									reqResCondition := map[string]interface{}{
 										"match_key":      matchExpression["matchKey"],
@@ -277,15 +277,15 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 									}
 									singleValuedReqResConditions = append(singleValuedReqResConditions, reqResCondition)
 								}
-							}else if clauseType=="KEY_VALUE_EXPRESSION"{
+							} else if clauseType == "KEY_VALUE_EXPRESSION" {
 								if keyValueExpression, ok := clauseMap["keyValueExpression"].(map[string]interface{}); ok {
 									reqResCondition := map[string]interface{}{
-										"match_key":      keyValueExpression["matchKey"],
-										"match_value":    keyValueExpression["matchValue"],
-										"key_value_tag":    keyValueExpression["keyValueTag"],
+										"match_key":            keyValueExpression["matchKey"],
+										"match_value":          keyValueExpression["matchValue"],
+										"key_value_tag":        keyValueExpression["keyValueTag"],
 										"value_match_operator": keyValueExpression["valueMatchOperator"],
-										"match_category": keyValueExpression["matchCategory"],
-										"key_match_operator": keyValueExpression["keyMatchOperator"],
+										"match_category":       keyValueExpression["matchCategory"],
+										"key_match_operator":   keyValueExpression["keyMatchOperator"],
 									}
 									multiValuedReqResConditions = append(multiValuedReqResConditions, reqResCondition)
 								}
@@ -316,8 +316,8 @@ func ResourceCustomSignatureAlertRead(d *schema.ResourceData, meta interface{}) 
 					}
 				}
 				d.Set("attribute_based_conditions", attributeBasedConditions)
-				d.Set("request_response_multi_valued_conditions", multiValuedReqResConditions)
-				d.Set("request_response_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_single_valued_conditions", singleValuedReqResConditions)
+				d.Set("request_payload_multi_valued_conditions", multiValuedReqResConditions)
 			}
 		}
 	}
@@ -349,7 +349,7 @@ func ResourceCustomSignatureAlertUpdate(d *schema.ResourceData, meta interface{}
 	rule_type := d.Get("rule_type").(string)
 	description := d.Get("description").(string)
 	disabled := d.Get("disabled").(bool)
-	environments := d.Get("environments").(*schema.Set).List()
+	environments := d.Get("environments").([]interface{})
 	requestPayloadSingleValuedConditions := d.Get("request_payload_single_valued_conditions").([]interface{})
 	requestPayloadMultiValuedConditions := d.Get("request_payload_multi_valued_conditions").([]interface{})
 	attribute_based_conditions := d.Get("attribute_based_conditions").([]interface{})
@@ -361,7 +361,7 @@ func ResourceCustomSignatureAlertUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	envQuery := ReturnEnvScopedQuery(environments)
-	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions,requestPayloadMultiValuedConditions)
+	finalReqResConditionsQuery := ReturnReqResConditionsQuery(requestPayloadSingleValuedConditions, requestPayloadMultiValuedConditions)
 	finalAttributeBasedConditionsQuery, _ := ReturnAttributeBasedConditionsQuery(attribute_based_conditions)
 	if finalReqResConditionsQuery == "" && custom_sec_rule == "" && finalAttributeBasedConditionsQuery == "" {
 		return fmt.Errorf("please provide on of finalReqResConditionsQuery or custom_sec_rule")

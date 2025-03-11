@@ -236,9 +236,9 @@ func returnFinalThresholdConfigQuery(threshold_configs []interface{}) (string, e
 		thresholdConfigData := thresholdConfig.(map[string]interface{})
 		apiAggregateType := thresholdConfigData["api_aggregate_type"].(string)
 		userAggregateType := ""
-		if _,ok := thresholdConfigData["user_aggregate_type"].(string); ok{
+		if _, ok := thresholdConfigData["user_aggregate_type"].(string); ok {
 			userAggregateType = thresholdConfigData["user_aggregate_type"].(string)
-		}else{
+		} else {
 			userAggregateType = "PER_USER"
 		}
 		rollingWindowCountAllowed := thresholdConfigData["rolling_window_count_allowed"].(int)

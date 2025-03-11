@@ -567,7 +567,7 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 		dataSetIds := data.(map[string]interface{})["data_sets_ids"].([]interface{})
 		dataLocation := data.(map[string]interface{})["data_location"].(string)
 		if dataLocation == "REQUEST" {
-			for _,valBasThConf := range valueBasedThresholdConfig{
+			for _, valBasThConf := range valueBasedThresholdConfig {
 				valBasThConfData := valBasThConf.(map[string]interface{})
 				sensitiveParamsEvaluationType := valBasThConfData["sensitive_params_evaluation_type"].(string)
 				if sensitiveParamsEvaluationType != "ALL" {
@@ -623,7 +623,16 @@ func validateSchema(ctx context.Context, rData *schema.ResourceDiff, meta interf
 	if len(labelScope) > 0 && len(endpointScope) > 0 {
 		return fmt.Errorf("require on of `label_id_scope` or `endpoint_id_scope`")
 	}
+	dynamicThresholdConfigs := firstThresholdConfigs["dynamic_threshold_config"].([]interface{})
 
+	for _, dynamicThresholdConfig := range dynamicThresholdConfigs {
+		dynamicThresholdConfigMap := dynamicThresholdConfig.(map[string]interface{})
+		userAggregateType := dynamicThresholdConfigMap["user_aggregate_type"].(string)
+		apiAggregateType := dynamicThresholdConfigMap["api_aggregate_type"].(string)
+		if userAggregateType != "PER_USER" || apiAggregateType != "PER_ENDPINT" {
+			return fmt.Errorf("invalid value of user_aggregate_type or api_aggregate_type for DYNAMIC threshold_config")
+		}
+	}
 	for _, attBasedCondition := range attributeBasedConditions {
 		valueConditionOperator := attBasedCondition.(map[string]interface{})["value_condition_operator"]
 		valueConditionValue := attBasedCondition.(map[string]interface{})["value_condition_value"]
@@ -747,6 +756,7 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 		rData.Set("rule_type", actionType)
 		if ruleTypeConfig, ok := firstThresholdActions[strings.ToLower(actionType)].(map[string]interface{}); ok {
 			if duration, ok := ruleTypeConfig["duration"].(string); ok {
+				duration, _ = common.ConvertDurationToSeconds(duration)
 				rData.Set("expiry_duration", duration)
 			} else {
 				rData.Set("expiry_duration", "")
@@ -1127,8 +1137,8 @@ func ResourceDlpUserBasedRead(rData *schema.ResourceData, meta interface{}) erro
 		}
 	}
 	rData.Set("environments", envList)
-	rData.Set("request_response_single_valued_conditions", finalReqResMultiValueConditionState)
-	rData.Set("request_response_multi_valued_conditions", finalReqResSingleValueConditionState)
+	rData.Set("request_response_single_valued_conditions", finalReqResSingleValueConditionState)
+	rData.Set("request_response_multi_valued_conditions", finalReqResMultiValueConditionState)
 	rData.Set("attribute_based_conditions", finalAttributeBasedConditionState)
 	rData.Set("data_types_conditions", finalDataTypeConditionState)
 
