@@ -3,6 +3,7 @@ package test
 import (
 	"github.com/traceableai/terraform-provider-traceable/test/testdata"
 	"github.com/traceableai/terraform-provider-traceable/test/testlog"
+	"fmt"
 
 )
 
@@ -345,6 +346,197 @@ return results
 
 }
 
+func generateEnumerationDataLoctc() [][]map[string]interface{} {
+	var results [][]map[string]interface{}
+
+	for _,loc := range testdata.DataLocation{
+	 	temp := []map[string]interface{}{
+			{
+			"data_location":loc ,		
+		},
+	}
+	results = append(results, temp)
+	}
+	return results
+}
+
+
+func generateDlpDataTypeConditionstc()  [][]map[string]interface{} {
+	var results [][]map[string]interface{
+		
+	}
+
+	for _,enabled  :=range []bool{true}{
+		for attr := range testdata.DlpCustomLocationAttr{
+        for  _,op := range testdata.DlpCustomLocationAttr[attr]{
+					temp := []map[string]interface{}{
+						{
+           
+           "custom_location_data_type_key_value_pair_matching":enabled,
+					 "custom_location_attribute":attr,
+					 "custom_location_attribute_key_operator":op,
+					 "custom_location_attribute_value":"sample",
+
+						},
+				}
+				results = append(results, temp)
+		}
+
+	}
+
+
+
+
+}
+return results
+}
+
+
+func generateDlpRRSingleValuedtc() [][]map[string]interface{} {
+	var results [][]map[string]interface{} 
+
+
+
+	for _, loc := range testdata.DlpRRSingle {
+		for _,operator :=range testdata.MatchOperatorskey[loc]{
+
+			temp := []map[string]interface{}{
+				{
+				"request_location": loc,
+				"operator":operator,
+				"value":"200",
+			},
+		}
+		results = append(results, temp) 
+		}
+	}
+
+	return results
+}
+
+
+
+func generateCustomRRSingleValuedtc() [][]map[string]interface{}{
+	var results [][]map[string]interface{} 
+  categories := []string{"REQUEST","RESPONSE"}
+
+	for _,cat := range categories{
+	for _,key := range testdata.CustomKeys[cat]{
+		for _,operator :=range testdata.MatchOperatorskey[key]{
+        
+			temp := []map[string]interface{}{
+				{
+				"match_category":cat ,
+				"match_key":key,
+				"match_operator":operator,
+				"match_value":"200",
+			},
+
+
+		}
+		results = append(results, temp) 
+
+	}
+}
+
+
+}
+return results
+}
+
+func generateCustomRRMultiValuedtc() [][]map[string]interface{}{
+	var results [][]map[string]interface{} 
+  categories := []string{"REQUEST","RESPONSE"}
+
+	for _,cat := range categories{
+	for _,key := range testdata.CustomMultiKeys[cat]{
+		
+        
+			temp := []map[string]interface{}{
+				{
+				"match_category":cat ,
+				"key_value_tag":key,
+				"key_match_operator":testdata.MatchOperatorskey["Key"][0],
+				"match_key":"hell0",
+				"value_match_operator":testdata.MatchOperatorOptions[0],
+				"match_value":"200",
+			},
+
+
+		}
+
+		results = append(results, temp) 
+
+	}
+}
+
+return results
+}
+func generateCustomAttributetc() [][]map[string]interface{}{
+	var results [][]map[string]interface{} 
+
+	for _,opkey := range testdata.MatchOperatorskey["Key"]{
+	for _,opval := range testdata.MatchOperatorskey["Value"]{
+		
+        fmt.Println("hello")
+			temp := []map[string]interface{}{
+				{
+				"key_condition_operator":opkey ,
+				"key_condition_value":"key",
+				"value_condition_operator":opval,
+				"value_condition_value":"200",
+			
+			},
+
+
+		}
+
+		results = append(results, temp) 
+
+	}
+}
+
+return results
+}
+
+func generateRequestHeadertc() [][]map[string]interface{}{
+	var results [][]map[string]interface{} 
+	headerKey:= []string{"key1"}
+	headerValue:=[]string{"key2"}
+
+	for _,key := range headerKey{
+	for _,val := range headerValue{
+		
+        fmt.Println("hello")
+			temp := []map[string]interface{}{
+				{
+				"header_key":key ,
+				"header_value":val,
+			},
+
+
+		}
+
+		results = append(results, temp) 
+
+	}
+}
+
+return results
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -369,6 +561,15 @@ var scannerTypetc=generateRequestScannerTypetc()
 var  emailDomaintc   =generateEmailDomaintc()
 var userAgenttc=generateUserAgentstc()
 var enumthresholdConfigtc=generateEnumerationthresholdConfigtc()
+var enumdataLoctc=generateEnumerationDataLoctc()
+var dlpdataTypeConditionstc=generateDlpDataTypeConditionstc()
+var dlpRRSingletc=generateDlpRRSingleValuedtc()
+var customRRSingletc=generateCustomRRSingleValuedtc()
+var customRRMultitc=generateCustomRRMultiValuedtc()
+var customAttributetc=generateCustomAttributetc()
+var injectRequestHeadertc=generateRequestHeadertc()
+
+
 var logger=testlog.Logger
 
 

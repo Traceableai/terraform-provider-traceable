@@ -25,7 +25,7 @@ variable "name" {
 
 variable "rule_type"{
   type = string
-  default ="NORMAL_DETECTION"
+  default ="ALLOW"
 }
 variable "description" {
   type        = string
@@ -59,25 +59,6 @@ variable "request_payload_multi_valued_conditions" {
   default = []
 }
 
-
-variable "attribute_based_conditions" {
-  type        = list(object({
-    key_condition_operator      = string
-    key_condition_value      = string
-    value_condition_operator     = string
-    value_condition_value        = string
-  }))
-  default = []
-}
-
-variable "inject_request_headers"{
-   type        = list(object({
-    header_key      = string
-    header_value      = string
-  }))
-  default =[]
-}
-
 variable "custom_sec_rule"{
   type        = string
    default     = null
@@ -90,8 +71,15 @@ variable "disabled"{
 }
 
 
+
 variable "alert_severity"{
   type = string
+}
+
+variable "block_expiry_duration"{
+  type = string
+  default = null
+
 }
 
 provider "traceable" {
@@ -100,20 +88,12 @@ provider "traceable" {
    provider_version="terraform/v1.0.1"
 }
 
-resource "traceable_custom_signature_alert" "sample_rule" {
+resource "traceable_custom_signature_block" "sample_rule" {
   name                  = var.name
   description           = var.description
   rule_type              = var.rule_type
   environments          = var.environments
-  dynamic "attribute_based_conditions" {
-  for_each = var.attribute_based_conditions
-  content {
-    key_condition_operator   = attribute_based_conditions.value.key_condition_operator
-    key_condition_value      = attribute_based_conditions.value.key_condition_value
-    value_condition_operator = attribute_based_conditions.value.value_condition_operator
-    value_condition_value    = attribute_based_conditions.value.value_condition_value
-  }
-}
+
  dynamic "request_payload_single_valued_conditions" {
   for_each = var.request_payload_single_valued_conditions
   content {
@@ -134,21 +114,15 @@ dynamic "request_payload_multi_valued_conditions" {
     match_value    = request_payload_multi_valued_conditions.value.match_value
   }
 }
-dynamic "inject_request_headers" {
-  for_each = var.inject_request_headers
-  content {
-    header_key   = inject_request_headers.value.header_key
-    header_value     = inject_request_headers.value.header_value
-   }
-}
+
 custom_sec_rule=var.custom_sec_rule
 disabled= var.disabled
-alert_severity=var.alert_severity
-
+alert_severity = var.alert_severity
+block_expiry_duration = var.block_expiry_duration
 }
 
-output "traceable_custom_signature_alert" {
-  value = traceable_custom_signature_alert.sample_rule
+output "traceable_custom_signature_block" {
+  value = traceable_custom_signature_block.sample_rule
 }
 
 

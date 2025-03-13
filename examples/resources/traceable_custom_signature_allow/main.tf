@@ -18,95 +18,103 @@ variable "traceable_api_key" {
   sensitive   = true
 }
 
+
 variable "name" {
-  description = "Name of the dataset"
   type        = string
 }
 
+variable "rule_type"{
+  type = string
+  default ="ALLOW"
+}
 variable "description" {
-  description = "Description of the dataset"
   type        = string
+  default = null
 }
 
 variable "environments" {
-  description = "Name of Environemts on which to be enabled"
   type        = list(string)
+  default     = null
 }
 
-variable "allow_expiry_duration" {
-  description = "Description of the dataset"
-  type        = string
-}
-
-# variable "custom_sec_rule" {
-#   description = "Custom security rule"
-#   type        = string
-# }
-
-
-variable "req_res_conditions" {
-  description = "Request response conditions"
+variable "request_payload_single_valued_conditions" {
   type        = list(object({
-    match_key      = string
-    match_category = string
+    match_category      = string
+    match_key = string
     match_operator = string
-    match_value    = string
+    match_value = string
   }))
+  default = []
 }
 
+variable "request_payload_multi_valued_conditions" {
+  type        = list(object({
+    match_category = string
+    key_value_tag = string
+    key_match_operator = string
+    match_key = string
+    value_match_operator = string
+    match_value = string
+  }))
+  default = []
+}
 
+variable "custom_sec_rule"{
+  type        = string
+   default     = null
+
+}
+
+variable "disabled"{
+  type = bool
+  default     = true
+}
+
+variable "allow_expiry_duration"{
+  type = string 
+  default = null
+}
 
 provider "traceable" {
   platform_url = var.platform_url
   api_token    = var.traceable_api_key
+   provider_version="terraform/v1.0.1"
 }
 
-resource "traceable_custom_signature_allow" "cs_allow" {
+resource "traceable_custom_signature_allow" "sample_rule" {
   name                  = var.name
   description           = var.description
+  rule_type              = var.rule_type
   environments          = var.environments
-  allow_expiry_duration = var.allow_expiry_duration
-  disabled = true
 
-  dynamic "req_res_conditions" {
-    for_each = var.req_res_conditions
-    content {
-      match_key      = req_res_conditions.value.match_key
-      match_category = req_res_conditions.value.match_category
-      match_operator = req_res_conditions.value.match_operator
-      match_value    = req_res_conditions.value.match_value
-    }
+ dynamic "request_payload_single_valued_conditions" {
+  for_each = var.request_payload_single_valued_conditions
+  content {
+    match_category = request_payload_single_valued_conditions.value.match_category
+   match_key   = request_payload_single_valued_conditions.value.match_key
+   match_operator = request_payload_single_valued_conditions.value.match_operator
+     match_value =  request_payload_single_valued_conditions.value.match_value
   }
-
+}
+dynamic "request_payload_multi_valued_conditions" {
+  for_each = var.request_payload_multi_valued_conditions
+  content {
+    match_category   = request_payload_multi_valued_conditions.value.match_category
+    key_value_tag      = request_payload_multi_valued_conditions.value.key_value_tag
+    key_match_operator = request_payload_multi_valued_conditions.value.key_match_operator
+    match_key    = request_payload_multi_valued_conditions.value.match_key
+    value_match_operator    = request_payload_multi_valued_conditions.value.value_match_operator
+    match_value    = request_payload_multi_valued_conditions.value.match_value
+  }
 }
 
-
-
-output "custom_id" {
-  value = traceable_custom_signature_allow.cs_allow.id
+custom_sec_rule=var.custom_sec_rule
+disabled= var.disabled
+allow_expiry_duration = var.allow_expiry_duration
 }
 
-
-output "custom_name" {
-  value = traceable_custom_signature_allow.cs_allow.name
+output "traceable_custom_signature_allow" {
+  value = traceable_custom_signature_allow.sample_rule
 }
-
-output "custom_description" {
-  value = traceable_custom_signature_allow.cs_allow.description
-}
-
-output "custom_environments" {
-  value = traceable_custom_signature_allow.cs_allow.environments
-}
-
-output "custom_allow_expiry_duration" {
-  value = traceable_custom_signature_allow.cs_allow.allow_expiry_duration
-}
-
-# output "custom_sec_rule" {
-#   value = traceable_custom_signature_allow.cs_allow.custom_sec_rule
-# }
-
-
 
 

@@ -25,7 +25,7 @@ variable "name" {
 
 variable "rule_type"{
   type = string
-  default ="NORMAL_DETECTION"
+  default ="TESTING_DETECTION"
 }
 variable "description" {
   type        = string
@@ -90,17 +90,13 @@ variable "disabled"{
 }
 
 
-variable "alert_severity"{
-  type = string
-}
-
 provider "traceable" {
   platform_url = var.platform_url
   api_token    = var.traceable_api_key
    provider_version="terraform/v1.0.1"
 }
 
-resource "traceable_custom_signature_alert" "sample_rule" {
+resource "traceable_custom_signature_testing" "sample_rule" {
   name                  = var.name
   description           = var.description
   rule_type              = var.rule_type
@@ -143,12 +139,11 @@ dynamic "inject_request_headers" {
 }
 custom_sec_rule=var.custom_sec_rule
 disabled= var.disabled
-alert_severity=var.alert_severity
 
 }
 
 output "traceable_custom_signature_alert" {
-  value = traceable_custom_signature_alert.sample_rule
+  value = traceable_custom_signature_testing.sample_rule
 }
 
 
