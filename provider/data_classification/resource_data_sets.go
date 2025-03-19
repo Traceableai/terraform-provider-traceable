@@ -37,6 +37,9 @@ func ResourceDataSetsRule() *schema.Resource {
 
 func ResourceDataSetsRuleCreate(rData *schema.ResourceData, meta interface{}) error {
 	name := rData.Get("name").(string)
+	if name == "" {
+		return fmt.Errorf("non empty string required")
+	}
 	description := rData.Get("description").(string)
 	iconType := rData.Get("icon_type").(string)
 	createQuery := GetDatSetQuery("", name, description, iconType)
@@ -48,7 +51,7 @@ func ResourceDataSetsRuleCreate(rData *schema.ResourceData, meta interface{}) er
 	log.Printf("This is the graphql response %s", responseStr)
 	id, err := common.GetIdFromResponse(responseStr, "createDataSet")
 	if err != nil {
-		return fmt.Errorf("error %s", err)
+		return fmt.Errorf("%s", err)
 	}
 	rData.SetId(id)
 	return nil
@@ -92,7 +95,7 @@ func ResourceDataSetsRuleUpdate(rData *schema.ResourceData, meta interface{}) er
 	log.Printf("This is the graphql response %s", responseStr)
 	updatedId, err := common.GetIdFromResponse(responseStr, "updateDataSet")
 	if err != nil {
-		return fmt.Errorf("error %s", err)
+		return fmt.Errorf("%s", err)
 	}
 	rData.SetId(updatedId)
 	return nil
@@ -103,7 +106,7 @@ func ResourceDataSetsRuleDelete(d *schema.ResourceData, meta interface{}) error 
 	query := fmt.Sprintf(DELETE_DATA_SET_QUERY, id)
 	_, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
-		return fmt.Errorf("error %s", err)
+		return fmt.Errorf("%s", err)
 	}
 	d.SetId("")
 	return nil

@@ -55,7 +55,7 @@ func ResourceDataClassificationOverrides() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "Key operator",
+										Description: "Key operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {
@@ -75,7 +75,7 @@ func ResourceDataClassificationOverrides() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "Value operator",
+										Description: "Value operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {
@@ -96,8 +96,8 @@ func ResourceDataClassificationOverridesCreate(rData *schema.ResourceData, meta 
 	name := rData.Get("name").(string)
 	description := rData.Get("description").(string)
 	dataSuppressionOverride := rData.Get("data_suppression_override").(string)
-	environments := rData.Get("environments").(*schema.Set).List()
-	spanFilter := rData.Get("span_filter").(*schema.Set).List()
+	environments := rData.Get("environments").([]interface{})
+	spanFilter := rData.Get("span_filter").([]interface{})
 	createQuery := GetOverridesCreateQuery("", name, description, dataSuppressionOverride, environments, spanFilter)
 	log.Printf("This is the graphql query %s", createQuery)
 	responseStr, err := common.CallExecuteQuery(createQuery, meta)
@@ -131,7 +131,7 @@ func ResourceDataClassificationOverridesRead(rData *schema.ResourceData, meta in
 		return nil
 	}
 	rData.Set("name", ruleData["name"].(string))
-	rData.Set("description", ruleData["description"].(string))
+	rData.Set("description", ruleData["description"])
 	rData.Set("data_suppression_override", ruleData["behaviorOverride"].(map[string]interface{})["dataSuppressionOverride"].(string))
 	if environmentScope, ok := ruleData["environmentScope"].(map[string]interface{}); ok {
 		environmentIds := environmentScope["environmentIds"].([]interface{})
@@ -139,29 +139,32 @@ func ResourceDataClassificationOverridesRead(rData *schema.ResourceData, meta in
 	} else {
 		rData.Set("environments", []interface{}{})
 	}
-	spanFilter := ruleData["spanFilter"].(map[string]interface{})
-	keyValueFilter := spanFilter["keyValueFilter"].(map[string]interface{})
-	keyPattern := keyValueFilter["keyPattern"].(map[string]interface{})
-	keyPatternValue := keyPattern["value"].(string)
-	keyPatternOp := keyPattern["operator"].(string)
-	keyPatternObj := map[string]interface{}{
-		"operator": keyPatternOp,
-		"value":    keyPatternValue,
-	}
-	valuePatternObj := map[string]interface{}{}
-	if valuePattern, ok := keyValueFilter["valuePattern"].(map[string]interface{}); ok {
-		valuePatternValue := valuePattern["value"].(string)
-		valuePatternOperator := valuePattern["operator"].(string)
-		valuePatternObj = map[string]interface{}{
-			"operator": valuePatternOperator,
-			"value":    valuePatternValue,
+	if spanFilter, ok := ruleData["spanFilter"].(map[string]interface{}); ok {
+		keyValueFilter := spanFilter["keyValueFilter"].(map[string]interface{})
+		keyPattern := keyValueFilter["keyPattern"].(map[string]interface{})
+		keyPatternValue := keyPattern["value"].(string)
+		keyPatternOp := keyPattern["operator"].(string)
+		keyPatternObj := map[string]interface{}{
+			"operator": keyPatternOp,
+			"value":    keyPatternValue,
 		}
+		valuePatternObj := map[string]interface{}{}
+		if valuePattern, ok := keyValueFilter["valuePattern"].(map[string]interface{}); ok {
+			valuePatternValue := valuePattern["value"].(string)
+			valuePatternOperator := valuePattern["operator"].(string)
+			valuePatternObj = map[string]interface{}{
+				"operator": valuePatternOperator,
+				"value":    valuePatternValue,
+			}
+		}
+		spanFilterObj := map[string]interface{}{
+			"key_patterns":   keyPatternObj,
+			"value_patterns": valuePatternObj,
+		}
+		rData.Set("span_filter", spanFilterObj)
+	} else {
+		rData.Set("span_filter", map[string]interface{}{})
 	}
-	spanFilterObj := map[string]interface{}{
-		"key_patterns":   keyPatternObj,
-		"value_patterns": valuePatternObj,
-	}
-	rData.Set("span_filter", spanFilterObj)
 	return nil
 }
 
@@ -170,8 +173,8 @@ func ResourceDataClassificationOverridesUpdate(rData *schema.ResourceData, meta 
 	name := rData.Get("name").(string)
 	description := rData.Get("description").(string)
 	dataSuppressionOverride := rData.Get("data_suppression_override").(string)
-	environments := rData.Get("environments").(*schema.Set).List()
-	spanFilter := rData.Get("span_filter").(*schema.Set).List()
+	environments := rData.Get("environments").([]interface{})
+	spanFilter := rData.Get("span_filter").([]interface{})
 	updateQuery := GetOverridesCreateQuery(id, name, description, dataSuppressionOverride, environments, spanFilter)
 	log.Printf("This is the graphql query %s", updateQuery)
 	responseStr, err := common.CallExecuteQuery(updateQuery, meta)

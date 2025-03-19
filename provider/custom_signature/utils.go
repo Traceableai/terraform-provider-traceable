@@ -18,25 +18,38 @@ func EscapeString(input string) string {
 }
 
 func ReturnEnvScopedQuery(environments []interface{}) string {
-	var envList []string
-	for _, env := range environments {
-		envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
-	}
 	envQuery := ""
 	if len(environments) != 0 {
-		envQuery = fmt.Sprintf(ENVIRONMENT_SCOPE_QUERY, strings.Join(envList, ","))
+		envQuery = fmt.Sprintf(ENVIRONMENT_SCOPE_QUERY, common.InterfaceToStringSlice(environments))
 	}
 	return envQuery
 }
 
-func ReturnReqResConditionsQuery(req_res_conditions []interface{}) string {
-	finalReqResConditionsQuery := ""
-
-	for _, req_res_cond := range req_res_conditions {
-		req_res_cond_data := req_res_cond.(map[string]interface{})
-		finalReqResConditionsQuery += fmt.Sprintf(REQ_RES_CONDITION_QUERY, req_res_cond_data["match_key"], req_res_cond_data["match_category"], req_res_cond_data["match_operator"], req_res_cond_data["match_value"])
+func ReturnReqResConditionsQuery(requestResponseSingleValuedConditions []interface{}, requestResponseMultiValuedConditions []interface{}) string {
+	finalConditionsQuery := ""
+	if len(requestResponseSingleValuedConditions) > 0 {
+		for _, requestPayloadSingleValuedCondition := range requestResponseSingleValuedConditions {
+			requestPayloadSingleValuedConditionData := requestPayloadSingleValuedCondition.(map[string]interface{})
+			matchKey := requestPayloadSingleValuedConditionData["match_key"].(string)
+			matchCategory := requestPayloadSingleValuedConditionData["match_category"].(string)
+			matchOp := requestPayloadSingleValuedConditionData["match_operator"].(string)
+			matchVal := requestPayloadSingleValuedConditionData["match_value"].(string)
+			finalConditionsQuery += fmt.Sprintf(SINGLE_VALUED_REQ_RES_CONDITION_QUERY, matchKey, matchCategory, matchOp, matchVal)
+		}
 	}
-	return finalReqResConditionsQuery
+	if len(requestResponseMultiValuedConditions) > 0 {
+		for _, requestPayloadMultiValuedCondition := range requestResponseMultiValuedConditions {
+			requestPayloadMultiValuedConditionData := requestPayloadMultiValuedCondition.(map[string]interface{})
+			matchCategory := requestPayloadMultiValuedConditionData["match_category"].(string)
+			keyValueTag := requestPayloadMultiValuedConditionData["key_value_tag"].(string)
+			keyMatchOperator := requestPayloadMultiValuedConditionData["key_match_operator"].(string)
+			matchKey := requestPayloadMultiValuedConditionData["match_key"].(string)
+			valueMatchOperator := requestPayloadMultiValuedConditionData["value_match_operator"].(string)
+			matchValue := requestPayloadMultiValuedConditionData["match_value"].(string)
+			finalConditionsQuery += fmt.Sprintf(MULTI_VALUED_REQ_RES_CONDITION_QUERY, keyValueTag, matchCategory, keyMatchOperator, matchKey, valueMatchOperator, matchValue)
+		}
+	}
+	return finalConditionsQuery
 }
 
 func ReturnAttributeBasedConditionsQuery(attribute_based_conditions []interface{}) (string, error) {

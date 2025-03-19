@@ -8,16 +8,19 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type GraphqlProviderConfig struct {
-	GQLServerUrl string
-	ApiToken     string
+	GQLServerUrl             string
+	ApiToken                 string
+	TraceableProviderVersion string
 }
 
 func CallExecuteQuery(query string, meta interface{}) (string, error) {
 	url := meta.(*GraphqlProviderConfig).GQLServerUrl
 	api_token := meta.(*GraphqlProviderConfig).ApiToken
+	traceable_provider_version := meta.(*GraphqlProviderConfig).TraceableProviderVersion
 
 	requestBody, err := json.Marshal(map[string]string{
 		"query": query,
@@ -32,7 +35,8 @@ func CallExecuteQuery(query string, meta interface{}) (string, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+api_token)
+	req.Header.Set("Authorization", api_token)
+	req.Header.Set("x-traceable-client", traceable_provider_version)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -123,10 +127,11 @@ func ConvertDurationToSeconds(duration string) (string, error) {
 func InterfaceToStringSlice(arr []interface{}) []string {
 	var envList []string
 	for _, env := range arr {
-		envList = append(envList, fmt.Sprintf(`"%s"`, env.(string)))
+		envList = append(envList, fmt.Sprintf(`"%s"`, env))
 	}
-	return envList
+	return []string{strings.Join(envList, ", ")}
 }
+
 func InterfaceToEnumStringSlice(arr []interface{}) []string {
 	var envList []string
 	for _, env := range arr {
@@ -138,12 +143,15 @@ func InterfaceToEnumStringSlice(arr []interface{}) []string {
 func GetIdFromResponse(responseStr string, graphQlResponseKey string) (string, error) {
 	var response map[string]interface{}
 	err := json.Unmarshal([]byte(responseStr), &response)
+	if strings.Contains(responseStr, "Validation error") || strings.Contains(responseStr, "DataFetchingException") {
+		return "", fmt.Errorf("graphql response failed please check your input")
+	}
 	if err != nil {
 		return "", fmt.Errorf("error: %s", err)
 	}
 	responseData, ok := response["data"].(map[string]interface{})
 	if !ok {
-		return "", fmt.Errorf("some error eccorred while fetching response")
+		return "", fmt.Errorf("some error occurred while fetching response")
 	}
 	updatedId, _ := responseData[graphQlResponseKey].(map[string]interface{})["id"].(string)
 	return updatedId, nil

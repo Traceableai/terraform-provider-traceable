@@ -316,6 +316,7 @@ const (
                                 sensitiveParamsEvaluationType: %s
                             }
                         }`
+
 	DYNAMIC_THRESHOLD_CONFIG_QUERY = `{
                                            apiAggregateType: %s
                                            userAggregateType: %s
@@ -364,8 +365,18 @@ const (
                                          }
                                      }
                                  }`
-
-	IS_ASN_QUERY = `{
+	MULTI_VALUES_REQ_CONDITIONS = `{
+        leafCondition: {
+            conditionType: KEY_VALUE
+            keyValueCondition: {
+                metadataType: %s
+                keyCondition: { operator: %s, value: "%s" }
+                %s
+            }
+        }
+    }`
+	DATATYPE_VALUE_CONDITIONS = `valueCondition: { operator: %s, value: "%s" }`
+	IS_ASN_QUERY              = `{
                         leafCondition: {
                             conditionType: IP_ASN
                             ipAsnCondition: { ipAsnRegexes: %s, exclude: %t }
@@ -476,10 +487,8 @@ const (
                     leafCondition: {
                         conditionType: DATATYPE
                         datatypeCondition: {
-                            datasetIds: [%s]
-                            datatypeIds: [
-                                %s
-                            ]
+                            datasetIds: %s
+                            datatypeIds: %s
                             %s
                         }
                     }

@@ -8,15 +8,7 @@ description: |-
 
 # traceable_endpoint_id (Data Source)
 
-## Example Usage
 
-```terraform
-data "traceable_endpoint_id" "endpoint" {
-  name="POST /Unauthenticated_Modification_of_external_APIs"
-  service_name="test-svc"
-  enviroment_name="test-env"
-}
-```
 
 
 

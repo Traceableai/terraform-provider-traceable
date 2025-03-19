@@ -7,8 +7,8 @@ on:
         description: "Env of tests to run"
         default: "https://app-dev.traceable.ai/graphql"
         required: true
-     jwt:
-        description: "Enter the jwt"
+     token:
+        description: "Enter the token"
         required: true
   
   
@@ -16,6 +16,7 @@ env:
   GO_VERSION: '1.22.2'
   PYTHON_VERSION: '3.13.1'
   TERRAFORM_VERSION: '1.9.8'
+
 
 
 jobs:
@@ -33,6 +34,7 @@ jobs:
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
+
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
     
@@ -43,6 +45,7 @@ jobs:
         sudo apt-get install -y python3-pip
         pip3 install --upgrade pip
         pip3 install junit2html
+
 
     - name: Install dependencies
       run: |
@@ -61,11 +64,24 @@ jobs:
         go build -o terraform-provider-traceable
         rm -rf .terraformrc terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl .terraform
         mkdir -p  ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
+
+    - name: Verify installations
+      run: |
+        terraform --version
+        python3  --version
+        go version    
+
+    - name: Build provider
+      run: |
+        go build -o terraform-provider-traceable
+        rm -rf .terraformrc terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl .terraform
+        mmkdir -p  ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
         mv terraform-provider-traceable ~/.terraform.d/plugins/terraform.local/local/traceable/0.0.1/linux_amd64
 
     - name: Run tests
       env:
-        JWT: ${{ github.event.inputs.jwt }}
+
+        TOKEN: ${{ github.event.inputs.token }}
         URL: ${{ github.event.inputs.url}}
 
       run: |
@@ -74,11 +90,12 @@ jobs:
         go clean -testcache
         export PLATFORM_URL=${URL}
         echo $PLATFORM_URL
-        export TRACEABLE_API_KEY=${JWT}
+        export TRACEABLE_API_KEY=${TOKEN}
         go test -v ./... | tee test_output.log
         TEST_EXIT_CODE=${PIPESTATUS[0]}
         terratest_log_parser -testlog test_output.log -outputdir test_results
         exit $TEST_EXIT_CODE
+
 
     - name: Convert test report
       if: always()
@@ -87,12 +104,12 @@ jobs:
         cd test
         junit2html test_results/report.xml test_results/report.html
 
+   
     - name: Archive test results
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
-        name: terrtest-test-results
+        name: test-results
         path: |
-          set -x
-          test/test_results/report.html
+          test/report.html
           test/test_output.log

@@ -4,11 +4,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
+	"github.com/traceableai/terraform-provider-traceable/provider/data_classification"
+	"github.com/traceableai/terraform-provider-traceable/provider/dlp"
 	"github.com/traceableai/terraform-provider-traceable/provider/enumeration"
+	"github.com/traceableai/terraform-provider-traceable/provider/label_management"
 	"github.com/traceableai/terraform-provider-traceable/provider/malicious_sources"
 	"github.com/traceableai/terraform-provider-traceable/provider/rate_limiting"
-	"github.com/traceableai/terraform-provider-traceable/provider/data_classification"
-	
+	"github.com/traceableai/terraform-provider-traceable/provider/waap"
 )
 
 func Provider() *schema.Provider {
@@ -24,6 +26,11 @@ func Provider() *schema.Provider {
 				Required:    true,
 				Description: "platform api token",
 			},
+			"provider_version": {
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "Traceable provider version",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"traceable_ip_range_rule_block": malicious_sources.ResourceIpRangeRuleBlock(),
@@ -35,6 +42,8 @@ func Provider() *schema.Provider {
 			"traceable_email_domain_alert":  malicious_sources.ResourceEmailDomainAlert(),
 			"traceable_ip_type_rule_alert":  malicious_sources.ResourceIpTypeRuleAlert(),
 			"traceable_ip_type_rule_block":  malicious_sources.ResourceIpTypeRuleBlock(),
+			"traceable_dlp_request_based":   dlp.ResourceDlpRequestBasedRule(),
+			"traceable_dlp_user_based":      dlp.ResourceDlpUserBasedRule(),
 			// "traceable_user_attribution_rule_basic_auth":                  ResourceUserAttributionBasicAuthRule(),
 			// "traceable_user_attribution_rule_req_header":                  ResourceUserAttributionRequestHeaderRule(),
 			// "traceable_user_attribution_rule_jwt_authentication":          ResourceUserAttributionJwtAuthRule(),
@@ -57,28 +66,31 @@ func Provider() *schema.Provider {
 			// "traceable_notification_rule_notification_configuration":      notification.ResourceNotificationRuleNotificationConfiguration(),
 			// "traceable_notification_rule_data_class_configuration":        notification.ResourceNotificationRuleDataClassificationConfig(),
 			// "traceable_notification_rule_posture_events":                  notification.ResourceNotificationRulePostureEvents(),
-			"traceable_api_naming_rule":          ResourceApiNamingRule(),
-			"traceable_label_creation_rule":      resourceLabelCreationRule(),
-			"traceable_rate_limiting_block":      rate_limiting.ResourceRateLimitingRuleBlock(),
-			"traceable_enumeration_rule":         enumeration.ResourceEnumerationRule(),
-			"traceable_detection_policies":       resourceDetectionConfigRule(),
-			"traceable_custom_signature_allow":   custom_signature.ResourceCustomSignatureAllowRule(),
-			"traceable_custom_signature_block":   custom_signature.ResourceCustomSignatureBlockRule(),
-			"traceable_custom_signature_alert":   custom_signature.ResourceCustomSignatureAlertRule(),
-			"traceable_custom_signature_testing": custom_signature.ResourceCustomSignatureTestingRule(),
+			"traceable_api_naming_rule":             ResourceApiNamingRule(),
+			"traceable_label_management_label":      label_management.ResourceLabelCreationRule(),
+			"traceable_label_management_label_rule": label_management.ResourceLabelApplicationRule(),
+			"traceable_rate_limiting_block":         rate_limiting.ResourceRateLimitingRuleBlock(),
+			"traceable_rate_limiting_alert":         rate_limiting.ResourceRateLimitingRuleAlert(),
+			"traceable_enumeration_rule":            enumeration.ResourceEnumerationRule(),
+			"traceable_detection_policies":          waap.ResourceDetectionConfigRule(),
+			"traceable_custom_signature_allow":      custom_signature.ResourceCustomSignatureAllowRule(),
+			"traceable_custom_signature_block":      custom_signature.ResourceCustomSignatureBlockRule(),
+			"traceable_custom_signature_alert":      custom_signature.ResourceCustomSignatureAlertRule(),
+			"traceable_custom_signature_testing":    custom_signature.ResourceCustomSignatureTestingRule(),
 			// "traceable_api_exclusion_rule":                       ResourceApiExclusionRule(),
 			// "traceable_agent_token":                              ResourceAgentToken(),
-			// "traceable_data_classification_rule":                   data_classification.ResourceDataClassification(),
-			// "traceable_data_classification_overrides":                   data_classification.ResourceDataClassificationOverrides(),
-			"traceable_data_sets":                   data_classification.ResourceDataSetsRule(),
+			"traceable_data_classification_rule":      data_classification.ResourceDataClassification(),
+			"traceable_data_classification_overrides": data_classification.ResourceDataClassificationOverrides(),
+			"traceable_data_sets":                     data_classification.ResourceDataSetsRule(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			// "traceable_notification_channels": DataSourceNotificationChannel(),
 			//"traceable_splunk_integration":    DataSourceSplunkIntegration(),
 			//"traceable_syslog_integration":    DataSourceSyslogIntegration(),
-			"traceable_endpoint_id": dataSourceEndpointId(),
-			"traceable_service_id":  dataSourceServiceId(),
-			// "traceable_data_set_id":  data_classification.DataSourceDatSetId(),
+			"traceable_endpoint_id":  dataSourceEndpointId(),
+			"traceable_service_id":   dataSourceServiceId(),
+			"traceable_data_set_id":  data_classification.DataSourceDatSetId(),
+			"traceable_data_type_id": data_classification.DataSourceDatTypeId(),
 			// "traceable_agent_token":           DataSourceAgentToken(),
 		},
 		ConfigureFunc: graphqlConfigure,
@@ -87,8 +99,9 @@ func Provider() *schema.Provider {
 
 func graphqlConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := &common.GraphqlProviderConfig{
-		GQLServerUrl: d.Get("platform_url").(string),
-		ApiToken:     d.Get("api_token").(string),
+		GQLServerUrl:             d.Get("platform_url").(string),
+		ApiToken:                 d.Get("api_token").(string),
+		TraceableProviderVersion: d.Get("provider_version").(string),
 	}
 	return config, nil
 }

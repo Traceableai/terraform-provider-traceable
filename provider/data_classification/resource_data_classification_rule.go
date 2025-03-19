@@ -35,19 +35,19 @@ func ResourceDataClassification() *schema.Resource {
 			"data_sets": {
 				Type:        schema.TypeList,
 				Description: "List of Data sets  Id for this data type",
-				Required:    true,
+				Optional:    true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"data_suppression": {
 				Type:        schema.TypeString,
-				Description: "Data supression for the data type",
+				Description: "Data supression for the data type (RAW/REDACT/OBFUSCATE)",
 				Required:    true,
 			},
 			"sensitivity": {
 				Type:        schema.TypeString,
-				Description: "Sensitivity of the data type",
+				Description: "Sensitivity of the data type (LOW/HIGH/MEDIUM/CRITICAL)",
 				Required:    true,
 			},
 			"scoped_patterns": {
@@ -71,12 +71,12 @@ func ResourceDataClassification() *schema.Resource {
 						},
 						"match_type": {
 							Type:        schema.TypeString,
-							Description: "Match or exclude",
+							Description: "Match or exclude (IGNORE/MATCH)",
 							Required:    true,
 						},
 						"locations": {
 							Type:        schema.TypeList,
-							Description: "where to look for the data type",
+							Description: "where to look for the data type (ANY/QUERY/REQUEST_HEADER/RESPONSE_HEADER/REQUEST_BODY/RESPONSE_BODY/REQUEST_COOKIE)",
 							Required:    true,
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
@@ -99,7 +99,7 @@ func ResourceDataClassification() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "key operator",
+										Description: "key operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {
@@ -112,14 +112,14 @@ func ResourceDataClassification() *schema.Resource {
 						},
 						"value_patterns": {
 							Type:        schema.TypeList,
-							Description: "key operator and value",
+							Description: "key operator and value ",
 							Optional:    true,
 							MaxItems:    1,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"operator": {
 										Type:        schema.TypeString,
-										Description: "value operator",
+										Description: "value operator (MATCHES_REGEX/EQUALS)",
 										Required:    true,
 									},
 									"value": {
@@ -142,8 +142,8 @@ func ResourceDataClassificationCreate(rData *schema.ResourceData, meta interface
 	sensitivity := rData.Get("sensitivity").(string)
 	dataSuppression := rData.Get("data_suppression").(string)
 	enabled := rData.Get("enabled").(bool)
-	dataSets := rData.Get("data_sets").(*schema.Set).List()
-	scopedPatterns := rData.Get("scoped_patterns").(*schema.Set).List()
+	dataSets := rData.Get("data_sets").([]interface{})
+	scopedPatterns := rData.Get("scoped_patterns").([]interface{})
 
 	scopedPatternQuery := GetScopedPatternQuery(scopedPatterns)
 	query := fmt.Sprintf(CREATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
@@ -164,7 +164,7 @@ func ResourceDataClassificationCreate(rData *schema.ResourceData, meta interface
 func ResourceDataClassificationRead(rData *schema.ResourceData, meta interface{}) error {
 	id := rData.Id()
 	log.Println("Id from read ", id)
-	responseStr, err := common.CallExecuteQuery(READ_QUERY, meta)
+	responseStr, err := common.CallExecuteQuery(DATA_TYPE_READ_QUERY, meta)
 	if err != nil {
 		return err
 	}
@@ -234,27 +234,28 @@ func ResourceDataClassificationRead(rData *schema.ResourceData, meta interface{}
 }
 
 func ResourceDataClassificationUpdate(rData *schema.ResourceData, meta interface{}) error {
+	id := rData.Id()
 	name := rData.Get("name").(string)
 	description := rData.Get("description").(string)
 	sensitivity := rData.Get("sensitivity").(string)
 	dataSuppression := rData.Get("data_suppression").(string)
 	enabled := rData.Get("enabled").(bool)
-	dataSets := rData.Get("data_sets").(*schema.Set).List()
-	scopedPatterns := rData.Get("scoped_patterns").(*schema.Set).List()
+	dataSets := rData.Get("data_sets").([]interface{})
+	scopedPatterns := rData.Get("scoped_patterns").([]interface{})
 
 	scopedPatternQuery := GetScopedPatternQuery(scopedPatterns)
-	query := fmt.Sprintf(UPDATE_QUERY, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
+	query := fmt.Sprintf(UPDATE_QUERY, id, name, description, scopedPatternQuery, enabled, dataSuppression, sensitivity, common.InterfaceToStringSlice(dataSets))
 	log.Printf("This is the graphql query %s", query)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error: %s", err)
 	}
 	log.Printf("This is the graphql response %s", responseStr)
-	id, err := common.GetIdFromResponse(responseStr, "updateDataType")
+	updatedId, err := common.GetIdFromResponse(responseStr, "updateDataType")
 	if err != nil {
 		return fmt.Errorf("error %s", err)
 	}
-	rData.SetId(id)
+	rData.SetId(updatedId)
 	return nil
 }
 

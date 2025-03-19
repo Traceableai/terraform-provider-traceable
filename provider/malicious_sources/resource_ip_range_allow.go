@@ -7,7 +7,6 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
 	"github.com/traceableai/terraform-provider-traceable/provider/custom_signature"
 	"log"
-	"strings"
 )
 
 func ResourceIpRangeRuleAllow() *schema.Resource {
@@ -68,23 +67,6 @@ func ResourceIpRangeRuleAllow() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"inject_request_headers": {
-				Type:        schema.TypeList,
-				Description: "Inject Data in Request header?",
-				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"header_key": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"header_value": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-					},
-				},
-			},
 		},
 	}
 }
@@ -95,14 +77,12 @@ func resourceIpRangeRuleAllowCreate(d *schema.ResourceData, meta interface{}) er
 	raw_ip_range_data := d.Get("raw_ip_range_data").(*schema.Set).List()
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	inject_request_headers := d.Get("inject_request_headers").([]interface{})
 	environment := d.Get("environment").(*schema.Set).List()
 
 	exipiryDurationString := ReturnExipiryDuration(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(CREATE_IP_RANGE_ALLOW, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, finalAgentEffectQuery, exipiryDurationString, envQuery)
+	query := fmt.Sprintf(CREATE_IP_RANGE_ALLOW, name, common.InterfaceToStringSlice(raw_ip_range_data), rule_action, description, exipiryDurationString, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)
@@ -142,25 +122,27 @@ func resourceIpRangeRuleAllowRead(d *schema.ResourceData, meta interface{}) erro
 	d.Set("rule_action", ruleDetails["ruleAction"].(string))
 	expiration, ok := ruleDetails["expiration"].(string)
 	if ok {
+		expiration, _ = common.ConvertDurationToSeconds(expiration)
 		d.Set("expiration", expiration)
 	} else {
-		d.Set("expiration", nil)
+		d.Set("expiration", "")
 	}
 
 	rawIpRangeData := ruleDetails["rawIpRangeData"].([]interface{})
 	d.Set("raw_ip_range_data", rawIpRangeData)
 
-	if ruleScope, ok := ruleData["ruleScope"].(map[string]interface{}); ok {
+	envFlag := true
+	if ruleScope, ok := ruleDetails["ruleScope"].(map[string]interface{}); ok {
 		if environmentScope, ok := ruleScope["environmentScope"].(map[string]interface{}); ok {
 			if environmentIds, ok := environmentScope["environmentIds"].([]interface{}); ok {
 				d.Set("environment", environmentIds)
-			} else {
-				d.Set("environment", []interface{}{})
+				envFlag = false
 			}
 		}
 	}
-	injectedHeaders := SetInjectedHeaders(ruleDetails)
-	d.Set("inject_request_headers", injectedHeaders)
+	if envFlag {
+		d.Set("environment", []interface{}{})
+	}
 	return nil
 }
 
@@ -171,14 +153,12 @@ func resourceIpRangeRuleAllowUpdate(d *schema.ResourceData, meta interface{}) er
 	raw_ip_range_data := d.Get("raw_ip_range_data").(*schema.Set).List()
 	rule_action := d.Get("rule_action").(string)
 	description := d.Get("description").(string)
-	inject_request_headers := d.Get("inject_request_headers").([]interface{})
 	environment := d.Get("environment").(*schema.Set).List()
 
 	exipiryDurationString := ReturnExipiryDuration(expiration)
 	envQuery := custom_signature.ReturnEnvScopedQuery(environment)
-	finalAgentEffectQuery := custom_signature.ReturnfinalAgentEffectQuery(inject_request_headers)
 
-	query := fmt.Sprintf(UPDATE_IP_RANGE_ALLOW, id, name, strings.Join(common.InterfaceToStringSlice(raw_ip_range_data), ","), rule_action, description, exipiryDurationString, finalAgentEffectQuery, envQuery)
+	query := fmt.Sprintf(UPDATE_IP_RANGE_ALLOW, id, name, common.InterfaceToStringSlice(raw_ip_range_data), rule_action, description, exipiryDurationString, envQuery)
 	responseStr, err := common.CallExecuteQuery(query, meta)
 	if err != nil {
 		return fmt.Errorf("error %s", err)

@@ -34,6 +34,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: { eventType: %s, effects: [] ,eventSeverity: %s}
                                             internal: false
                                             ruleDefinition: {
@@ -93,6 +94,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: {
                                                 eventType: %s,
                                                 effects: [
@@ -152,6 +154,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: { eventType: %s, effects: [] }
                                             internal: false
                                             ruleDefinition: {
@@ -314,6 +317,7 @@ const (
                                         create: {
                                             name: "%s"
                                             description: "%s"
+                                            disabled: %t
                                             ruleEffect: {
                                                 eventType: %s,
                                                 effects: [
@@ -341,9 +345,9 @@ const (
                                     }
                                 }`
 	ENVIRONMENT_SCOPE_QUERY = `ruleScope: {
-                                   environmentScope: { environmentIds: [%s] }
+                                   environmentScope: { environmentIds: %s }
                                }`
-	REQ_RES_CONDITION_QUERY = `{
+	SINGLE_VALUED_REQ_RES_CONDITION_QUERY = `{
 								clauseType: MATCH_EXPRESSION
 								matchExpression: {
 									matchKey: %s
@@ -352,6 +356,18 @@ const (
 									matchValue: "%s"
 								}
 							}`
+	MULTI_VALUED_REQ_RES_CONDITION_QUERY = `{
+                            clauseType: KEY_VALUE_EXPRESSION
+                            keyValueExpression: {
+                                keyValueTag: %s
+                                matchCategory: %s
+                                keyMatchOperator: %s
+                                matchKey: "%s"
+                                valueMatchOperator: %s
+                                matchValue: "%s"
+                            }
+                        }`
+
 	ATTRIBUTE_VALUE_CONDITION_QUERY = `valueCondition: { operator: %s, value: "%s" }`
 	ATTRIBUTES_BASED_QUERY          = ` {
 								clauseType: ATTRIBUTE_KEY_VALUE_EXPRESSION
