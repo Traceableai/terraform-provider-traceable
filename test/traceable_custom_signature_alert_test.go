@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	// "github.com/stretchr/testify/require"
 	"github.com/traceableai/terraform-provider-traceable/test/testdata"
 )
 
@@ -41,15 +40,7 @@ func TestCustomSignatureAlertRRSingle(t *testing.T) {
     terraform.InitAndApply(t, terraformOptions)
 
     logger.Log("Verifying created resources")
-    // output := terraform.OutputMap(t, terraformOptions, "traceable_custom_signature_alert")
-
-    // require.Equal(t,testdata.SeverityOptions[0],output["alert_severity"])
-    // // require.NotEmpty(t,output["id"])
-    // // terraformOptions.Vars["alert_severity"] = testdata.SeverityOptions[1]
-    // // terraform.Apply(t, terraformOptions)
-    // // output = terraform.OutputMap(t, terraformOptions, "traceable_custom_signature_alert")
-    // // require.Equal(t,testdata.SeverityOptions[1],output["alert_severity"])
-    // // require.NotEmpty(t,output["id"])
+   
     terraform.Destroy(t, terraformOptions)
 
   })
@@ -90,15 +81,7 @@ func TestCustomSignatureAlertRRMulti(t *testing.T) {
     terraform.InitAndApply(t, terraformOptions)
 
     logger.Log("Verifying created resources")
-    // output := terraform.OutputMap(t, terraformOptions, "traceable_custom_signature_alert")
-
-    // require.Equal(t,testdata.SeverityOptions[0],output["alert_severity"])
-    // // require.NotEmpty(t,output["id"])
-    // // terraformOptions.Vars["alert_severity"] = testdata.SeverityOptions[1]
-    // // terraform.Apply(t, terraformOptions)
-    // // output = terraform.OutputMap(t, terraformOptions, "traceable_custom_signature_alert")
-    // // require.Equal(t,testdata.SeverityOptions[1],output["alert_severity"])
-    // // require.NotEmpty(t,output["id"])
+ 
     terraform.Destroy(t, terraformOptions)
 
   })
@@ -139,15 +122,7 @@ func TestCustomSignatureAlertAttr(t *testing.T) {
     terraform.InitAndApply(t, terraformOptions)
 
     logger.Log("Verifying created resources")
-    // output := terraform.OutputMap(t, terraformOptions, "traceable_custom_signature_alert")
-
-    // require.Equal(t,testdata.SeverityOptions[0],output["alert_severity"])
-    // // require.NotEmpty(t,output["id"])
-    // // terraformOptions.Vars["alert_severity"] = testdata.SeverityOptions[1]
-    // // terraform.Apply(t, terraformOptions)
-    // // output = terraform.OutputMap(t, terraformOptions, "traceable_custom_signature_alert")
-    // // require.Equal(t,testdata.SeverityOptions[1],output["alert_severity"])
-    // // require.NotEmpty(t,output["id"])
+   
     terraform.Destroy(t, terraformOptions)
 
   })
