@@ -1,0 +1,154 @@
+terraform {
+  required_providers {
+    traceable = {
+      source  = "terraform.local/local/traceable"  
+      version = "0.0.1"
+    }
+  }
+}
+
+variable "platform_url" {
+  type        = string
+  description = "Traceable Platform URL"
+}
+
+variable "traceable_api_key" {
+  type        = string
+  description = "Traceable API Key"
+  sensitive   = true
+}
+
+
+variable "name" {
+  type        = string
+}
+
+variable "rule_type"{
+  type = string
+  default ="NORMAL_DETECTION"
+}
+variable "description" {
+  type        = string
+  default = null
+}
+
+variable "environments" {
+  type        = list(string)
+  default     = null
+}
+
+variable "request_payload_single_valued_conditions" {
+  type        = list(object({
+    match_category      = string
+    match_key = string
+    match_operator = string
+    match_value = string
+  }))
+  default = []
+}
+
+variable "request_payload_multi_valued_conditions" {
+  type        = list(object({
+    match_category = string
+    key_value_tag = string
+    key_match_operator = string
+    match_key = string
+    value_match_operator = string
+    match_value = string
+  }))
+  default = []
+}
+
+
+variable "attribute_based_conditions" {
+  type        = list(object({
+    key_condition_operator      = string
+    key_condition_value      = string
+    value_condition_operator     = string
+    value_condition_value        = string
+  }))
+  default = []
+}
+
+variable "inject_request_headers"{
+   type        = list(object({
+    header_key      = string
+    header_value      = string
+  }))
+  default =[]
+}
+
+variable "custom_sec_rule"{
+  type        = string
+   default     = null
+
+}
+
+variable "disabled"{
+  type = bool
+  default     = true
+}
+
+
+variable "alert_severity"{
+  type = string
+}
+
+provider "traceable" {
+  platform_url = var.platform_url
+  api_token    = var.traceable_api_key
+   provider_version="terraform/v1.0.1"
+}
+
+resource "traceable_custom_signature_alert" "sample_rule" {
+  name                  = var.name
+  description           = var.description
+  rule_type              = var.rule_type
+  environments          = var.environments
+  dynamic "attribute_based_conditions" {
+  for_each = var.attribute_based_conditions
+  content {
+    key_condition_operator   = attribute_based_conditions.value.key_condition_operator
+    key_condition_value      = attribute_based_conditions.value.key_condition_value
+    value_condition_operator = attribute_based_conditions.value.value_condition_operator
+    value_condition_value    = attribute_based_conditions.value.value_condition_value
+  }
+}
+ dynamic "request_payload_single_valued_conditions" {
+  for_each = var.request_payload_single_valued_conditions
+  content {
+    match_category = request_payload_single_valued_conditions.value.match_category
+   match_key   = request_payload_single_valued_conditions.value.match_key
+   match_operator = request_payload_single_valued_conditions.value.match_operator
+     match_value =  request_payload_single_valued_conditions.value.match_value
+  }
+}
+dynamic "request_payload_multi_valued_conditions" {
+  for_each = var.request_payload_multi_valued_conditions
+  content {
+    match_category   = request_payload_multi_valued_conditions.value.match_category
+    key_value_tag      = request_payload_multi_valued_conditions.value.key_value_tag
+    key_match_operator = request_payload_multi_valued_conditions.value.key_match_operator
+    match_key    = request_payload_multi_valued_conditions.value.match_key
+    value_match_operator    = request_payload_multi_valued_conditions.value.value_match_operator
+    match_value    = request_payload_multi_valued_conditions.value.match_value
+  }
+}
+dynamic "inject_request_headers" {
+  for_each = var.inject_request_headers
+  content {
+    header_key   = inject_request_headers.value.header_key
+    header_value     = inject_request_headers.value.header_value
+   }
+}
+custom_sec_rule=var.custom_sec_rule
+disabled= var.disabled
+alert_severity=var.alert_severity
+
+}
+
+output "traceable_custom_signature_alert" {
+  value = traceable_custom_signature_alert.sample_rule
+}
+
+
