@@ -32,44 +32,6 @@ Required:
 
 - `rule_id` (String) Rule id for the detection config (XSS/LFI/RFI/bola/userIdBola)
 
-All Rule Ids:
-
-```
-bola                       		
-userIdBola                 
-bfla                       
-sesionVoilation            
-volumetricApiCallSpike     
-credentialStuffing         
-contentSize                
-contentType                
-httpStatus                 
-contentExplosion           
-unexpectedUserAgent        
-invalidEnumerations        
-unknownParam               
-missingParam               
-specialCharacter           
-typeAnomaly                
-valueOutofRange            
-XSS                        
-LFI                        
-RFI                        
-HTTPProtocolAttack         
-NodeJsInjection            
-SQLInjection               
-XMLInjection               
-JavaAppAttack              
-RCE                        
-SessionFixation            
-SSRF                       
-ssrf                       
-BasicAuthenticationViolation
-jwt                        
-Scanner Detection          
-GraphQLAttacks             
-```
-
 Optional:
 
 - `rule_config` (Block List, Max: 1) Detection Config settings for rule (see [below for nested schema](#nestedblock--waap_config--rule_config))
@@ -91,46 +53,45 @@ Required:
 - `sub_rule_action` (String) Action for sub rules (MONITOR/DISABLE/BLOCK)
 - `sub_rule_id` (String) Sub rule Id's (crs_941420/crs_941290/crs_941240)
 
-All sub rules
-
+All Rule Ids and there sub rule id's:
 ```
-crs_944130 :: Suspicious Java class 
-crs_944120 :: Remote Command Execution: Java serialization 
-crs_944110 :: Remote Command Execution: Java process spawn
-crs_944100 :: Remote Command Execution: Suspicious Java class
-crs_9440960 :: Apache Struts path traversal to RCE vulnerability
-crs_9440950 :: PAN-OS GlobalProtect Portal: RCE Exploitation 
-crs_9440940 :: Apache Struts path traversal to RCE vulnerability
-crs_9440930 :: Confluence Server OGNL Injection: Webwork
-crs_9440921 :: Java Spring Core: RCE: Panic Rule 
-crs_9440920 :: Java Spring Core: RCE (CVE-2022-22965)
-crs_9440910 :: Java Log4j: RCE DoS Exploitation (CVE-2021-45105) (T910)
-crs_9440900 :: Java Log4j: JNDI Exploitation (CVE-2021-44228) (T900)
-crs_9440210 :: Java Deserialization: Magic Bytes Base64 Encoded
-crs_94400910 :: Apache Commons Text: String Interpolation RCE: (CVE-2022-42889)
-crs_943120 :: Possible Session Fixation Attack: SessionID Parameter Name with No Referer
-crs_943110 :: Possible Session Fixation Attack: SessionID Parameter Name with Off-Domain Referer
-crs_943100 :: Possible Session Fixation Attack: Setting Cookie Values in HTML
-crs_942500 :: MySQL in-line comment
-crs_942360 :: Concatenated basic SQL injection and SQLLFI attempts (360)
-crs_942350 :: MySQL UDF injection and other data/structure manipulation attempts
-crs_942320 :: MySQL and PostgreSQL stored procedure/function injections
-crs_942290 :: Basic MongoDB SQL injection attempts
-crs_942280 :: Postgres pg_sleep injection, waitfor delay attacks and database shutdown attempts
-crs_942270 :: Basic sql injection. Common attack string for mysql, oracle and others
-crs_942250 :: MATCH AGAINST, MERGE and EXECUTE IMMEDIATE injections
-crs_942240 :: MySQL charset switch and MSSQL DoS attempts
-crs_942230 :: Conditional SQL injection attempts (230)
-crs_942190 :: SQL code execution and information gathering attempts
-crs_942170 :: SQL benchmark and sleep injection attempts including conditional queries
-crs_942160 :: Blind sqli tests using sleep() or benchmark()
-crs_942140 :: SQL Injection Attack: Common DB Names
-crs_942100 :: SQL Injection Attack (100)
-crs_9420360 :: Concatenated basic SQL injection and SQLLFI attempts (T360)
-crs_9420291 :: Basic MongoDB SQL injection attempts (Nested JSON)
-crs_9420290 :: Basic MongoDB SQL injection attempts (Relaxed)
-crs_9420230 :: Conditional SQL injection attempts (T230)
-crs_9420190 :: DB code execution and information gathering attempts
+contentSize                
+contentType                
+httpStatus                 
+contentExplosion           
+unexpectedUserAgent        
+invalidEnumerations        
+unknownParam               
+missingParam               
+specialCharacter           
+typeAnomaly                
+valueOutofRange   
+ssrf
+bola                       		
+userIdBola                 
+bfla  
+
+volumetric
+volumetric_apiCallSpike     
+
+AccountTakeOver
+ato_credStuff        
+
+sesionVoilation     
+sessionv_landspeed : Land Speed Violation
+sessionv_expiry : Session Expired
+
+jwt
+jwt_albeast : JWT AlBeast Anomaly
+jwt_alg : JWT Algorithm Confusion
+jwt_exp : JWT Expired
+jwt_sign : JWT Invalid Signature
+jwt_jku : JWT JKU Integrity Violation
+jwt_nbf : JWT Premature Usage
+jwt_aud : Unauthorized JWT audience
+jwt_iss : Unknown JWT Issuer
+
+XSS    
 crs_941420 :: IE XSS Filters - Attack (A href with a link)
 crs_941370 :: JavaScript global variable
 crs_941360 :: JSFuck / Hieroglyphy obfuscation
@@ -155,19 +116,85 @@ crs_941140 :: XSS Filter - Category 4: Javascript URI Vector
 crs_941110 :: XSS Filter - Category 1: Script Tag Vector
 crs_941100 :: XSS Attack (100)
 crs_9410170 :: NoScript XSS InjectionChecker: Attribute Injection (T170)
-crs_9410160 :: XSS InjectionChecker: HTML Injection
+crs_9410160 :: XSS InjectionChecker: HTML Injection 
+
+LFI  
+crs_930130 :: Restricted File Access Attempt 
+crs_930120 :: OS File Access Attempt (120) 
+crs_930110 :: Path Traversal Attack (/../) (110) 
+crs_930100 :: Path Traversal Attack (/../) (100) 
+crs_9300150 :: Possible Information Disclosure in ownCloud Graph API: (CVE-2023-49103) 
+crs_9300010 :: Rails Action View LFI: Accept header: (CVE-2019-5418) 
+
+RFI         
+crs_931120 :: Possible Remote File Inclusion (RFI) Attack: URL Payload Used w/Trailing Question Mark Character (?)
+
+HTTPProtocolAttack
+crs_921200 :: LDAP Injection Attack 
+crs_921190 :: HTTP Splitting (CR/LF in request filename) 
+crs_921160 :: HTTP Header Injection Attack via payload (CR/LF and header-name) 
+crs_921140 :: HTTP Header Injection Attack via headers 
+crs_921130 :: HTTP Response Splitting Attack (130) 
+crs_921120 :: HTTP Response Splitting Attack (120) 
+crs_9210400 :: Mail Injection: Protocol Manipulation 
+crs_9210330 :: Suspicious URL Evasion Attempt: Possible Encoding or Obfuscation (T330) 
+crs_9210305 :: Null Byte Injection 
+crs_9210300 :: URL Encoding Abuse Attack Attempt 
+crs_9210210 :: Suspicious URL Evasion Attempt: Malformed URL Patterns (T100) 
+crs_9210200 :: Possible CSRF Attack: Host and Origin Mismatch 
+crs_9210150 :: HTTP Header Injection Attack via payload (CR/LF) (T150) 
+crs_9210120 :: HTTP Request Smuggling Attack (Content-Length Confusion) 
+crs_9210115 :: HTTP Request Smuggling Attack (Content-Length/Transfer-Encoding Confusion) 
+crs_9210110 :: HTTP Request Smuggling Attack (Request Splitting) 
+crs_9210011 :: Potential CORS Misconfiguration Exploitation Attempt 
+crs_9210010 :: IIS 6.0 WebDAV buffer overflow: (CVE-2017-7269)        
+
+NodeJsInjection    
 crs_934100 :: Node.js Injection Attack
-crs_933210 :: PHP Injection Attack: Variable Function Call Found (210)
-crs_933200 :: PHP Injection Attack: Wrapper scheme detected
-crs_933170 :: PHP Injection Attack: Serialized Object Injection
-crs_933160 :: PHP Injection Attack: High-Risk PHP Function Call
-crs_933150 :: PHP Injection Attack: High-Risk PHP Function Name
-crs_933140 :: PHP Injection Attack: I/O Stream
-crs_933130 :: PHP Injection Attack: Variables
-crs_933120 :: PHP Injection Attack: Configuration Directive
-crs_933110 :: PHP Injection Attack: PHP Script File Upload
-crs_933100 :: PHP Injection Attack: PHP Open Tag
-crs_9330111 :: PHP CGI argument Injection: (CVE-2024-4577)
+
+SQLInjection         
+crs_942500 :: MySQL in-line comment
+crs_942360 :: Concatenated basic SQL injection and SQLLFI attempts (360)
+crs_942350 :: MySQL UDF injection and other data/structure manipulation attempts
+crs_942320 :: MySQL and PostgreSQL stored procedure/function injections
+crs_942290 :: Basic MongoDB SQL injection attempts
+crs_942280 :: Postgres pg_sleep injection, waitfor delay attacks and database shutdown attempts
+crs_942270 :: Basic sql injection. Common attack string for mysql, oracle and others
+crs_942250 :: MATCH AGAINST, MERGE and EXECUTE IMMEDIATE injections
+crs_942240 :: MySQL charset switch and MSSQL DoS attempts
+crs_942230 :: Conditional SQL injection attempts (230)
+crs_942190 :: SQL code execution and information gathering attempts
+crs_942170 :: SQL benchmark and sleep injection attempts including conditional queries
+crs_942160 :: Blind sqli tests using sleep() or benchmark()
+crs_942140 :: SQL Injection Attack: Common DB Names
+crs_942100 :: SQL Injection Attack (100)
+crs_9420360 :: Concatenated basic SQL injection and SQLLFI attempts (T360)
+crs_9420291 :: Basic MongoDB SQL injection attempts (Nested JSON)
+crs_9420290 :: Basic MongoDB SQL injection attempts (Relaxed)
+crs_9420230 :: Conditional SQL injection attempts (T230)
+crs_9420190 :: DB code execution and information gathering attempts      
+
+XMLInjection   
+crs_1020110 :: XML External Entity Injection: Entity Tags (110)
+crs_1020100 :: XML External Entity Injection: Local/Remote Includes (T100) 
+
+JavaAppAttack         
+crs_944130 :: Suspicious Java class 
+crs_944120 :: Remote Command Execution: Java serialization 
+crs_944110 :: Remote Command Execution: Java process spawn
+crs_944100 :: Remote Command Execution: Suspicious Java class
+crs_9440960 :: Apache Struts path traversal to RCE vulnerability
+crs_9440950 :: PAN-OS GlobalProtect Portal: RCE Exploitation 
+crs_9440940 :: Apache Struts path traversal to RCE vulnerability
+crs_9440930 :: Confluence Server OGNL Injection: Webwork
+crs_9440921 :: Java Spring Core: RCE: Panic Rule 
+crs_9440920 :: Java Spring Core: RCE (CVE-2022-22965)
+crs_9440910 :: Java Log4j: RCE DoS Exploitation (CVE-2021-45105) (T910)
+crs_9440900 :: Java Log4j: JNDI Exploitation (CVE-2021-44228) (T900)
+crs_9440210 :: Java Deserialization: Magic Bytes Base64 Encoded
+crs_94400910 :: Apache Commons Text: String Interpolation RCE: (CVE-2022-42889)   
+
+RCE 
 crs_932180 :: Restricted File Upload Attempt
 crs_932171 :: Remote Command Execution: Shellshock (CVE-2014-6271) (171)
 crs_932170 :: Remote Command Execution: Shellshock (CVE-2014-6271) (170)
@@ -201,54 +228,30 @@ crs_9320010 :: Spring Cloud Function RCE: malicious Spring Expression: (CVE-2022
 crs_93200090 :: Zoho ManageEngine ServiceDesk Plus: Arbitrary File Upload: (CVE-2019-8394)
 crs_93200080 :: Oracle WebLogic Server: RCE: (CVE-2019-2725)
 crs_93200070 :: Blueimp jQuery-File-Upload: Unauthenticated arbitrary file upload: (CVE-2018-9206) 
-crs_931120 :: Possible Remote File Inclusion (RFI) Attack: URL Payload Used w/Trailing Question Mark Character (?)
-crs_931110 :: Possible Remote File Inclusion (RFI) Attack: Common RFI Vulnerable Parameter Name used w/URL Payload
-crs_931100 :: Possible Remote File Inclusion (RFI) Attack: URL Parameter using IP Address
-crs_9310100 :: Possible Remote File Inclusion (RFI) Attack: URL Parameter using Anomalous Domain (T100)
-crs_930130 :: Restricted File Access Attempt 
-crs_930120 :: OS File Access Attempt (120) 
-crs_930110 :: Path Traversal Attack (/../) (110) 
-crs_930100 :: Path Traversal Attack (/../) (100) 
-crs_9300150 :: Possible Information Disclosure in ownCloud Graph API: (CVE-2023-49103) 
-crs_9300010 :: Rails Action View LFI: Accept header: (CVE-2019-5418) 
-crs_921200 :: LDAP Injection Attack 
-crs_921190 :: HTTP Splitting (CR/LF in request filename) 
-crs_921160 :: HTTP Header Injection Attack via payload (CR/LF and header-name) 
-crs_921140 :: HTTP Header Injection Attack via headers 
-crs_921130 :: HTTP Response Splitting Attack (130) 
-crs_921120 :: HTTP Response Splitting Attack (120) 
-crs_9210400 :: Mail Injection: Protocol Manipulation 
-crs_9210330 :: Suspicious URL Evasion Attempt: Possible Encoding or Obfuscation (T330) 
-crs_9210305 :: Null Byte Injection 
-crs_9210300 :: URL Encoding Abuse Attack Attempt 
-crs_9210210 :: Suspicious URL Evasion Attempt: Malformed URL Patterns (T100) 
-crs_9210200 :: Possible CSRF Attack: Host and Origin Mismatch 
-crs_9210150 :: HTTP Header Injection Attack via payload (CR/LF) (T150) 
-crs_9210120 :: HTTP Request Smuggling Attack (Content-Length Confusion) 
-crs_9210115 :: HTTP Request Smuggling Attack (Content-Length/Transfer-Encoding Confusion) 
-crs_9210110 :: HTTP Request Smuggling Attack (Request Splitting) 
-crs_9210011 :: Potential CORS Misconfiguration Exploitation Attempt 
-crs_9210010 :: IIS 6.0 WebDAV buffer overflow: (CVE-2017-7269) 
-crs_913120 :: Request filename/argument associated with security scanner 
-crs_913110 :: Request header associated with security scanner 
-crs_913100 :: User-Agent associated with security scanner 
-crs_1040100 :: GraphQL Introspection Query Detected 
-crs_1030100 :: Basic Authentication: Missing Password 
-crs_1020120 :: XPath Injection: Malicious XPath Expression (T120) 
-crs_1020110 :: XML External Entity Injection: Entity Tags (110)
-crs_1020100 :: XML External Entity Injection: Local/Remote Includes (T100) 
+crs_9320510 :: Remote Command Execution:: Common Evasions for Shell Injection
+crs_9320110 :: Remote Command Execution: Windows Command Injection (T110)
+
+SessionFixation     
+crs_943120 :: Possible Session Fixation Attack: SessionID Parameter Name with No Referer
+crs_943110 :: Possible Session Fixation Attack: SessionID Parameter Name with Off-Domain Referer
+crs_943100 :: Possible Session Fixation Attack: Setting Cookie Values in HTML
+
+SSRF    
 crs_1010110 :: Server Side Request Forgery (SSRF): Common Collaborators
 crs_1010100 :: Server Side Request Forgery (SSRF): Cloud Provider Metadata Endpoint
-crs_1010020 :: Jira SSRF: plugins/servlet/gadgets/makeRequest: (CVE-2019-8451) 
-crs_10100100 :: Server Side Request Forgery (SSRF): Localhost Domain (T100)
-crs_1010010 :: Apache HTTP Server SSRF (CVE-2021-40438)
-crs_9320510 :: Remote Command Execution:: Common Evasions for Shell Injection
-crs_9330010 :: PHP Injection Attack: WebShell Function Call (T100)
-crs_933180 :: PHP Injection Attack: Variable Function Call Found (180)
+
+                       
+BasicAuthenticationViolation
+crs_1030100 :: Basic Authentication: Missing Password 
 crs_1030110 :: Possible Joomla Unauthenticated Acces
 crs_1030120 :: Authorization Bypass in Next.js Middleware
-crs_9300120 :: Local File Access Attempt - S1 (T140)
-crs_9300130 :: Local File Access Attempt - S2 (T140)
-crs_9300140 :: Local File Access Attempt - S3 (T140)
-crs_9320110 :: Remote Command Execution: Windows Command Injection (T110)
+
+                        
+Scanner Detection   
+crs_913120 :: Request filename/argument associated with security scanner 
+crs_913110 :: Request header associated with security scanner 
+crs_913100 :: User-Agent associated with security scanner    
+
+GraphQLAttacks             
+crs_1040100 :: GraphQL Introspection Query Detected 
 ```

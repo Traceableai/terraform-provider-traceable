@@ -47,6 +47,7 @@ func ResourceDetectionConfigRule() *schema.Resource {
 										Type:        schema.TypeBool,
 										Description: "Flag to enable/disable the detection config(True/False)",
 										Required:    true,
+										Default: false,
 									},
 								},
 							},
@@ -174,7 +175,7 @@ func resourceDetectionConfigUpdate(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 	query := fmt.Sprintf(UPDATE_WAAP_CONFIG, configScope, ruleConfigString)
-
+	fmt.Printf("this is the query %s",query)
 	var response map[string]interface{}
 
 	responseStr, err := common.CallExecuteQuery(query, meta)
