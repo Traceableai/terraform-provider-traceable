@@ -47,7 +47,6 @@ func ResourceDetectionConfigRule() *schema.Resource {
 										Type:        schema.TypeBool,
 										Description: "Flag to enable/disable the detection config(True/False)",
 										Required:    true,
-										Default: false,
 									},
 								},
 							},
