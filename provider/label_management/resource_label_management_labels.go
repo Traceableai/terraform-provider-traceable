@@ -3,9 +3,10 @@ package label_management
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/traceableai/terraform-provider-traceable/provider/common"
-	"log"
 )
 
 func ResourceLabelCreationRule() *schema.Resource {
@@ -38,11 +39,11 @@ func ResourceLabelCreationRule() *schema.Resource {
 }
 
 func resourceLabelCreationRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	key := d.Get("key").(string)
+	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	color := d.Get("color").(string)
 
-	mutation := fmt.Sprintf(CREATE_LABEL_QUERY, key, description, color)
+	mutation := fmt.Sprintf(CREATE_LABEL_QUERY, name, description, color)
 
 	// Execute the GraphQL mutation
 	responseStr, err := common.CallExecuteQuery(mutation, meta)
@@ -60,7 +61,7 @@ func resourceLabelCreationRuleCreate(d *schema.ResourceData, meta interface{}) e
 	if responseData, ok := response["data"].(map[string]interface{}); ok {
 		if createResponse, ok := responseData["createLabel"].(map[string]interface{}); ok {
 			d.SetId(createResponse["id"].(string))
-			d.Set("key", createResponse["key"])
+			d.Set("name", createResponse["name"])
 			d.Set("description", createResponse["description"])
 			d.Set("color", createResponse["color"])
 			return nil
@@ -86,11 +87,17 @@ func resourceLabelCreationRuleRead(d *schema.ResourceData, meta interface{}) err
 	labelsResponse := response["data"].(map[string]interface{})["labels"].(map[string]interface{})["results"].([]interface{})
 	for _, item := range labelsResponse {
 		label := item.(map[string]interface{})
-		if label["id"].(string) == d.Id() {
+		if labelID, ok := label["id"].(string); ok && labelID == d.Id() {
 			// Set the Terraform state to match the fetched data
-			d.Set("key", label["key"].(string))
-			d.Set("description", label["description"].(string))
-			d.Set("color", label["color"].(string))
+			if name, ok := label["name"].(string); ok {
+				d.Set("name", name)
+			}
+			if description, ok := label["description"].(string); ok {
+				d.Set("description", description)
+			}
+			if color, ok := label["color"].(string); ok {
+				d.Set("color", color)
+			}
 			return nil
 		}
 	}
@@ -100,11 +107,11 @@ func resourceLabelCreationRuleRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceLabelCreationRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
-	key := d.Get("key").(string)
+	name := d.Get("name").(string)
 	description := d.Get("description").(string)
 	color := d.Get("color").(string)
 
-	mutation := fmt.Sprintf(UPDATE_LEBEL_QUERY, id, key, description, color)
+	mutation := fmt.Sprintf(UPDATE_LEBEL_QUERY, id, name, description, color)
 
 	responseStr, err := common.CallExecuteQuery(mutation, meta)
 	if err != nil {
@@ -118,10 +125,18 @@ func resourceLabelCreationRuleUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if responseData, ok := response["data"].(map[string]interface{})["updateLabel"].(map[string]interface{}); ok {
-		d.SetId(responseData["id"].(string))
-		d.Set("key", responseData["key"].(string))
-		d.Set("description", responseData["description"].(string))
-		d.Set("color", responseData["color"].(string))
+		if id, ok := responseData["id"].(string); ok {
+			d.SetId(id)
+		}
+		if name, ok := responseData["name"].(string); ok {
+			d.Set("name", name)
+		}
+		if description, ok := responseData["description"].(string); ok {
+			d.Set("description", description)
+		}
+		if color, ok := responseData["color"].(string); ok {
+			d.Set("color", color)
+		}
 	} else {
 		return fmt.Errorf("error updating label: no label returned from API")
 	}
