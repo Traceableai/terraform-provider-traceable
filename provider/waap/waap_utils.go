@@ -21,6 +21,15 @@ func GetConfigType(ruleId string) (string, error) {
 	if strings.Contains(ruleCrsId, "crs") {
 		return "MODSECURITY", nil
 	}
+	if strings.Contains(ruleCrsId,"sessionv") || strings.Contains(ruleCrsId,"bola") || strings.Contains(ruleCrsId,"userIdBola") {
+		return "SESSION_DEFINITION_METADATA",nil
+	}
+	if strings.Contains(ruleCrsId,"ato")  {
+		return "ACCOUNT_TAKEOVER",nil
+	}
+	if strings.Contains(ruleCrsId,"volumetric")  {
+		return "VOLUMETRIC",nil
+	}
 	return "API_DEFINITION_METADATA", nil
 }
 func GetSubRuleConfig(subRuleId string, subRuleAction string, ruleId string, configType string) (string, error) {

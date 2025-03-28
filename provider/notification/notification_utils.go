@@ -23,6 +23,7 @@ func FindThreatByCrsId(crsid string) string {
 		"userIdBola":             "userIdBola",
 		"bfla":                   "bfla",
 		"sessionv":               "sesionVoilation",
+		"ato":               "AccountTakeOver",
 		"volumetricApiCallSpike": "volumetricApiCallSpike",
 		"credentialStuffing":     "credentialStuffing",
 		"contentSize":            "contentSize",
@@ -52,6 +53,7 @@ func FindThreatByCrsId(crsid string) string {
 		"jwt":                    "jwt",
 		"crs_913":                "Scanner Detection",
 		"crs_104":                "GraphQLAttacks",
+		"volumetric":              "volumetric",
 	}
 	return crsToThreatType[crsid]
 }
@@ -61,6 +63,8 @@ func IsPreDefinedThreatEvent(event_type string) (bool, string) {
 		"userIdBola":                   "userIdBola",
 		"bfla":                         "bfla",
 		"sesionVoilation":              "sessionv",
+		"AccountTakeOver":              "ato",
+		"volumetric":              "volumetric",
 		"volumetricApiCallSpike":       "volumetricApiCallSpike",
 		"credentialStuffing":           "credentialStuffing",
 		"contentSize":                  "contentSize",
