@@ -101,3 +101,28 @@ resource "traceable_ip_range_rule" "my_ip_range" {
 ##### Optional:
 - `expiration`: (string) expiration time of the rule (this attribute don't apply on `RULE_ACTION_ALERT`, don't pass this attribute if we need to block or allow indefinetly)
 - `description`: (string) description of the rule
+
+
+
+
+
+## Steps to Run a Terratest
+```markdown
+export PLATFORM_URL=""
+
+export TRACEABLE_API_KEY=""
+
+cd test
+
+go test -v ./... | tee test_output.log
+
+terratest_log_parser -testlog test_output.log -outputdir test_results
+
+(By this commands a folder test_results is generated inside which report.xml is there)
+
+junit2html test_results/report.xml  /test_results/report.html
+
+(By this command html report file is generated and junit2 is python package) 
+
+```
+
