@@ -69,10 +69,10 @@ userIdBola
 bfla  
 
 volumetric
-volumetric_apiCallSpike     
+volumetric_apiCallSpike : Spike in API Call Count    
 
 AccountTakeOver
-ato_credStuff        
+ato_credStuff : Credential Stuffing        
 
 sesionVoilation     
 sessionv_landspeed : Land Speed Violation
