@@ -1,0 +1,770 @@
+package resources
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/Khan/genqlient/graphql"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/traceableai/terraform-provider-traceable/shreyanshrevamp/internal/generated"
+)
+
+type RateLimitingResource struct {
+	client *graphql.Client
+}
+
+type RateLimitingResourceModel struct {
+	AlertSeverity                         types.String              `tfsdk:"alert_severity"`
+	RuleType                              types.String              `tfsdk:"rule_type"`
+	ID                                    types.String              `tfsdk:"id"`
+	Name                                  types.String              `tfsdk:"name"`
+	Description                           types.String              `tfsdk:"description"`
+	Enabled                               types.Bool                `tfsdk:"enabled"`
+	Category                              types.String              `tfsdk:"category"`
+	LabelScope                            []types.String            `tfsdk:"label_scope"`
+	EndpointIDScope                       []types.String            `tfsdk:"endpoint_id_scope"`
+	Environments                          []types.String            `tfsdk:"environments"`
+	RequestResponseSingleValuedConditions []SingleValuedCondition   `tfsdk:"request_response_single_valued_conditions"`
+	RequestResponseMultiValuedConditions  []MultiValuedCondition    `tfsdk:"request_response_multi_valued_conditions"`
+	ThresholdConfigs                      []ThresholdConfig         `tfsdk:"threshold_configs"`
+	AttributeBasedConditions              []AttributeBasedCondition `tfsdk:"attribute_based_conditions"`
+	IPReputation                          types.String              `tfsdk:"ip_reputation"`
+	IPLocationType                        IPLocationType            `tfsdk:"ip_location_type"`
+	IPAbuseVelocity                       types.String              `tfsdk:"ip_abuse_velocity"`
+	IPAddress                             IPAddress                 `tfsdk:"ip_address"`
+	EmailDomain                           EmailDomain               `tfsdk:"email_domain"`
+	UserAgents                            UserAgents                `tfsdk:"user_agents"`
+	Regions                               Regions                   `tfsdk:"regions"`
+	IPOrganisation                        IPOrganisation            `tfsdk:"ip_organisation"`
+	IPASN                                 IPASN                     `tfsdk:"ip_asn"`
+	IPConnectionType                      IPConnectionType          `tfsdk:"ip_connection_type"`
+	RequestScannerType                    RequestScannerType        `tfsdk:"request_scanner_type"`
+	UserID                                UserID                    `tfsdk:"user_id"`
+	Action                                Action                    `tfsdk: "action"`
+}
+
+type Action struct {
+	ActionType       types.String      `tfsdk:"action_type"`
+	EventSeverity    types.String      `tfsdk:"event_severity"`
+	Duration         types.String      `tfsdk:"duration"`
+	HeaderInjections []HeaderInjection `tfsdk:"header_injections"`
+}
+
+type HeaderInjection struct {
+	key   types.String `tfsdk:"key"`
+	value types.String `tfsdk:"value"`
+}
+type SingleValuedCondition struct {
+	RequestLocation types.String `tfsdk:"request_location"`
+	Operator        types.String `tfsdk:"operator"`
+	Value           types.String `tfsdk:"value"`
+}
+
+type MultiValuedCondition struct {
+	RequestLocation types.String `tfsdk:"request_location"`
+	KeyPatterns     Pattern      `tfsdk:"key_patterns"`
+	ValuePatterns   Pattern      `tfsdk:"value_patterns"`
+}
+
+type Pattern struct {
+	Operator types.String `tfsdk:"operator"`
+	Value    types.String `tfsdk:"value"`
+}
+
+type ThresholdConfig struct {
+	APIAggregateType                     types.String `tfsdk:"api_aggregate_type"`
+	UserAggregateType                    types.String `tfsdk:"user_aggregate_type"`
+	RollingWindowCountAllowed            types.Int64  `tfsdk:"rolling_window_count_allowed"`
+	RollingWindowDuration                types.String `tfsdk:"rolling_window_duration"`
+	ThresholdConfigType                  types.String `tfsdk:"threshold_config_type"`
+	DynamicMeanCalculationDuration       types.String `tfsdk:"dynamic_mean_calculation_duration"`
+	DynamicDuration                      types.String `tfsdk:"dynamic_duration"`
+	DynamicPercentageExcedingMeanAllowed types.Int64  `tfsdk "dynamic_percentage_exceding_mean_allowed"`
+}
+
+type AttributeBasedCondition struct {
+	KeyConditionOperator   types.String `tfsdk:"key_condition_operator"`
+	KeyConditionValue      types.String `tfsdk:"key_condition_value"`
+	ValueConditionOperator types.String `tfsdk:"value_condition_operator"`
+	ValueConditionValue    types.String `tfsdk:"value_condition_value"`
+}
+
+type IPLocationType struct {
+	IPLocationTypes []types.String `tfsdk:"ip_location_types"`
+	Exclude         types.Bool     `tfsdk:"exclude"`
+}
+
+type IPAddress struct {
+	IPAddressList []types.String `tfsdk:"ip_address_list"`
+	Exclude       types.Bool     `tfsdk:"exclude"`
+	IPAddressType types.String   `tfsdk:"ip_address_type"`
+}
+
+type EmailDomain struct {
+	EmailDomainRegexes []types.String `tfsdk:"email_domain_regexes"`
+	Exclude            types.Bool     `tfsdk:"exclude"`
+}
+
+type UserAgents struct {
+	UserAgentsList []types.String `tfsdk:"user_agents_list"`
+	Exclude        types.Bool     `tfsdk:"exclude"`
+}
+
+type Regions struct {
+	RegionsIDs []types.String `tfsdk:"regions_ids"`
+	Exclude    types.Bool     `tfsdk:"exclude"`
+}
+
+type IPOrganisation struct {
+	IPOrganisationRegexes []types.String `tfsdk:"ip_organisation_regexes"`
+	Exclude               types.Bool     `tfsdk:"exclude"`
+}
+
+type IPASN struct {
+	IPASNRegexes []types.String `tfsdk:"ip_asn_regexes"`
+	Exclude      types.Bool     `tfsdk:"exclude"`
+}
+
+type IPConnectionType struct {
+	IPConnectionTypeList []types.String `tfsdk:"ip_connection_type_list"`
+	Exclude              types.Bool     `tfsdk:"exclude"`
+}
+
+type RequestScannerType struct {
+	ScannerTypesList []types.String `tfsdk:"scanner_types_list"`
+	Exclude          types.Bool     `tfsdk:"exclude"`
+}
+
+type UserID struct {
+	UserIDRegexes []types.String `tfsdk:"user_id_regexes"`
+	UserIDs       []types.String `tfsdk:"user_ids"`
+	Exclude       types.Bool     `tfsdk:"exclude"`
+}
+
+func NewRateLimitingResource() resource.Resource {
+	return &RateLimitingResource{}
+}
+
+func (r *RateLimitingResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(*graphql.Client)
+	if !ok {
+		resp.Diagnostics.AddError("Unexpected Resource Configure Type",
+			fmt.Sprintf("Expected *graphql.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+
+	r.client = client
+	fmt.Println("hello inside resource")
+	tflog.Trace(ctx, "Client Intialization Successfully")
+}
+
+func (r *RateLimitingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_rate_limiting"
+}
+
+func (r *RateLimitingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	var SingleValuedConditionObjectType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"request_location": types.StringType,
+			"operator":         types.StringType,
+			"value":            types.StringType,
+		},
+	}
+
+	var PatternObjectType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"operator": types.StringType,
+			"value":    types.StringType,
+		},
+	}
+
+	var MultiValuedConditionObjectType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"request_location": types.StringType,
+			"key_patterns":     PatternObjectType,
+			"value_patterns":   PatternObjectType,
+		},
+	}
+
+	var ThresholdConfigObjectType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"api_aggregate_type":                       types.StringType,
+			"rolling_window_count_allowed":             types.Int64Type,
+			"rolling_window_duration":                  types.StringType,
+			"threshold_config_type":                    types.StringType,
+			"dynamic_mean_calculation_duration":        types.StringType,
+			"dynamic_duration":                         types.StringType,
+			"dynamic_percentage_exceding_mean_allowed": types.Int64Type,
+		},
+	}
+
+	var AttributeBasedConditionObjectType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"key_condition_operator":   types.StringType,
+			"key_condition_value":      types.StringType,
+			"value_condition_operator": types.StringType,
+			"value_condition_value":    types.StringType,
+		},
+	}
+
+	var HeaderInjectionObjectType = types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"key":   types.StringType,
+			"value": types.StringType,
+		},
+	}
+
+	resp.Schema = schema.Schema{
+		MarkdownDescription: "Traceable Rate Limiting Resource",
+		Attributes: map[string]schema.Attribute{
+			"name": schema.StringAttribute{
+				MarkdownDescription: "Name of the Rate Limiting Rule.",
+				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"description": schema.StringAttribute{
+				MarkdownDescription: "Description of the Rate Limiting Rule",
+				Optional:            true,
+			},
+			"enabled": schema.BoolAttribute{
+				MarkdownDescription: "Enable the Rate Limiting Rule",
+				Required:            true,
+			},
+			"label_id_scope": schema.ListAttribute{
+				MarkdownDescription: "Filter endpoints by labels you want to apply this rule",
+				Optional:            true,
+				ElementType:         types.StringType,
+			},
+			"endpoint_id_scope": schema.ListAttribute{
+				MarkdownDescription: "List of endpoint ids",
+				Optional:            true,
+				ElementType:         types.StringType,
+			},
+			"environments": schema.ListAttribute{
+				MarkdownDescription: "List of environments ids",
+				Required:            true,
+				ElementType:         types.StringType,
+			},
+			"request_response_single_valued_conditions": schema.ListAttribute{
+				MarkdownDescription: "Request payload single valued conditions for the rule",
+				Optional:            true,
+				ElementType:         SingleValuedConditionObjectType,
+			},
+			"request_response_multi_valued_conditions": schema.ListAttribute{
+				MarkdownDescription: "Request payload multi valued conditions for the rule",
+				Optional:            true,
+				ElementType:         MultiValuedConditionObjectType,
+			},
+			"threshold_configs": schema.ListAttribute{
+				MarkdownDescription: "Threshold configs for the rule",
+				Required:            true,
+				ElementType:         ThresholdConfigObjectType,
+			},
+			"attribute_based_conditions": schema.ListAttribute{
+				ElementType:         AttributeBasedConditionObjectType,
+				MarkdownDescription: "Attribute based conditions for the rule",
+				Optional:            true,
+			},
+			"ip_reputation": schema.StringAttribute{
+				MarkdownDescription: "Ip reputation source (LOW/MEDIUM/HIGH/CRITICAL)",
+				Optional:            true,
+			},
+			"ip_location_type": schema.SingleNestedAttribute{
+				MarkdownDescription: "Ip location type as source ([BOT, TOR_EXIT_NODE, PUBLIC_PROXY])",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"ip_location_types": schema.ListAttribute{
+						MarkdownDescription: "Ip location type as source ([BOT, TOR_EXIT_NODE, PUBLIC_PROXY])",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given ip location types",
+						Required:            true,
+					},
+				},
+			},
+			"ip_abuse_velocity": schema.StringAttribute{
+				MarkdownDescription: "Ip abuse velocity as source (LOW/MEDIUM/HIGH/CRITICAL)",
+				Optional:            true,
+			},
+			"ip_address": schema.SingleNestedAttribute{
+				MarkdownDescription: "Ip address as source (LIST_OF_IP's/ALL_EXTERNAL)",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"ip_address_list": schema.ListAttribute{
+						MarkdownDescription: "List of ip addresses",
+						Optional:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given ip addresses",
+						Required:            true,
+					},
+					"ip_address_type": schema.StringAttribute{
+						MarkdownDescription: "Accepts ALL_EXTERNAL",
+						Optional:            true,
+					},
+				},
+			},
+			"email_domain": schema.SingleNestedAttribute{
+				MarkdownDescription: "Email domain as source, It will be a list of email domain regexes",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"email_domain_regexes": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of email domain regexes",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given email domains regexes",
+						Required:            true,
+					},
+				},
+			},
+			"user_agents": schema.SingleNestedAttribute{
+				MarkdownDescription: "User agents as source, It will be a list of user agents",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"user_agents_list": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of user agents",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given user agents",
+						Required:            true,
+					},
+				},
+			},
+			"regions": schema.SingleNestedAttribute{
+				MarkdownDescription: "Regions as source, It will be a list region ids (AX,DZ)",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"regions_ids": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of regions ids in countryIsoCode",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given regions",
+						Required:            true,
+					},
+				},
+			},
+			"ip_organisation": schema.SingleNestedAttribute{
+				MarkdownDescription: "Ip organisation as source, It will be a list of ip organisation",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"ip_organisation_regexes": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of ip organisations",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given ip organisation",
+						Required:            true,
+					},
+				},
+			},
+			"ip_asn": schema.SingleNestedAttribute{
+				MarkdownDescription: "Ip ASN as source, It will be a list of IP ASN",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"ip_asn_regexes": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of IP ASN",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given IP ASN",
+						Required:            true,
+					},
+				},
+			},
+			"ip_connection_type": schema.SingleNestedAttribute{
+				MarkdownDescription: "Ip connection type as source, It will be a list of ip connection type",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"ip_connection_type_list": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of IP connection types",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given IP coonection",
+						Required:            true,
+					},
+				},
+			},
+			"request_scanner_type": schema.SingleNestedAttribute{
+				MarkdownDescription: "Scanner as source, It will be a list of scanner type",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"scanner_types_list": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of scanner types",
+						Required:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given scaner types",
+						Required:            true,
+					},
+				},
+			},
+			"user_id": schema.SingleNestedAttribute{
+				MarkdownDescription: "User id as source",
+				Optional:            true,
+				Attributes: map[string]schema.Attribute{
+					"user_id_regexes": schema.ListAttribute{
+						MarkdownDescription: "It will be a list of user id regexes",
+						Optional:            true,
+						ElementType:         types.StringType,
+					},
+					"user_ids": schema.ListAttribute{
+						MarkdownDescription: "List of user ids",
+						Optional:            true,
+						ElementType:         types.StringType,
+					},
+					"exclude": schema.BoolAttribute{
+						MarkdownDescription: "Set it to true to exclude given user id",
+						Required:            true,
+					},
+				},
+			},
+			"action": schema.SingleNestedAttribute{
+				Required: true,
+				Attributes: map[string]schema.Attribute{
+					"action_type": schema.StringAttribute{
+						MarkdownDescription: "ALERT , BLOCk , ALLOW ,MARK FOR TESTING",
+						Required:            true,
+					},
+					"duration": schema.StringAttribute{
+						MarkdownDescription: "how much time the action work",
+						Optional:            true,
+					},
+					"event_severity": schema.StringAttribute{
+						MarkdownDescription: "ALERT , BLOCk , ALLOW ,MARK FOR TESTING",
+						Optional:            true,
+					},
+					"header_injections": schema.ListAttribute{
+						MarkdownDescription: "Header fields to be injected",
+						Optional:            true,
+						ElementType:         HeaderInjectionObjectType,
+					},
+				},
+			},
+			"id": schema.StringAttribute{
+				MarkdownDescription: "Identifier of the Rate Limiting Rule",
+				Computed:            true,
+			},
+		},
+	}
+}
+
+func (r *RateLimitingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	tflog.Trace(ctx, "Entering in Create Block")
+	var data *RateLimitingResourceModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	category, err1 := getRateLimitingCategory(data)
+	if err1 != nil {
+		return
+	}
+	thresholdActionConfigs, err2 := getRateLimitingRuleThresholdActionConfig(data)
+	if err2 != nil {
+		return
+	}
+	ruleConfigScope, err3 := getRateLimitingRuleConfigScope(data)
+	if err3 != nil {
+		return
+	}
+	input := generated.InputRateLimitingRuleData{
+		Name:                   data.Name.ValueString(),
+		Category:               category,
+		Enabled:                data.Enabled.ValueBool(),
+		ThresholdActionConfigs: thresholdActionConfigs,
+		Description:            data.Description.ValueString(),
+		RuleConfigScope:        ruleConfigScope,
+	}
+	tflog.Trace(ctx, "Entering in Create Block", map[string]any{
+		"input": input,
+	})
+
+}
+
+func (r *RateLimitingResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+
+}
+
+func (r *RateLimitingResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+
+}
+
+func (r *RateLimitingResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+
+}
+
+func (r *RateLimitingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+}
+
+type durationValidator struct{}
+
+func (v durationValidator) Description(ctx context.Context) string {
+	return "string must be a valid duration (e.g., '30s', '5m', '2h')"
+}
+
+func (v durationValidator) MarkdownDescription(ctx context.Context) string {
+	return "string must be a valid duration (e.g., '30s', '5m', '2h')"
+}
+
+func (v durationValidator) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+
+	value := req.ConfigValue.ValueString()
+	_, err := time.ParseDuration(value)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid Duration Format",
+			fmt.Sprintf("Duration must be a valid Go duration string: %s", err),
+		)
+	}
+}
+
+// helper functions
+func getRateLimitingRuleThresholdActionConfig(data *RateLimitingResourceModel) ([]generated.InputRateLimitingRuleThresholdActionConfig, error) {
+	var actionConfig []generated.InputRateLimitingRuleThresholdActionConfig
+	actions, err1 := getRateLimitingActions(data)
+	if err1 != nil {
+		return actionConfig, err1
+	}
+	thresholdConfigs, err2 := getRateLimitingThresholdConfigs(data)
+	if err2 != nil {
+		return actionConfig, err2
+	}
+	config := generated.InputRateLimitingRuleThresholdActionConfig{
+		Actions:          []generated.InputRateLimitingRuleAction{actions},
+		ThresholdConfigs: thresholdConfigs,
+	}
+	actionConfig = append(actionConfig, config)
+	return actionConfig, nil
+}
+
+func getRateLimitingRuleConfigScope(data *RateLimitingResourceModel) (generated.InputRuleConfigScope, error) {
+	var environmentIds []string
+	for _, env := range data.Environments {
+		environmentIds = append(environmentIds, env.ValueString())
+	}
+	ruleConfigScope := generated.InputRuleConfigScope{
+		EnvironmentScope: generated.InputEnvironmentScope{
+			EnvironmentIds: environmentIds,
+		},
+	}
+	return ruleConfigScope, nil
+
+}
+
+// func getRateLimitingRuleStatus(data * RateLimitingResourceModel)(* generated.InputRateLimitingRuleStatus,error ){
+// 	ruleStatus := &generated.InputRateLimitingRuleStatus{
+// 		GenerateInternalEvents: false,
+// 		Hidden:                false,
+// 		Internal:             false,
+// 		RuleCreationSource:   ConvertRuleSource("USER"),
+// 	}
+// }
+
+func getRateLimitingCategory(data *RateLimitingResourceModel) (generated.RateLimitingRuleCategory, error) {
+	category := generated.RateLimitingRuleCategory(generated.RateLimitingRuleCategoryEndpointRateLimiting)
+	return category, nil
+}
+
+func getRateLimitingActions(data *RateLimitingResourceModel) (generated.InputRateLimitingRuleAction, error) {
+	var input generated.InputRateLimitingRuleAction
+
+	agentModifications, err := getAgentModifications(data)
+	if err != nil {
+		return input, err
+	}
+
+	switch data.Action.ActionType.ValueString() {
+	case "BLOCK":
+		input = generated.InputRateLimitingRuleAction{
+			ActionType: generated.RateLimitingRuleActionTypeBlock,
+
+			Block: generated.InputRateLimitingRuleBlockAction{
+				Duration:      data.Action.Duration.ValueString(),
+				EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
+				//useThresholdDuration
+			},
+		}
+
+	case "ALERT":
+		input = generated.InputRateLimitingRuleAction{
+			ActionType: generated.RateLimitingRuleActionTypeAlert,
+
+			Alert: generated.InputRateLimitingRuleAlertAction{
+				EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
+				AgentEffect: generated.InputRateLimitingRuleAgentEffect{
+					AgentModifications: agentModifications,
+				},
+			},
+		}
+
+	case "MARK_FOR_TESTING":
+		input = generated.InputRateLimitingRuleAction{
+			ActionType: generated.RateLimitingRuleActionTypeMarkForTesting,
+
+			MarkForTesting: generated.InputRateLimitingRuleMarkForTestingAction{
+				EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
+				AgentEffect: generated.InputRateLimitingRuleAgentEffect{
+					AgentModifications: agentModifications,
+				},
+			},
+		}
+
+	case "ALLOW":
+		input = generated.InputRateLimitingRuleAction{
+			ActionType: generated.RateLimitingRuleActionTypeAllow,
+
+			Allow: generated.InputRateLimitingRuleAllowAction{
+				Duration: data.Action.Duration.ValueString(),
+			},
+		}
+
+	}
+
+	return input, nil
+
+}
+
+func getAgentModifications(data *RateLimitingResourceModel) ([]generated.InputRateLimitingRuleAgentModification, error) {
+	var modifications []generated.InputRateLimitingRuleAgentModification
+
+	for _, injection := range data.Action.HeaderInjections {
+		if injection.key.ValueString() == "" && injection.value.ValueString() == "" {
+			return modifications, fmt.Errorf("Header Injection key and Value Can not be empty")
+		}
+		input := generated.InputRateLimitingRuleAgentModification{
+			AgentModificationType: generated.RateLimitingRuleAgentModificationTypeHeaderInjection,
+			HeaderInjection: generated.InputRateLimitingRuleHeaderInjection{
+				HeaderCategory: generated.RateLimitingRuleMatchCategoryRequest,
+				Key:            injection.key.ValueString(),
+				Value:          injection.value.ValueString(),
+			},
+		}
+		modifications = append(modifications, input)
+	}
+
+	return modifications, nil
+
+}
+
+func getRateLimitingThresholdConfigs(data *RateLimitingResourceModel) ([]generated.InputRateLimitingRuleThresholdConfig, error) {
+	var thresholdConfigs []generated.InputRateLimitingRuleThresholdConfig
+
+	for _, config := range data.ThresholdConfigs {
+
+		switch config.ThresholdConfigType.ValueString() {
+		case "ROLLING_WINDOW":
+
+			thresholdConfig := generated.InputRateLimitingRuleThresholdConfig{
+				ApiAggregateType:  RateLimitingApiAggregateMap[config.APIAggregateType.ValueString()],
+				UserAggregateType: RateLimitingUserAggregateMap[config.UserAggregateType.ValueString()],
+				RollingWindowThresholdConfig: generated.InputRollingWindowThresholdConfig{
+					CountAllowed: config.RollingWindowCountAllowed.ValueInt64(),
+					Duration:     config.RollingWindowDuration.ValueString(),
+				},
+				ThresholdConfigType: RateLimitingRuleThresholdConfigMap[config.ThresholdConfigType.ValueString()],
+			}
+			thresholdConfigs = append(thresholdConfigs, thresholdConfig)
+
+		case "DYNAMIC":
+			thresholdConfig := generated.InputRateLimitingRuleThresholdConfig{
+				ApiAggregateType:  RateLimitingApiAggregateMap["PER_ENDPOINT"],
+				UserAggregateType: RateLimitingUserAggregateMap["PER_USER"],
+				DynamicThresholdConfig: generated.InputDynamicThresholdConfig{
+					Duration:                       config.DynamicDuration.ValueString(),
+					MeanCalculationDuration:        config.DynamicMeanCalculationDuration.ValueString(),
+					PercentageExceedingMeanAllowed: config.DynamicPercentageExcedingMeanAllowed.ValueInt64(),
+				},
+
+				ThresholdConfigType: RateLimitingRuleThresholdConfigMap[config.ThresholdConfigType.ValueString()],
+			}
+			thresholdConfigs = append(thresholdConfigs, thresholdConfig)
+
+		default:
+			return thresholdConfigs, fmt.Errorf("Please provide a valid threshold Config")
+		}
+
+	}
+
+	return thresholdConfigs, nil
+
+}
+
+
+_____________________
+package api
+
+import (
+	"net/http"
+
+	"bytes"
+	"github.com/Khan/genqlient/graphql"
+	"io/ioutil"
+	"log"
+)
+
+// NewClient creates a new GraphQL client with authentication and version headers
+func NewClient(url string, token string, version string) graphql.Client {
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+	}
+	httpClient := &http.Client{
+		Transport: &transportWithAuth{
+			Transport: transport,
+			Token:     token,
+			Version:   version,
+		},
+	}
+
+	client := graphql.NewClient(url, httpClient)
+	return client
+
+}
+
+type transportWithAuth struct {
+	Transport http.RoundTripper
+	Token     string
+	Version   string
+}
+
+func (t *transportWithAuth) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", t.Token)
+	req.Header.Set("x-terraform-provider-version", t.Version)
+	return t.Transport.RoundTrip(req)
+}
+
+type loggingRoundTripper struct {
+	rt http.RoundTripper
+}

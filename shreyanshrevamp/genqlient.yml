@@ -1,0 +1,25 @@
+schema: helper/schema.graphql
+operations:
+  - internal/queries/rate_limiting.graphql
+  - internal/queries/data_set.graphql  
+generated: internal/generated/genqlient.go
+package: generated
+bindings:
+  Long:
+    type: int64
+  String:
+    type: string
+  Boolean:
+    type: bool
+  Float:
+    type: float64
+  Int:
+    type: int64
+  ID:
+    type: string
+  Duration:
+    type: string
+  DateTime:
+    type: string
+
+optional: pointer

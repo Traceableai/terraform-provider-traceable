@@ -1,0 +1,20 @@
+schema: 
+  - internal/schema/root.graphql
+  - internal/schema/schema.graphql
+operations: queries.graphql
+generated: generated/genqlient.go
+package: generated
+bindings:
+  Long:
+    type: int64
+  String:
+    type: string
+  Boolean:
+    type: bool
+  Float:
+    type: float64
+  Int:
+    type: int64
+  ID:
+    type: string
+    
