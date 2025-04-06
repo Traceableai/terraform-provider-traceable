@@ -1,11 +1,10 @@
 package resources
 
 import (
-	"reflect"
-
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/traceableai/terraform-provider-traceable/shreyanshrevamp/internal/generated"
+	"reflect"
 )
 
 var RateLimitingRuleEventSeverityMap = map[string]generated.RateLimitingRuleEventSeverity{
@@ -135,6 +134,7 @@ var RateLimitingRuleKeyValueConditionMetadataTypeMap = map[string]generated.Rate
 // }
 
 // HasValue checks if a field has a concrete value
+// if string not empty
 func HasValue(field interface{}) bool {
 
 	if field == nil {
@@ -193,102 +193,24 @@ func HasValue(field interface{}) bool {
 
 }
 
-////////////////
+func convertToRuleConfigScope(environments types.List) (*generated.InputRuleConfigScope, error) {
+	if !HasValue(environments) {
+		return nil, nil
+	}
 
-// // HasValue checks if any Terraform attribute value contains actual data
-// func HasValue(val interface{}) (bool    ) {
-//     // Handle nil case
-//     if val == nil {
-//         return false
-//     }
+	var scope *generated.InputRuleConfigScope
+	var envIds []*string
+	for _, env := range environments.Elements() {
+		if env, ok := env.(types.String); ok {
+			env1 := env.ValueString()
+			envIds = append(envIds, &env1)
+		}
 
-//     // Type switch for all supported attribute types
-//     switch v := val.(type) {
-//     case attr.Value:
-//         return hasAttrValue(v)
-//     case *types.Object:
-//         if v == nil {
-//             return false
-//         }
-//         return hasAttrValue(*v)
-//     case *types.List:
-//         if v == nil {
-//             return false
-//         }
-//         return hasAttrValue(*v)
-//     case *types.Map:
-//         if v == nil {
-//             return false
-//         }
-//         return hasAttrValue(*v)
-//     case *types.Set:
-//         if v == nil {
-//             return false
-//         }
-//         return hasAttrValue(*v)
-//     default:
-//         return false
-//     }
-// }
-
-// // hasAttrValue handles the actual attribute value checking
-// func hasAttrValue(val attr.Value) (bool) {
-
-//     if val == nil || val.IsNull() || val.IsUnknown() {
-//         return false
-//     }
-
-//     switch v := val.(type) {
-//     case types.Object:
-//         return hasObjectValue(v)
-//     case types.List:
-//         return hasCollectionValue(v)
-//     case types.Map:
-//         return hasCollectionValue(v)
-//     case types.Set:
-//         return hasCollectionValue(v)
-//     default:
-//         return true
-//     }
-// }
-
-// // hasObjectValue checks if an Object has any non-null values
-// func hasObjectValue(obj types.Object) (bool) {
-//     var objMap map[string]attr.Value
-
-//     obj.As(&objMap, basetypes.ObjectAsOptions{})
-
-//     for _, val := range objMap {
-//         hasVal := HasValue(val)
-//         if hasVal {
-//             return true
-//         }
-//     }
-
-//     return false
-// }
-
-// // hasCollectionValue checks if collections (List/Map/Set) have any non-null values
-// func hasCollectionValue(coll attr.Value) (bool) {
-//     var elements []attr.Value
-
-//     switch v := coll.(type) {
-//     case types.List:
-//         v.ElementsAs(&elements, false)
-//     case types.Set:
-//         v.ElementsAs(&elements, false)
-//     case types.Map:
-//         v.ElementsAs(&elements, false)
-//     default:
-//         return false
-//     }
-
-//     for _, elem := range elements {
-//         hasVal := HasValue(elem)
-//         if hasVal {
-//             return false
-//         }
-//     }
-
-//     return true
-// }
+	}
+	scope = &generated.InputRuleConfigScope{
+		EnvironmentScope: &generated.InputEnvironmentScope{
+			EnvironmentIds: envIds,
+		},
+	}
+	return scope, nil
+}

@@ -5,7 +5,6 @@ package generated
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/Khan/genqlient/graphql"
 )
@@ -4486,18 +4485,12 @@ func CreateRateLimitingRule(
 
 	data_ = &CreateRateLimitingRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
-    
 
 	err_ = client_.MakeRequest(
 		ctx_,
 		req_,
 		resp_,
 	)
-	if len(resp_.Errors) > 0 {
-		fmt.Printf("GraphQL Errors: %+v\n", resp_.Errors)
-		fmt.Println("Shreyanshdebug",err_)
-	}
-	
 
 	return data_, err_
 }

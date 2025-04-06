@@ -3,12 +3,12 @@ package provider
 import (
 	"context"
 	"fmt"
-
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/traceableai/terraform-provider-traceable/shreyanshrevamp/internal/api"
 	"github.com/traceableai/terraform-provider-traceable/shreyanshrevamp/internal/resources"
 )
@@ -44,13 +44,13 @@ Refer to the official [Traceable Documentation](https://traceable.ai) for more d
 		`,
 		Attributes: map[string]schema.Attribute{
 			"platform_url": schema.StringAttribute{
-				Required: true,
-				// MarkdownDescription: fmt.Sprintf("The Api Url to be used: Leave blank to use: https://cosmo-cp.wundergraph.com or use the %s environment variable", utils.EnvCosmoApiUrl),
+				Required:            true,
+				MarkdownDescription: "The Url to be used to connect to Traceable Platform.",
 			},
 			"api_token": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
-				// MarkdownDescription: fmt.Sprintf("The Api Key to be used: Leave blank to use the %s environment variable", utils.EnvCosmoApiKey),
+				Required:            true,
+				Sensitive:           true,
+				MarkdownDescription: "The API token to be used to connect to Traceable Platform.",
 			},
 		},
 	}
@@ -97,10 +97,11 @@ func (p *traceableProvider) Configure(ctx context.Context, req provider.Configur
 	}
 	resp.DataSourceData = &client
 	resp.ResourceData = &client
-	fmt.Printf("Traceable client successfully initialized for %s\n", url)
+	tflog.Info(ctx, fmt.Sprintf("Traceable client successfully initialized for %s with version %s", url, tfVersion))
 
 }
 
+// Register your resources
 func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Resource {
 	fmt.Println("resouces intializattion")
 
@@ -110,6 +111,7 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 	}
 }
 
+// Register your data sources
 func (p *traceableProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 
 	return []func() datasource.DataSource{}

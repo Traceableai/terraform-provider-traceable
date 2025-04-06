@@ -11,7 +11,7 @@ terraform {
   }
 }
 
-
+//object empty ka case check karna hai 
 provider "traceable" {
   platform_url ="https://app-dev.traceable.ai/graphql"
   api_token    ="Bearer "
@@ -26,7 +26,7 @@ provider "traceable" {
 
 
 resource "traceable_rate_limiting" "sample"{
-    name = "shreyansh123"
+    name = "shreyanshrevamp"
     description = "revamp"
     enabled = true
     environments = ["env1","env2"]
@@ -38,13 +38,13 @@ resource "traceable_rate_limiting" "sample"{
         rolling_window_duration = "PT60s"
         threshold_config_type = "ROLLING_WINDOW"
     },
-    # {
-    #    api_aggregate_type = "PER_ENDPOINT"
-    #     user_aggregate_type = "PER_USER"
-    #     rolling_window_count_allowed = 10
-    #     rolling_window_duration = "PT60s"
-    #     threshold_config_type = "ROLLING_WINDOW"
-    # }
+    {
+       
+       dynamic_duration = "PT60S"
+       dynamic_percentage_exceding_mean_allowed = 10
+       dynamic_mean_calculation_duration ="PT60S"
+        threshold_config_type = "DYNAMIC"
+    }
 
     ]
     action = {
@@ -63,16 +63,12 @@ resource "traceable_rate_limiting" "sample"{
         # ] 
     }
     sources = {
-        scanner = {
-            scanner_types_list = ["Traceable AST","Qualys"]
-            exclude = false
-        }
         # ip_asn = {
         #     ip_asn_regexes = ["vmv"]
         #     exclude = true  
         # }
         ip_connection_type = {
-            ip_connection_type_list = ["RESIDENTIAL"]
+            ip_connection_type_list = ["RESIDENTIAL","MOBILE"]
             exclude = true  
         }
         user_id = {
@@ -110,29 +106,28 @@ resource "traceable_rate_limiting" "sample"{
             exclude = true  
         }
         regions = {
-            regions_ids = ["Afghanistan","Albania"]
+            # regions_ids = ["AF","AW"]
+            regions_ids =["AF","AQ"]
             exclude = true  
         }
         ip_organisation = {
             ip_organisation_regexes = ["192.168.1.1"]
             exclude = true  
         }
-        # request_response = [  
-        #     {
-        #         metadata_type = "REQUEST_HEADER"
-        #         key_operator = "EQUAL"
-        #         key_value = "key"
-        #         value_operator = "EQUAL"
-        #         value_value = "value"
-        #     },
-        #     {
-        #         metadata_type = "REQUEST_HEADER"
-        #         key_operator = "EQUAL"
-        #         key_value = "key"
-        #         value_operator = "EQUAL"
-        #         value_value = "value"
-        #     }
-        # ]
+        request_response = [  
+            {
+                metadata_type = "REQUEST_HEADER"
+                key_operator = "EQUALS"
+                key_value = "key"
+                value_operator = "EQUALS"
+                value = "value"
+            },
+            {
+                metadata_type = "URL"
+                value_operator = "EQUALS"
+                value = "https://example.com/abc"
+            }
+        ]
     }
 }
 

@@ -23,6 +23,7 @@ func NewRateLimitingResource() resource.Resource {
 }
 
 func (r *RateLimitingResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	tflog.Info(ctx, "Entering in Configure Block")
 	if req.ProviderData == nil {
 		return
 	}
@@ -36,8 +37,7 @@ func (r *RateLimitingResource) Configure(ctx context.Context, req resource.Confi
 	}
 
 	r.client = client
-	fmt.Println("hello inside resource")
-	tflog.Trace(ctx, "Client Intialization Successfully")
+	tflog.Trace(ctx, "Client Intialization Successfully And Existing from Configure Block")
 }
 
 func (r *RateLimitingResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -45,22 +45,19 @@ func (r *RateLimitingResource) Metadata(ctx context.Context, req resource.Metada
 }
 
 func (r *RateLimitingResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-
 	resp.Schema = schemas.RateLimitingResourceSchema()
 }
 
 func (r *RateLimitingResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	tflog.Info(ctx, "Entering in Create Block")
 	var data *models.RateLimitingRuleModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Trace(ctx, "Entering in Create Block", map[string]any{
-		"shreyanshdata": data,
-	})
-	ruleInput, err := convertModelToCreateInput(ctx, data)
+	ruleInput, err := convertRateLimitingModelToCreateInput(ctx, data)
 	if ruleInput == nil || err != nil {
-		resp.Diagnostics.AddError("Error converting model to input", err.Error())
+		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
 
@@ -68,24 +65,19 @@ func (r *RateLimitingResource) Create(ctx context.Context, req resource.CreateRe
 		"input": ruleInput,
 	})
 
-	resp1, err2 := generated.CreateRateLimitingRule(ctx, *r.client, *ruleInput)
-	if err2 != nil {
-		resp.Diagnostics.AddError("Error creating rate limiting rule", err2.Error())
+	rule, err := generated.CreateRateLimitingRule(ctx, *r.client, *ruleInput)
+	if err != nil {
+		// resp.Diagnostics.AddError("Error converting model to input", err2.Error())
+		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
-	tflog.Trace(ctx, "Entering in Create Block", map[string]any{
-		"response": resp1,
-	})
-	// data1, err3 := convertCreateResponseToModel(ctx, resp1.CreateRateLimitingRule.RateLimitingRuleFields)
-	// if err3 != nil {
-	// 	resp.Diagnostics.AddError("Error converting create response to model", err3.Error())
-	// 	return
-	// }
-	data.Id = types.StringValue(resp1.CreateRateLimitingRule.Id)
+
+	data.Id = types.StringValue(rule.CreateRateLimitingRule.Id)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	tflog.Info(ctx, "Exiting in Create Block")
 
 }
 
@@ -115,7 +107,7 @@ func (r *RateLimitingResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	input, err := convertModelToUpdateInput(ctx, data, dataState.Id.ValueString())
+	input, err := convertRateLimitingModelToUpdateInput(ctx, data, dataState.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error in Updating rate limiting rule", err.Error())
 		return
@@ -156,15 +148,114 @@ func (r *RateLimitingResource) ImportState(ctx context.Context, req resource.Imp
 
 }
 
+func convertRateLimitingModelToCreateInput(ctx context.Context, data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleData, error) {
+	var input = generated.InputRateLimitingRuleData{}
+	if HasValue(data.Name) {
+		name := data.Name.ValueString()
+		input.Name = name
+	} else {
+		return nil, utils.NewInvalidError("Name", "Name field must be present and must not be empty")
+	}
+	if HasValue(data.Description) {
+		description := data.Description.ValueString()
+		input.Description = &description
+	}
+	if HasValue(data.Enabled) {
+		enabled := data.Enabled.ValueBool()
+		input.Enabled = enabled
+	}
+	category := generated.RateLimitingRuleCategoryEndpointRateLimiting
+	input.Category = category
+	scope, err := convertToRuleConfigScope(data.Environments)
+	if err != nil {
+		return nil, err
+	} else {
+		input.RuleConfigScope = scope
+	}
+	status, err := convertToRateLimitingRuleStatus(data)
+	if err != nil {
+		return nil, err
+	} else {
+		input.RuleStatus = status
+	}
+	thresholdActionConfigs, err := convertToRateLimitingRuleThresholdActionConfigType(data)
+	if err != nil {
+		return nil, err
+	} else {
+		input.ThresholdActionConfigs = thresholdActionConfigs
+	}
+	conditions, err := convertToRateLimitingRuleCondition(data)
+	if err != nil {
+		return nil, err
+	} else {
+		input.Conditions = conditions
+	}
+
+	return &input, nil
+}
+
+func convertRateLimitingModelToUpdateInput(ctx context.Context, data *models.RateLimitingRuleModel, id string) (*generated.InputRateLimitingRule, error) {
+	input := generated.InputRateLimitingRule{}
+
+	if id != "" {
+		input.Id = id
+	} else {
+		return nil, fmt.Errorf("Id can not be empty")
+	}
+	if HasValue(data.Name) {
+		name := data.Name.ValueString()
+		input.Name = name
+	} else {
+		return nil, utils.NewInvalidError("Name", "Name field must be present and must not be empty")
+	}
+	if HasValue(data.Description) {
+		description := data.Description.ValueString()
+		input.Description = &description
+	}
+	if HasValue(data.Enabled) {
+		enabled := data.Enabled.ValueBool()
+		input.Enabled = enabled
+	}
+	category := generated.RateLimitingRuleCategoryEndpointRateLimiting
+	input.Category = category
+	scope, err := convertToRuleConfigScope(data.Environments)
+	if err != nil {
+		return nil, err
+	} else {
+		input.RuleConfigScope = scope
+	}
+	status, err := convertToRateLimitingRuleStatus(data)
+	if err != nil {
+		return nil, err
+	} else {
+		input.RuleStatus = status
+	}
+	thresholdActionConfigs, err := convertToRateLimitingRuleThresholdActionConfigType(data)
+	if err != nil {
+		return nil, err
+	} else {
+		input.ThresholdActionConfigs = thresholdActionConfigs
+	}
+	conditions, err := convertToRateLimitingRuleCondition(data)
+	if err != nil {
+		return nil, err
+	} else {
+		input.Conditions = conditions
+	}
+
+	return &input, nil
+
+}
+
 func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.RateLimitingRuleFields) (*models.RateLimitingRuleModel, error) {
 	var model *models.RateLimitingRuleModel
-	sources := models.Sources{}
-	reqresarr := []models.RequestResponseCondition{}
+	sources := models.RateLimitingSources{}
+	reqresarr := []models.RateLimitingRequestResponseCondition{}
 	for _, condition := range data.GetConditions() {
 		leafCondition := condition.LeafCondition.LeafConditionFields
 		switch string(leafCondition.ConditionType) {
 		case "KEY_VALUE":
-			reqres := models.RequestResponseCondition{}
+			reqres := models.RateLimitingRequestResponseCondition{}
 			if leafCondition.KeyValueCondition.GetMetadataType() != "" {
 				reqres.MetadataType = types.StringValue(string(leafCondition.KeyValueCondition.GetMetadataType()))
 			}
@@ -189,7 +280,7 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 		case "DATATYPE":
 
 		case "IP_ADDRESS":
-			sources.IpAddress = &models.IpAddressSource{
+			sources.IpAddress = &models.RateLimitingIpAddressSource{
 				IpAddressList: utils.ConvertStringPtrSliceToTerraformList(leafCondition.IpAddressCondition.GetIpAddresses()),
 				Exclude:       types.BoolValue(*leafCondition.IpAddressCondition.GetExclude()),
 			}
@@ -200,7 +291,7 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				fmt.Errorf("error converting ip location types to terraform list: %v", err)
 				return nil, err
 			}
-			sources.IpLocationType = &models.IpLocationTypeSource{
+			sources.IpLocationType = &models.RateLimitingIpLocationTypeSource{
 				IpLocationTypes: iplocationtypes,
 				Exclude:         types.BoolValue(*leafCondition.IpLocationTypeCondition.GetExclude()),
 			}
@@ -214,13 +305,13 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				fmt.Errorf("error converting region identifiers to terraform list: %v", err)
 				return nil, err
 			}
-			sources.Regions = &models.RegionsSource{
+			sources.Regions = &models.RateLimitingRegionsSource{
 				RegionsIds: regionIds,
 				Exclude:    types.BoolValue(*leafCondition.RegionCondition.GetExclude()),
 			}
 
 		case "EMAIL_DOMAIN":
-			sources.EmailDomain = &models.EmailDomainSource{
+			sources.EmailDomain = &models.RateLimitingEmailDomainSource{
 				EmailDomainRegexes: utils.ConvertStringPtrSliceToTerraformList(leafCondition.EmailDomainCondition.GetEmailRegexes()),
 				Exclude:            types.BoolValue(*leafCondition.EmailDomainCondition.GetExclude()),
 			}
@@ -231,25 +322,25 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				fmt.Errorf("error converting ip connection types to terraform list: %v", err)
 				return nil, err
 			}
-			sources.IpConnectionType = &models.IpConnectionTypeSource{
+			sources.IpConnectionType = &models.RateLimitingIpConnectionTypeSource{
 				IpConnectionTypeList: ipConnectionTypeList,
 				Exclude:              types.BoolValue(*leafCondition.IpConnectionTypeCondition.GetExclude()),
 			}
 
 		case "USER_AGENT":
-			sources.UserAgents = &models.UserAgentsSource{
+			sources.UserAgents = &models.RateLimitingUserAgentsSource{
 				UserAgentsList: utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserAgentCondition.GetUserAgentRegexes()),
 				Exclude:        types.BoolValue(*leafCondition.UserAgentCondition.GetExclude()),
 			}
 
 		case "USER_ID":
-			sources.UserId = &models.UserIdSource{
+			sources.UserId = &models.RateLimitingUserIdSource{
 				UserIdRegexes: utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserIdCondition.GetUserIdRegexes()),
 				Exclude:       types.BoolValue(*leafCondition.UserIdCondition.GetExclude()),
 			}
 
 		case "IP_ORGANISATION":
-			sources.IpOrganisation = &models.IpOrganisationSource{
+			sources.IpOrganisation = &models.RateLimitingIpOrganisationSource{
 				IpOrganisationRegexes: utils.ConvertStringPtrSliceToTerraformList(leafCondition.IpOrganisationCondition.GetIpOrganisationRegexes()),
 				Exclude:               types.BoolValue(*leafCondition.IpOrganisationCondition.GetExclude()),
 			}
@@ -259,19 +350,19 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 	}
 	sources.RequestResponse = reqresarr
 
-	thresholdConfigs := []models.ThresholdConfig{}
-	actions := []models.Action{}
+	thresholdConfigs := []models.RateLimitingThresholdConfig{}
+	actions := []models.RateLimitingAction{}
 
 	for _, config := range data.GetThresholdActionConfigs() {
 		for _, action := range config.GetActions() {
-			actiontemp := models.Action{}
+			actiontemp := models.RateLimitingAction{}
 			switch string(action.GetActionType()) {
 			case "ALERT":
 				actiontemp.ActionType = types.StringValue("ALERT")
 				actiontemp.EventSeverity = types.StringValue(string(action.Alert.GetEventSeverity()))
-				actiontemp.HeaderInjections = []models.HeaderInjection{}
+				actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
 				for _, header := range action.Alert.AgentEffect.GetAgentModifications() {
-					headerInj := models.HeaderInjection{
+					headerInj := models.RateLimitingHeaderInjection{
 						Key:   types.StringValue(header.HeaderInjection.GetKey()),
 						Value: types.StringValue(header.GetHeaderInjection().Value),
 					}
@@ -282,9 +373,9 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 			case "MARK_FOR_TESTING":
 				actiontemp.ActionType = types.StringValue("MARK_FOR_TESTING")
 				actiontemp.EventSeverity = types.StringValue(string(action.GetMarkForTesting().GetEventSeverity()))
-				actiontemp.HeaderInjections = []models.HeaderInjection{}
+				actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
 				for _, header := range action.GetMarkForTesting().GetAgentEffect().GetAgentModifications() {
-					headerInj := models.HeaderInjection{
+					headerInj := models.RateLimitingHeaderInjection{
 						Key:   types.StringValue(header.GetHeaderInjection().Key),
 						Value: types.StringValue(header.GetHeaderInjection().Value),
 					}
@@ -297,7 +388,7 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 		}
 
 		for _, threshold := range config.GetThresholdConfigs() {
-			thresholdConfig := models.ThresholdConfig{}
+			thresholdConfig := models.RateLimitingThresholdConfig{}
 
 			thresholdConfig.ApiAggregateType = types.StringValue(string(threshold.GetApiAggregateType()))
 			thresholdConfig.UserAggregateType = types.StringValue(string(threshold.GetUserAggregateType()))
@@ -334,113 +425,7 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 	return model, nil
 }
 
-func convertModelToCreateInput(ctx context.Context, data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleData, error) {
-	var input *generated.InputRateLimitingRuleData
-	name := data.Name.ValueString()
-	enabled := data.Enabled.ValueBool()
-	category := generated.RateLimitingRuleCategoryEndpointRateLimiting
-	tflog.Trace(ctx, "why not category", map[string]any{
-		"category": category,
-	})
-
-	description := data.Description.ValueString()
-	scope, err1 := convertRuleConfigScope(data)
-	if err1 != nil {
-		return nil, err1
-	}
-	status, err2 := convertRuleStatus(data)
-	if err2 != nil {
-		return nil, err2
-	}
-	thresholdActionConfigs, err3 := convertThresholdActionConfigType(data)
-	if err3 != nil {
-		return nil, err3
-	}
-	conditions, err4 := convertToInputRateLimitingCondition(data)
-	if err4 != nil {
-		return nil, err4
-	}
-
-	input = &generated.InputRateLimitingRuleData{
-		Category:               category,
-		Conditions:             conditions,
-		Description:            &description,
-		Enabled:                enabled,
-		Name:                   name,
-		RuleConfigScope:        scope,
-		RuleStatus:             status,
-		ThresholdActionConfigs: thresholdActionConfigs,
-	}
-	return input, nil
-
-}
-
-func convertModelToUpdateInput(ctx context.Context, data *models.RateLimitingRuleModel, id string) (*generated.InputRateLimitingRule, error) {
-	name := data.Name.ValueString()
-	enabled := data.Enabled.ValueBool()
-	category := generated.RateLimitingRuleCategoryEndpointRateLimiting
-	tflog.Trace(ctx, "why not category", map[string]any{
-		"category": category,
-	})
-
-	description := data.Description.ValueString()
-	scope, err1 := convertRuleConfigScope(data)
-	if err1 != nil {
-		return nil, err1
-	}
-	status, err2 := convertRuleStatus(data)
-	if err2 != nil {
-		return nil, err2
-	}
-	thresholdActionConfigs, err3 := convertThresholdActionConfigType(data)
-	if err3 != nil {
-		return nil, err3
-	}
-	conditions, err4 := convertToInputRateLimitingCondition(data)
-	if err4 != nil {
-		return nil, err4
-	}
-
-	input := &generated.InputRateLimitingRule{
-		Id:                     id,
-		Category:               category,
-		Conditions:             conditions,
-		Description:            &description,
-		Enabled:                enabled,
-		Name:                   name,
-		RuleConfigScope:        scope,
-		RuleStatus:             status,
-		ThresholdActionConfigs: thresholdActionConfigs,
-	}
-	return input, nil
-
-}
-
-func convertRuleConfigScope(data *models.RateLimitingRuleModel) (*generated.InputRuleConfigScope, error) {
-	var scope *generated.InputRuleConfigScope
-
-	if !HasValue(data.Environments) {
-		return nil, nil
-	}
-
-	var environments []*string
-
-	for _, env := range data.Environments.Elements() {
-		if env, ok := env.(types.String); ok {
-			env1 := env.ValueString()
-			environments = append(environments, &env1)
-		}
-
-	}
-	scope = &generated.InputRuleConfigScope{
-		EnvironmentScope: &generated.InputEnvironmentScope{
-			EnvironmentIds: environments,
-		},
-	}
-	return scope, nil
-}
-
-func convertRuleStatus(data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleStatus, error) {
+func convertToRateLimitingRuleStatus(data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleStatus, error) {
 	var internal = false
 	var status *generated.InputRateLimitingRuleStatus
 	status = &generated.InputRateLimitingRuleStatus{
@@ -449,47 +434,43 @@ func convertRuleStatus(data *models.RateLimitingRuleModel) (*generated.InputRate
 	return status, nil
 }
 
-func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*generated.InputRateLimitingRuleThresholdActionConfig, error) {
-	var configTypes []*generated.InputRateLimitingRuleThresholdActionConfig
-	var actions []*generated.InputRateLimitingRuleAction
-	var thresholdConfigs []*generated.InputRateLimitingRuleThresholdConfig
+func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*generated.InputRateLimitingRuleThresholdActionConfig, error) {
+	configTypes := []*generated.InputRateLimitingRuleThresholdActionConfig{}
+	actions := []*generated.InputRateLimitingRuleAction{}
+	thresholdConfigs := []*generated.InputRateLimitingRuleThresholdConfig{}
 	if HasValue(data.Action) {
 		if HasValue(data.Action.ActionType) {
-
 			switch data.Action.ActionType.ValueString() {
-
 			case "ALERT":
-				if HasValue(data.Action.Duration) {
-					return nil, fmt.Errorf("Duration should not be in alert")
-				}
 				if !HasValue(data.Action.EventSeverity) {
-					return nil, fmt.Errorf("Event Severity should present")
+					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity must present and must not be empty")
 				}
-				agentEffect, err := getRateLimitingRuleAgentEffect(data)
+				agentEffect, err := convertToRateLimitingRuleAgentEffect(data)
 				if err != nil {
 					return nil, err
 				}
+				eventSeverity, ok := RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()]
+				if !ok {
+					return nil, utils.NewInvalidError("Action EventSeverity", fmt.Sprintf("%s, is not a valid type of Event Severity", data.Action.EventSeverity.ValueString()))
 
-				eventSeverity := data.Action.EventSeverity.ValueString()
-
+				}
 				action := &generated.InputRateLimitingRuleAction{
 					ActionType: generated.RateLimitingRuleActionTypeAlert,
 					Alert: &generated.InputRateLimitingRuleAlertAction{
-						EventSeverity: RateLimitingRuleEventSeverityMap[eventSeverity],
+						EventSeverity: eventSeverity,
 						AgentEffect:   agentEffect,
 					},
 				}
 				actions = append(actions, action)
-
 			case "BLOCK":
 				if HasValue(data.Action.HeaderInjections) {
-					return nil, fmt.Errorf("No Header Injection allowed in Block")
+					return nil, utils.NewInvalidError("Action Header Injection", "Action ActionType = BLOCK, Header Injection Not Allowed")
 				}
 				if !HasValue(data.Action.EventSeverity) {
-					return nil, fmt.Errorf("Event Severity should present")
+					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity must present and must not be empty")
 				}
 				if !HasValue(data.Action.Duration) {
-					return nil, fmt.Errorf("Duration is required")
+					return nil, utils.NewInvalidError("Action Duration", "Duration must be present and must not be empty")
 				}
 
 				duration := data.Action.Duration.ValueString()
@@ -504,13 +485,10 @@ func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*ge
 
 			case "ALLOW":
 				if HasValue(data.Action.HeaderInjections) {
-					return nil, fmt.Errorf("No Header Injection allowed in Block")
-				}
-				if HasValue(data.Action.EventSeverity) {
-					return nil, fmt.Errorf("Event Severity should not  present")
+					return nil, utils.NewInvalidError("Action Header Injection", "Action ActionType = ALLOW, Header Injection Not Allowed")
 				}
 				if !HasValue(data.Action.Duration) {
-					return nil, fmt.Errorf("Duration is required")
+					return nil, utils.NewInvalidError("Action Duration", "Duration must be present and must not be empty")
 				}
 				duration := data.Action.Duration.ValueString()
 				action := &generated.InputRateLimitingRuleAction{
@@ -522,17 +500,19 @@ func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*ge
 				actions = append(actions, action)
 
 			case "MARK_FOR_TESTING":
-				if HasValue(data.Action.Duration) {
-					return configTypes, fmt.Errorf("Duration should not be in alert")
-				}
+
 				if !HasValue(data.Action.EventSeverity) {
 					return configTypes, fmt.Errorf("Event Severity should present")
 				}
-				agentEffect, err := getRateLimitingRuleAgentEffect(data)
+				eventSeverity, ok := RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()]
+				if !ok {
+					return nil, utils.NewInvalidError("Action EventSeverity", fmt.Sprintf("%s, is not a valid type of Event Severity", data.Action.EventSeverity.ValueString()))
+
+				}
+				agentEffect, err := convertToRateLimitingRuleAgentEffect(data)
 				if err != nil {
 					return configTypes, err
 				}
-				eventSeverity := RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()]
 				action := &generated.InputRateLimitingRuleAction{
 					ActionType: generated.RateLimitingRuleActionTypeMarkForTesting,
 					MarkForTesting: &generated.InputRateLimitingRuleMarkForTestingAction{
@@ -543,11 +523,15 @@ func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*ge
 				actions = append(actions, action)
 
 			default:
-				return nil, fmt.Errorf("Invalid action type: %s", data.Action.ActionType.ValueString())
+				return nil, utils.NewInvalidError("Action ActionType", fmt.Sprintf("%s is not a valid action datatype", data.Action.ActionType.ValueString()))
 			}
 
+		} else {
+			return nil, utils.NewInvalidError("Action ActionType", "must be present and must not be empty")
 		}
 
+	} else {
+		return nil, utils.NewInvalidError("Action ", "Action must be present and not be empty")
 	}
 
 	if HasValue(data.ThresholdConfigs) {
@@ -556,16 +540,16 @@ func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*ge
 			switch config.ThresholdConfigType.ValueString() {
 			case "ROLLING_WINDOW":
 				if !HasValue(config.ApiAggregateType) && !(config.ApiAggregateType.ValueString() == "PER_ENDPOINT" || config.ApiAggregateType.ValueString() == "ACROSS_ENDPOINT") {
-					return nil, fmt.Errorf("API Aggregate Type Is Not Correct")
+					return nil, utils.NewInvalidError("threshold_configs api_aggregate_type", "ApiAggregateType must be present,not empty and of valid type")
 				}
 				if !HasValue(config.UserAggregateType) && !(config.UserAggregateType.ValueString() == "PER_USER" || config.UserAggregateType.ValueString() == "ACROSS_USER") {
-					return nil, fmt.Errorf("User  Aggregate Type Is Not Correct")
+					return nil, utils.NewInvalidError("threshold_configs user_aggregate_type", "ApiAggregateType must be present,not empty and of valid type")
 				}
 				if !HasValue(config.RollingWindowCountAllowed) {
-					return nil, fmt.Errorf("Rolling Window Count must present")
+					return nil, utils.NewInvalidError("threshold_configs rolling_window_count_allowed", "RollingWindowCountAllowed must be present")
 				}
 				if !HasValue(config.RollingWindowDuration) {
-					return nil, fmt.Errorf("Rolling Window Duration must present")
+					return nil, utils.NewInvalidError("threshold_configs rolling_window_duration", "RollingWindowDuration must be present")
 				}
 
 				apiAggregateType := RateLimitingApiAggregateMap[config.ApiAggregateType.ValueString()]
@@ -584,21 +568,15 @@ func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*ge
 				}
 				thresholdConfigs = append(thresholdConfigs, thresholdConfig)
 
-			case "DYNMAIC":
-				if HasValue(config.ApiAggregateType) {
-					return nil, fmt.Errorf("API Aggregate Type should  not Present")
-				}
-				if HasValue(config.UserAggregateType) {
-					return nil, fmt.Errorf("user  aggregate Type should  Not")
-				}
+			case "DYNAMIC":
 				if !HasValue(config.DynamicDuration) {
-					return nil, fmt.Errorf("dynamic duration must present")
+					return nil, utils.NewInvalidError("threshold_configs dynamic_duration", "DynamicDuration must be present and not empty")
 				}
 				if !HasValue(config.DynamicMeanCalculationDuration) {
-					return nil, fmt.Errorf("dynamic mean calculation duration should present")
+					return nil, utils.NewInvalidError("threshold_configs dynamic_mean_calculation_duration", "DynamicMeanCalculationDuration must be present and not empty")
 				}
 				if !HasValue(config.DynamicPercentageExcedingMeanAllowed) {
-					return nil, fmt.Errorf("dynamic percentage exceding mean allowed should present")
+					return nil, utils.NewInvalidError("threshold_configs dynamic_percentage_exceding_mean_allowed", "DynamicPercentageExcedingMeanAllowed must be present and not empty")
 				}
 				percentageExceedingMeanAllowed := config.DynamicPercentageExcedingMeanAllowed.ValueInt64()
 				meanCalculationDuration := config.DynamicMeanCalculationDuration.ValueString()
@@ -616,12 +594,14 @@ func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*ge
 				}
 				thresholdConfigs = append(thresholdConfigs, thresholdConfig)
 			default:
-				return nil, fmt.Errorf("Invalid Threshold Config Type %s", config.ThresholdConfigType.ValueString())
+				return nil, utils.NewInvalidError("threshold_configs threshold_config_type", fmt.Sprintf("%s is not a vaidl thresholdConfigType", config.ThresholdConfigType.ValueString()))
 
 			}
 
 		}
 
+	} else {
+		return nil, utils.NewInvalidError("threhold_config", "Must be present can not empty")
 	}
 
 	configType := &generated.InputRateLimitingRuleThresholdActionConfig{
@@ -634,23 +614,20 @@ func convertThresholdActionConfigType(data *models.RateLimitingRuleModel) ([]*ge
 
 }
 
-func getRateLimitingRuleAgentEffect(data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleAgentEffect, error) {
+func convertToRateLimitingRuleAgentEffect(data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleAgentEffect, error) {
 	var agentEffect *generated.InputRateLimitingRuleAgentEffect
 	agentModifications := []*generated.InputRateLimitingRuleAgentModification{}
 
 	if HasValue(data.Action.HeaderInjections) {
 		for _, injection := range data.Action.HeaderInjections {
 			if !HasValue(injection.Key) {
-				return nil, fmt.Errorf("Key should be present")
+				return nil, utils.NewInvalidError("action header_injections key", "key must be present and not empty")
 			}
 			if !HasValue(injection.Value) {
-				return nil, fmt.Errorf("Key should be present")
+				return nil, utils.NewInvalidError("action header_injections value", "value must be present and not empty")
 			}
 			key := injection.Key.ValueString()
 			value := injection.Value.ValueString()
-			if key == "" && value == "" {
-				return nil, fmt.Errorf("In Header Injection key and value can not be empty string ")
-			}
 			temp := &generated.InputRateLimitingRuleAgentModification{
 				AgentModificationType: generated.RateLimitingRuleAgentModificationTypeHeaderInjection,
 				HeaderInjection: generated.InputRateLimitingRuleHeaderInjection{
@@ -669,19 +646,19 @@ func getRateLimitingRuleAgentEffect(data *models.RateLimitingRuleModel) (*genera
 
 }
 
-func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]*generated.InputRateLimitingRuleCondition, error) {
+func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*generated.InputRateLimitingRuleCondition, error) {
 
-	var conditions []*generated.InputRateLimitingRuleCondition
+	conditions := []*generated.InputRateLimitingRuleCondition{}
 
 	if HasValue(data.Sources) {
 
 		if HasValue(data.Sources.Scanner) {
 
 			if !HasValue(data.Sources.Scanner.ScannerTypesList) {
-				return nil, fmt.Errorf("scanners type list can not be empty")
+				return nil, utils.NewInvalidError("sources scanner scanner_types_list", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.Scanner.Exclude) {
-				return nil, fmt.Errorf("exclude should be present")
+				return nil, utils.NewInvalidError("sources scanner exclude", " Must be present and not empty")
 			}
 			var scannerTypes []*string
 
@@ -689,7 +666,7 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 				if scanner, ok := scanner.(types.String); ok {
 					if !RateLimitingRuleScannerMap[scanner.ValueString()] {
-						return nil, fmt.Errorf("Scanner %s is not a valid scanner type", scanner.ValueString())
+						return nil, utils.NewInvalidError("sources scanner scanner_types_list", fmt.Sprintf("Scanner %s is not a valid scanner type", scanner.ValueString()))
 					}
 					sc := scanner.ValueString()
 					scannerTypes = append(scannerTypes, &sc)
@@ -713,10 +690,10 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 		}
 		if HasValue(data.Sources.IpAsn) {
 			if !HasValue(data.Sources.IpAsn.IpAsnRegexes) {
-				return nil, fmt.Errorf("ip asn regexes can not be empty")
+				return nil, utils.NewInvalidError("sources ip_asn ip_asn_regexes", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.IpAsn.Exclude) {
-				return nil, fmt.Errorf("exclude should be present")
+				return nil, utils.NewInvalidError("sources ip_asn exclude", " Must be present and not empty")
 			}
 			var ipAsnRegexes []*string
 
@@ -746,10 +723,10 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 		if HasValue(data.Sources.IpConnectionType) {
 			if !HasValue(data.Sources.IpConnectionType.IpConnectionTypeList) {
-				return nil, fmt.Errorf("ip connection type list can not be empty")
+				return nil, utils.NewInvalidError("sources ip_connection_type ip_connection_type_list", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.IpConnectionType.Exclude) {
-				return nil, fmt.Errorf("exclude should be present")
+				return nil, utils.NewInvalidError("sources  ip_connection_type exclude", " Must be present and not empty")
 			}
 			var ipConnectionTypes []*generated.RateLimitingRuleIpConnectionType
 
@@ -759,7 +736,7 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 					connection := ipConnectionType.ValueString()
 					val, exist := RateLimitingRuleIpConnectionTypeMap[connection]
 					if !exist {
-						return nil, fmt.Errorf("Ip connection type %s is not a valid ip connection type", connection)
+						return nil, utils.NewInvalidError("sources ip_connection_type ip_connection_type_list", fmt.Sprintf("Ip connection type %s is not a valid ip connection type", connection))
 					}
 					ipConnectionTypes = append(ipConnectionTypes, &val)
 				}
@@ -783,11 +760,12 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 		if HasValue(data.Sources.UserId) {
 
 			if HasValue(data.Sources.UserId.UserIdRegexes) && HasValue(data.Sources.UserId.UserIds) {
-				return nil, fmt.Errorf("user id regexes and user ids can not be present together")
+				return nil, utils.NewInvalidError("sources user_id user_id_regexes", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.UserId.Exclude) {
-				return nil, fmt.Errorf("exclude should be present")
+				return nil, utils.NewInvalidError("sources user_id exclude", " Must be present and not empty")
 			}
+
 			exclude := data.Sources.UserId.Exclude.ValueBool()
 			if HasValue(data.Sources.UserId.UserIds) {
 				userIds := []*string{}
@@ -889,19 +867,26 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 			for _, attribute := range data.Sources.Attributes {
 
 				if !HasValue(attribute.KeyConditionOperator) {
-					return nil, fmt.Errorf("KeyConditionOperator should be present")
+					return nil, utils.NewInvalidError("sources attributes key_condition_operator", " Must be present and not empty")
 				}
 				if !HasValue(attribute.ValueConditionOperator) {
-					return nil, fmt.Errorf("ValueConditionOperator should be present")
+					return nil, utils.NewInvalidError("sources attributes value_condition_operator", " Must be present and not empty")
+				}
+				if !HasValue(attribute.ValueConditionValue) {
+					return nil, utils.NewInvalidError("sources attributes value_condition_value", " Must be present and not empty")
+				}
+				if !HasValue(attribute.KeyConditionValue) {
+					return nil, utils.NewInvalidError("sources attributes key_condition_value", " Must be present and not empty")
 				}
 				keyConditionOperator, exist := RateLimitingKeyValueMatchOperatorMap[attribute.KeyConditionOperator.ValueString()]
 				if !exist {
-					return nil, fmt.Errorf("Invalid KeyConditionOperator")
+					return nil, utils.NewInvalidError("sources attributes key_condition_operator", fmt.Sprintf("%s Invalid key Condition Operator", attribute.KeyConditionOperator.ValueString()))
 				}
 				valueConditionOperator, exist := RateLimitingKeyValueMatchOperatorMap[attribute.ValueConditionOperator.ValueString()]
 				if !exist {
-					return nil, fmt.Errorf("Invalid ValueConditionOperator")
+					return nil, utils.NewInvalidError("sources attributes value_condition_operator", fmt.Sprintf("%s Invalid key Condition Operator", attribute.ValueConditionOperator.ValueString()))
 				}
+
 				keyConditionValue := attribute.KeyConditionValue.ValueString()
 				valueConditionValue := attribute.ValueConditionValue.ValueString()
 
@@ -930,7 +915,7 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 		if HasValue(data.Sources.IpReputation) {
 			minIpReputationSeverity, exist := RateLimitingRuleIpReputationSeverityMap[data.Sources.IpReputation.ValueString()]
 			if !exist {
-				return nil, fmt.Errorf("Invalid Ip Reputation Severity")
+				return nil, utils.NewInvalidError("sources ip_reputation", fmt.Sprintf(" %s Invalid Ip Reputation Severity", data.Sources.IpReputation.ValueString()))
 			}
 			var input = generated.InputRateLimitingRuleCondition{
 				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
@@ -946,10 +931,10 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 		if HasValue(data.Sources.IpLocationType) {
 			if !HasValue(data.Sources.IpLocationType.IpLocationTypes) {
-				return nil, fmt.Errorf("IpLocationTypes should be present")
+				return nil, utils.NewInvalidError("sources ip_location_type ip_location_types", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.IpLocationType.Exclude) {
-				return nil, fmt.Errorf("Exclude should be present")
+				return nil, utils.NewInvalidError("sources ip_location_type exclude", " Must be present and not empty")
 			}
 			ipLocationTypes := []*generated.RateLimitingRuleIpLocationType{}
 			for _, ipLocationType := range data.Sources.IpLocationType.IpLocationTypes.Elements() {
@@ -957,7 +942,7 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 					ipLocationType, exist := RateLimitingRuleIpLocationTypeMap[locationType.ValueString()]
 					if !exist {
-						return nil, fmt.Errorf("Invalid Ip Location Type")
+						return nil, utils.NewInvalidError("sources ip_location_types", fmt.Sprintf("%s Invalid Ip location Type", locationType.ValueString()))
 					}
 					ipLocationTypes = append(ipLocationTypes, &ipLocationType)
 				}
@@ -980,7 +965,7 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 		if HasValue(data.Sources.IpAbuseVelocity) {
 			minIpAbuseVelocity, exist := RateLimitingRuleIpAbuseVelocityMap[data.Sources.IpAbuseVelocity.ValueString()]
 			if !exist {
-				return nil, fmt.Errorf("Invalid Ip Abuse Velocity")
+				return nil, utils.NewInvalidError("sources ip_abuse_velocity", fmt.Sprintf(" %s Invalid Ip Abuse Velocity", data.Sources.IpAbuseVelocity.ValueString()))
 			}
 			var input = generated.InputRateLimitingRuleCondition{
 				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
@@ -997,10 +982,11 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 		if HasValue(data.Sources.IpAddress) {
 
 			if !HasValue(data.Sources.IpAddress.IpAddressList) {
-				return nil, fmt.Errorf("Ip Address List should be present")
+				return nil, utils.NewInvalidError("sources ip_address ip_address_list", " Must be present and not empty")
 			}
+
 			if !HasValue(data.Sources.IpAddress.Exclude) {
-				return nil, fmt.Errorf("Exclude should be present")
+				return nil, utils.NewInvalidError("sources ip_address exclude", " Must be present and not empty")
 			}
 			ipAddresses := []*string{}
 			for _, ipAddress := range data.Sources.IpAddress.IpAddressList.Elements() {
@@ -1025,10 +1011,10 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 		if HasValue(data.Sources.EmailDomain) {
 			if !HasValue(data.Sources.EmailDomain.Exclude) {
-				return nil, fmt.Errorf("Exclude should be present")
+				return nil, utils.NewInvalidError("sources email_domain email_domain_regexes", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.EmailDomain.EmailDomainRegexes) {
-				return nil, fmt.Errorf("Email Domain List should be present")
+				return nil, utils.NewInvalidError("sources email_domain exclude", " Must be present and not empty")
 			}
 			emailRegexes := []*string{}
 			for _, emailRegex := range data.Sources.EmailDomain.EmailDomainRegexes.Elements() {
@@ -1053,10 +1039,10 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 		if HasValue(data.Sources.UserAgents) {
 			if !HasValue(data.Sources.UserAgents.Exclude) {
-				return nil, fmt.Errorf("Exclude should be present")
+				return nil, utils.NewInvalidError("sources user_agents exclude", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.UserAgents.UserAgentsList) {
-				return nil, fmt.Errorf("User Agents List should be present")
+				return nil, utils.NewInvalidError("sources user_agents user_agents_list", " Must be present and not empty")
 			}
 			userAgents := []*string{}
 			for _, userAgent := range data.Sources.UserAgents.UserAgentsList.Elements() {
@@ -1080,10 +1066,10 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 		// region alpha 2 iso code required
 		if HasValue(data.Sources.Regions) {
 			if !HasValue(data.Sources.Regions.Exclude) {
-				return nil, fmt.Errorf("Exclude should be present")
+				return nil, utils.NewInvalidError("sources regions exclude", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.Regions.RegionsIds) {
-				return nil, fmt.Errorf("Regions List should be present")
+				return nil, utils.NewInvalidError("sources regions region_ids", " Must be present and not empty")
 			}
 			regionIdentifieres := []*generated.InputRateLimitingRegionIdentifier{}
 			for _, region := range data.Sources.Regions.RegionsIds.Elements() {
@@ -1109,10 +1095,10 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 		if HasValue(data.Sources.IpOrganisation) {
 			if !HasValue(data.Sources.IpOrganisation.Exclude) {
-				return nil, fmt.Errorf("Exclude should be present")
+				return nil, utils.NewInvalidError("sources ip_organisation exclude", " Must be present and not empty")
 			}
 			if !HasValue(data.Sources.IpOrganisation.IpOrganisationRegexes) {
-				return nil, fmt.Errorf("Ip Organisation Regexes should be present")
+				return nil, utils.NewInvalidError("sources ip_organisation ip_organisation_regexes", " Must be present and not empty")
 			}
 			ipOrganisationRegexes := []*string{}
 			for _, ipOrganisationRegex := range data.Sources.IpOrganisation.IpOrganisationRegexes.Elements() {
@@ -1138,54 +1124,58 @@ func convertToInputRateLimitingCondition(data *models.RateLimitingRuleModel) ([]
 
 			for _, requestResponse := range data.Sources.RequestResponse {
 
+				keyValueCondition := generated.InputRateLimitingRuleKeyValueCondition{}
 				if !HasValue(requestResponse.MetadataType) {
-					return nil, fmt.Errorf("Metadata Type should be present")
+					return nil, utils.NewInvalidError("sources request_response metadata_type", " Must be present and not empty")
 				}
 				metadataType, exists := RateLimitingRuleKeyValueConditionMetadataTypeMap[requestResponse.MetadataType.ValueString()]
 				if !exists {
-					return nil, fmt.Errorf("Invalid Metadata Type")
+					return nil, utils.NewInvalidError("sources request_response metadata_type", fmt.Sprintf(" %s Inavlid MetadataType", requestResponse.MetadataType.ValueString()))
 				}
-				var keyConditionOperator generated.RateLimitingRuleKeyValueMatchOperator
-				var keyConditionValue string
-				var valueConditionOperator generated.RateLimitingRuleKeyValueMatchOperator
-				var valueConditionValue string
-				if HasValue(requestResponse.KeyOperator) {
-					keyConditionOperator = RateLimitingKeyValueMatchOperatorMap[requestResponse.KeyOperator.ValueString()]
-				}
-				if HasValue(requestResponse.ValueOperator) {
-					valueConditionOperator = RateLimitingKeyValueMatchOperatorMap[requestResponse.ValueOperator.ValueString()]
+				keyValueCondition.MetadataType = metadataType
+
+				if HasValue(requestResponse.KeyValue) && HasValue(requestResponse.KeyOperator) {
+					keyConditionValue := requestResponse.KeyValue.ValueString()
+					keyConditionOperator, exist := RateLimitingKeyValueMatchOperatorMap[requestResponse.KeyOperator.ValueString()]
+
+					if !exist {
+						return nil, utils.NewInvalidError("sources request_response key_operator", fmt.Sprintf(" %s Inavlid keyOperator", requestResponse.KeyOperator.ValueString()))
+					}
+
+					keyValueCondition.KeyCondition = &generated.InputRateLimitingRuleStringCondition{
+						Operator: keyConditionOperator,
+						Value:    keyConditionValue,
+					}
+
 				}
 
-				if HasValue(requestResponse.KeyValue) {
-					keyConditionValue = requestResponse.KeyValue.ValueString()
-				}
-				if HasValue(requestResponse.Value) {
-					valueConditionValue = requestResponse.Value.ValueString()
-				}
+				if HasValue(requestResponse.ValueOperator) && HasValue(requestResponse.Value) {
+					valueConditionValue := requestResponse.Value.ValueString()
+					valueConditionOperator, exist := RateLimitingKeyValueMatchOperatorMap[requestResponse.ValueOperator.ValueString()]
 
+					if !exist {
+						return nil, utils.NewInvalidError("sources request_response value_operator", fmt.Sprintf(" %s Inavlid keyOperator", requestResponse.KeyOperator.ValueString()))
+					}
+
+					keyValueCondition.ValueCondition = &generated.InputRateLimitingRuleStringCondition{
+						Operator: valueConditionOperator,
+						Value:    valueConditionValue,
+					}
+				}
 				var input = generated.InputRateLimitingRuleCondition{
 					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
-						ConditionType: generated.RateLimitingRuleLeafConditionTypeKeyValue,
-						KeyValueCondition: &generated.InputRateLimitingRuleKeyValueCondition{
-							MetadataType: metadataType,
-							KeyCondition: &generated.InputRateLimitingRuleStringCondition{
-								Operator: keyConditionOperator,
-								Value:    keyConditionValue,
-							},
-							ValueCondition: &generated.InputRateLimitingRuleStringCondition{
-								Operator: valueConditionOperator,
-								Value:    valueConditionValue,
-							},
-						},
+						ConditionType:     generated.RateLimitingRuleLeafConditionTypeKeyValue,
+						KeyValueCondition: &keyValueCondition,
 					},
 				}
 
 				conditions = append(conditions, &input)
+
 			}
+
 		}
 
 	}
-
 	return conditions, nil
 
 }

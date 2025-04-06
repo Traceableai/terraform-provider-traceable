@@ -323,14 +323,6 @@ func RateLimitingResourceSchema() schema.Schema {
 									MarkdownDescription: "Which Metadatype to include",
 									Required:            true,
 								},
-								"operator": schema.StringAttribute{
-									MarkdownDescription: "Which operator to use",
-									Optional:            true,
-								},
-								"value": schema.StringAttribute{
-									MarkdownDescription: "Value to match",
-									Optional:            true,
-								},
 								"key_operator": schema.StringAttribute{
 									MarkdownDescription: "Which operator to use",
 									Optional:            true,
@@ -343,7 +335,7 @@ func RateLimitingResourceSchema() schema.Schema {
 									MarkdownDescription: "Which operator to use",
 									Optional:            true,
 								},
-								"value_value": schema.StringAttribute{
+								"value": schema.StringAttribute{
 									MarkdownDescription: "Value to match",
 									Optional:            true,
 								},
