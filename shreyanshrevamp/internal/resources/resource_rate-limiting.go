@@ -72,10 +72,6 @@ func (r *RateLimitingResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	tflog.Trace(ctx, "Entering in Create Block", map[string]any{
-		"input": ruleInput,
-	})
-
 	rule, err := generated.CreateRateLimitingRule(ctx, *r.client, *ruleInput)
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
@@ -104,7 +100,6 @@ func (r *RateLimitingResource) Read(ctx context.Context, req resource.ReadReques
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
-	tflog.Trace(ctx, fmt.Sprintf("Endpoints type before assignment 1: %T", data.Sources.Endpoints))
 
 	updatedData, err := convertRateLimitingRuleFieldsToModel(ctx, &response)
 
@@ -112,20 +107,11 @@ func (r *RateLimitingResource) Read(ctx context.Context, req resource.ReadReques
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
-	tflog.Trace(ctx, " i am wizard")
-
-	tflog.Trace(ctx, fmt.Sprintf("Endpoints type before assignment 4: %T", updatedData.Sources.Endpoints))
-
-	tflog.Trace(ctx, "printed updated Data", map[string]interface{}{
-		"update endpoint label": updatedData.Sources.EndpointLabels,
-		"updated endpoint":      updatedData.Sources.Endpoints,
-	})
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &updatedData)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Trace(ctx, "i am wizard harry potter")
 
 }
 
@@ -450,7 +436,6 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					RegionsIds: regionIds,
 					Exclude:    types.BoolValue(*leafCondition.RegionCondition.GetExclude()),
 				}
-				tflog.Trace(ctx, "shreyanshgupta here 3")
 
 			case "EMAIL_DOMAIN":
 				emailDomainRegexes, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.EmailDomainCondition.GetEmailRegexes())
@@ -461,7 +446,6 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					EmailDomainRegexes: emailDomainRegexes,
 					Exclude:            types.BoolValue(*leafCondition.EmailDomainCondition.GetExclude()),
 				}
-				tflog.Trace(ctx, "shreyanshgupta here 4")
 
 			case "IP_CONNECTION_TYPE":
 
@@ -473,7 +457,6 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					IpConnectionTypeList: ipConnectionTypeList,
 					Exclude:              types.BoolValue(*leafCondition.IpConnectionTypeCondition.GetExclude()),
 				}
-				tflog.Trace(ctx, "shreyanshgupta here 5")
 
 			case "USER_AGENT":
 				userAgentsList, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserAgentCondition.GetUserAgentRegexes())
@@ -485,7 +468,6 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					UserAgentsList: userAgentsList,
 					Exclude:        types.BoolValue(*leafCondition.UserAgentCondition.GetExclude()),
 				}
-				tflog.Trace(ctx, "shreyanshgupta here 6")
 
 			case "USER_ID":
 				userIdRegexes, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserIdCondition.GetUserIdRegexes())
@@ -502,7 +484,6 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					UserIds:       userIds,
 					Exclude:       types.BoolValue(*leafCondition.UserIdCondition.GetExclude()),
 				}
-				tflog.Trace(ctx, "shreyanshgupta here 7")
 
 			case "IP_ORGANISATION":
 				ipOrganisationRegexes, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.IpOrganisationCondition.GetIpOrganisationRegexes())
@@ -513,7 +494,6 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					IpOrganisationRegexes: ipOrganisationRegexes,
 					Exclude:               types.BoolValue(*leafCondition.IpOrganisationCondition.GetExclude()),
 				}
-				tflog.Trace(ctx, "shreyanshgupta here 8")
 
 			}
 
@@ -527,11 +507,9 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 		sources.RequestResponse = reqresarr
 		model.Sources = &sources
 	}
-	tflog.Trace(ctx, "shreyanshgupta here 1")
 	if data.GetThresholdActionConfigs() != nil && len(data.ThresholdActionConfigs) == 1 {
 
 		config := data.ThresholdActionConfigs[0]
-		tflog.Trace(ctx, "shreyanshgupta here 9")
 
 		if config.Actions != nil && len(config.Actions) > 0 {
 			actions := []models.RateLimitingAction{}
@@ -541,17 +519,14 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				actiontemp := models.RateLimitingAction{}
 				switch string(action.GetActionType()) {
 				case "ALERT":
-					tflog.Trace(ctx, "shreyanshgupta here 14")
 					actiontemp.ActionType = types.StringValue("ALERT")
 					if action.Alert != nil {
 						actiontemp.EventSeverity = types.StringValue(string(action.Alert.GetEventSeverity()))
 					}
 					if action.Alert.AgentEffect != nil {
-						tflog.Trace(ctx, "shreyanshgupta here 15")
 
 						actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
 						for _, header := range action.Alert.AgentEffect.GetAgentModifications() {
-							tflog.Trace(ctx, "shreyanshgupta here 16")
 
 							headerInj := models.RateLimitingHeaderInjection{
 								Key:   types.StringValue(header.HeaderInjection.GetKey()),
@@ -582,13 +557,11 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 
 			}
 			model.Action = actions[0]
-			tflog.Trace(ctx, "shreyanshgupta here 10")
 
 		}
 
 		if config.GetThresholdConfigs() != nil && len(config.ThresholdConfigs) > 0 {
 			thresholdConfigs := []models.RateLimitingThresholdConfig{}
-			tflog.Trace(ctx, "shreyanshgupta here 11")
 
 			for _, threshold := range config.GetThresholdConfigs() {
 				thresholdConfig := models.RateLimitingThresholdConfig{}
@@ -611,13 +584,11 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				thresholdConfigs = append(thresholdConfigs, thresholdConfig)
 
 			}
-			tflog.Trace(ctx, "shreyanshgupta here 12")
 
 			model.ThresholdConfigs = thresholdConfigs
 		}
 
 	}
-	tflog.Trace(ctx, "shreyanshgupta here 2")
 
 	return &model, nil
 }

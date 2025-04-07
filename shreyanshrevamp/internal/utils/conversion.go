@@ -33,23 +33,6 @@ func ConvertStringPtrSliceToTerraformList(input []*string) (types.List, error) {
 	return listValue, nil
 }
 
-// func ConvertCustomStringPtrsToTerraformList[T ~string](input []*T) types.List {
-// 	result := make([]*string, len(input))
-// 	for i, val := range input {
-// 		if val != nil {
-// 			str := string(*val)
-// 			result[i] = &str
-// 		}
-// 	}
-// 	ans := []attr.Value{}
-// 	for _, val := range result {
-// 		ans = append(ans, types.StringValue(*val))
-// 	}
-// 	return types.ListValueMust(types.StringType, ans)
-
-// }
-//
-
 func ConvertCustomStringPtrsToTerraformList[T any](input []*T) (types.List, error) {
 	values := []attr.Value{}
 
@@ -79,27 +62,3 @@ func ConvertCustomStringPtrsToTerraformList[T any](input []*T) (types.List, erro
 	return listValue, nil
 
 }
-
-// Generic function to convert []*T to a Terraform list of string values
-// func ConvertCustomStringToTerraformList[T any](input []*T) (types.List, error) {
-// 	values := make([]attr.Value, 0, len(input))
-
-// 	for _, val := range input {
-// 		if val == nil {
-// 			values = append(values, types.StringNull())
-// 			continue
-// 		}
-
-// 		// Convert to interface{} to use type assertion
-// 		switch v := any(*val).(type) {
-// 		case string:
-// 			values = append(values, types.StringValue(v))
-// 		case fmt.Stringer:
-// 			values = append(values, types.StringValue(v.String()))
-// 		default:
-// 			return types.List{}, fmt.Errorf("unsupported type: %T", v)
-// 		}
-// 	}
-
-// 	return types.ListValueMust(types.StringType, values), nil
-// }
