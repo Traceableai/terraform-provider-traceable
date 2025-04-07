@@ -223,6 +223,7 @@ query GetRateLimitingRulesName($category: [RateLimitingRuleCategory], $rateLimit
     total
     results {
       name
+      id
     }
   }
 }

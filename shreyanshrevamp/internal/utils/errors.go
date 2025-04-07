@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"fmt"
+
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
@@ -54,7 +55,10 @@ func AddError(ctx context.Context, resp *diag.Diagnostics, err error) {
 		return
 	}
 
-	resp.AddError("Internal provider error", "An unexpected error occurred. Please contact support or upgrade to the latest version.")
+	// resp.AddError("Internal provider error", "An unexpected error occurred. Please contact support or upgrade to the latest version.")
+	// return
+
+	resp.AddError("Error aa gaya", err.Error())
 	return
 
 }

@@ -61,13 +61,23 @@ func (r *RateLimitingResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
+	id, err := getRateLimitingRuleId(ruleInput.Name, ctx, *r.client)
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+
+	if id != "" {
+		resp.Diagnostics.AddError("Resource already Exist", fmt.Sprintf("%s rate limiting rule already please try with different name or import it", ruleInput.Name))
+		return
+	}
+
 	tflog.Trace(ctx, "Entering in Create Block", map[string]any{
 		"input": ruleInput,
 	})
 
 	rule, err := generated.CreateRateLimitingRule(ctx, *r.client, *ruleInput)
 	if err != nil {
-		// resp.Diagnostics.AddError("Error converting model to input", err2.Error())
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
@@ -85,12 +95,37 @@ func (r *RateLimitingResource) Read(ctx context.Context, req resource.ReadReques
 	var data *models.RateLimitingRuleModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	response, err := getRateLimitingRule(data.Id.ValueString(), ctx, *r.client)
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	tflog.Trace(ctx, fmt.Sprintf("Endpoints type before assignment 1: %T", data.Sources.Endpoints))
+
+	updatedData, err := convertRateLimitingRuleFieldsToModel(ctx, &response)
+
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	tflog.Trace(ctx, " i am wizard")
+
+	tflog.Trace(ctx, fmt.Sprintf("Endpoints type before assignment 4: %T", updatedData.Sources.Endpoints))
+
+	tflog.Trace(ctx, "printed updated Data", map[string]interface{}{
+		"update endpoint label": updatedData.Sources.EndpointLabels,
+		"updated endpoint":      updatedData.Sources.Endpoints,
+	})
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &updatedData)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	tflog.Trace(ctx, "i am wizard harry potter")
 
 }
 
@@ -145,9 +180,71 @@ func (r *RateLimitingResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *RateLimitingResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	ruleName := req.ID
+	id, err := getRateLimitingRuleId(ruleName, ctx, *r.client)
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	if id == "" {
+		resp.Diagnostics.AddError("Resource Not Found", fmt.Sprintf("%s rule of this name not found", ruleName))
+		return
+	}
+	response, err := getRateLimitingRule(id, ctx, *r.client)
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	data, err := convertRateLimitingRuleFieldsToModel(ctx, &response)
+
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 }
 
+func getRateLimitingRule(id string, ctx context.Context, r graphql.Client) (generated.RateLimitingRuleFields, error) {
+	rateLimitingfields := generated.RateLimitingRuleFields{}
+	category := []*generated.RateLimitingRuleCategory{}
+	endpointRateLimiting := generated.RateLimitingRuleCategoryEndpointRateLimiting
+	category = append(category, &endpointRateLimiting)
+	response, err := generated.GetRateLimitingDetails(ctx, r, category, nil)
+	if err != nil {
+		return rateLimitingfields, err
+	}
+
+	for _, rule := range response.RateLimitingRules.Results {
+		if rule.Id == id {
+			rateLimitingfields = rule.RateLimitingRuleFields
+			return rateLimitingfields, nil
+		}
+	}
+
+	return rateLimitingfields, nil
+}
+
+func getRateLimitingRuleId(ruleName string, ctx context.Context, r graphql.Client) (string, error) {
+	category := []*generated.RateLimitingRuleCategory{}
+	endpointRateLimiting := generated.RateLimitingRuleCategoryEndpointRateLimiting
+	category = append(category, &endpointRateLimiting)
+
+	response, err := generated.GetRateLimitingRulesName(ctx, r, category, nil)
+	if err != nil {
+		return "", err
+	}
+	for _, rule := range response.RateLimitingRules.Results {
+		if rule.Name == ruleName {
+			return rule.GetId(), nil
+		}
+	}
+	return "", nil
+
+}
 func convertRateLimitingModelToCreateInput(ctx context.Context, data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleData, error) {
 	var input = generated.InputRateLimitingRuleData{}
 	if HasValue(data.Name) {
@@ -248,181 +345,281 @@ func convertRateLimitingModelToUpdateInput(ctx context.Context, data *models.Rat
 }
 
 func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.RateLimitingRuleFields) (*models.RateLimitingRuleModel, error) {
-	var model *models.RateLimitingRuleModel
-	sources := models.RateLimitingSources{}
-	reqresarr := []models.RateLimitingRequestResponseCondition{}
-	for _, condition := range data.GetConditions() {
-		leafCondition := condition.LeafCondition.LeafConditionFields
-		switch string(leafCondition.ConditionType) {
-		case "KEY_VALUE":
-			reqres := models.RateLimitingRequestResponseCondition{}
-			if leafCondition.KeyValueCondition.GetMetadataType() != "" {
-				reqres.MetadataType = types.StringValue(string(leafCondition.KeyValueCondition.GetMetadataType()))
-			}
-			if leafCondition.KeyValueCondition.GetValueCondition() != nil {
-				reqres.Value = types.StringValue(leafCondition.KeyValueCondition.GetValueCondition().GetValue())
-				reqres.ValueOperator = types.StringValue(string(leafCondition.KeyValueCondition.GetValueCondition().GetOperator()))
-			}
-			if leafCondition.KeyValueCondition.GetKeyCondition() != nil {
-				reqres.KeyOperator = types.StringValue(string(leafCondition.KeyValueCondition.GetKeyCondition().GetOperator()))
-				reqres.KeyValue = types.StringValue(leafCondition.KeyValueCondition.GetKeyCondition().GetValue())
-			}
-			reqresarr = append(reqresarr, reqres)
+	model := models.RateLimitingRuleModel{}
 
-		case "SCOPE_VALUE":
-			if leafCondition.ScopeCondition.GetEntityScope() != nil {
-				sources.Endpoints = utils.ConvertStringPtrSliceToTerraformList(leafCondition.ScopeCondition.EntityScope.GetEntityIds())
-			}
-			if leafCondition.ScopeCondition.GetLabelScope() != nil {
-				sources.EndpointLabels = utils.ConvertStringPtrSliceToTerraformList(leafCondition.ScopeCondition.LabelScope.GetLabelIds())
-			}
-
-		case "DATATYPE":
-
-		case "IP_ADDRESS":
-			sources.IpAddress = &models.RateLimitingIpAddressSource{
-				IpAddressList: utils.ConvertStringPtrSliceToTerraformList(leafCondition.IpAddressCondition.GetIpAddresses()),
-				Exclude:       types.BoolValue(*leafCondition.IpAddressCondition.GetExclude()),
-			}
-
-		case "IP_LOCATION_TYPE":
-			iplocationtypes, err := utils.ConvertCustomStringPtrsToTerraformList(leafCondition.IpLocationTypeCondition.GetIpLocationTypes())
-			if err != nil {
-				fmt.Errorf("error converting ip location types to terraform list: %v", err)
-				return nil, err
-			}
-			sources.IpLocationType = &models.RateLimitingIpLocationTypeSource{
-				IpLocationTypes: iplocationtypes,
-				Exclude:         types.BoolValue(*leafCondition.IpLocationTypeCondition.GetExclude()),
-			}
-
-		case "IP_REPUTATION":
-			sources.IpReputation = types.StringValue(string(leafCondition.IpReputationCondition.GetMinIpReputationSeverity()))
-
-		case "REGION":
-			regionIds, err := utils.ConvertCustomStringPtrsToTerraformList(leafCondition.RegionCondition.GetRegionIdentifiers())
-			if err != nil {
-				fmt.Errorf("error converting region identifiers to terraform list: %v", err)
-				return nil, err
-			}
-			sources.Regions = &models.RateLimitingRegionsSource{
-				RegionsIds: regionIds,
-				Exclude:    types.BoolValue(*leafCondition.RegionCondition.GetExclude()),
-			}
-
-		case "EMAIL_DOMAIN":
-			sources.EmailDomain = &models.RateLimitingEmailDomainSource{
-				EmailDomainRegexes: utils.ConvertStringPtrSliceToTerraformList(leafCondition.EmailDomainCondition.GetEmailRegexes()),
-				Exclude:            types.BoolValue(*leafCondition.EmailDomainCondition.GetExclude()),
-			}
-
-		case "IP_CONNECTION_TYPE":
-			ipConnectionTypeList, err := utils.ConvertCustomStringPtrsToTerraformList(leafCondition.IpConnectionTypeCondition.GetIpConnectionTypes())
-			if err != nil {
-				fmt.Errorf("error converting ip connection types to terraform list: %v", err)
-				return nil, err
-			}
-			sources.IpConnectionType = &models.RateLimitingIpConnectionTypeSource{
-				IpConnectionTypeList: ipConnectionTypeList,
-				Exclude:              types.BoolValue(*leafCondition.IpConnectionTypeCondition.GetExclude()),
-			}
-
-		case "USER_AGENT":
-			sources.UserAgents = &models.RateLimitingUserAgentsSource{
-				UserAgentsList: utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserAgentCondition.GetUserAgentRegexes()),
-				Exclude:        types.BoolValue(*leafCondition.UserAgentCondition.GetExclude()),
-			}
-
-		case "USER_ID":
-			sources.UserId = &models.RateLimitingUserIdSource{
-				UserIdRegexes: utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserIdCondition.GetUserIdRegexes()),
-				Exclude:       types.BoolValue(*leafCondition.UserIdCondition.GetExclude()),
-			}
-
-		case "IP_ORGANISATION":
-			sources.IpOrganisation = &models.RateLimitingIpOrganisationSource{
-				IpOrganisationRegexes: utils.ConvertStringPtrSliceToTerraformList(leafCondition.IpOrganisationCondition.GetIpOrganisationRegexes()),
-				Exclude:               types.BoolValue(*leafCondition.IpOrganisationCondition.GetExclude()),
-			}
-
-		}
-
+	if data.Id != "" {
+		model.Id = types.StringValue(data.Id)
 	}
-	sources.RequestResponse = reqresarr
+	if data.Name != "" {
+		model.Name = types.StringValue(data.Name)
+	}
+	if data.Description != nil {
+		model.Description = types.StringValue(*data.Description)
+	}
+	if data.RuleConfigScope != nil && data.RuleConfigScope.EnvironmentScope != nil {
+		environments, err := utils.ConvertStringPtrSliceToTerraformList(data.RuleConfigScope.EnvironmentScope.EnvironmentIds)
+		if err != nil {
+			return nil, err
+		}
+		model.Environments = environments
+	} else {
+		model.Environments = types.ListNull(types.StringType)
+	}
+	model.Enabled = types.BoolValue(data.Enabled)
+	endpointScope := false
+	endpointLabelScope := false
 
-	thresholdConfigs := []models.RateLimitingThresholdConfig{}
-	actions := []models.RateLimitingAction{}
-
-	for _, config := range data.GetThresholdActionConfigs() {
-		for _, action := range config.GetActions() {
-			actiontemp := models.RateLimitingAction{}
-			switch string(action.GetActionType()) {
-			case "ALERT":
-				actiontemp.ActionType = types.StringValue("ALERT")
-				actiontemp.EventSeverity = types.StringValue(string(action.Alert.GetEventSeverity()))
-				actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
-				for _, header := range action.Alert.AgentEffect.GetAgentModifications() {
-					headerInj := models.RateLimitingHeaderInjection{
-						Key:   types.StringValue(header.HeaderInjection.GetKey()),
-						Value: types.StringValue(header.GetHeaderInjection().Value),
-					}
-					actiontemp.HeaderInjections = append(actiontemp.HeaderInjections, headerInj)
+	if data.Conditions != nil {
+		sources := models.RateLimitingSources{}
+		reqresarr := []models.RateLimitingRequestResponseCondition{}
+		for _, condition := range data.GetConditions() {
+			leafCondition := condition.LeafCondition.LeafConditionFields
+			switch string(leafCondition.ConditionType) {
+			case "KEY_VALUE":
+				reqres := models.RateLimitingRequestResponseCondition{}
+				if leafCondition.KeyValueCondition.GetMetadataType() != "" {
+					reqres.MetadataType = types.StringValue(string(leafCondition.KeyValueCondition.GetMetadataType()))
 				}
-				actions = append(actions, actiontemp)
-				//alow missing
-			case "MARK_FOR_TESTING":
-				actiontemp.ActionType = types.StringValue("MARK_FOR_TESTING")
-				actiontemp.EventSeverity = types.StringValue(string(action.GetMarkForTesting().GetEventSeverity()))
-				actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
-				for _, header := range action.GetMarkForTesting().GetAgentEffect().GetAgentModifications() {
-					headerInj := models.RateLimitingHeaderInjection{
-						Key:   types.StringValue(header.GetHeaderInjection().Key),
-						Value: types.StringValue(header.GetHeaderInjection().Value),
-					}
-					actiontemp.HeaderInjections = append(actiontemp.HeaderInjections, headerInj)
+				if leafCondition.KeyValueCondition.GetValueCondition() != nil {
+					reqres.Value = types.StringValue(leafCondition.KeyValueCondition.GetValueCondition().GetValue())
+					reqres.ValueOperator = types.StringValue(string(leafCondition.KeyValueCondition.GetValueCondition().GetOperator()))
 				}
-				actions = append(actions, actiontemp)
+				if leafCondition.KeyValueCondition.GetKeyCondition() != nil {
+					reqres.KeyOperator = types.StringValue(string(leafCondition.KeyValueCondition.GetKeyCondition().GetOperator()))
+					reqres.KeyValue = types.StringValue(leafCondition.KeyValueCondition.GetKeyCondition().GetValue())
+				}
+				reqresarr = append(reqresarr, reqres)
+
+			case "SCOPE":
+				if leafCondition.ScopeCondition.GetEntityScope() != nil {
+					endpoints, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.ScopeCondition.EntityScope.GetEntityIds())
+					if err != nil {
+						return nil, err
+					}
+
+					sources.Endpoints = endpoints
+					endpointScope = true
+
+				}
+
+				if leafCondition.ScopeCondition.GetLabelScope() != nil {
+					endpointLabels, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.ScopeCondition.LabelScope.GetLabelIds())
+					if err != nil {
+						return nil, err
+					}
+					sources.EndpointLabels = endpointLabels
+					endpointLabelScope = true
+				}
+
+			case "DATATYPE":
+
+			case "IP_ADDRESS":
+				ipAddressList, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.IpAddressCondition.GetIpAddresses())
+				if err != nil {
+					return nil, err
+				}
+				sources.IpAddress = &models.RateLimitingIpAddressSource{
+					IpAddressList: ipAddressList,
+					Exclude:       types.BoolValue(*leafCondition.IpAddressCondition.GetExclude()),
+				}
+
+			case "IP_LOCATION_TYPE":
+				iplocationtypes, err := utils.ConvertCustomStringPtrsToTerraformList(leafCondition.IpLocationTypeCondition.GetIpLocationTypes())
+				if err != nil {
+
+					return nil, fmt.Errorf("error converting ip location types to terraform list: %v", err)
+				}
+				sources.IpLocationType = &models.RateLimitingIpLocationTypeSource{
+					IpLocationTypes: iplocationtypes,
+					Exclude:         types.BoolValue(*leafCondition.IpLocationTypeCondition.GetExclude()),
+				}
+
+			case "IP_REPUTATION":
+				sources.IpReputation = types.StringValue(string(leafCondition.IpReputationCondition.GetMinIpReputationSeverity()))
+
+			case "REGION":
+				regionIdsPointer := []*string{}
+				for _, region := range leafCondition.RegionCondition.GetRegionIdentifiers() {
+					regionIdsPointer = append(regionIdsPointer, &region.CountryIsoCode)
+				}
+				regionIds, err := utils.ConvertStringPtrSliceToTerraformList(regionIdsPointer)
+				if err != nil {
+					return nil, err
+				}
+				sources.Regions = &models.RateLimitingRegionsSource{
+					RegionsIds: regionIds,
+					Exclude:    types.BoolValue(*leafCondition.RegionCondition.GetExclude()),
+				}
+				tflog.Trace(ctx, "shreyanshgupta here 3")
+
+			case "EMAIL_DOMAIN":
+				emailDomainRegexes, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.EmailDomainCondition.GetEmailRegexes())
+				if err != nil {
+					return nil, err
+				}
+				sources.EmailDomain = &models.RateLimitingEmailDomainSource{
+					EmailDomainRegexes: emailDomainRegexes,
+					Exclude:            types.BoolValue(*leafCondition.EmailDomainCondition.GetExclude()),
+				}
+				tflog.Trace(ctx, "shreyanshgupta here 4")
+
+			case "IP_CONNECTION_TYPE":
+
+				ipConnectionTypeList, err := utils.ConvertCustomStringPtrsToTerraformList(leafCondition.IpConnectionTypeCondition.GetIpConnectionTypes())
+				if err != nil {
+					return nil, fmt.Errorf("error converting ip connection types to terraform list: %v", err)
+				}
+				sources.IpConnectionType = &models.RateLimitingIpConnectionTypeSource{
+					IpConnectionTypeList: ipConnectionTypeList,
+					Exclude:              types.BoolValue(*leafCondition.IpConnectionTypeCondition.GetExclude()),
+				}
+				tflog.Trace(ctx, "shreyanshgupta here 5")
+
+			case "USER_AGENT":
+				userAgentsList, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserAgentCondition.GetUserAgentRegexes())
+				if err != nil {
+					return nil, err
+				}
+
+				sources.UserAgents = &models.RateLimitingUserAgentsSource{
+					UserAgentsList: userAgentsList,
+					Exclude:        types.BoolValue(*leafCondition.UserAgentCondition.GetExclude()),
+				}
+				tflog.Trace(ctx, "shreyanshgupta here 6")
+
+			case "USER_ID":
+				userIdRegexes, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserIdCondition.GetUserIdRegexes())
+				if err != nil {
+					return nil, err
+				}
+				userIds, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.UserIdCondition.UserIds)
+				if err != nil {
+					return nil, err
+				}
+
+				sources.UserId = &models.RateLimitingUserIdSource{
+					UserIdRegexes: userIdRegexes,
+					UserIds:       userIds,
+					Exclude:       types.BoolValue(*leafCondition.UserIdCondition.GetExclude()),
+				}
+				tflog.Trace(ctx, "shreyanshgupta here 7")
+
+			case "IP_ORGANISATION":
+				ipOrganisationRegexes, err := utils.ConvertStringPtrSliceToTerraformList(leafCondition.IpOrganisationCondition.GetIpOrganisationRegexes())
+				if err != nil {
+					return nil, err
+				}
+				sources.IpOrganisation = &models.RateLimitingIpOrganisationSource{
+					IpOrganisationRegexes: ipOrganisationRegexes,
+					Exclude:               types.BoolValue(*leafCondition.IpOrganisationCondition.GetExclude()),
+				}
+				tflog.Trace(ctx, "shreyanshgupta here 8")
 
 			}
 
 		}
+		if !endpointScope {
+			sources.Endpoints = types.ListNull(types.StringType)
+		}
+		if !endpointLabelScope {
+			sources.EndpointLabels = types.ListNull(types.StringType)
+		}
+		sources.RequestResponse = reqresarr
+		model.Sources = &sources
+	}
+	tflog.Trace(ctx, "shreyanshgupta here 1")
+	if data.GetThresholdActionConfigs() != nil && len(data.ThresholdActionConfigs) == 1 {
 
-		for _, threshold := range config.GetThresholdConfigs() {
-			thresholdConfig := models.RateLimitingThresholdConfig{}
+		config := data.ThresholdActionConfigs[0]
+		tflog.Trace(ctx, "shreyanshgupta here 9")
 
-			thresholdConfig.ApiAggregateType = types.StringValue(string(threshold.GetApiAggregateType()))
-			thresholdConfig.UserAggregateType = types.StringValue(string(threshold.GetUserAggregateType()))
-			thresholdConfig.ThresholdConfigType = types.StringValue(string(threshold.GetThresholdConfigType()))
-			if threshold.RollingWindowThresholdConfig != nil {
-				thresholdConfig.RollingWindowCountAllowed = types.Int64Value(threshold.GetRollingWindowThresholdConfig().GetCountAllowed())
-				thresholdConfig.RollingWindowDuration = types.StringValue(threshold.GetRollingWindowThresholdConfig().GetDuration())
+		if config.Actions != nil && len(config.Actions) > 0 {
+			actions := []models.RateLimitingAction{}
+
+			for _, action := range config.GetActions() {
+
+				actiontemp := models.RateLimitingAction{}
+				switch string(action.GetActionType()) {
+				case "ALERT":
+					tflog.Trace(ctx, "shreyanshgupta here 14")
+					actiontemp.ActionType = types.StringValue("ALERT")
+					if action.Alert != nil {
+						actiontemp.EventSeverity = types.StringValue(string(action.Alert.GetEventSeverity()))
+					}
+					if action.Alert.AgentEffect != nil {
+						tflog.Trace(ctx, "shreyanshgupta here 15")
+
+						actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
+						for _, header := range action.Alert.AgentEffect.GetAgentModifications() {
+							tflog.Trace(ctx, "shreyanshgupta here 16")
+
+							headerInj := models.RateLimitingHeaderInjection{
+								Key:   types.StringValue(header.HeaderInjection.GetKey()),
+								Value: types.StringValue(header.GetHeaderInjection().Value),
+							}
+							actiontemp.HeaderInjections = append(actiontemp.HeaderInjections, headerInj)
+						}
+					}
+					actions = append(actions, actiontemp)
+					//alow missing
+				case "MARK_FOR_TESTING":
+					actiontemp.ActionType = types.StringValue("MARK_FOR_TESTING")
+					actiontemp.EventSeverity = types.StringValue(string(action.GetMarkForTesting().GetEventSeverity()))
+					actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
+					if action.Alert.AgentEffect != nil {
+						actiontemp.HeaderInjections = []models.RateLimitingHeaderInjection{}
+						for _, header := range action.Alert.AgentEffect.GetAgentModifications() {
+							headerInj := models.RateLimitingHeaderInjection{
+								Key:   types.StringValue(header.HeaderInjection.GetKey()),
+								Value: types.StringValue(header.GetHeaderInjection().Value),
+							}
+							actiontemp.HeaderInjections = append(actiontemp.HeaderInjections, headerInj)
+						}
+					}
+					actions = append(actions, actiontemp)
+
+				}
+
 			}
-
-			if threshold.GetDynamicThresholdConfig() != nil {
-
-				thresholdConfig.DynamicDuration = types.StringValue(threshold.GetDynamicThresholdConfig().GetDuration())
-				thresholdConfig.DynamicMeanCalculationDuration = types.StringValue(threshold.GetDynamicThresholdConfig().GetMeanCalculationDuration())
-				thresholdConfig.DynamicPercentageExcedingMeanAllowed = types.Int64Value(threshold.GetDynamicThresholdConfig().GetPercentageExceedingMeanAllowed())
-			}
-
-			thresholdConfigs = append(thresholdConfigs, thresholdConfig)
+			model.Action = actions[0]
+			tflog.Trace(ctx, "shreyanshgupta here 10")
 
 		}
 
-	}
+		if config.GetThresholdConfigs() != nil && len(config.ThresholdConfigs) > 0 {
+			thresholdConfigs := []models.RateLimitingThresholdConfig{}
+			tflog.Trace(ctx, "shreyanshgupta here 11")
 
-	model = &models.RateLimitingRuleModel{
-		Id:               types.StringValue(data.GetId()),
-		Name:             types.StringValue(data.GetName()),
-		Enabled:          types.BoolValue(data.GetEnabled()),
-		Description:      types.StringValue(*data.GetDescription()),
-		Environments:     utils.ConvertStringPtrSliceToTerraformList(data.GetRuleConfigScope().GetEnvironmentScope().GetEnvironmentIds()),
-		Sources:          &sources,
-		Action:           actions[0],
-		ThresholdConfigs: thresholdConfigs,
-	}
+			for _, threshold := range config.GetThresholdConfigs() {
+				thresholdConfig := models.RateLimitingThresholdConfig{}
 
-	return model, nil
+				thresholdConfig.ApiAggregateType = types.StringValue(string(threshold.GetApiAggregateType()))
+				thresholdConfig.UserAggregateType = types.StringValue(string(threshold.GetUserAggregateType()))
+				thresholdConfig.ThresholdConfigType = types.StringValue(string(threshold.GetThresholdConfigType()))
+				if threshold.RollingWindowThresholdConfig != nil {
+					thresholdConfig.RollingWindowCountAllowed = types.Int64Value(threshold.GetRollingWindowThresholdConfig().GetCountAllowed())
+					thresholdConfig.RollingWindowDuration = types.StringValue(threshold.GetRollingWindowThresholdConfig().GetDuration())
+				}
+
+				if threshold.GetDynamicThresholdConfig() != nil {
+
+					thresholdConfig.DynamicDuration = types.StringValue(threshold.GetDynamicThresholdConfig().GetDuration())
+					thresholdConfig.DynamicMeanCalculationDuration = types.StringValue(threshold.GetDynamicThresholdConfig().GetMeanCalculationDuration())
+					thresholdConfig.DynamicPercentageExcedingMeanAllowed = types.Int64Value(threshold.GetDynamicThresholdConfig().GetPercentageExceedingMeanAllowed())
+				}
+
+				thresholdConfigs = append(thresholdConfigs, thresholdConfig)
+
+			}
+			tflog.Trace(ctx, "shreyanshgupta here 12")
+
+			model.ThresholdConfigs = thresholdConfigs
+		}
+
+	}
+	tflog.Trace(ctx, "shreyanshgupta here 2")
+
+	return &model, nil
 }
 
 func convertToRateLimitingRuleStatus(data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleStatus, error) {

@@ -497,11 +497,18 @@ func (v *GetRateLimitingRulesNameRateLimitingRulesRateLimitingRuleResultSet) Get
 type GetRateLimitingRulesNameRateLimitingRulesRateLimitingRuleResultSetResultsRateLimitingRule struct {
 	// Rate limit rule name
 	Name string `json:"name"`
+	// Rate limit rule ID
+	Id string `json:"id"`
 }
 
 // GetName returns GetRateLimitingRulesNameRateLimitingRulesRateLimitingRuleResultSetResultsRateLimitingRule.Name, and is useful for accessing the field via an interface.
 func (v *GetRateLimitingRulesNameRateLimitingRulesRateLimitingRuleResultSetResultsRateLimitingRule) GetName() string {
 	return v.Name
+}
+
+// GetId returns GetRateLimitingRulesNameRateLimitingRulesRateLimitingRuleResultSetResultsRateLimitingRule.Id, and is useful for accessing the field via an interface.
+func (v *GetRateLimitingRulesNameRateLimitingRulesRateLimitingRuleResultSetResultsRateLimitingRule) GetId() string {
+	return v.Id
 }
 
 // GetRateLimitingRulesNameResponse is returned by GetRateLimitingRulesName on success.
@@ -4852,6 +4859,7 @@ query GetRateLimitingRulesName ($category: [RateLimitingRuleCategory], $rateLimi
 		total
 		results {
 			name
+			id
 		}
 	}
 }

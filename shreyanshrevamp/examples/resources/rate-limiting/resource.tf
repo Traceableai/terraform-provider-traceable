@@ -1,29 +1,3 @@
-terraform {
-  required_providers {
-    traceable = {
-      source  = "traceableai/traceable"
-      version = "0.0.1"
-    }
-    # aws = {
-    #   source  = "hashicorp/aws"
-    #   version = "5.35.0"
-    # }
-  }
-}
-
-//object empty ka case check karna hai 
-provider "traceable" {
-  platform_url ="https://app-dev.traceable.ai/graphql"
-  api_token    ="Bearer "
-  
-}
-
-# resource "traceable_data_set" "sampledataset"{
-#              description = "hello I am good"
-#             icon_type = "Password"
-#             name= "shreyansh12"
-# }
-
 
 resource "traceable_rate_limiting" "sample"{
     name = "shreyanshrevamp12"
