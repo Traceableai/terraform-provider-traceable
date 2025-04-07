@@ -11,6 +11,7 @@ import (
 
 // NewClient creates a new GraphQL client with authentication, version headers, and request logging
 func NewClient(url string, token string, version string) graphql.Client {
+	url = url + "/graphql"
 	baseTransport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 	}

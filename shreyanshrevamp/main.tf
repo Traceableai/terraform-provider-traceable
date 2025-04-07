@@ -13,8 +13,8 @@ terraform {
 
 //object empty ka case check karna hai 
 provider "traceable" {
-  platform_url ="https://app-dev.traceable.ai/graphql"
-  api_token    ="Bearer "
+  platform_url ="https://app-dev.traceable.ai"
+  api_token    ="Bearer <jwt>"
   
 }
 
