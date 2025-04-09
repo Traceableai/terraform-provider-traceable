@@ -1,29 +1,3 @@
-terraform {
-  required_providers {
-    traceable = {
-      source  = "traceableai/traceable"
-      version = "0.0.1"
-    }
-    # aws = {
-    #   source  = "hashicorp/aws"
-    #   version = "5.35.0"
-    # }
-  }
-}
-
-//object empty ka case check karna hai 
-provider "traceable" {
-  platform_url ="https://app-dev.traceable.ai"
-  api_token    ="Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkxPbDdCcnhCVzUweUYxVERNYWRpZyJ9.eyJodHRwczovL3RyYWNlYWJsZS5haS9yb2xlc192MiI6WyJ0cmFjZWFibGUiXSwiaHR0cHM6Ly90cmFjZWFibGUuYWkvY3VzdG9tZXJfaWQiOiIzZTc2MTg3OS1jNzdiLTRkOGYtYTA3NS02MmZmMjhlOGZhOGEiLCJodHRwczovL3RyYWNlYWJsZS5haS9yb2xlcyI6WyJ0cmFjZWFibGUiXSwiaHR0cHM6Ly90cmFjZWFibGUuYWkvanRpIjoiYTRkODY1OGQtOWI5Ni00NTgwLWJlYWMtMzU4MTU0YjY2MGVjIiwiaHR0cHM6Ly90cmFjZWFibGUuYWkvcmljaF9yb2xlcyI6W3siZW52cyI6W10sImlkIjoidHJhY2VhYmxlIn1dLCJuaWNrbmFtZSI6InRlc3QrZTJlIiwibmFtZSI6InRlc3QrZTJlQHRyYWNlYWJsZS5haSIsInBpY3R1cmUiOiJodHRwczovL3MuZ3JhdmF0YXIuY29tL2F2YXRhci8wZWFiNjdkMTBlZTlhNTYwZGY2ZDJiODE4NTQ3NGM5ZT9zPTQ4MCZyPXBnJmQ9aHR0cHMlM0ElMkYlMkZjZG4uYXV0aDAuY29tJTJGYXZhdGFycyUyRnRlLnBuZyIsInVwZGF0ZWRfYXQiOiIyMDI1LTA0LTA5VDAzOjU4OjU4LjAwOFoiLCJlbWFpbCI6InRlc3QrZTJlQHRyYWNlYWJsZS5haSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczovL3RyYWNlYWJsZS1kZXYudXMuYXV0aDAuY29tLyIsImF1ZCI6IkloeHg4QVBlc3dEaUlrb3JxSzIzYkt0OHVUa0pkaDA3Iiwic3ViIjoiYXV0aDB8NjMxMmJmMDRiZGVhODBmYzY1ZWFkMmE5IiwiaWF0IjoxNzQ0MTcxMTM5LCJleHAiOjE3NDQyMDcxMzksInNpZCI6IkZoNnJkVXRPSzhPUkRHeFBTNWhZYS1pZThyQXRvNVY0Iiwibm9uY2UiOiJ3UmdwUHZCcUx1Z0E4TnNTaDhRVnBjSk1ZZWNSS0hWT0d6REdFRFJjUmJRIn0.KT4stjUVnu62FC4OFcbTq7yueHkzbeeskGFHq-vWawhimMUNXNF13tCrN3IJQOm9uk89mAn54rISQhUIQ2joP1fSEPeA_ioHVjLnVJaMplKC6OwBTZmqV6JqVgdjwgHjCyPvTKzCRTZR8bjqU9RxtH1v2Db8FFguDpDaEqwYCwJvT73d2yYAooXvYH9XBt9miOEIIajBQEgxCDBi6laHduAZgcb3Gd0Jg-tCgnkMpLRZ_J9XL8_Vw2CPYjtV07jtYnkz8sOEwDRypc9vro1Hqotpnqffc58ES2mXhQVDKkNFi6WZEdZx1bnUyBhpWV9Ud2RExrIo8Z3dlYTP5e06Aw"
-  
-}
-
-# resource "traceable_data_set" "sampledataset"{
-#              description = "hello I am good"
-#             icon_type = "Password"
-#             name= "shreyansh12"
-# }
-
 
 resource "traceable_rate_limiting" "sample"{
     name = "shreyanshrevamp12"
@@ -48,8 +22,8 @@ resource "traceable_rate_limiting" "sample"{
 
     ]
     action = {
-       action_type = "ALERT"
-        duration = "PT60S"
+        action_type = "ALERT"
+        # duration = "PT60s"
         event_severity = "LOW"    
         # header_injections = [
         #     {
