@@ -193,7 +193,7 @@ func HasValue(field interface{}) bool {
 
 }
 
-func convertToRuleConfigScope(environments types.List) (*generated.InputRuleConfigScope, error) {
+func convertToRuleConfigScope(environments types.Set) (*generated.InputRuleConfigScope, error) {
 	if !HasValue(environments) {
 		return nil, nil
 	}
