@@ -1,10 +1,11 @@
 package resources
 
 import (
+	"reflect"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/traceableai/terraform-provider-traceable/internal/generated"
-	"reflect"
 )
 
 var RateLimitingRuleEventSeverityMap = map[string]generated.RateLimitingRuleEventSeverity{
@@ -121,6 +122,26 @@ var RateLimitingRuleKeyValueConditionMetadataTypeMap = map[string]generated.Rate
 	"RESPONSE_HEADERS_COUNT":  generated.RateLimitingRuleKeyValueConditionMetadataTypeResponseHeadersCount,
 	"REQUEST_COOKIES_COUNT":   generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestCookiesCount,
 	"RESPONSE_COOKIES_COUNT":  generated.RateLimitingRuleKeyValueConditionMetadataTypeResponseCookiesCount,
+}
+
+var MaliciousIpRangeEventSeverityMap = map[string]generated.IpRangeEventSeverity{
+	"LOW":      generated.IpRangeEventSeverityLow,
+	"MEDIUM":   generated.IpRangeEventSeverityMedium,
+	"HIGH":     generated.IpRangeEventSeverityHigh,
+	"CRITICAL": generated.IpRangeEventSeverityCritical,
+}
+
+var MaliciousIpRangeActionMap = map[string]generated.IpRangeRuleActionType{
+	"BLOCK":            generated.IpRangeRuleActionTypeRuleActionBlock,
+	"ALLOW":            generated.IpRangeRuleActionTypeRuleActionAllow,
+	"BLOCK_ALL_EXCEPT": generated.IpRangeRuleActionTypeRuleActionBlockAllExcept,
+	"ALERT":            generated.IpRangeRuleActionTypeRuleActionAlert,
+}
+var MaliciousIpRangeIpRangeMapResponse = map[string]string{
+	"RULE_ACTION_BLOCK":            "BLOCK",
+	"RULE_ACTION_ALLOW":            "ALLOW",
+	"RULE_ACTION_BLOCK_ALL_EXCEPT": "BLOCK_ALL_EXCEPT",
+	"RULE_ACTION_ALERT":            "ALERT",
 }
 
 // var RateLimitingRequestResponseMultipleMap = map[string]bool{

@@ -51,6 +51,9 @@ func ConvertCustomStringPtrsToTerraformSet[T any](input []*T) (types.Set, error)
 }
 
 func ConvertStringPtrToTerraformSet(input []*string) (types.Set, error) {
+	fmt.Println("entering the utils functions")
+	fmt.Println("Shreyanshguptabest", input)
+
 	if input == nil {
 		return types.SetNull(types.StringType), nil
 	}
@@ -61,10 +64,13 @@ func ConvertStringPtrToTerraformSet(input []*string) (types.Set, error) {
 		}
 	}
 
+	fmt.Println(values)
+
 	setValue, diags := types.SetValueFrom(context.Background(), types.StringType, values)
 	if diags.HasError() {
 		return types.SetNull(types.StringType), fmt.Errorf("converting String Pointer to Terraform Set fails ")
 	}
+	fmt.Println("existing the utils functions")
 	return setValue, nil
 
 }
@@ -127,4 +133,18 @@ func ConvertCustomStringPtrsToTerraformList[T any](input []*T) (types.List, erro
 
 	return listValue, nil
 
+}
+
+func ConvertSetToStrPointer(data types.Set) ([]*string, error) {
+	values := []*string{}
+	for _, elem := range data.Elements() {
+
+		if elem, ok := elem.(types.String); ok {
+			str := elem.ValueString()
+			values = append(values, &str)
+		} else {
+			return nil, fmt.Errorf("Failed to convert %s to string pointer", elem)
+		}
+	}
+	return values, nil
 }
