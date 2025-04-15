@@ -134,6 +134,150 @@ func (v *CreateMaliciousIpRangeRuleResponse) GetCreateIpRangeRule() CreateMalici
 	return v.CreateIpRangeRule
 }
 
+// CreateMaliciousRegionRuleCreateRegionRule includes the requested fields of the GraphQL type RegionRule.
+type CreateMaliciousRegionRuleCreateRegionRule struct {
+	MaliciousRegionRuleFields `json:"-"`
+}
+
+// GetId returns CreateMaliciousRegionRuleCreateRegionRule.Id, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetId() string {
+	return v.MaliciousRegionRuleFields.Id
+}
+
+// GetName returns CreateMaliciousRegionRuleCreateRegionRule.Name, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetName() string {
+	return v.MaliciousRegionRuleFields.Name
+}
+
+// GetType returns CreateMaliciousRegionRuleCreateRegionRule.Type, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetType() RegionRuleActionType {
+	return v.MaliciousRegionRuleFields.Type
+}
+
+// GetDescription returns CreateMaliciousRegionRuleCreateRegionRule.Description, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetDescription() *string {
+	return v.MaliciousRegionRuleFields.Description
+}
+
+// GetDisabled returns CreateMaliciousRegionRuleCreateRegionRule.Disabled, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetDisabled() bool {
+	return v.MaliciousRegionRuleFields.Disabled
+}
+
+// GetInternal returns CreateMaliciousRegionRuleCreateRegionRule.Internal, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetInternal() bool {
+	return v.MaliciousRegionRuleFields.Internal
+}
+
+// GetEventSeverity returns CreateMaliciousRegionRuleCreateRegionRule.EventSeverity, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetEventSeverity() *RegionRuleEventSeverity {
+	return v.MaliciousRegionRuleFields.EventSeverity
+}
+
+// GetExpiration returns CreateMaliciousRegionRuleCreateRegionRule.Expiration, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetExpiration() *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration {
+	return v.MaliciousRegionRuleFields.Expiration
+}
+
+// GetRegions returns CreateMaliciousRegionRuleCreateRegionRule.Regions, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetRegions() []*MaliciousRegionRuleFieldsRegionsRegion {
+	return v.MaliciousRegionRuleFields.Regions
+}
+
+// GetRuleScope returns CreateMaliciousRegionRuleCreateRegionRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetRuleScope() *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope {
+	return v.MaliciousRegionRuleFields.RuleScope
+}
+
+// GetEffects returns CreateMaliciousRegionRuleCreateRegionRule.Effects, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleCreateRegionRule) GetEffects() []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification {
+	return v.MaliciousRegionRuleFields.Effects
+}
+
+func (v *CreateMaliciousRegionRuleCreateRegionRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CreateMaliciousRegionRuleCreateRegionRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CreateMaliciousRegionRuleCreateRegionRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousRegionRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCreateMaliciousRegionRuleCreateRegionRule struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type RegionRuleActionType `json:"type"`
+
+	Description *string `json:"description"`
+
+	Disabled bool `json:"disabled"`
+
+	Internal bool `json:"internal"`
+
+	EventSeverity *RegionRuleEventSeverity `json:"eventSeverity"`
+
+	Expiration *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration `json:"expiration"`
+
+	Regions []*MaliciousRegionRuleFieldsRegionsRegion `json:"regions"`
+
+	RuleScope *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope `json:"ruleScope"`
+
+	Effects []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification `json:"effects"`
+}
+
+func (v *CreateMaliciousRegionRuleCreateRegionRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CreateMaliciousRegionRuleCreateRegionRule) __premarshalJSON() (*__premarshalCreateMaliciousRegionRuleCreateRegionRule, error) {
+	var retval __premarshalCreateMaliciousRegionRuleCreateRegionRule
+
+	retval.Id = v.MaliciousRegionRuleFields.Id
+	retval.Name = v.MaliciousRegionRuleFields.Name
+	retval.Type = v.MaliciousRegionRuleFields.Type
+	retval.Description = v.MaliciousRegionRuleFields.Description
+	retval.Disabled = v.MaliciousRegionRuleFields.Disabled
+	retval.Internal = v.MaliciousRegionRuleFields.Internal
+	retval.EventSeverity = v.MaliciousRegionRuleFields.EventSeverity
+	retval.Expiration = v.MaliciousRegionRuleFields.Expiration
+	retval.Regions = v.MaliciousRegionRuleFields.Regions
+	retval.RuleScope = v.MaliciousRegionRuleFields.RuleScope
+	retval.Effects = v.MaliciousRegionRuleFields.Effects
+	return &retval, nil
+}
+
+// CreateMaliciousRegionRuleResponse is returned by CreateMaliciousRegionRule on success.
+type CreateMaliciousRegionRuleResponse struct {
+	CreateRegionRule CreateMaliciousRegionRuleCreateRegionRule `json:"createRegionRule"`
+}
+
+// GetCreateRegionRule returns CreateMaliciousRegionRuleResponse.CreateRegionRule, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousRegionRuleResponse) GetCreateRegionRule() CreateMaliciousRegionRuleCreateRegionRule {
+	return v.CreateRegionRule
+}
+
 // CreateRateLimitingRuleCreateRateLimitingRule includes the requested fields of the GraphQL type RateLimitingRule.
 // The GraphQL type's documentation follows.
 //
@@ -395,6 +539,26 @@ func (v *DeleteMaliciousIpRangeRuleResponse) GetDeleteIpRangeRule() DeleteMalici
 	return v.DeleteIpRangeRule
 }
 
+// DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse includes the requested fields of the GraphQL type DeleteRegionRuleResponse.
+type DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse struct {
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse.Success, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse) GetSuccess() bool {
+	return v.Success
+}
+
+// DeleteMaliciousRegionRuleResponse is returned by DeleteMaliciousRegionRule on success.
+type DeleteMaliciousRegionRuleResponse struct {
+	DeleteRegionRule DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse `json:"deleteRegionRule"`
+}
+
+// GetDeleteRegionRule returns DeleteMaliciousRegionRuleResponse.DeleteRegionRule, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousRegionRuleResponse) GetDeleteRegionRule() DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse {
+	return v.DeleteRegionRule
+}
+
 // DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse includes the requested fields of the GraphQL type DeleteRateLimitingRuleResponse.
 type DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse struct {
 	Success bool `json:"success"`
@@ -413,6 +577,57 @@ type DeleteRateLimitingRuleResponse struct {
 // GetDeleteRateLimitingRule returns DeleteRateLimitingRuleResponse.DeleteRateLimitingRule, and is useful for accessing the field via an interface.
 func (v *DeleteRateLimitingRuleResponse) GetDeleteRateLimitingRule() DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse {
 	return v.DeleteRateLimitingRule
+}
+
+// GetCountriesCountriesRegionResultSet includes the requested fields of the GraphQL type RegionResultSet.
+type GetCountriesCountriesRegionResultSet struct {
+	Results []*GetCountriesCountriesRegionResultSetResultsRegion `json:"results"`
+}
+
+// GetResults returns GetCountriesCountriesRegionResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetCountriesCountriesRegionResultSet) GetResults() []*GetCountriesCountriesRegionResultSetResultsRegion {
+	return v.Results
+}
+
+// GetCountriesCountriesRegionResultSetResultsRegion includes the requested fields of the GraphQL type Region.
+type GetCountriesCountriesRegionResultSetResultsRegion struct {
+	Id string `json:"id"`
+	// Country data for region
+	Country *GetCountriesCountriesRegionResultSetResultsRegionCountry `json:"country"`
+}
+
+// GetId returns GetCountriesCountriesRegionResultSetResultsRegion.Id, and is useful for accessing the field via an interface.
+func (v *GetCountriesCountriesRegionResultSetResultsRegion) GetId() string { return v.Id }
+
+// GetCountry returns GetCountriesCountriesRegionResultSetResultsRegion.Country, and is useful for accessing the field via an interface.
+func (v *GetCountriesCountriesRegionResultSetResultsRegion) GetCountry() *GetCountriesCountriesRegionResultSetResultsRegionCountry {
+	return v.Country
+}
+
+// GetCountriesCountriesRegionResultSetResultsRegionCountry includes the requested fields of the GraphQL type Country.
+type GetCountriesCountriesRegionResultSetResultsRegionCountry struct {
+	// Country iso code
+	IsoCode string `json:"isoCode"`
+	// Country name
+	Name string `json:"name"`
+}
+
+// GetIsoCode returns GetCountriesCountriesRegionResultSetResultsRegionCountry.IsoCode, and is useful for accessing the field via an interface.
+func (v *GetCountriesCountriesRegionResultSetResultsRegionCountry) GetIsoCode() string {
+	return v.IsoCode
+}
+
+// GetName returns GetCountriesCountriesRegionResultSetResultsRegionCountry.Name, and is useful for accessing the field via an interface.
+func (v *GetCountriesCountriesRegionResultSetResultsRegionCountry) GetName() string { return v.Name }
+
+// GetCountriesResponse is returned by GetCountries on success.
+type GetCountriesResponse struct {
+	Countries GetCountriesCountriesRegionResultSet `json:"countries"`
+}
+
+// GetCountries returns GetCountriesResponse.Countries, and is useful for accessing the field via an interface.
+func (v *GetCountriesResponse) GetCountries() GetCountriesCountriesRegionResultSet {
+	return v.Countries
 }
 
 // GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet includes the requested fields of the GraphQL type IpRangeRuleResultSet.
@@ -589,6 +804,216 @@ type GetMaliciousIpRangeRulesNameResponse struct {
 // GetIpRangeRules returns GetMaliciousIpRangeRulesNameResponse.IpRangeRules, and is useful for accessing the field via an interface.
 func (v *GetMaliciousIpRangeRulesNameResponse) GetIpRangeRules() GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet {
 	return v.IpRangeRules
+}
+
+// GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet includes the requested fields of the GraphQL type RegionRuleResultSet.
+type GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet struct {
+	Count   int64                                                                           `json:"count"`
+	Total   int64                                                                           `json:"total"`
+	Results []*GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet) GetCount() int64 {
+	return v.Count
+}
+
+// GetTotal returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet) GetTotal() int64 {
+	return v.Total
+}
+
+// GetResults returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet) GetResults() []*GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule {
+	return v.Results
+}
+
+// GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule includes the requested fields of the GraphQL type RegionRule.
+type GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule struct {
+	MaliciousRegionRuleFields `json:"-"`
+}
+
+// GetId returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetId() string {
+	return v.MaliciousRegionRuleFields.Id
+}
+
+// GetName returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Name, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetName() string {
+	return v.MaliciousRegionRuleFields.Name
+}
+
+// GetType returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Type, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetType() RegionRuleActionType {
+	return v.MaliciousRegionRuleFields.Type
+}
+
+// GetDescription returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Description, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetDescription() *string {
+	return v.MaliciousRegionRuleFields.Description
+}
+
+// GetDisabled returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Disabled, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetDisabled() bool {
+	return v.MaliciousRegionRuleFields.Disabled
+}
+
+// GetInternal returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Internal, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetInternal() bool {
+	return v.MaliciousRegionRuleFields.Internal
+}
+
+// GetEventSeverity returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.EventSeverity, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetEventSeverity() *RegionRuleEventSeverity {
+	return v.MaliciousRegionRuleFields.EventSeverity
+}
+
+// GetExpiration returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Expiration, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetExpiration() *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration {
+	return v.MaliciousRegionRuleFields.Expiration
+}
+
+// GetRegions returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Regions, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetRegions() []*MaliciousRegionRuleFieldsRegionsRegion {
+	return v.MaliciousRegionRuleFields.Regions
+}
+
+// GetRuleScope returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetRuleScope() *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope {
+	return v.MaliciousRegionRuleFields.RuleScope
+}
+
+// GetEffects returns GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule.Effects, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) GetEffects() []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification {
+	return v.MaliciousRegionRuleFields.Effects
+}
+
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousRegionRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalGetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type RegionRuleActionType `json:"type"`
+
+	Description *string `json:"description"`
+
+	Disabled bool `json:"disabled"`
+
+	Internal bool `json:"internal"`
+
+	EventSeverity *RegionRuleEventSeverity `json:"eventSeverity"`
+
+	Expiration *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration `json:"expiration"`
+
+	Regions []*MaliciousRegionRuleFieldsRegionsRegion `json:"regions"`
+
+	RuleScope *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope `json:"ruleScope"`
+
+	Effects []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification `json:"effects"`
+}
+
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule) __premarshalJSON() (*__premarshalGetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule, error) {
+	var retval __premarshalGetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSetResultsRegionRule
+
+	retval.Id = v.MaliciousRegionRuleFields.Id
+	retval.Name = v.MaliciousRegionRuleFields.Name
+	retval.Type = v.MaliciousRegionRuleFields.Type
+	retval.Description = v.MaliciousRegionRuleFields.Description
+	retval.Disabled = v.MaliciousRegionRuleFields.Disabled
+	retval.Internal = v.MaliciousRegionRuleFields.Internal
+	retval.EventSeverity = v.MaliciousRegionRuleFields.EventSeverity
+	retval.Expiration = v.MaliciousRegionRuleFields.Expiration
+	retval.Regions = v.MaliciousRegionRuleFields.Regions
+	retval.RuleScope = v.MaliciousRegionRuleFields.RuleScope
+	retval.Effects = v.MaliciousRegionRuleFields.Effects
+	return &retval, nil
+}
+
+// GetMaliciousRegionRuleDetailsResponse is returned by GetMaliciousRegionRuleDetails on success.
+type GetMaliciousRegionRuleDetailsResponse struct {
+	RegionRules GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet `json:"regionRules"`
+}
+
+// GetRegionRules returns GetMaliciousRegionRuleDetailsResponse.RegionRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRuleDetailsResponse) GetRegionRules() GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet {
+	return v.RegionRules
+}
+
+// GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet includes the requested fields of the GraphQL type RegionRuleResultSet.
+type GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet struct {
+	Count   int64                                                                         `json:"count"`
+	Total   int64                                                                         `json:"total"`
+	Results []*GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet) GetCount() int64 { return v.Count }
+
+// GetTotal returns GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet) GetTotal() int64 { return v.Total }
+
+// GetResults returns GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet) GetResults() []*GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule {
+	return v.Results
+}
+
+// GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule includes the requested fields of the GraphQL type RegionRule.
+type GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetId returns GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule) GetId() string {
+	return v.Id
+}
+
+// GetName returns GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule.Name, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSetResultsRegionRule) GetName() string {
+	return v.Name
+}
+
+// GetMaliciousRegionRulesNameResponse is returned by GetMaliciousRegionRulesName on success.
+type GetMaliciousRegionRulesNameResponse struct {
+	RegionRules GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet `json:"regionRules"`
+}
+
+// GetRegionRules returns GetMaliciousRegionRulesNameResponse.RegionRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousRegionRulesNameResponse) GetRegionRules() GetMaliciousRegionRulesNameRegionRulesRegionRuleResultSet {
+	return v.RegionRules
 }
 
 // GetRateLimitingDetailsRateLimitingRulesRateLimitingRuleResultSet includes the requested fields of the GraphQL type RateLimitingRuleResultSet.
@@ -2086,6 +2511,179 @@ func (v *InputRateLimitingTransactionActionConfig) GetExpirationTimestamp() *str
 	return v.ExpirationTimestamp
 }
 
+type InputRegionEnvironmentScope struct {
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns InputRegionEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *InputRegionEnvironmentScope) GetEnvironmentIds() []*string { return v.EnvironmentIds }
+
+type InputRegionRuleAgentEffect struct {
+	AgentModifications []*InputRegionRuleAgentModification `json:"agentModifications"`
+}
+
+// GetAgentModifications returns InputRegionRuleAgentEffect.AgentModifications, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleAgentEffect) GetAgentModifications() []*InputRegionRuleAgentModification {
+	return v.AgentModifications
+}
+
+type InputRegionRuleAgentModification struct {
+	AgentModificationType RegionRuleAgentModificationType `json:"agentModificationType"`
+	HeaderInjection       InputRegionRuleHeaderInjection  `json:"headerInjection"`
+}
+
+// GetAgentModificationType returns InputRegionRuleAgentModification.AgentModificationType, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleAgentModification) GetAgentModificationType() RegionRuleAgentModificationType {
+	return v.AgentModificationType
+}
+
+// GetHeaderInjection returns InputRegionRuleAgentModification.HeaderInjection, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleAgentModification) GetHeaderInjection() InputRegionRuleHeaderInjection {
+	return v.HeaderInjection
+}
+
+type InputRegionRuleCreate struct {
+	Description   *string                                  `json:"description"`
+	Duration      *string                                  `json:"duration"`
+	Effects       []*InputRegionRuleEffectWithModification `json:"effects"`
+	EventSeverity *RegionRuleEventSeverity                 `json:"eventSeverity"`
+	Name          string                                   `json:"name"`
+	RegionIds     []*string                                `json:"regionIds"`
+	RuleScope     *InputRegionRuleScope                    `json:"ruleScope"`
+	Type          RegionRuleActionType                     `json:"type"`
+}
+
+// GetDescription returns InputRegionRuleCreate.Description, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetDescription() *string { return v.Description }
+
+// GetDuration returns InputRegionRuleCreate.Duration, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetDuration() *string { return v.Duration }
+
+// GetEffects returns InputRegionRuleCreate.Effects, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetEffects() []*InputRegionRuleEffectWithModification {
+	return v.Effects
+}
+
+// GetEventSeverity returns InputRegionRuleCreate.EventSeverity, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetEventSeverity() *RegionRuleEventSeverity { return v.EventSeverity }
+
+// GetName returns InputRegionRuleCreate.Name, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetName() string { return v.Name }
+
+// GetRegionIds returns InputRegionRuleCreate.RegionIds, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetRegionIds() []*string { return v.RegionIds }
+
+// GetRuleScope returns InputRegionRuleCreate.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetRuleScope() *InputRegionRuleScope { return v.RuleScope }
+
+// GetType returns InputRegionRuleCreate.Type, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleCreate) GetType() RegionRuleActionType { return v.Type }
+
+type InputRegionRuleDelete struct {
+	Id string `json:"id"`
+}
+
+// GetId returns InputRegionRuleDelete.Id, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleDelete) GetId() string { return v.Id }
+
+type InputRegionRuleEffectWithModification struct {
+	// Effects enforced for agent while inline processing of requests
+	AgentEffect    InputRegionRuleAgentEffect       `json:"agentEffect"`
+	RuleEffectType RegionRuleEffectModificationType `json:"ruleEffectType"`
+}
+
+// GetAgentEffect returns InputRegionRuleEffectWithModification.AgentEffect, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleEffectWithModification) GetAgentEffect() InputRegionRuleAgentEffect {
+	return v.AgentEffect
+}
+
+// GetRuleEffectType returns InputRegionRuleEffectWithModification.RuleEffectType, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleEffectWithModification) GetRuleEffectType() RegionRuleEffectModificationType {
+	return v.RuleEffectType
+}
+
+type InputRegionRuleHeaderInjection struct {
+	HeaderCategory RegionRuleHeaderCategory `json:"headerCategory"`
+	Key            string                   `json:"key"`
+	Value          string                   `json:"value"`
+}
+
+// GetHeaderCategory returns InputRegionRuleHeaderInjection.HeaderCategory, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleHeaderInjection) GetHeaderCategory() RegionRuleHeaderCategory {
+	return v.HeaderCategory
+}
+
+// GetKey returns InputRegionRuleHeaderInjection.Key, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleHeaderInjection) GetKey() string { return v.Key }
+
+// GetValue returns InputRegionRuleHeaderInjection.Value, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleHeaderInjection) GetValue() string { return v.Value }
+
+type InputRegionRuleScope struct {
+	EnvironmentScope *InputRegionEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns InputRegionRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleScope) GetEnvironmentScope() *InputRegionEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+type InputRegionRuleUpdate struct {
+	Description   *string                                  `json:"description"`
+	Disabled      *bool                                    `json:"disabled"`
+	Duration      *string                                  `json:"duration"`
+	Effects       []*InputRegionRuleEffectWithModification `json:"effects"`
+	EventSeverity *RegionRuleEventSeverity                 `json:"eventSeverity"`
+	Id            string                                   `json:"id"`
+	Internal      *bool                                    `json:"internal"`
+	Name          string                                   `json:"name"`
+	RegionIds     []*string                                `json:"regionIds"`
+	RuleScope     *InputRegionRuleScope                    `json:"ruleScope"`
+	Type          RegionRuleActionType                     `json:"type"`
+}
+
+// GetDescription returns InputRegionRuleUpdate.Description, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetDescription() *string { return v.Description }
+
+// GetDisabled returns InputRegionRuleUpdate.Disabled, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetDisabled() *bool { return v.Disabled }
+
+// GetDuration returns InputRegionRuleUpdate.Duration, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetDuration() *string { return v.Duration }
+
+// GetEffects returns InputRegionRuleUpdate.Effects, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetEffects() []*InputRegionRuleEffectWithModification {
+	return v.Effects
+}
+
+// GetEventSeverity returns InputRegionRuleUpdate.EventSeverity, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetEventSeverity() *RegionRuleEventSeverity { return v.EventSeverity }
+
+// GetId returns InputRegionRuleUpdate.Id, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetId() string { return v.Id }
+
+// GetInternal returns InputRegionRuleUpdate.Internal, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetInternal() *bool { return v.Internal }
+
+// GetName returns InputRegionRuleUpdate.Name, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetName() string { return v.Name }
+
+// GetRegionIds returns InputRegionRuleUpdate.RegionIds, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetRegionIds() []*string { return v.RegionIds }
+
+// GetRuleScope returns InputRegionRuleUpdate.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetRuleScope() *InputRegionRuleScope { return v.RuleScope }
+
+// GetType returns InputRegionRuleUpdate.Type, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetType() RegionRuleActionType { return v.Type }
+
+type InputRegionRulesFilter struct {
+	RuleScope InputRegionRuleScope `json:"ruleScope"`
+}
+
+// GetRuleScope returns InputRegionRulesFilter.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputRegionRulesFilter) GetRuleScope() InputRegionRuleScope { return v.RuleScope }
+
 // Threshold config which specifies count allowed over the given time range
 type InputRollingWindowThresholdConfig struct {
 	// Count allowed for specified time range
@@ -3090,6 +3688,199 @@ type MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvir
 
 // GetEnvironmentIds returns MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
 func (v *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope) GetEnvironmentIds() []*string {
+	return v.EnvironmentIds
+}
+
+// MaliciousRegionRuleFields includes the GraphQL fields of RegionRule requested by the fragment MaliciousRegionRuleFields.
+type MaliciousRegionRuleFields struct {
+	Id            string                                                              `json:"id"`
+	Name          string                                                              `json:"name"`
+	Type          RegionRuleActionType                                                `json:"type"`
+	Description   *string                                                             `json:"description"`
+	Disabled      bool                                                                `json:"disabled"`
+	Internal      bool                                                                `json:"internal"`
+	EventSeverity *RegionRuleEventSeverity                                            `json:"eventSeverity"`
+	Expiration    *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration            `json:"expiration"`
+	Regions       []*MaliciousRegionRuleFieldsRegionsRegion                           `json:"regions"`
+	RuleScope     *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope                  `json:"ruleScope"`
+	Effects       []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification `json:"effects"`
+}
+
+// GetId returns MaliciousRegionRuleFields.Id, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetId() string { return v.Id }
+
+// GetName returns MaliciousRegionRuleFields.Name, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetName() string { return v.Name }
+
+// GetType returns MaliciousRegionRuleFields.Type, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetType() RegionRuleActionType { return v.Type }
+
+// GetDescription returns MaliciousRegionRuleFields.Description, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetDescription() *string { return v.Description }
+
+// GetDisabled returns MaliciousRegionRuleFields.Disabled, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetDisabled() bool { return v.Disabled }
+
+// GetInternal returns MaliciousRegionRuleFields.Internal, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetInternal() bool { return v.Internal }
+
+// GetEventSeverity returns MaliciousRegionRuleFields.EventSeverity, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetEventSeverity() *RegionRuleEventSeverity {
+	return v.EventSeverity
+}
+
+// GetExpiration returns MaliciousRegionRuleFields.Expiration, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetExpiration() *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration {
+	return v.Expiration
+}
+
+// GetRegions returns MaliciousRegionRuleFields.Regions, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetRegions() []*MaliciousRegionRuleFieldsRegionsRegion {
+	return v.Regions
+}
+
+// GetRuleScope returns MaliciousRegionRuleFields.RuleScope, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetRuleScope() *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope {
+	return v.RuleScope
+}
+
+// GetEffects returns MaliciousRegionRuleFields.Effects, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFields) GetEffects() []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification {
+	return v.Effects
+}
+
+// MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification includes the requested fields of the GraphQL type RegionRuleEffectWithModification.
+type MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification struct {
+	RuleEffectType RegionRuleEffectModificationType `json:"ruleEffectType"`
+	// Effects enforced for agent while inline processing of requests
+	AgentEffect MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffect `json:"agentEffect"`
+}
+
+// GetRuleEffectType returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification.RuleEffectType, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification) GetRuleEffectType() RegionRuleEffectModificationType {
+	return v.RuleEffectType
+}
+
+// GetAgentEffect returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification.AgentEffect, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification) GetAgentEffect() MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffect {
+	return v.AgentEffect
+}
+
+// MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffect includes the requested fields of the GraphQL type RegionRuleAgentEffect.
+type MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffect struct {
+	AgentModifications []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification `json:"agentModifications"`
+}
+
+// GetAgentModifications returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffect.AgentModifications, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffect) GetAgentModifications() []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification {
+	return v.AgentModifications
+}
+
+// MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification includes the requested fields of the GraphQL type RegionRuleAgentModification.
+type MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification struct {
+	AgentModificationType RegionRuleAgentModificationType                                                                                                                                                       `json:"agentModificationType"`
+	HeaderInjection       MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection `json:"headerInjection"`
+}
+
+// GetAgentModificationType returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification.AgentModificationType, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification) GetAgentModificationType() RegionRuleAgentModificationType {
+	return v.AgentModificationType
+}
+
+// GetHeaderInjection returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification.HeaderInjection, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModification) GetHeaderInjection() MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection {
+	return v.HeaderInjection
+}
+
+// MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection includes the requested fields of the GraphQL type RegionRuleHeaderInjection.
+type MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection struct {
+	Key            string                   `json:"key"`
+	Value          string                   `json:"value"`
+	HeaderCategory RegionRuleHeaderCategory `json:"headerCategory"`
+}
+
+// GetKey returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection.Key, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection.Value, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection) GetValue() string {
+	return v.Value
+}
+
+// GetHeaderCategory returns MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection.HeaderCategory, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModificationAgentEffectRegionRuleAgentEffectAgentModificationsRegionRuleAgentModificationHeaderInjectionRegionRuleHeaderInjection) GetHeaderCategory() RegionRuleHeaderCategory {
+	return v.HeaderCategory
+}
+
+// MaliciousRegionRuleFieldsExpirationRegionRuleExpiration includes the requested fields of the GraphQL type RegionRuleExpiration.
+type MaliciousRegionRuleFieldsExpirationRegionRuleExpiration struct {
+	Duration  string `json:"duration"`
+	Timestamp string `json:"timestamp"`
+}
+
+// GetDuration returns MaliciousRegionRuleFieldsExpirationRegionRuleExpiration.Duration, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration) GetDuration() string {
+	return v.Duration
+}
+
+// GetTimestamp returns MaliciousRegionRuleFieldsExpirationRegionRuleExpiration.Timestamp, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration) GetTimestamp() string {
+	return v.Timestamp
+}
+
+// MaliciousRegionRuleFieldsRegionsRegion includes the requested fields of the GraphQL type Region.
+type MaliciousRegionRuleFieldsRegionsRegion struct {
+	Id string `json:"id"`
+	// Region name
+	Name string `json:"name"`
+	// Country data for region
+	Country *MaliciousRegionRuleFieldsRegionsRegionCountry `json:"country"`
+}
+
+// GetId returns MaliciousRegionRuleFieldsRegionsRegion.Id, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsRegionsRegion) GetId() string { return v.Id }
+
+// GetName returns MaliciousRegionRuleFieldsRegionsRegion.Name, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsRegionsRegion) GetName() string { return v.Name }
+
+// GetCountry returns MaliciousRegionRuleFieldsRegionsRegion.Country, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsRegionsRegion) GetCountry() *MaliciousRegionRuleFieldsRegionsRegionCountry {
+	return v.Country
+}
+
+// MaliciousRegionRuleFieldsRegionsRegionCountry includes the requested fields of the GraphQL type Country.
+type MaliciousRegionRuleFieldsRegionsRegionCountry struct {
+	// Country iso code
+	IsoCode string `json:"isoCode"`
+	// Country name
+	Name string `json:"name"`
+}
+
+// GetIsoCode returns MaliciousRegionRuleFieldsRegionsRegionCountry.IsoCode, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsRegionsRegionCountry) GetIsoCode() string { return v.IsoCode }
+
+// GetName returns MaliciousRegionRuleFieldsRegionsRegionCountry.Name, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsRegionsRegionCountry) GetName() string { return v.Name }
+
+// MaliciousRegionRuleFieldsRuleScopeRegionRuleScope includes the requested fields of the GraphQL type RegionRuleScope.
+type MaliciousRegionRuleFieldsRuleScopeRegionRuleScope struct {
+	EnvironmentScope *MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns MaliciousRegionRuleFieldsRuleScopeRegionRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope) GetEnvironmentScope() *MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope includes the requested fields of the GraphQL type RegionEnvironmentScope.
+type MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope struct {
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope) GetEnvironmentIds() []*string {
 	return v.EnvironmentIds
 }
 
@@ -4145,6 +4936,79 @@ var AllRateLimitingRuleUserAggregateType = []RateLimitingRuleUserAggregateType{
 	RateLimitingRuleUserAggregateTypeAcrossUsers,
 }
 
+type RegionRuleActionType string
+
+const (
+	// BLOCK
+	RegionRuleActionTypeBlock RegionRuleActionType = "BLOCK"
+	// BLOCK_ALL_EXCEPT
+	RegionRuleActionTypeBlockAllExcept RegionRuleActionType = "BLOCK_ALL_EXCEPT"
+	// ALERT
+	RegionRuleActionTypeAlert RegionRuleActionType = "ALERT"
+)
+
+var AllRegionRuleActionType = []RegionRuleActionType{
+	RegionRuleActionTypeBlock,
+	RegionRuleActionTypeBlockAllExcept,
+	RegionRuleActionTypeAlert,
+}
+
+type RegionRuleAgentModificationType string
+
+const (
+	// Add a header with inline processing of request on matching conditions
+	RegionRuleAgentModificationTypeHeaderInjection RegionRuleAgentModificationType = "HEADER_INJECTION"
+)
+
+var AllRegionRuleAgentModificationType = []RegionRuleAgentModificationType{
+	RegionRuleAgentModificationTypeHeaderInjection,
+}
+
+type RegionRuleEffectModificationType string
+
+const (
+	// Modifications to be done on agent
+	RegionRuleEffectModificationTypeAgentEffect RegionRuleEffectModificationType = "AGENT_EFFECT"
+)
+
+var AllRegionRuleEffectModificationType = []RegionRuleEffectModificationType{
+	RegionRuleEffectModificationTypeAgentEffect,
+}
+
+type RegionRuleEventSeverity string
+
+const (
+	// LOW
+	RegionRuleEventSeverityLow RegionRuleEventSeverity = "LOW"
+	// MEDIUM
+	RegionRuleEventSeverityMedium RegionRuleEventSeverity = "MEDIUM"
+	// HIGH
+	RegionRuleEventSeverityHigh RegionRuleEventSeverity = "HIGH"
+	// CRITICAL
+	RegionRuleEventSeverityCritical RegionRuleEventSeverity = "CRITICAL"
+)
+
+var AllRegionRuleEventSeverity = []RegionRuleEventSeverity{
+	RegionRuleEventSeverityLow,
+	RegionRuleEventSeverityMedium,
+	RegionRuleEventSeverityHigh,
+	RegionRuleEventSeverityCritical,
+}
+
+type RegionRuleHeaderCategory string
+
+const (
+	// REQUEST
+	RegionRuleHeaderCategoryRequest RegionRuleHeaderCategory = "REQUEST"
+	// RESPONSE
+	RegionRuleHeaderCategoryResponse RegionRuleHeaderCategory = "RESPONSE"
+)
+
+var AllRegionRuleHeaderCategory = []RegionRuleHeaderCategory{
+	RegionRuleHeaderCategoryRequest,
+	RegionRuleHeaderCategoryResponse,
+}
+
 // Fragment for ruleConfigScope
 type RuleConfigScopeFields struct {
 	// Environment scope applicable on rate limit rule
@@ -4811,6 +5675,150 @@ func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) __premarshalJSON() (*__pre
 	return &retval, nil
 }
 
+// UpdateMaliciousRegionRuleResponse is returned by UpdateMaliciousRegionRule on success.
+type UpdateMaliciousRegionRuleResponse struct {
+	UpdateRegionRule UpdateMaliciousRegionRuleUpdateRegionRule `json:"updateRegionRule"`
+}
+
+// GetUpdateRegionRule returns UpdateMaliciousRegionRuleResponse.UpdateRegionRule, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleResponse) GetUpdateRegionRule() UpdateMaliciousRegionRuleUpdateRegionRule {
+	return v.UpdateRegionRule
+}
+
+// UpdateMaliciousRegionRuleUpdateRegionRule includes the requested fields of the GraphQL type RegionRule.
+type UpdateMaliciousRegionRuleUpdateRegionRule struct {
+	MaliciousRegionRuleFields `json:"-"`
+}
+
+// GetId returns UpdateMaliciousRegionRuleUpdateRegionRule.Id, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetId() string {
+	return v.MaliciousRegionRuleFields.Id
+}
+
+// GetName returns UpdateMaliciousRegionRuleUpdateRegionRule.Name, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetName() string {
+	return v.MaliciousRegionRuleFields.Name
+}
+
+// GetType returns UpdateMaliciousRegionRuleUpdateRegionRule.Type, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetType() RegionRuleActionType {
+	return v.MaliciousRegionRuleFields.Type
+}
+
+// GetDescription returns UpdateMaliciousRegionRuleUpdateRegionRule.Description, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetDescription() *string {
+	return v.MaliciousRegionRuleFields.Description
+}
+
+// GetDisabled returns UpdateMaliciousRegionRuleUpdateRegionRule.Disabled, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetDisabled() bool {
+	return v.MaliciousRegionRuleFields.Disabled
+}
+
+// GetInternal returns UpdateMaliciousRegionRuleUpdateRegionRule.Internal, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetInternal() bool {
+	return v.MaliciousRegionRuleFields.Internal
+}
+
+// GetEventSeverity returns UpdateMaliciousRegionRuleUpdateRegionRule.EventSeverity, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetEventSeverity() *RegionRuleEventSeverity {
+	return v.MaliciousRegionRuleFields.EventSeverity
+}
+
+// GetExpiration returns UpdateMaliciousRegionRuleUpdateRegionRule.Expiration, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetExpiration() *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration {
+	return v.MaliciousRegionRuleFields.Expiration
+}
+
+// GetRegions returns UpdateMaliciousRegionRuleUpdateRegionRule.Regions, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetRegions() []*MaliciousRegionRuleFieldsRegionsRegion {
+	return v.MaliciousRegionRuleFields.Regions
+}
+
+// GetRuleScope returns UpdateMaliciousRegionRuleUpdateRegionRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetRuleScope() *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope {
+	return v.MaliciousRegionRuleFields.RuleScope
+}
+
+// GetEffects returns UpdateMaliciousRegionRuleUpdateRegionRule.Effects, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) GetEffects() []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification {
+	return v.MaliciousRegionRuleFields.Effects
+}
+
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateMaliciousRegionRuleUpdateRegionRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateMaliciousRegionRuleUpdateRegionRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousRegionRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalUpdateMaliciousRegionRuleUpdateRegionRule struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Type RegionRuleActionType `json:"type"`
+
+	Description *string `json:"description"`
+
+	Disabled bool `json:"disabled"`
+
+	Internal bool `json:"internal"`
+
+	EventSeverity *RegionRuleEventSeverity `json:"eventSeverity"`
+
+	Expiration *MaliciousRegionRuleFieldsExpirationRegionRuleExpiration `json:"expiration"`
+
+	Regions []*MaliciousRegionRuleFieldsRegionsRegion `json:"regions"`
+
+	RuleScope *MaliciousRegionRuleFieldsRuleScopeRegionRuleScope `json:"ruleScope"`
+
+	Effects []*MaliciousRegionRuleFieldsEffectsRegionRuleEffectWithModification `json:"effects"`
+}
+
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateMaliciousRegionRuleUpdateRegionRule) __premarshalJSON() (*__premarshalUpdateMaliciousRegionRuleUpdateRegionRule, error) {
+	var retval __premarshalUpdateMaliciousRegionRuleUpdateRegionRule
+
+	retval.Id = v.MaliciousRegionRuleFields.Id
+	retval.Name = v.MaliciousRegionRuleFields.Name
+	retval.Type = v.MaliciousRegionRuleFields.Type
+	retval.Description = v.MaliciousRegionRuleFields.Description
+	retval.Disabled = v.MaliciousRegionRuleFields.Disabled
+	retval.Internal = v.MaliciousRegionRuleFields.Internal
+	retval.EventSeverity = v.MaliciousRegionRuleFields.EventSeverity
+	retval.Expiration = v.MaliciousRegionRuleFields.Expiration
+	retval.Regions = v.MaliciousRegionRuleFields.Regions
+	retval.RuleScope = v.MaliciousRegionRuleFields.RuleScope
+	retval.Effects = v.MaliciousRegionRuleFields.Effects
+	return &retval, nil
+}
+
 // UpdateRateLimitingRuleResponse is returned by UpdateRateLimitingRule on success.
 type UpdateRateLimitingRuleResponse struct {
 	UpdateRateLimitingRule UpdateRateLimitingRuleUpdateRateLimitingRule `json:"updateRateLimitingRule"`
@@ -4992,6 +6000,14 @@ type __CreateMaliciousIpRangeRuleInput struct {
 // GetInput returns __CreateMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__CreateMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleCreate { return v.Input }
 
+// __CreateMaliciousRegionRuleInput is used internally by genqlient
+type __CreateMaliciousRegionRuleInput struct {
+	Input InputRegionRuleCreate `json:"input"`
+}
+
+// GetInput returns __CreateMaliciousRegionRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__CreateMaliciousRegionRuleInput) GetInput() InputRegionRuleCreate { return v.Input }
+
 // __CreateRateLimitingRuleInput is used internally by genqlient
 type __CreateRateLimitingRuleInput struct {
 	Input InputRateLimitingRuleData `json:"input"`
@@ -5016,6 +6032,14 @@ type __DeleteMaliciousIpRangeRuleInput struct {
 // GetInput returns __DeleteMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__DeleteMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleDelete { return v.Input }
 
+// __DeleteMaliciousRegionRuleInput is used internally by genqlient
+type __DeleteMaliciousRegionRuleInput struct {
+	Input InputRegionRuleDelete `json:"input"`
+}
+
+// GetInput returns __DeleteMaliciousRegionRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__DeleteMaliciousRegionRuleInput) GetInput() InputRegionRuleDelete { return v.Input }
+
 // __DeleteRateLimitingRuleInput is used internally by genqlient
 type __DeleteRateLimitingRuleInput struct {
 	Id string `json:"id"`
@@ -5039,6 +6063,22 @@ type __GetMaliciousIpRangeRulesNameInput struct {
 
 // GetInput returns __GetMaliciousIpRangeRulesNameInput.Input, and is useful for accessing the field via an interface.
 func (v *__GetMaliciousIpRangeRulesNameInput) GetInput() *InputIpRangeRulesFilter { return v.Input }
+
+// __GetMaliciousRegionRuleDetailsInput is used internally by genqlient
+type __GetMaliciousRegionRuleDetailsInput struct {
+	Input *InputRegionRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousRegionRuleDetailsInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousRegionRuleDetailsInput) GetInput() *InputRegionRulesFilter { return v.Input }
+
+// __GetMaliciousRegionRulesNameInput is used internally by genqlient
+type __GetMaliciousRegionRulesNameInput struct {
+	Input *InputRegionRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousRegionRulesNameInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousRegionRulesNameInput) GetInput() *InputRegionRulesFilter { return v.Input }
 
 // __GetRateLimitingDetailsInput is used internally by genqlient
 type __GetRateLimitingDetailsInput struct {
@@ -5085,6 +6125,14 @@ type __UpdateMaliciousIpRangeRuleInput struct {
 
 // GetInput returns __UpdateMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__UpdateMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleUpdate { return v.Input }
+
+// __UpdateMaliciousRegionRuleInput is used internally by genqlient
+type __UpdateMaliciousRegionRuleInput struct {
+	Input InputRegionRuleUpdate `json:"input"`
+}
+
+// GetInput returns __UpdateMaliciousRegionRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__UpdateMaliciousRegionRuleInput) GetInput() InputRegionRuleUpdate { return v.Input }
 
 // __UpdateRateLimitingRuleInput is used internally by genqlient
 type __UpdateRateLimitingRuleInput struct {
@@ -5188,6 +6236,79 @@ func CreateMaliciousIpRangeRule(
 	}
 
 	data_ = &CreateMaliciousIpRangeRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by CreateMaliciousRegionRule.
+const CreateMaliciousRegionRule_Operation = `
+mutation CreateMaliciousRegionRule ($input: InputRegionRuleCreate!) {
+	createRegionRule(input: $input) {
+		... MaliciousRegionRuleFields
+	}
+}
+fragment MaliciousRegionRuleFields on RegionRule {
+	id
+	name
+	type
+	description
+	disabled
+	internal
+	eventSeverity
+	expiration {
+		duration
+		timestamp
+	}
+	regions {
+		id
+		name
+		country {
+			isoCode
+			name
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	effects {
+		ruleEffectType
+		agentEffect {
+			agentModifications {
+				agentModificationType
+				headerInjection {
+					key
+					value
+					headerCategory
+				}
+			}
+		}
+	}
+}
+`
+
+func CreateMaliciousRegionRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputRegionRuleCreate,
+) (data_ *CreateMaliciousRegionRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CreateMaliciousRegionRule",
+		Query:  CreateMaliciousRegionRule_Operation,
+		Variables: &__CreateMaliciousRegionRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CreateMaliciousRegionRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -5542,6 +6663,40 @@ func DeleteMaliciousIpRangeRule(
 	return data_, err_
 }
 
+// The mutation executed by DeleteMaliciousRegionRule.
+const DeleteMaliciousRegionRule_Operation = `
+mutation DeleteMaliciousRegionRule ($input: InputRegionRuleDelete!) {
+	deleteRegionRule(input: $input) {
+		success
+	}
+}
+`
+
+func DeleteMaliciousRegionRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputRegionRuleDelete,
+) (data_ *DeleteMaliciousRegionRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteMaliciousRegionRule",
+		Query:  DeleteMaliciousRegionRule_Operation,
+		Variables: &__DeleteMaliciousRegionRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &DeleteMaliciousRegionRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteRateLimitingRule.
 const DeleteRateLimitingRule_Operation = `
 mutation DeleteRateLimitingRule ($id: String!) {
@@ -5565,6 +6720,42 @@ func DeleteRateLimitingRule(
 	}
 
 	data_ = &DeleteRateLimitingRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetCountries.
+const GetCountries_Operation = `
+query GetCountries {
+	countries {
+		results {
+			id
+			country {
+				isoCode
+				name
+			}
+		}
+	}
+}
+`
+
+func GetCountries(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetCountriesResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetCountries",
+		Query:  GetCountries_Operation,
+	}
+
+	data_ = &GetCountriesResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -5678,6 +6869,122 @@ func GetMaliciousIpRangeRulesName(
 	}
 
 	data_ = &GetMaliciousIpRangeRulesNameResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousRegionRuleDetails.
+const GetMaliciousRegionRuleDetails_Operation = `
+query GetMaliciousRegionRuleDetails ($input: InputRegionRulesFilter) {
+	regionRules(filter: $input) {
+		count
+		total
+		results {
+			... MaliciousRegionRuleFields
+		}
+	}
+}
+fragment MaliciousRegionRuleFields on RegionRule {
+	id
+	name
+	type
+	description
+	disabled
+	internal
+	eventSeverity
+	expiration {
+		duration
+		timestamp
+	}
+	regions {
+		id
+		name
+		country {
+			isoCode
+			name
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	effects {
+		ruleEffectType
+		agentEffect {
+			agentModifications {
+				agentModificationType
+				headerInjection {
+					key
+					value
+					headerCategory
+				}
+			}
+		}
+	}
+}
+`
+
+func GetMaliciousRegionRuleDetails(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputRegionRulesFilter,
+) (data_ *GetMaliciousRegionRuleDetailsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousRegionRuleDetails",
+		Query:  GetMaliciousRegionRuleDetails_Operation,
+		Variables: &__GetMaliciousRegionRuleDetailsInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousRegionRuleDetailsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousRegionRulesName.
+const GetMaliciousRegionRulesName_Operation = `
+query GetMaliciousRegionRulesName ($input: InputRegionRulesFilter) {
+	regionRules(filter: $input) {
+		count
+		total
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetMaliciousRegionRulesName(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputRegionRulesFilter,
+) (data_ *GetMaliciousRegionRulesNameResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousRegionRulesName",
+		Query:  GetMaliciousRegionRulesName_Operation,
+		Variables: &__GetMaliciousRegionRulesNameInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousRegionRulesNameResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -6070,6 +7377,79 @@ func UpdateMaliciousIpRangeRule(
 	}
 
 	data_ = &UpdateMaliciousIpRangeRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateMaliciousRegionRule.
+const UpdateMaliciousRegionRule_Operation = `
+mutation UpdateMaliciousRegionRule ($input: InputRegionRuleUpdate!) {
+	updateRegionRule(input: $input) {
+		... MaliciousRegionRuleFields
+	}
+}
+fragment MaliciousRegionRuleFields on RegionRule {
+	id
+	name
+	type
+	description
+	disabled
+	internal
+	eventSeverity
+	expiration {
+		duration
+		timestamp
+	}
+	regions {
+		id
+		name
+		country {
+			isoCode
+			name
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	effects {
+		ruleEffectType
+		agentEffect {
+			agentModifications {
+				agentModificationType
+				headerInjection {
+					key
+					value
+					headerCategory
+				}
+			}
+		}
+	}
+}
+`
+
+func UpdateMaliciousRegionRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputRegionRuleUpdate,
+) (data_ *UpdateMaliciousRegionRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateMaliciousRegionRule",
+		Query:  UpdateMaliciousRegionRule_Operation,
+		Variables: &__UpdateMaliciousRegionRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &UpdateMaliciousRegionRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

@@ -1,11 +1,15 @@
 package resources
 
 import (
+	"context"
+	"fmt"
 	"reflect"
 
+	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/traceableai/terraform-provider-traceable/internal/generated"
+	"github.com/traceableai/terraform-provider-traceable/internal/utils"
 )
 
 var RateLimitingRuleEventSeverityMap = map[string]generated.RateLimitingRuleEventSeverity{
@@ -144,6 +148,19 @@ var MaliciousIpRangeIpRangeMapResponse = map[string]string{
 	"RULE_ACTION_ALERT":            "ALERT",
 }
 
+var MaliciousRegionEventSeverityMap = map[string]generated.RegionRuleEventSeverity{
+	"LOW":      generated.RegionRuleEventSeverityLow,
+	"MEDIUM":   generated.RegionRuleEventSeverityMedium,
+	"HIGH":     generated.RegionRuleEventSeverityHigh,
+	"CRITICAL": generated.RegionRuleEventSeverityCritical,
+}
+
+var MaliciousRegionActionMap = map[string]generated.RegionRuleActionType{
+	"BLOCK":            generated.RegionRuleActionTypeBlock,
+	"BLOCK_ALL_EXCEPT": generated.RegionRuleActionTypeBlockAllExcept,
+	"ALERT":            generated.RegionRuleActionTypeAlert,
+}
+
 // var RateLimitingRequestResponseMultipleMap = map[string]bool{
 // 	"QUERY_PARAMETER":         true,
 // 	"REQUEST_BODY_PARAMETER":  true,
@@ -234,4 +251,28 @@ func convertToRuleConfigScope(environments types.Set) (*generated.InputRuleConfi
 		},
 	}
 	return scope, nil
+}
+
+func GetCountriesId(isoCodes []*string, ctx context.Context, r graphql.Client) ([]*string, error) {
+	countriesId := []*string{}
+	response, err := generated.GetCountries(ctx, r)
+	countriesPresent := map[string]bool{}
+	for _, isoCode := range isoCodes {
+		countriesPresent[*isoCode] = true
+	}
+	if err != nil {
+		return nil, err
+	}
+	for _, country := range response.GetCountries().Results {
+		if countriesPresent[country.Country.IsoCode] {
+			countriesId = append(countriesId, &country.Id)
+			countriesPresent[country.Country.IsoCode] = false
+		}
+	}
+	for _, isoCode := range isoCodes {
+		if countriesPresent[*isoCode] {
+			return nil, utils.NewInvalidError("regions", fmt.Sprintf("%s is not a supported ISO Code", *isoCode))
+		}
+	}
+	return countriesId, nil
 }

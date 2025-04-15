@@ -3,6 +3,8 @@ operations:
   - internal/queries/rate_limiting.graphql
   - internal/queries/data_set.graphql  
   - internal/queries/malicious_ip_range.graphql
+  - internal/queries/malicious_region.graphql
+  - internal/queries/common.graphql
   
 generated: internal/generated/genqlient.go
 package: generated
