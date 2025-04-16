@@ -1,0 +1,11 @@
+query GetCountries {
+    countries {
+         results{
+             id
+             country{
+                isoCode
+                name 
+             }
+         }
+    }
+}

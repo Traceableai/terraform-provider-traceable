@@ -15,9 +15,6 @@ terraform {
 provider "traceable" {
   platform_url ="https://app-dev.traceable.ai"
   api_token    =""
-
-
-  
 }
 
 
@@ -127,13 +124,47 @@ provider "traceable" {
        
 
     
-resource "traceable_malicious_ip_range" "sample"{
-    name = "shreyanshrevamp12"
+# resource "traceable_malicious_ip_range" "sample"{
+#     name = "shreyanshrevamp12"
+#     description = "revamp"
+#     enabled = true
+#     event_severity = "LOW"
+#     duration = "PT1M"
+#     action = "BLOCK"
+#     ip_range = ["192.168.1.1","192.168.1.2"]
+#     environments = ["env1","env2"]
+# }
+resource "traceable_malicious_region" "sample"{
+    name = "tftest1234"
     description = "revamp"
-    enabled = true
+    enabled = false
     event_severity = "LOW"
     duration = "PT1M"
     action = "BLOCK_ALL_EXCEPT"
-    ip_range = ["192.168.1.1","192.168.1.2"]
     environments = ["env1","env2"]
+
+    regions=[  "NU","AF",
+       ]
 }
+
+
+
+# mutation {
+#   createRegionRule(
+#     input: {
+#       name: "asC1"
+#       regionIds: [
+#         ""
+#         "3fd065e2-d636-5c39-b7de-9634fb9b5cc9"
+#         "bd0df17d-3921-554c-9d70-71e57fda09bc"
+#       ]
+#       type: BLOCK
+#       description: "sC"
+#       eventSeverity: LOW
+#       effects: []
+#     }
+#   ) {
+#     id
+#     __typename
+#   }
+# }
