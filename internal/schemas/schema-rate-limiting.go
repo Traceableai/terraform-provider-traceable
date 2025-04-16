@@ -22,7 +22,7 @@ func RateLimitingResourceSchema() schema.Schema {
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"environments": schema.ListAttribute{
+			"environments": schema.SetAttribute{
 				MarkdownDescription: "Environments the rule is applicable to",
 				Optional:            true,
 				ElementType:         types.StringType,
@@ -35,7 +35,7 @@ func RateLimitingResourceSchema() schema.Schema {
 				MarkdownDescription: "Enable the Rate Limiting Rule",
 				Required:            true,
 			},
-			"threshold_configs": schema.ListNestedAttribute{
+			"threshold_configs": schema.SetNestedAttribute{
 				MarkdownDescription: "Threshold configs for the rule",
 				Optional:            true,
 				NestedObject: schema.NestedAttributeObject{
@@ -90,7 +90,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "LOW,MEDIUM,HIGH",
 						Optional:            true,
 					},
-					"header_injections": schema.ListNestedAttribute{
+					"header_injections": schema.SetNestedAttribute{
 						MarkdownDescription: "Header fields to be injected",
 						Optional:            true,
 						NestedObject: schema.NestedAttributeObject{
@@ -116,7 +116,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "Scanner as source, It will be a list of scanner type",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"scanner_types_list": schema.ListAttribute{
+							"scanner_types_list": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of scanner types",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -130,7 +130,7 @@ func RateLimitingResourceSchema() schema.Schema {
 					"ip_asn": schema.SingleNestedAttribute{
 						Optional: true,
 						Attributes: map[string]schema.Attribute{
-							"ip_asn_regexes": schema.ListAttribute{
+							"ip_asn_regexes": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of IP ASNs",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -145,7 +145,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "Ip connection type as source, It will be a list of ip connection type",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"ip_connection_type_list": schema.ListAttribute{
+							"ip_connection_type_list": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of IP connection types",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -160,12 +160,12 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "User id as source",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"user_id_regexes": schema.ListAttribute{
+							"user_id_regexes": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of user id regexes",
 								Optional:            true,
 								ElementType:         types.StringType,
 							},
-							"user_ids": schema.ListAttribute{
+							"user_ids": schema.SetAttribute{
 								MarkdownDescription: "List of user ids",
 								Optional:            true,
 								ElementType:         types.StringType,
@@ -176,40 +176,15 @@ func RateLimitingResourceSchema() schema.Schema {
 							},
 						},
 					},
-					"endpoint_labels": schema.ListAttribute{
+					"endpoint_labels": schema.SetAttribute{
 						MarkdownDescription: "Filter endpoints by labels you want to apply this rule",
 						Optional:            true,
 						ElementType:         types.StringType,
 					},
-					"endpoints": schema.ListAttribute{
+					"endpoints": schema.SetAttribute{
 						MarkdownDescription: "List of endpoint ids",
 						Optional:            true,
 						ElementType:         types.StringType,
-					},
-					"attribute": schema.ListNestedAttribute{
-						MarkdownDescription: "Attribute based conditions for the rule",
-						Optional:            true,
-						NestedObject: schema.NestedAttributeObject{
-
-							Attributes: map[string]schema.Attribute{
-								"key_condition_operator": schema.StringAttribute{
-									MarkdownDescription: "Key operator",
-									Required:            true,
-								},
-								"key_condition_value": schema.StringAttribute{
-									MarkdownDescription: "Key value",
-									Required:            true,
-								},
-								"value_condition_operator": schema.StringAttribute{
-									MarkdownDescription: "Value operator",
-									Required:            true,
-								},
-								"value_condition_value": schema.StringAttribute{
-									MarkdownDescription: "Value value",
-									Required:            true,
-								},
-							},
-						},
 					},
 
 					"ip_reputation": schema.StringAttribute{
@@ -220,7 +195,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "Ip location type as source ([BOT, TOR_EXIT_NODE, PUBLIC_PROXY])",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"ip_location_types": schema.ListAttribute{
+							"ip_location_types": schema.SetAttribute{
 								MarkdownDescription: "Ip location type as source ([BOT, TOR_EXIT_NODE, PUBLIC_PROXY])",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -239,7 +214,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "Ip address as source (LIST_OF_IP's/ALL_EXTERNAL)",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"ip_address_list": schema.ListAttribute{
+							"ip_address_list": schema.SetAttribute{
 								MarkdownDescription: "List of ip addresses",
 								Optional:            true,
 								ElementType:         types.StringType,
@@ -258,7 +233,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "Email domain as source, It will be a list of email domain regexes",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"email_domain_regexes": schema.ListAttribute{
+							"email_domain_regexes": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of email domain regexes",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -273,7 +248,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "User agents as source, It will be a list of user agents",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"user_agents_list": schema.ListAttribute{
+							"user_agents_list": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of user agents",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -288,7 +263,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "Regions as source, It will be a list region ids (AX,DZ)",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"regions_ids": schema.ListAttribute{
+							"regions_ids": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of regions ids in countryIsoCode",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -303,7 +278,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						MarkdownDescription: "Ip organisation as source, It will be a list of ip organisation",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"ip_organisation_regexes": schema.ListAttribute{
+							"ip_organisation_regexes": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of ip organisations",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -314,7 +289,7 @@ func RateLimitingResourceSchema() schema.Schema {
 							},
 						},
 					},
-					"request_response": schema.ListNestedAttribute{
+					"request_response": schema.SetNestedAttribute{
 						MarkdownDescription: "Request/response attributes as source",
 						Optional:            true,
 						NestedObject: schema.NestedAttributeObject{

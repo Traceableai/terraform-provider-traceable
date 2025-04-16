@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -44,13 +46,12 @@ Refer to the official [Traceable Documentation](https://traceable.ai) for more d
 		`,
 		Attributes: map[string]schema.Attribute{
 			"platform_url": schema.StringAttribute{
-				Required:            true,
 				MarkdownDescription: "The Url to be used to connect to Traceable Platform.",
+				Optional:            true,
 			},
 			"api_token": schema.StringAttribute{
-				Required:            true,
-				Sensitive:           true,
 				MarkdownDescription: "The API token to be used to connect to Traceable Platform.",
+				Optional:            true,
 			},
 		},
 	}
@@ -75,6 +76,14 @@ func (p *traceableProvider) Configure(ctx context.Context, req provider.Configur
 	if tfVersion == "" {
 		resp.Diagnostics.AddWarning("Terraform Version Missing", "Unable to determine Terraform version from request.")
 	}
+
+	if data.ApiToken.ValueString() == "" {
+		data.ApiToken = types.StringValue(os.Getenv("API_TOKEN"))
+	}
+	if data.PlatformUrl.ValueString() == "" {
+		data.PlatformUrl = types.StringValue(os.Getenv("PLATFORM_URL"))
+	}
+
 	url := data.PlatformUrl.ValueString()
 	token := data.ApiToken.ValueString()
 
@@ -108,6 +117,7 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 	return []func() resource.Resource{
 		resources.NewRateLimitingResource,
 		resources.NewDataSetResource,
+		resources.NewMaliciousIpRangeResource,
 	}
 }
 

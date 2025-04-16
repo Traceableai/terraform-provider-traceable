@@ -38,6 +38,102 @@ type CreateDataSetResponse struct {
 // GetCreateDataSet returns CreateDataSetResponse.CreateDataSet, and is useful for accessing the field via an interface.
 func (v *CreateDataSetResponse) GetCreateDataSet() CreateDataSetCreateDataSet { return v.CreateDataSet }
 
+// CreateMaliciousIpRangeRuleCreateIpRangeRule includes the requested fields of the GraphQL type IpRangeRule.
+type CreateMaliciousIpRangeRuleCreateIpRangeRule struct {
+	MaliciousIpRangeFields `json:"-"`
+}
+
+// GetId returns CreateMaliciousIpRangeRuleCreateIpRangeRule.Id, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) GetId() *string {
+	return v.MaliciousIpRangeFields.Id
+}
+
+// GetInternal returns CreateMaliciousIpRangeRuleCreateIpRangeRule.Internal, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) GetInternal() bool {
+	return v.MaliciousIpRangeFields.Internal
+}
+
+// GetDisabled returns CreateMaliciousIpRangeRuleCreateIpRangeRule.Disabled, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) GetDisabled() bool {
+	return v.MaliciousIpRangeFields.Disabled
+}
+
+// GetRuleDetails returns CreateMaliciousIpRangeRuleCreateIpRangeRule.RuleDetails, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) GetRuleDetails() MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails {
+	return v.MaliciousIpRangeFields.RuleDetails
+}
+
+// GetRuleScope returns CreateMaliciousIpRangeRuleCreateIpRangeRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) GetRuleScope() *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope {
+	return v.MaliciousIpRangeFields.RuleScope
+}
+
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CreateMaliciousIpRangeRuleCreateIpRangeRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CreateMaliciousIpRangeRuleCreateIpRangeRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousIpRangeFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCreateMaliciousIpRangeRuleCreateIpRangeRule struct {
+	Id *string `json:"id"`
+
+	Internal bool `json:"internal"`
+
+	Disabled bool `json:"disabled"`
+
+	RuleDetails MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails `json:"ruleDetails"`
+
+	RuleScope *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope `json:"ruleScope"`
+}
+
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CreateMaliciousIpRangeRuleCreateIpRangeRule) __premarshalJSON() (*__premarshalCreateMaliciousIpRangeRuleCreateIpRangeRule, error) {
+	var retval __premarshalCreateMaliciousIpRangeRuleCreateIpRangeRule
+
+	retval.Id = v.MaliciousIpRangeFields.Id
+	retval.Internal = v.MaliciousIpRangeFields.Internal
+	retval.Disabled = v.MaliciousIpRangeFields.Disabled
+	retval.RuleDetails = v.MaliciousIpRangeFields.RuleDetails
+	retval.RuleScope = v.MaliciousIpRangeFields.RuleScope
+	return &retval, nil
+}
+
+// CreateMaliciousIpRangeRuleResponse is returned by CreateMaliciousIpRangeRule on success.
+type CreateMaliciousIpRangeRuleResponse struct {
+	CreateIpRangeRule CreateMaliciousIpRangeRuleCreateIpRangeRule `json:"createIpRangeRule"`
+}
+
+// GetCreateIpRangeRule returns CreateMaliciousIpRangeRuleResponse.CreateIpRangeRule, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpRangeRuleResponse) GetCreateIpRangeRule() CreateMaliciousIpRangeRuleCreateIpRangeRule {
+	return v.CreateIpRangeRule
+}
+
 // CreateRateLimitingRuleCreateRateLimitingRule includes the requested fields of the GraphQL type RateLimitingRule.
 // The GraphQL type's documentation follows.
 //
@@ -279,6 +375,26 @@ type DeleteDataSetResponse struct {
 // GetDeleteDataSet returns DeleteDataSetResponse.DeleteDataSet, and is useful for accessing the field via an interface.
 func (v *DeleteDataSetResponse) GetDeleteDataSet() bool { return v.DeleteDataSet }
 
+// DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse includes the requested fields of the GraphQL type DeleteIpRangeRuleResponse.
+type DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse struct {
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse.Success, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse) GetSuccess() bool {
+	return v.Success
+}
+
+// DeleteMaliciousIpRangeRuleResponse is returned by DeleteMaliciousIpRangeRule on success.
+type DeleteMaliciousIpRangeRuleResponse struct {
+	DeleteIpRangeRule DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse `json:"deleteIpRangeRule"`
+}
+
+// GetDeleteIpRangeRule returns DeleteMaliciousIpRangeRuleResponse.DeleteIpRangeRule, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousIpRangeRuleResponse) GetDeleteIpRangeRule() DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse {
+	return v.DeleteIpRangeRule
+}
+
 // DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse includes the requested fields of the GraphQL type DeleteRateLimitingRuleResponse.
 type DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse struct {
 	Success bool `json:"success"`
@@ -297,6 +413,182 @@ type DeleteRateLimitingRuleResponse struct {
 // GetDeleteRateLimitingRule returns DeleteRateLimitingRuleResponse.DeleteRateLimitingRule, and is useful for accessing the field via an interface.
 func (v *DeleteRateLimitingRuleResponse) GetDeleteRateLimitingRule() DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse {
 	return v.DeleteRateLimitingRule
+}
+
+// GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet includes the requested fields of the GraphQL type IpRangeRuleResultSet.
+type GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet struct {
+	Count   *int64                                                                              `json:"count"`
+	Total   *int64                                                                              `json:"total"`
+	Results []*GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet) GetCount() *int64 {
+	return v.Count
+}
+
+// GetTotal returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet) GetTotal() *int64 {
+	return v.Total
+}
+
+// GetResults returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet) GetResults() []*GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule {
+	return v.Results
+}
+
+// GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule includes the requested fields of the GraphQL type IpRangeRule.
+type GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule struct {
+	MaliciousIpRangeFields `json:"-"`
+}
+
+// GetId returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) GetId() *string {
+	return v.MaliciousIpRangeFields.Id
+}
+
+// GetInternal returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule.Internal, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) GetInternal() bool {
+	return v.MaliciousIpRangeFields.Internal
+}
+
+// GetDisabled returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule.Disabled, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) GetDisabled() bool {
+	return v.MaliciousIpRangeFields.Disabled
+}
+
+// GetRuleDetails returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule.RuleDetails, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) GetRuleDetails() MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails {
+	return v.MaliciousIpRangeFields.RuleDetails
+}
+
+// GetRuleScope returns GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) GetRuleScope() *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope {
+	return v.MaliciousIpRangeFields.RuleScope
+}
+
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousIpRangeFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalGetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule struct {
+	Id *string `json:"id"`
+
+	Internal bool `json:"internal"`
+
+	Disabled bool `json:"disabled"`
+
+	RuleDetails MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails `json:"ruleDetails"`
+
+	RuleScope *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope `json:"ruleScope"`
+}
+
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) __premarshalJSON() (*__premarshalGetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule, error) {
+	var retval __premarshalGetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule
+
+	retval.Id = v.MaliciousIpRangeFields.Id
+	retval.Internal = v.MaliciousIpRangeFields.Internal
+	retval.Disabled = v.MaliciousIpRangeFields.Disabled
+	retval.RuleDetails = v.MaliciousIpRangeFields.RuleDetails
+	retval.RuleScope = v.MaliciousIpRangeFields.RuleScope
+	return &retval, nil
+}
+
+// GetMaliciousIpRangeRuleDetailsResponse is returned by GetMaliciousIpRangeRuleDetails on success.
+type GetMaliciousIpRangeRuleDetailsResponse struct {
+	IpRangeRules GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet `json:"ipRangeRules"`
+}
+
+// GetIpRangeRules returns GetMaliciousIpRangeRuleDetailsResponse.IpRangeRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRuleDetailsResponse) GetIpRangeRules() GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet {
+	return v.IpRangeRules
+}
+
+// GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet includes the requested fields of the GraphQL type IpRangeRuleResultSet.
+type GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet struct {
+	Count   *int64                                                                            `json:"count"`
+	Total   *int64                                                                            `json:"total"`
+	Results []*GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet) GetCount() *int64 {
+	return v.Count
+}
+
+// GetTotal returns GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet) GetTotal() *int64 {
+	return v.Total
+}
+
+// GetResults returns GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet) GetResults() []*GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule {
+	return v.Results
+}
+
+// GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule includes the requested fields of the GraphQL type IpRangeRule.
+type GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule struct {
+	RuleDetails GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRuleRuleDetailsIpRangeRuleDetails `json:"ruleDetails"`
+	Id          *string                                                                                                     `json:"id"`
+}
+
+// GetRuleDetails returns GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule.RuleDetails, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) GetRuleDetails() GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRuleRuleDetailsIpRangeRuleDetails {
+	return v.RuleDetails
+}
+
+// GetId returns GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRule) GetId() *string {
+	return v.Id
+}
+
+// GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRuleRuleDetailsIpRangeRuleDetails includes the requested fields of the GraphQL type IpRangeRuleDetails.
+type GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRuleRuleDetailsIpRangeRuleDetails struct {
+	Name string `json:"name"`
+}
+
+// GetName returns GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRuleRuleDetailsIpRangeRuleDetails.Name, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSetResultsIpRangeRuleRuleDetailsIpRangeRuleDetails) GetName() string {
+	return v.Name
+}
+
+// GetMaliciousIpRangeRulesNameResponse is returned by GetMaliciousIpRangeRulesName on success.
+type GetMaliciousIpRangeRulesNameResponse struct {
+	IpRangeRules GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet `json:"ipRangeRules"`
+}
+
+// GetIpRangeRules returns GetMaliciousIpRangeRulesNameResponse.IpRangeRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpRangeRulesNameResponse) GetIpRangeRules() GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet {
+	return v.IpRangeRules
 }
 
 // GetRateLimitingDetailsRateLimitingRulesRateLimitingRuleResultSet includes the requested fields of the GraphQL type RateLimitingRuleResultSet.
@@ -627,6 +919,177 @@ type InputEnvironmentScope struct {
 
 // GetEnvironmentIds returns InputEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
 func (v *InputEnvironmentScope) GetEnvironmentIds() []*string { return v.EnvironmentIds }
+
+type InputIpRangeEnvironmentScope struct {
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns InputIpRangeEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *InputIpRangeEnvironmentScope) GetEnvironmentIds() []*string { return v.EnvironmentIds }
+
+// Ip range rule agent effect
+type InputIpRangeRuleAgentEffect struct {
+	// Ip range rule agent modification
+	AgentModifications []*InputIpRangeRuleAgentModification `json:"agentModifications"`
+}
+
+// GetAgentModifications returns InputIpRangeRuleAgentEffect.AgentModifications, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleAgentEffect) GetAgentModifications() []*InputIpRangeRuleAgentModification {
+	return v.AgentModifications
+}
+
+// Malicious sources rule agent modification
+type InputIpRangeRuleAgentModification struct {
+	// Ip range rule agent modification type
+	AgentModificationType IpRangeRuleAgentModificationType `json:"agentModificationType"`
+	// Ip range rule header injection
+	HeaderInjection InputIpRangeRuleHeaderInjection `json:"headerInjection"`
+}
+
+// GetAgentModificationType returns InputIpRangeRuleAgentModification.AgentModificationType, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleAgentModification) GetAgentModificationType() IpRangeRuleAgentModificationType {
+	return v.AgentModificationType
+}
+
+// GetHeaderInjection returns InputIpRangeRuleAgentModification.HeaderInjection, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleAgentModification) GetHeaderInjection() InputIpRangeRuleHeaderInjection {
+	return v.HeaderInjection
+}
+
+type InputIpRangeRuleCreate struct {
+	RuleDetails InputIpRangeRuleDetailsRequest `json:"ruleDetails"`
+	RuleScope   *InputIpRangeRuleScope         `json:"ruleScope"`
+}
+
+// GetRuleDetails returns InputIpRangeRuleCreate.RuleDetails, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleCreate) GetRuleDetails() InputIpRangeRuleDetailsRequest {
+	return v.RuleDetails
+}
+
+// GetRuleScope returns InputIpRangeRuleCreate.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleCreate) GetRuleScope() *InputIpRangeRuleScope { return v.RuleScope }
+
+type InputIpRangeRuleDelete struct {
+	Id *string `json:"id"`
+}
+
+// GetId returns InputIpRangeRuleDelete.Id, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDelete) GetId() *string { return v.Id }
+
+type InputIpRangeRuleDetailsRequest struct {
+	Description        *string                                   `json:"description"`
+	Effects            []*InputIpRangeRuleEffectWithModification `json:"effects"`
+	EventSeverity      *IpRangeEventSeverity                     `json:"eventSeverity"`
+	ExpirationDuration *string                                   `json:"expirationDuration"`
+	Name               string                                    `json:"name"`
+	RawIpRangeData     []*string                                 `json:"rawIpRangeData"`
+	RuleAction         IpRangeRuleActionType                     `json:"ruleAction"`
+}
+
+// GetDescription returns InputIpRangeRuleDetailsRequest.Description, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDetailsRequest) GetDescription() *string { return v.Description }
+
+// GetEffects returns InputIpRangeRuleDetailsRequest.Effects, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDetailsRequest) GetEffects() []*InputIpRangeRuleEffectWithModification {
+	return v.Effects
+}
+
+// GetEventSeverity returns InputIpRangeRuleDetailsRequest.EventSeverity, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDetailsRequest) GetEventSeverity() *IpRangeEventSeverity {
+	return v.EventSeverity
+}
+
+// GetExpirationDuration returns InputIpRangeRuleDetailsRequest.ExpirationDuration, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDetailsRequest) GetExpirationDuration() *string { return v.ExpirationDuration }
+
+// GetName returns InputIpRangeRuleDetailsRequest.Name, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDetailsRequest) GetName() string { return v.Name }
+
+// GetRawIpRangeData returns InputIpRangeRuleDetailsRequest.RawIpRangeData, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDetailsRequest) GetRawIpRangeData() []*string { return v.RawIpRangeData }
+
+// GetRuleAction returns InputIpRangeRuleDetailsRequest.RuleAction, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleDetailsRequest) GetRuleAction() IpRangeRuleActionType { return v.RuleAction }
+
+// Ip range rule effect with modification
+type InputIpRangeRuleEffectWithModification struct {
+	// Effects enforced for agent while inline processing of requests
+	AgentEffect InputIpRangeRuleAgentEffect `json:"agentEffect"`
+	// Ip range rule effect modification type
+	RuleEffectType IpRangeRuleEffectModificationType `json:"ruleEffectType"`
+}
+
+// GetAgentEffect returns InputIpRangeRuleEffectWithModification.AgentEffect, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleEffectWithModification) GetAgentEffect() InputIpRangeRuleAgentEffect {
+	return v.AgentEffect
+}
+
+// GetRuleEffectType returns InputIpRangeRuleEffectWithModification.RuleEffectType, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleEffectWithModification) GetRuleEffectType() IpRangeRuleEffectModificationType {
+	return v.RuleEffectType
+}
+
+// Actions associated with the rule
+type InputIpRangeRuleHeaderInjection struct {
+	// Header category
+	HeaderCategory IpRangeRuleHeaderCategory `json:"headerCategory"`
+	// Header key
+	Key string `json:"key"`
+	// Header value
+	Value string `json:"value"`
+}
+
+// GetHeaderCategory returns InputIpRangeRuleHeaderInjection.HeaderCategory, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleHeaderInjection) GetHeaderCategory() IpRangeRuleHeaderCategory {
+	return v.HeaderCategory
+}
+
+// GetKey returns InputIpRangeRuleHeaderInjection.Key, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleHeaderInjection) GetKey() string { return v.Key }
+
+// GetValue returns InputIpRangeRuleHeaderInjection.Value, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleHeaderInjection) GetValue() string { return v.Value }
+
+type InputIpRangeRuleScope struct {
+	EnvironmentScope *InputIpRangeEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns InputIpRangeRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleScope) GetEnvironmentScope() *InputIpRangeEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+type InputIpRangeRuleUpdate struct {
+	Id          *string                        `json:"id"`
+	Disabled    *bool                          `json:"disabled"`
+	Internal    *bool                          `json:"internal"`
+	RuleDetails InputIpRangeRuleDetailsRequest `json:"ruleDetails"`
+	RuleScope   *InputIpRangeRuleScope         `json:"ruleScope"`
+}
+
+// GetId returns InputIpRangeRuleUpdate.Id, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleUpdate) GetId() *string { return v.Id }
+
+// GetDisabled returns InputIpRangeRuleUpdate.Disabled, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleUpdate) GetDisabled() *bool { return v.Disabled }
+
+// GetInternal returns InputIpRangeRuleUpdate.Internal, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleUpdate) GetInternal() *bool { return v.Internal }
+
+// GetRuleDetails returns InputIpRangeRuleUpdate.RuleDetails, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleUpdate) GetRuleDetails() InputIpRangeRuleDetailsRequest {
+	return v.RuleDetails
+}
+
+// GetRuleScope returns InputIpRangeRuleUpdate.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleUpdate) GetRuleScope() *InputIpRangeRuleScope { return v.RuleScope }
+
+type InputIpRangeRulesFilter struct {
+	RuleScope InputIpRangeRuleScope `json:"ruleScope"`
+}
+
+// GetRuleScope returns InputIpRangeRulesFilter.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRulesFilter) GetRuleScope() InputIpRangeRuleScope { return v.RuleScope }
 
 // Region identifier schema for rate limit region condition
 type InputRateLimitingRegionIdentifier struct {
@@ -1676,6 +2139,84 @@ func (v *InputValueBasedThresholdConfig) GetValueType() ValueBasedThresholdConfi
 	return v.ValueType
 }
 
+type IpRangeEventSeverity string
+
+const (
+	// LOW
+	IpRangeEventSeverityLow IpRangeEventSeverity = "LOW"
+	// MEDIUM
+	IpRangeEventSeverityMedium IpRangeEventSeverity = "MEDIUM"
+	// HIGH
+	IpRangeEventSeverityHigh IpRangeEventSeverity = "HIGH"
+	// CRITICAL
+	IpRangeEventSeverityCritical IpRangeEventSeverity = "CRITICAL"
+)
+
+var AllIpRangeEventSeverity = []IpRangeEventSeverity{
+	IpRangeEventSeverityLow,
+	IpRangeEventSeverityMedium,
+	IpRangeEventSeverityHigh,
+	IpRangeEventSeverityCritical,
+}
+
+type IpRangeRuleActionType string
+
+const (
+	// RULE_ACTION_BLOCK
+	IpRangeRuleActionTypeRuleActionBlock IpRangeRuleActionType = "RULE_ACTION_BLOCK"
+	// RULE_ACTION_ALLOW
+	IpRangeRuleActionTypeRuleActionAllow IpRangeRuleActionType = "RULE_ACTION_ALLOW"
+	// RULE_ACTION_BLOCK_ALL_EXCEPT
+	IpRangeRuleActionTypeRuleActionBlockAllExcept IpRangeRuleActionType = "RULE_ACTION_BLOCK_ALL_EXCEPT"
+	// RULE_ACTION_ALERT
+	IpRangeRuleActionTypeRuleActionAlert IpRangeRuleActionType = "RULE_ACTION_ALERT"
+)
+
+var AllIpRangeRuleActionType = []IpRangeRuleActionType{
+	IpRangeRuleActionTypeRuleActionBlock,
+	IpRangeRuleActionTypeRuleActionAllow,
+	IpRangeRuleActionTypeRuleActionBlockAllExcept,
+	IpRangeRuleActionTypeRuleActionAlert,
+}
+
+// Malicious sources rule agent modification type
+type IpRangeRuleAgentModificationType string
+
+const (
+	// Add a header with inline processing of request on matching conditions
+	IpRangeRuleAgentModificationTypeHeaderInjection IpRangeRuleAgentModificationType = "HEADER_INJECTION"
+)
+
+var AllIpRangeRuleAgentModificationType = []IpRangeRuleAgentModificationType{
+	IpRangeRuleAgentModificationTypeHeaderInjection,
+}
+
+type IpRangeRuleEffectModificationType string
+
+const (
+	// Modifications to be done on agent
+	IpRangeRuleEffectModificationTypeAgentEffect IpRangeRuleEffectModificationType = "AGENT_EFFECT"
+)
+
+var AllIpRangeRuleEffectModificationType = []IpRangeRuleEffectModificationType{
+	IpRangeRuleEffectModificationTypeAgentEffect,
+}
+
+// Malicious sources header category
+type IpRangeRuleHeaderCategory string
+
+const (
+	// Request header category
+	IpRangeRuleHeaderCategoryRequest IpRangeRuleHeaderCategory = "REQUEST"
+	// Response header category
+	IpRangeRuleHeaderCategoryResponse IpRangeRuleHeaderCategory = "RESPONSE"
+)
+
+var AllIpRangeRuleHeaderCategory = []IpRangeRuleHeaderCategory{
+	IpRangeRuleHeaderCategoryRequest,
+	IpRangeRuleHeaderCategoryResponse,
+}
+
 // Fragment for leafCondition
 type LeafConditionFields struct {
 	// Leaf condition type
@@ -2358,6 +2899,198 @@ const (
 var AllLogicalOperator = []LogicalOperator{
 	LogicalOperatorAnd,
 	LogicalOperatorOr,
+}
+
+// MaliciousIpRangeFields includes the GraphQL fields of IpRangeRule requested by the fragment MaliciousIpRangeFields.
+type MaliciousIpRangeFields struct {
+	Id          *string                                             `json:"id"`
+	Internal    bool                                                `json:"internal"`
+	Disabled    bool                                                `json:"disabled"`
+	RuleDetails MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails `json:"ruleDetails"`
+	RuleScope   *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope    `json:"ruleScope"`
+}
+
+// GetId returns MaliciousIpRangeFields.Id, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFields) GetId() *string { return v.Id }
+
+// GetInternal returns MaliciousIpRangeFields.Internal, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFields) GetInternal() bool { return v.Internal }
+
+// GetDisabled returns MaliciousIpRangeFields.Disabled, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFields) GetDisabled() bool { return v.Disabled }
+
+// GetRuleDetails returns MaliciousIpRangeFields.RuleDetails, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFields) GetRuleDetails() MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails {
+	return v.RuleDetails
+}
+
+// GetRuleScope returns MaliciousIpRangeFields.RuleScope, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFields) GetRuleScope() *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope {
+	return v.RuleScope
+}
+
+// MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails includes the requested fields of the GraphQL type IpRangeRuleDetails.
+type MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails struct {
+	Name              string                                                                                         `json:"name"`
+	Description       *string                                                                                        `json:"description"`
+	RawIpRangeData    []*string                                                                                      `json:"rawIpRangeData"`
+	RuleAction        IpRangeRuleActionType                                                                          `json:"ruleAction"`
+	EventSeverity     *IpRangeEventSeverity                                                                          `json:"eventSeverity"`
+	ExpirationDetails *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails  `json:"expirationDetails"`
+	Effects           []*MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification `json:"effects"`
+}
+
+// GetName returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails.Name, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails) GetName() string { return v.Name }
+
+// GetDescription returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails.Description, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails) GetDescription() *string {
+	return v.Description
+}
+
+// GetRawIpRangeData returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails.RawIpRangeData, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails) GetRawIpRangeData() []*string {
+	return v.RawIpRangeData
+}
+
+// GetRuleAction returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails.RuleAction, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails) GetRuleAction() IpRangeRuleActionType {
+	return v.RuleAction
+}
+
+// GetEventSeverity returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails.EventSeverity, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails) GetEventSeverity() *IpRangeEventSeverity {
+	return v.EventSeverity
+}
+
+// GetExpirationDetails returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails.ExpirationDetails, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails) GetExpirationDetails() *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails {
+	return v.ExpirationDetails
+}
+
+// GetEffects returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails.Effects, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails) GetEffects() []*MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification {
+	return v.Effects
+}
+
+// MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification includes the requested fields of the GraphQL type IpRangeRuleEffectWithModification.
+// The GraphQL type's documentation follows.
+//
+// Ip range rule effect with modification
+type MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification struct {
+	// Ip range rule effect modification type
+	RuleEffectType IpRangeRuleEffectModificationType `json:"ruleEffectType"`
+	// Effects enforced for agent while inline processing of requests
+	AgentEffect MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffect `json:"agentEffect"`
+}
+
+// GetRuleEffectType returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification.RuleEffectType, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification) GetRuleEffectType() IpRangeRuleEffectModificationType {
+	return v.RuleEffectType
+}
+
+// GetAgentEffect returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification.AgentEffect, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModification) GetAgentEffect() MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffect {
+	return v.AgentEffect
+}
+
+// MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffect includes the requested fields of the GraphQL type IpRangeRuleAgentEffect.
+// The GraphQL type's documentation follows.
+//
+// Ip range rule agent effect
+type MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffect struct {
+	// Ip range rule agent modification
+	AgentModifications []*MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification `json:"agentModifications"`
+}
+
+// GetAgentModifications returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffect.AgentModifications, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffect) GetAgentModifications() []*MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification {
+	return v.AgentModifications
+}
+
+// MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification includes the requested fields of the GraphQL type IpRangeRuleAgentModification.
+// The GraphQL type's documentation follows.
+//
+// Malicious sources rule agent modification
+type MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification struct {
+	// Ip range rule agent modification type
+	AgentModificationType IpRangeRuleAgentModificationType `json:"agentModificationType"`
+	// Ip range rule header injection
+	HeaderInjection MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection `json:"headerInjection"`
+}
+
+// GetAgentModificationType returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification.AgentModificationType, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification) GetAgentModificationType() IpRangeRuleAgentModificationType {
+	return v.AgentModificationType
+}
+
+// GetHeaderInjection returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification.HeaderInjection, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModification) GetHeaderInjection() MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection {
+	return v.HeaderInjection
+}
+
+// MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection includes the requested fields of the GraphQL type IpRangeRuleHeaderInjection.
+// The GraphQL type's documentation follows.
+//
+// Actions associated with the rule
+type MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection struct {
+	// Header key
+	Key string `json:"key"`
+	// Header value
+	Value string `json:"value"`
+	// Header category
+	HeaderCategory IpRangeRuleHeaderCategory `json:"headerCategory"`
+}
+
+// GetKey returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection.Key, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection.Value, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection) GetValue() string {
+	return v.Value
+}
+
+// GetHeaderCategory returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection.HeaderCategory, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsEffectsIpRangeRuleEffectWithModificationAgentEffectIpRangeRuleAgentEffectAgentModificationsIpRangeRuleAgentModificationHeaderInjectionIpRangeRuleHeaderInjection) GetHeaderCategory() IpRangeRuleHeaderCategory {
+	return v.HeaderCategory
+}
+
+// MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails includes the requested fields of the GraphQL type IpRangeExpirationDetails.
+type MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails struct {
+	ExpirationDuration  string `json:"expirationDuration"`
+	ExpirationTimestamp string `json:"expirationTimestamp"`
+}
+
+// GetExpirationDuration returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails.ExpirationDuration, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails) GetExpirationDuration() string {
+	return v.ExpirationDuration
+}
+
+// GetExpirationTimestamp returns MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails.ExpirationTimestamp, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetailsExpirationDetailsIpRangeExpirationDetails) GetExpirationTimestamp() string {
+	return v.ExpirationTimestamp
+}
+
+// MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope includes the requested fields of the GraphQL type IpRangeRuleScope.
+type MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope struct {
+	EnvironmentScope *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope) GetEnvironmentScope() *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope includes the requested fields of the GraphQL type IpRangeEnvironmentScope.
+type MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope struct {
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeEnvironmentScope) GetEnvironmentIds() []*string {
+	return v.EnvironmentIds
 }
 
 type RateLimitingRuleActionType string
@@ -3982,6 +4715,102 @@ func (v *UpdateDataSetUpdateDataSet) GetDescription() *string { return v.Descrip
 // GetIconType returns UpdateDataSetUpdateDataSet.IconType, and is useful for accessing the field via an interface.
 func (v *UpdateDataSetUpdateDataSet) GetIconType() *string { return v.IconType }
 
+// UpdateMaliciousIpRangeRuleResponse is returned by UpdateMaliciousIpRangeRule on success.
+type UpdateMaliciousIpRangeRuleResponse struct {
+	UpdateIpRangeRule UpdateMaliciousIpRangeRuleUpdateIpRangeRule `json:"updateIpRangeRule"`
+}
+
+// GetUpdateIpRangeRule returns UpdateMaliciousIpRangeRuleResponse.UpdateIpRangeRule, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpRangeRuleResponse) GetUpdateIpRangeRule() UpdateMaliciousIpRangeRuleUpdateIpRangeRule {
+	return v.UpdateIpRangeRule
+}
+
+// UpdateMaliciousIpRangeRuleUpdateIpRangeRule includes the requested fields of the GraphQL type IpRangeRule.
+type UpdateMaliciousIpRangeRuleUpdateIpRangeRule struct {
+	MaliciousIpRangeFields `json:"-"`
+}
+
+// GetId returns UpdateMaliciousIpRangeRuleUpdateIpRangeRule.Id, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) GetId() *string {
+	return v.MaliciousIpRangeFields.Id
+}
+
+// GetInternal returns UpdateMaliciousIpRangeRuleUpdateIpRangeRule.Internal, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) GetInternal() bool {
+	return v.MaliciousIpRangeFields.Internal
+}
+
+// GetDisabled returns UpdateMaliciousIpRangeRuleUpdateIpRangeRule.Disabled, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) GetDisabled() bool {
+	return v.MaliciousIpRangeFields.Disabled
+}
+
+// GetRuleDetails returns UpdateMaliciousIpRangeRuleUpdateIpRangeRule.RuleDetails, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) GetRuleDetails() MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails {
+	return v.MaliciousIpRangeFields.RuleDetails
+}
+
+// GetRuleScope returns UpdateMaliciousIpRangeRuleUpdateIpRangeRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) GetRuleScope() *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope {
+	return v.MaliciousIpRangeFields.RuleScope
+}
+
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateMaliciousIpRangeRuleUpdateIpRangeRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateMaliciousIpRangeRuleUpdateIpRangeRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousIpRangeFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalUpdateMaliciousIpRangeRuleUpdateIpRangeRule struct {
+	Id *string `json:"id"`
+
+	Internal bool `json:"internal"`
+
+	Disabled bool `json:"disabled"`
+
+	RuleDetails MaliciousIpRangeFieldsRuleDetailsIpRangeRuleDetails `json:"ruleDetails"`
+
+	RuleScope *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScope `json:"ruleScope"`
+}
+
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) __premarshalJSON() (*__premarshalUpdateMaliciousIpRangeRuleUpdateIpRangeRule, error) {
+	var retval __premarshalUpdateMaliciousIpRangeRuleUpdateIpRangeRule
+
+	retval.Id = v.MaliciousIpRangeFields.Id
+	retval.Internal = v.MaliciousIpRangeFields.Internal
+	retval.Disabled = v.MaliciousIpRangeFields.Disabled
+	retval.RuleDetails = v.MaliciousIpRangeFields.RuleDetails
+	retval.RuleScope = v.MaliciousIpRangeFields.RuleScope
+	return &retval, nil
+}
+
 // UpdateRateLimitingRuleResponse is returned by UpdateRateLimitingRule on success.
 type UpdateRateLimitingRuleResponse struct {
 	UpdateRateLimitingRule UpdateRateLimitingRuleUpdateRateLimitingRule `json:"updateRateLimitingRule"`
@@ -4155,6 +4984,14 @@ type __CreateDataSetInput struct {
 // GetDataSetCreate returns __CreateDataSetInput.DataSetCreate, and is useful for accessing the field via an interface.
 func (v *__CreateDataSetInput) GetDataSetCreate() InputDataSetCreate { return v.DataSetCreate }
 
+// __CreateMaliciousIpRangeRuleInput is used internally by genqlient
+type __CreateMaliciousIpRangeRuleInput struct {
+	Input InputIpRangeRuleCreate `json:"input"`
+}
+
+// GetInput returns __CreateMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__CreateMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleCreate { return v.Input }
+
 // __CreateRateLimitingRuleInput is used internally by genqlient
 type __CreateRateLimitingRuleInput struct {
 	Input InputRateLimitingRuleData `json:"input"`
@@ -4171,6 +5008,14 @@ type __DeleteDataSetInput struct {
 // GetId returns __DeleteDataSetInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteDataSetInput) GetId() string { return v.Id }
 
+// __DeleteMaliciousIpRangeRuleInput is used internally by genqlient
+type __DeleteMaliciousIpRangeRuleInput struct {
+	Input InputIpRangeRuleDelete `json:"input"`
+}
+
+// GetInput returns __DeleteMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__DeleteMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleDelete { return v.Input }
+
 // __DeleteRateLimitingRuleInput is used internally by genqlient
 type __DeleteRateLimitingRuleInput struct {
 	Id string `json:"id"`
@@ -4178,6 +5023,22 @@ type __DeleteRateLimitingRuleInput struct {
 
 // GetId returns __DeleteRateLimitingRuleInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteRateLimitingRuleInput) GetId() string { return v.Id }
+
+// __GetMaliciousIpRangeRuleDetailsInput is used internally by genqlient
+type __GetMaliciousIpRangeRuleDetailsInput struct {
+	Input *InputIpRangeRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousIpRangeRuleDetailsInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousIpRangeRuleDetailsInput) GetInput() *InputIpRangeRulesFilter { return v.Input }
+
+// __GetMaliciousIpRangeRulesNameInput is used internally by genqlient
+type __GetMaliciousIpRangeRulesNameInput struct {
+	Input *InputIpRangeRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousIpRangeRulesNameInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousIpRangeRulesNameInput) GetInput() *InputIpRangeRulesFilter { return v.Input }
 
 // __GetRateLimitingDetailsInput is used internally by genqlient
 type __GetRateLimitingDetailsInput struct {
@@ -4217,6 +5078,14 @@ type __UpdateDataSetInput struct {
 // GetDataSetUpdate returns __UpdateDataSetInput.DataSetUpdate, and is useful for accessing the field via an interface.
 func (v *__UpdateDataSetInput) GetDataSetUpdate() InputDataSetUpdate { return v.DataSetUpdate }
 
+// __UpdateMaliciousIpRangeRuleInput is used internally by genqlient
+type __UpdateMaliciousIpRangeRuleInput struct {
+	Input InputIpRangeRuleUpdate `json:"input"`
+}
+
+// GetInput returns __UpdateMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__UpdateMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleUpdate { return v.Input }
+
 // __UpdateRateLimitingRuleInput is used internally by genqlient
 type __UpdateRateLimitingRuleInput struct {
 	Input InputRateLimitingRule `json:"input"`
@@ -4251,6 +5120,74 @@ func CreateDataSet(
 	}
 
 	data_ = &CreateDataSetResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by CreateMaliciousIpRangeRule.
+const CreateMaliciousIpRangeRule_Operation = `
+mutation CreateMaliciousIpRangeRule ($input: InputIpRangeRuleCreate!) {
+	createIpRangeRule(create: $input) {
+		... MaliciousIpRangeFields
+	}
+}
+fragment MaliciousIpRangeFields on IpRangeRule {
+	id
+	internal
+	disabled
+	ruleDetails {
+		name
+		description
+		rawIpRangeData
+		ruleAction
+		eventSeverity
+		expirationDetails {
+			expirationDuration
+			expirationTimestamp
+		}
+		effects {
+			ruleEffectType
+			agentEffect {
+				agentModifications {
+					agentModificationType
+					headerInjection {
+						key
+						value
+						headerCategory
+					}
+				}
+			}
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+}
+`
+
+func CreateMaliciousIpRangeRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputIpRangeRuleCreate,
+) (data_ *CreateMaliciousIpRangeRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CreateMaliciousIpRangeRule",
+		Query:  CreateMaliciousIpRangeRule_Operation,
+		Variables: &__CreateMaliciousIpRangeRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CreateMaliciousIpRangeRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -4571,6 +5508,40 @@ func DeleteDataSet(
 	return data_, err_
 }
 
+// The mutation executed by DeleteMaliciousIpRangeRule.
+const DeleteMaliciousIpRangeRule_Operation = `
+mutation DeleteMaliciousIpRangeRule ($input: InputIpRangeRuleDelete!) {
+	deleteIpRangeRule(delete: $input) {
+		success
+	}
+}
+`
+
+func DeleteMaliciousIpRangeRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputIpRangeRuleDelete,
+) (data_ *DeleteMaliciousIpRangeRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteMaliciousIpRangeRule",
+		Query:  DeleteMaliciousIpRangeRule_Operation,
+		Variables: &__DeleteMaliciousIpRangeRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &DeleteMaliciousIpRangeRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteRateLimitingRule.
 const DeleteRateLimitingRule_Operation = `
 mutation DeleteRateLimitingRule ($id: String!) {
@@ -4594,6 +5565,119 @@ func DeleteRateLimitingRule(
 	}
 
 	data_ = &DeleteRateLimitingRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousIpRangeRuleDetails.
+const GetMaliciousIpRangeRuleDetails_Operation = `
+query GetMaliciousIpRangeRuleDetails ($input: InputIpRangeRulesFilter) {
+	ipRangeRules(filter: $input) {
+		count
+		total
+		results {
+			... MaliciousIpRangeFields
+		}
+	}
+}
+fragment MaliciousIpRangeFields on IpRangeRule {
+	id
+	internal
+	disabled
+	ruleDetails {
+		name
+		description
+		rawIpRangeData
+		ruleAction
+		eventSeverity
+		expirationDetails {
+			expirationDuration
+			expirationTimestamp
+		}
+		effects {
+			ruleEffectType
+			agentEffect {
+				agentModifications {
+					agentModificationType
+					headerInjection {
+						key
+						value
+						headerCategory
+					}
+				}
+			}
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+}
+`
+
+func GetMaliciousIpRangeRuleDetails(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputIpRangeRulesFilter,
+) (data_ *GetMaliciousIpRangeRuleDetailsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousIpRangeRuleDetails",
+		Query:  GetMaliciousIpRangeRuleDetails_Operation,
+		Variables: &__GetMaliciousIpRangeRuleDetailsInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousIpRangeRuleDetailsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousIpRangeRulesName.
+const GetMaliciousIpRangeRulesName_Operation = `
+query GetMaliciousIpRangeRulesName ($input: InputIpRangeRulesFilter) {
+	ipRangeRules(filter: $input) {
+		count
+		total
+		results {
+			ruleDetails {
+				name
+			}
+			id
+		}
+	}
+}
+`
+
+func GetMaliciousIpRangeRulesName(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputIpRangeRulesFilter,
+) (data_ *GetMaliciousIpRangeRulesNameResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousIpRangeRulesName",
+		Query:  GetMaliciousIpRangeRulesName_Operation,
+		Variables: &__GetMaliciousIpRangeRulesNameInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousIpRangeRulesNameResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -4918,6 +6002,74 @@ func UpdateDataSet(
 	}
 
 	data_ = &UpdateDataSetResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateMaliciousIpRangeRule.
+const UpdateMaliciousIpRangeRule_Operation = `
+mutation UpdateMaliciousIpRangeRule ($input: InputIpRangeRuleUpdate!) {
+	updateIpRangeRule(update: $input) {
+		... MaliciousIpRangeFields
+	}
+}
+fragment MaliciousIpRangeFields on IpRangeRule {
+	id
+	internal
+	disabled
+	ruleDetails {
+		name
+		description
+		rawIpRangeData
+		ruleAction
+		eventSeverity
+		expirationDetails {
+			expirationDuration
+			expirationTimestamp
+		}
+		effects {
+			ruleEffectType
+			agentEffect {
+				agentModifications {
+					agentModificationType
+					headerInjection {
+						key
+						value
+						headerCategory
+					}
+				}
+			}
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+}
+`
+
+func UpdateMaliciousIpRangeRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputIpRangeRuleUpdate,
+) (data_ *UpdateMaliciousIpRangeRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateMaliciousIpRangeRule",
+		Query:  UpdateMaliciousIpRangeRule_Operation,
+		Variables: &__UpdateMaliciousIpRangeRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &UpdateMaliciousIpRangeRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
