@@ -13,7 +13,7 @@ terraform {
 
 //object empty ka case check karna hai 
 provider "traceable" {
-  platform_url ="https://app-dev.traceable.ai"
+  platform_url ="https://api-dev.traceable.ai"
   api_token    =""
 }
 
@@ -134,17 +134,28 @@ provider "traceable" {
 #     ip_range = ["192.168.1.1","192.168.1.2"]
 #     environments = ["env1","env2"]
 # }
-resource "traceable_malicious_region" "sample"{
+# resource "traceable_malicious_region" "sample"{
+#     name = "tftest1234"
+#     description = "revamp"
+#     enabled = false
+#     event_severity = "LOW"
+#     duration = "PT1M"
+#     action = "BLOCK"
+#     environments = ["env1","env2"]
+
+#     regions=[  "NU","AF",
+#        ]
+# }
+
+resource "traceable_malicious_ip_type" "sample"{
     name = "tftest1234"
     description = "revamp"
-    enabled = false
-    event_severity = "LOW"
+    enabled = true
+    event_severity = "HIGH"
     duration = "PT1M"
-    action = "BLOCK_ALL_EXCEPT"
+    action = "ALERT"
     environments = ["env1","env2"]
-
-    regions=[  "NU","AF",
-       ]
+    ip_type = ["ANONYMOUS_VPN","BOT",]
 }
 
 

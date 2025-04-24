@@ -26,7 +26,7 @@ resource "traceable_malicious_ip_range" "alert_sample"{
     description = "traceable-des"
     enabled = true
     event_severity = "LOW"
-    action = "ALERT"
+    action = "Alert"
     ip_range = ["192.168.1.1","192.168.1.2"]
     environments = ["env1","env2"]
 }
