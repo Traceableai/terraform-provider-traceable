@@ -119,6 +119,7 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 		resources.NewDataSetResource,
 		resources.NewMaliciousIpRangeResource,
 		resources.NewMaliciousRegionResource,
+		resources.NewMaliciousIpTypeResource,
 	}
 }
 

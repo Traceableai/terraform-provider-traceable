@@ -161,6 +161,26 @@ var MaliciousRegionActionMap = map[string]generated.RegionRuleActionType{
 	"ALERT":            generated.RegionRuleActionTypeAlert,
 }
 
+var MaliciousIpTypeEventSeverityMap = map[string]generated.MaliciousSourcesRuleEventSeverity{
+	"LOW":      generated.MaliciousSourcesRuleEventSeverityLow,
+	"MEDIUM":   generated.MaliciousSourcesRuleEventSeverityMedium,
+	"HIGH":     generated.MaliciousSourcesRuleEventSeverityHigh,
+	"CRITICAL": generated.MaliciousSourcesRuleEventSeverityCritical,
+}
+
+var MaliciousIpTypeActionMap = map[string]generated.MaliciousSourcesRuleActionType{
+	"BLOCK": generated.MaliciousSourcesRuleActionTypeBlock,
+	"ALERT": generated.MaliciousSourcesRuleActionTypeAlert,
+}
+
+var MaliciousIpTypeMap = map[string]generated.MaliciousSourcesRuleIpLocationType{
+	"ANONYMOUS_VPN":    generated.MaliciousSourcesRuleIpLocationTypeAnonymousVpn,
+	"HOSTING_PROVIDER": generated.MaliciousSourcesRuleIpLocationTypeHostingProvider,
+	"PUBLIC_PROXY":     generated.MaliciousSourcesRuleIpLocationTypePublicProxy,
+	"TOR_EXIT_NODE":    generated.MaliciousSourcesRuleIpLocationTypeTorExitNode,
+	"BOT":              generated.MaliciousSourcesRuleIpLocationTypeBot,
+}
+
 // var RateLimitingRequestResponseMultipleMap = map[string]bool{
 // 	"QUERY_PARAMETER":         true,
 // 	"REQUEST_BODY_PARAMETER":  true,

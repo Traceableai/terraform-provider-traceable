@@ -369,8 +369,8 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 			switch string(leafCondition.ConditionType) {
 			case "KEY_VALUE":
 				reqres := models.RateLimitingRequestResponseCondition{}
-				if leafCondition.KeyValueCondition.GetMetadataType() != "" {
-					reqres.MetadataType = types.StringValue(string(leafCondition.KeyValueCondition.GetMetadataType()))
+				if leafCondition.KeyValueCondition.GetMetadataType() != nil {
+					reqres.MetadataType = types.StringValue(string(*leafCondition.KeyValueCondition.GetMetadataType()))
 				}
 				if leafCondition.KeyValueCondition.GetValueCondition() != nil {
 					reqres.Value = types.StringValue(leafCondition.KeyValueCondition.GetValueCondition().GetValue())
@@ -1353,7 +1353,7 @@ func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*
 				if !exists {
 					return nil, utils.NewInvalidError("sources request_response metadata_type", fmt.Sprintf(" %s Inavlid MetadataType", requestResponse.MetadataType.ValueString()))
 				}
-				keyValueCondition.MetadataType = metadataType
+				keyValueCondition.MetadataType = &metadataType
 
 				if HasValue(requestResponse.KeyValue) && HasValue(requestResponse.KeyOperator) {
 					keyConditionValue := requestResponse.KeyValue.ValueString()

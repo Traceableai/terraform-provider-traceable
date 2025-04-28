@@ -388,7 +388,6 @@ func convertMaliciousIpRangeFieldsToModel(ctx context.Context, data *generated.M
 	} else {
 		model.IpRange = types.SetNull(types.StringType)
 	}
-	tflog.Trace(ctx, "Shreyanshguptahero  6	")
 
 	if data.RuleScope != nil && data.RuleScope.EnvironmentScope != nil {
 
