@@ -120,7 +120,7 @@ func GetEndpointIds(endpointNames []*string, ctx context.Context, r graphql.Clie
 	}
 	scope := "API"
 
-	response, err := generated.GetEndpointIds(ctx, r, &entityType, &scope, between, nil, filterBy, nil, &limit, &offset, &includeInactive)
+	response, err := generated.GetEntitiesIds(ctx, r, &entityType, &scope, between, nil, filterBy, nil, &limit, &offset, &includeInactive)
 
 	if err != nil {
 		return nil, err

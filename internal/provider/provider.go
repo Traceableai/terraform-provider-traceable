@@ -122,6 +122,7 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 		resources.NewMaliciousRegionResource,
 		resources.NewMaliciousIpTypeResource,
 		resources.NewEnumerationResource,
+		resources.NewDataLossPreventionUserBasedResource,
 	}
 }
 
@@ -133,6 +134,7 @@ func (p *traceableProvider) DataSources(ctx context.Context) []func() datasource
 		datasources.NewDatasetDataSource,
 		datasources.NewDataTypeDataSource,
 		datasources.NewEndpointDataSource,
+		datasources.NewServiceDataSource,
 	}
 }
 
