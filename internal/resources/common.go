@@ -181,6 +181,20 @@ var MaliciousIpTypeMap = map[string]generated.MaliciousSourcesRuleIpLocationType
 	"BOT":              generated.MaliciousSourcesRuleIpLocationTypeBot,
 }
 
+var RateLimitingDataLocationMap = map[string]generated.RateLimitingRuleDataLocation{
+	"REQUEST":  generated.RateLimitingRuleDataLocationRequest,
+	"RESPONSE": generated.RateLimitingRuleDataLocationResponse,
+}
+var RateLimitingValueBasedThresholdConfigTypeMap = map[string]generated.ValueBasedThresholdConfigType{
+	"REQUEST_BODY":     generated.ValueBasedThresholdConfigTypeRequestBody,
+	"SENSITIVE_PARAMS": generated.ValueBasedThresholdConfigTypeSensitiveParams,
+	"PATH_PARAMS":      generated.ValueBasedThresholdConfigTypePathParams,
+}
+var RateLimitingSensitiveParamsEvaluationTypeMap = map[string]generated.SensitiveParamsEvaluationType{
+	"ALL":                 generated.SensitiveParamsEvaluationTypeAll,
+	"SELECTED_DATA_TYPES": generated.SensitiveParamsEvaluationTypeSelectedDataTypes,
+}
+
 // var RateLimitingRequestResponseMultipleMap = map[string]bool{
 // 	"QUERY_PARAMETER":         true,
 // 	"REQUEST_BODY_PARAMETER":  true,

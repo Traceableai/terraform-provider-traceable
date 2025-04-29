@@ -9,6 +9,50 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+type AttributeScope string
+
+const (
+	// TRACE
+	AttributeScopeTrace AttributeScope = "TRACE"
+	// SPAN
+	AttributeScopeSpan AttributeScope = "SPAN"
+	// API
+	AttributeScopeApi AttributeScope = "API"
+	// API_TRACE
+	AttributeScopeApiTrace AttributeScope = "API_TRACE"
+	// BACKEND
+	AttributeScopeBackend AttributeScope = "BACKEND"
+	// BACKEND_TRACE
+	AttributeScopeBackendTrace AttributeScope = "BACKEND_TRACE"
+	// INTERACTION
+	AttributeScopeInteraction AttributeScope = "INTERACTION"
+	// SERVICE
+	AttributeScopeService AttributeScope = "SERVICE"
+	// ACTOR
+	AttributeScopeActor AttributeScope = "ACTOR"
+	// DOMAIN
+	AttributeScopeDomain AttributeScope = "DOMAIN"
+	// DOMAIN_EVENT
+	AttributeScopeDomainEvent AttributeScope = "DOMAIN_EVENT"
+	// BACKEND_API
+	AttributeScopeBackendApi AttributeScope = "BACKEND_API"
+)
+
+var AllAttributeScope = []AttributeScope{
+	AttributeScopeTrace,
+	AttributeScopeSpan,
+	AttributeScopeApi,
+	AttributeScopeApiTrace,
+	AttributeScopeBackend,
+	AttributeScopeBackendTrace,
+	AttributeScopeInteraction,
+	AttributeScopeService,
+	AttributeScopeActor,
+	AttributeScopeDomain,
+	AttributeScopeDomainEvent,
+	AttributeScopeBackendApi,
+}
+
 // CreateDataSetCreateDataSet includes the requested fields of the GraphQL type DataSet.
 type CreateDataSetCreateDataSet struct {
 	Id          string  `json:"id"`
@@ -696,6 +740,90 @@ func (v *DeleteRateLimitingRuleResponse) GetDeleteRateLimitingRule() DeleteRateL
 	return v.DeleteRateLimitingRule
 }
 
+type EntityType string
+
+const (
+	// API
+	EntityTypeApi EntityType = "API"
+	// SERVICE
+	EntityTypeService EntityType = "SERVICE"
+	// BACKEND
+	EntityTypeBackend EntityType = "BACKEND"
+	// DOMAIN
+	EntityTypeDomain EntityType = "DOMAIN"
+	// ACTOR
+	EntityTypeActor EntityType = "ACTOR"
+)
+
+var AllEntityType = []EntityType{
+	EntityTypeApi,
+	EntityTypeService,
+	EntityTypeBackend,
+	EntityTypeDomain,
+	EntityTypeActor,
+}
+
+type FilterOperatorType string
+
+const (
+	// EQUALS
+	FilterOperatorTypeEquals FilterOperatorType = "EQUALS"
+	// NOT_EQUALS
+	FilterOperatorTypeNotEquals FilterOperatorType = "NOT_EQUALS"
+	// LESS_THAN
+	FilterOperatorTypeLessThan FilterOperatorType = "LESS_THAN"
+	// LESS_THAN_OR_EQUAL_TO
+	FilterOperatorTypeLessThanOrEqualTo FilterOperatorType = "LESS_THAN_OR_EQUAL_TO"
+	// GREATER_THAN
+	FilterOperatorTypeGreaterThan FilterOperatorType = "GREATER_THAN"
+	// GREATER_THAN_OR_EQUAL_TO
+	FilterOperatorTypeGreaterThanOrEqualTo FilterOperatorType = "GREATER_THAN_OR_EQUAL_TO"
+	// LIKE
+	FilterOperatorTypeLike FilterOperatorType = "LIKE"
+	// IN
+	FilterOperatorTypeIn FilterOperatorType = "IN"
+	// NOT_IN
+	FilterOperatorTypeNotIn FilterOperatorType = "NOT_IN"
+	// CONTAINS_KEY
+	FilterOperatorTypeContainsKey FilterOperatorType = "CONTAINS_KEY"
+	// CONTAINS_KEY_VALUE
+	FilterOperatorTypeContainsKeyValue FilterOperatorType = "CONTAINS_KEY_VALUE"
+	// CONTAINS_KEY_LIKE
+	FilterOperatorTypeContainsKeyLike FilterOperatorType = "CONTAINS_KEY_LIKE"
+	// NOT_CONTAINS_KEY
+	FilterOperatorTypeNotContainsKey FilterOperatorType = "NOT_CONTAINS_KEY"
+)
+
+var AllFilterOperatorType = []FilterOperatorType{
+	FilterOperatorTypeEquals,
+	FilterOperatorTypeNotEquals,
+	FilterOperatorTypeLessThan,
+	FilterOperatorTypeLessThanOrEqualTo,
+	FilterOperatorTypeGreaterThan,
+	FilterOperatorTypeGreaterThanOrEqualTo,
+	FilterOperatorTypeLike,
+	FilterOperatorTypeIn,
+	FilterOperatorTypeNotIn,
+	FilterOperatorTypeContainsKey,
+	FilterOperatorTypeContainsKeyValue,
+	FilterOperatorTypeContainsKeyLike,
+	FilterOperatorTypeNotContainsKey,
+}
+
+type FilterType string
+
+const (
+	// ATTRIBUTE
+	FilterTypeAttribute FilterType = "ATTRIBUTE"
+	// ID
+	FilterTypeId FilterType = "ID"
+)
+
+var AllFilterType = []FilterType{
+	FilterTypeAttribute,
+	FilterTypeId,
+}
+
 // GetCountriesCountriesRegionResultSet includes the requested fields of the GraphQL type RegionResultSet.
 type GetCountriesCountriesRegionResultSet struct {
 	Results []*GetCountriesCountriesRegionResultSetResultsRegion `json:"results"`
@@ -745,6 +873,154 @@ type GetCountriesResponse struct {
 // GetCountries returns GetCountriesResponse.Countries, and is useful for accessing the field via an interface.
 func (v *GetCountriesResponse) GetCountries() GetCountriesCountriesRegionResultSet {
 	return v.Countries
+}
+
+// GetDataSetsIdDataSetsDataSetResultSet includes the requested fields of the GraphQL type DataSetResultSet.
+type GetDataSetsIdDataSetsDataSetResultSet struct {
+	Results []*GetDataSetsIdDataSetsDataSetResultSetResultsDataSet `json:"results"`
+}
+
+// GetResults returns GetDataSetsIdDataSetsDataSetResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSet) GetResults() []*GetDataSetsIdDataSetsDataSetResultSetResultsDataSet {
+	return v.Results
+}
+
+// GetDataSetsIdDataSetsDataSetResultSetResultsDataSet includes the requested fields of the GraphQL type DataSet.
+type GetDataSetsIdDataSetsDataSetResultSetResultsDataSet struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetId returns GetDataSetsIdDataSetsDataSetResultSetResultsDataSet.Id, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSetResultsDataSet) GetId() string { return v.Id }
+
+// GetName returns GetDataSetsIdDataSetsDataSetResultSetResultsDataSet.Name, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSetResultsDataSet) GetName() string { return v.Name }
+
+// GetDataSetsIdResponse is returned by GetDataSetsId on success.
+type GetDataSetsIdResponse struct {
+	DataSets GetDataSetsIdDataSetsDataSetResultSet `json:"dataSets"`
+}
+
+// GetDataSets returns GetDataSetsIdResponse.DataSets, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdResponse) GetDataSets() GetDataSetsIdDataSetsDataSetResultSet {
+	return v.DataSets
+}
+
+// GetDataTypesIdDataTypesDataTypeResultSet includes the requested fields of the GraphQL type DataTypeResultSet.
+type GetDataTypesIdDataTypesDataTypeResultSet struct {
+	Results []*GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype `json:"results"`
+}
+
+// GetResults returns GetDataTypesIdDataTypesDataTypeResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSet) GetResults() []*GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype {
+	return v.Results
+}
+
+// GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype includes the requested fields of the GraphQL type ResolvedDatatype.
+type GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype struct {
+	// Unique Identifier for the datatype. This cannot be changed
+	Id string `json:"id"`
+	// The configured name for the datatype
+	Name string `json:"name"`
+}
+
+// GetId returns GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype.Id, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype) GetId() string { return v.Id }
+
+// GetName returns GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype.Name, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype) GetName() string {
+	return v.Name
+}
+
+// GetDataTypesIdResponse is returned by GetDataTypesId on success.
+type GetDataTypesIdResponse struct {
+	DataTypes GetDataTypesIdDataTypesDataTypeResultSet `json:"dataTypes"`
+}
+
+// GetDataTypes returns GetDataTypesIdResponse.DataTypes, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdResponse) GetDataTypes() GetDataTypesIdDataTypesDataTypeResultSet {
+	return v.DataTypes
+}
+
+// GetEndpointIdsEntitiesEntityResultSet includes the requested fields of the GraphQL type EntityResultSet.
+type GetEndpointIdsEntitiesEntityResultSet struct {
+	Results []*GetEndpointIdsEntitiesEntityResultSetResultsEntity `json:"results"`
+	Total   int64                                                 `json:"total"`
+}
+
+// GetResults returns GetEndpointIdsEntitiesEntityResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetEndpointIdsEntitiesEntityResultSet) GetResults() []*GetEndpointIdsEntitiesEntityResultSetResultsEntity {
+	return v.Results
+}
+
+// GetTotal returns GetEndpointIdsEntitiesEntityResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetEndpointIdsEntitiesEntityResultSet) GetTotal() int64 { return v.Total }
+
+// GetEndpointIdsEntitiesEntityResultSetResultsEntity includes the requested fields of the GraphQL type Entity.
+type GetEndpointIdsEntitiesEntityResultSetResultsEntity struct {
+	EntityId string       `json:"entityId"`
+	Id       *interface{} `json:"id"`
+	Name     *interface{} `json:"name"`
+}
+
+// GetEntityId returns GetEndpointIdsEntitiesEntityResultSetResultsEntity.EntityId, and is useful for accessing the field via an interface.
+func (v *GetEndpointIdsEntitiesEntityResultSetResultsEntity) GetEntityId() string { return v.EntityId }
+
+// GetId returns GetEndpointIdsEntitiesEntityResultSetResultsEntity.Id, and is useful for accessing the field via an interface.
+func (v *GetEndpointIdsEntitiesEntityResultSetResultsEntity) GetId() *interface{} { return v.Id }
+
+// GetName returns GetEndpointIdsEntitiesEntityResultSetResultsEntity.Name, and is useful for accessing the field via an interface.
+func (v *GetEndpointIdsEntitiesEntityResultSetResultsEntity) GetName() *interface{} { return v.Name }
+
+// GetEndpointIdsResponse is returned by GetEndpointIds on success.
+type GetEndpointIdsResponse struct {
+	Entities GetEndpointIdsEntitiesEntityResultSet `json:"entities"`
+}
+
+// GetEntities returns GetEndpointIdsResponse.Entities, and is useful for accessing the field via an interface.
+func (v *GetEndpointIdsResponse) GetEntities() GetEndpointIdsEntitiesEntityResultSet {
+	return v.Entities
+}
+
+// GetEndpointLabelsIdLabelsLabelResultSet includes the requested fields of the GraphQL type LabelResultSet.
+type GetEndpointLabelsIdLabelsLabelResultSet struct {
+	Count   int64                                                  `json:"count"`
+	Results []*GetEndpointLabelsIdLabelsLabelResultSetResultsLabel `json:"results"`
+	Total   int64                                                  `json:"total"`
+}
+
+// GetCount returns GetEndpointLabelsIdLabelsLabelResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetCount() int64 { return v.Count }
+
+// GetResults returns GetEndpointLabelsIdLabelsLabelResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetResults() []*GetEndpointLabelsIdLabelsLabelResultSetResultsLabel {
+	return v.Results
+}
+
+// GetTotal returns GetEndpointLabelsIdLabelsLabelResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetTotal() int64 { return v.Total }
+
+// GetEndpointLabelsIdLabelsLabelResultSetResultsLabel includes the requested fields of the GraphQL type Label.
+type GetEndpointLabelsIdLabelsLabelResultSetResultsLabel struct {
+	Id  string `json:"id"`
+	Key string `json:"key"`
+}
+
+// GetId returns GetEndpointLabelsIdLabelsLabelResultSetResultsLabel.Id, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSetResultsLabel) GetId() string { return v.Id }
+
+// GetKey returns GetEndpointLabelsIdLabelsLabelResultSetResultsLabel.Key, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSetResultsLabel) GetKey() string { return v.Key }
+
+// GetEndpointLabelsIdResponse is returned by GetEndpointLabelsId on success.
+type GetEndpointLabelsIdResponse struct {
+	Labels GetEndpointLabelsIdLabelsLabelResultSet `json:"labels"`
+}
+
+// GetLabels returns GetEndpointLabelsIdResponse.Labels, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdResponse) GetLabels() GetEndpointLabelsIdLabelsLabelResultSet {
+	return v.Labels
 }
 
 // GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet includes the requested fields of the GraphQL type IpRangeRuleResultSet.
@@ -1545,6 +1821,45 @@ func (v *GetRateLimitingRulesNameResponse) GetRateLimitingRules() GetRateLimitin
 	return v.RateLimitingRules
 }
 
+type InputAggregatableOrder struct {
+	Aggregation   *MetricAggregationType    `json:"aggregation"`
+	Direction     *OrderDirection           `json:"direction"`
+	Key           *string                   `json:"key"`
+	KeyExpression *InputAttributeExpression `json:"keyExpression"`
+	Size          *int64                    `json:"size"`
+	// Time Units used for this orderBy argument
+	Units *TimeUnit `json:"units"`
+}
+
+// GetAggregation returns InputAggregatableOrder.Aggregation, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetAggregation() *MetricAggregationType { return v.Aggregation }
+
+// GetDirection returns InputAggregatableOrder.Direction, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetDirection() *OrderDirection { return v.Direction }
+
+// GetKey returns InputAggregatableOrder.Key, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetKey() *string { return v.Key }
+
+// GetKeyExpression returns InputAggregatableOrder.KeyExpression, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetKeyExpression() *InputAttributeExpression { return v.KeyExpression }
+
+// GetSize returns InputAggregatableOrder.Size, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetSize() *int64 { return v.Size }
+
+// GetUnits returns InputAggregatableOrder.Units, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetUnits() *TimeUnit { return v.Units }
+
+type InputAttributeExpression struct {
+	Key     string  `json:"key"`
+	Subpath *string `json:"subpath"`
+}
+
+// GetKey returns InputAttributeExpression.Key, and is useful for accessing the field via an interface.
+func (v *InputAttributeExpression) GetKey() string { return v.Key }
+
+// GetSubpath returns InputAttributeExpression.Subpath, and is useful for accessing the field via an interface.
+func (v *InputAttributeExpression) GetSubpath() *string { return v.Subpath }
+
 type InputDataSetCreate struct {
 	Color           *string          `json:"color"`
 	DataSuppression *DataSuppression `json:"dataSuppression"`
@@ -1651,6 +1966,44 @@ type InputEnvironmentScope struct {
 
 // GetEnvironmentIds returns InputEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
 func (v *InputEnvironmentScope) GetEnvironmentIds() []*string { return v.EnvironmentIds }
+
+type InputFilter struct {
+	IdScope       *string                   `json:"idScope"`
+	IdType        *AttributeScope           `json:"idType"`
+	Key           *string                   `json:"key"`
+	KeyExpression *InputAttributeExpression `json:"keyExpression"`
+	Operator      FilterOperatorType        `json:"operator"`
+	// Transformation function
+	TransformationFunction *InputTransformationFunction `json:"transformationFunction"`
+	Type                   FilterType                   `json:"type"`
+	Value                  interface{}                  `json:"value"`
+}
+
+// GetIdScope returns InputFilter.IdScope, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetIdScope() *string { return v.IdScope }
+
+// GetIdType returns InputFilter.IdType, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetIdType() *AttributeScope { return v.IdType }
+
+// GetKey returns InputFilter.Key, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetKey() *string { return v.Key }
+
+// GetKeyExpression returns InputFilter.KeyExpression, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetKeyExpression() *InputAttributeExpression { return v.KeyExpression }
+
+// GetOperator returns InputFilter.Operator, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetOperator() FilterOperatorType { return v.Operator }
+
+// GetTransformationFunction returns InputFilter.TransformationFunction, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetTransformationFunction() *InputTransformationFunction {
+	return v.TransformationFunction
+}
+
+// GetType returns InputFilter.Type, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetType() FilterType { return v.Type }
+
+// GetValue returns InputFilter.Value, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetValue() interface{} { return v.Value }
 
 type InputIpRangeEnvironmentScope struct {
 	EnvironmentIds []*string `json:"environmentIds"`
@@ -1794,6 +2147,7 @@ func (v *InputIpRangeRuleScope) GetEnvironmentScope() *InputIpRangeEnvironmentSc
 type InputIpRangeRuleUpdate struct {
 	Id          *string                        `json:"id"`
 	Disabled    *bool                          `json:"disabled"`
+	Hidden      *bool                          `json:"hidden"`
 	Internal    *bool                          `json:"internal"`
 	RuleDetails InputIpRangeRuleDetailsRequest `json:"ruleDetails"`
 	RuleScope   *InputIpRangeRuleScope         `json:"ruleScope"`
@@ -1804,6 +2158,9 @@ func (v *InputIpRangeRuleUpdate) GetId() *string { return v.Id }
 
 // GetDisabled returns InputIpRangeRuleUpdate.Disabled, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRuleUpdate) GetDisabled() *bool { return v.Disabled }
+
+// GetHidden returns InputIpRangeRuleUpdate.Hidden, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleUpdate) GetHidden() *bool { return v.Hidden }
 
 // GetInternal returns InputIpRangeRuleUpdate.Internal, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRuleUpdate) GetInternal() *bool { return v.Internal }
@@ -1822,6 +2179,21 @@ type InputIpRangeRulesFilter struct {
 
 // GetRuleScope returns InputIpRangeRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRulesFilter) GetRuleScope() InputIpRangeRuleScope { return v.RuleScope }
+
+type InputJsonExtractTransformationFunction struct {
+	// Attribute expression
+	Attribute InputAttributeExpression `json:"attribute"`
+	// Json path
+	JsonPath string `json:"jsonPath"`
+}
+
+// GetAttribute returns InputJsonExtractTransformationFunction.Attribute, and is useful for accessing the field via an interface.
+func (v *InputJsonExtractTransformationFunction) GetAttribute() InputAttributeExpression {
+	return v.Attribute
+}
+
+// GetJsonPath returns InputJsonExtractTransformationFunction.JsonPath, and is useful for accessing the field via an interface.
+func (v *InputJsonExtractTransformationFunction) GetJsonPath() string { return v.JsonPath }
 
 // Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
 type InputMaliciousSourcesRule struct {
@@ -2235,12 +2607,17 @@ func (v *InputMaliciousSourcesRuleScope) GetEnvironmentScope() *InputMaliciousSo
 type InputMaliciousSourcesRuleStatus struct {
 	// Disables rule
 	Disabled bool `json:"disabled"`
+	// Boolean denoting if rule should be hidden
+	Hidden *bool `json:"hidden"`
 	// Sets rule as internal, visible only to traceable users. Consumed only if disabled is set to true
 	Internal *bool `json:"internal"`
 }
 
 // GetDisabled returns InputMaliciousSourcesRuleStatus.Disabled, and is useful for accessing the field via an interface.
 func (v *InputMaliciousSourcesRuleStatus) GetDisabled() bool { return v.Disabled }
+
+// GetHidden returns InputMaliciousSourcesRuleStatus.Hidden, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleStatus) GetHidden() *bool { return v.Hidden }
 
 // GetInternal returns InputMaliciousSourcesRuleStatus.Internal, and is useful for accessing the field via an interface.
 func (v *InputMaliciousSourcesRuleStatus) GetInternal() *bool { return v.Internal }
@@ -3468,6 +3845,7 @@ type InputRegionRuleUpdate struct {
 	Duration      *string                                  `json:"duration"`
 	Effects       []*InputRegionRuleEffectWithModification `json:"effects"`
 	EventSeverity *RegionRuleEventSeverity                 `json:"eventSeverity"`
+	Hidden        *bool                                    `json:"hidden"`
 	Id            string                                   `json:"id"`
 	Internal      *bool                                    `json:"internal"`
 	Name          string                                   `json:"name"`
@@ -3492,6 +3870,9 @@ func (v *InputRegionRuleUpdate) GetEffects() []*InputRegionRuleEffectWithModific
 
 // GetEventSeverity returns InputRegionRuleUpdate.EventSeverity, and is useful for accessing the field via an interface.
 func (v *InputRegionRuleUpdate) GetEventSeverity() *RegionRuleEventSeverity { return v.EventSeverity }
+
+// GetHidden returns InputRegionRuleUpdate.Hidden, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetHidden() *bool { return v.Hidden }
 
 // GetId returns InputRegionRuleUpdate.Id, and is useful for accessing the field via an interface.
 func (v *InputRegionRuleUpdate) GetId() string { return v.Id }
@@ -3541,6 +3922,27 @@ type InputRuleConfigScope struct {
 // GetEnvironmentScope returns InputRuleConfigScope.EnvironmentScope, and is useful for accessing the field via an interface.
 func (v *InputRuleConfigScope) GetEnvironmentScope() *InputEnvironmentScope {
 	return v.EnvironmentScope
+}
+
+type InputTimeRange struct {
+	EndTime   string `json:"endTime"`
+	StartTime string `json:"startTime"`
+}
+
+// GetEndTime returns InputTimeRange.EndTime, and is useful for accessing the field via an interface.
+func (v *InputTimeRange) GetEndTime() string { return v.EndTime }
+
+// GetStartTime returns InputTimeRange.StartTime, and is useful for accessing the field via an interface.
+func (v *InputTimeRange) GetStartTime() string { return v.StartTime }
+
+type InputTransformationFunction struct {
+	// Json extraction transform function
+	JsonExtract *InputJsonExtractTransformationFunction `json:"jsonExtract"`
+}
+
+// GetJsonExtract returns InputTransformationFunction.JsonExtract, and is useful for accessing the field via an interface.
+func (v *InputTransformationFunction) GetJsonExtract() *InputJsonExtractTransformationFunction {
+	return v.JsonExtract
 }
 
 // Threshold config which specifies unique values allowed over the given time range
@@ -5114,6 +5516,58 @@ const (
 
 var AllMaliciousSourcesRuleRegionType = []MaliciousSourcesRuleRegionType{
 	MaliciousSourcesRuleRegionTypeCountryIsoCode,
+}
+
+type MetricAggregationType string
+
+const (
+	// COUNT
+	MetricAggregationTypeCount MetricAggregationType = "COUNT"
+	// AVG
+	MetricAggregationTypeAvg MetricAggregationType = "AVG"
+	// SUM
+	MetricAggregationTypeSum MetricAggregationType = "SUM"
+	// MIN
+	MetricAggregationTypeMin MetricAggregationType = "MIN"
+	// MAX
+	MetricAggregationTypeMax MetricAggregationType = "MAX"
+	// AVGRATE
+	MetricAggregationTypeAvgrate MetricAggregationType = "AVGRATE"
+	// PERCENTILE
+	MetricAggregationTypePercentile MetricAggregationType = "PERCENTILE"
+	// DISTINCTCOUNT
+	MetricAggregationTypeDistinctcount MetricAggregationType = "DISTINCTCOUNT"
+	// DISTINCT_ARRAY
+	MetricAggregationTypeDistinctArray MetricAggregationType = "DISTINCT_ARRAY"
+	// ANY_VALUE
+	MetricAggregationTypeAnyValue MetricAggregationType = "ANY_VALUE"
+)
+
+var AllMetricAggregationType = []MetricAggregationType{
+	MetricAggregationTypeCount,
+	MetricAggregationTypeAvg,
+	MetricAggregationTypeSum,
+	MetricAggregationTypeMin,
+	MetricAggregationTypeMax,
+	MetricAggregationTypeAvgrate,
+	MetricAggregationTypePercentile,
+	MetricAggregationTypeDistinctcount,
+	MetricAggregationTypeDistinctArray,
+	MetricAggregationTypeAnyValue,
+}
+
+type OrderDirection string
+
+const (
+	// ASC
+	OrderDirectionAsc OrderDirection = "ASC"
+	// DESC
+	OrderDirectionDesc OrderDirection = "DESC"
+)
+
+var AllOrderDirection = []OrderDirection{
+	OrderDirectionAsc,
+	OrderDirectionDesc,
 }
 
 type RateLimitingRuleActionType string
@@ -6694,6 +7148,29 @@ func (v *ThresholdActionConfigFieldsThresholdConfigsRateLimitingRuleThresholdCon
 	return v.SensitiveParamsEvaluationType
 }
 
+type TimeUnit string
+
+const (
+	// MILLISECONDS
+	TimeUnitMilliseconds TimeUnit = "MILLISECONDS"
+	// SECONDS
+	TimeUnitSeconds TimeUnit = "SECONDS"
+	// MINUTES
+	TimeUnitMinutes TimeUnit = "MINUTES"
+	// HOURS
+	TimeUnitHours TimeUnit = "HOURS"
+	// DAYS
+	TimeUnitDays TimeUnit = "DAYS"
+)
+
+var AllTimeUnit = []TimeUnit{
+	TimeUnitMilliseconds,
+	TimeUnitSeconds,
+	TimeUnitMinutes,
+	TimeUnitHours,
+	TimeUnitDays,
+}
+
 // Fragment for transactionActionConfigs
 type TransactionActionConfigFields struct {
 	// Rate limit rule action
@@ -7401,6 +7878,46 @@ type __DeleteRateLimitingRuleInput struct {
 
 // GetId returns __DeleteRateLimitingRuleInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteRateLimitingRuleInput) GetId() string { return v.Id }
+
+// __GetEndpointIdsInput is used internally by genqlient
+type __GetEndpointIdsInput struct {
+	EntityType      *EntityType               `json:"entityType"`
+	Scope           *string                   `json:"scope"`
+	Between         InputTimeRange            `json:"between"`
+	Space           *string                   `json:"space"`
+	FilterBy        []*InputFilter            `json:"filterBy"`
+	OrderBy         []*InputAggregatableOrder `json:"orderBy"`
+	Limit           *int64                    `json:"limit"`
+	Offset          *int64                    `json:"offset"`
+	IncludeInactive *bool                     `json:"includeInactive"`
+}
+
+// GetEntityType returns __GetEndpointIdsInput.EntityType, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetEntityType() *EntityType { return v.EntityType }
+
+// GetScope returns __GetEndpointIdsInput.Scope, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetScope() *string { return v.Scope }
+
+// GetBetween returns __GetEndpointIdsInput.Between, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetBetween() InputTimeRange { return v.Between }
+
+// GetSpace returns __GetEndpointIdsInput.Space, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetSpace() *string { return v.Space }
+
+// GetFilterBy returns __GetEndpointIdsInput.FilterBy, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetFilterBy() []*InputFilter { return v.FilterBy }
+
+// GetOrderBy returns __GetEndpointIdsInput.OrderBy, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetOrderBy() []*InputAggregatableOrder { return v.OrderBy }
+
+// GetLimit returns __GetEndpointIdsInput.Limit, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetLimit() *int64 { return v.Limit }
+
+// GetOffset returns __GetEndpointIdsInput.Offset, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetOffset() *int64 { return v.Offset }
+
+// GetIncludeInactive returns __GetEndpointIdsInput.IncludeInactive, and is useful for accessing the field via an interface.
+func (v *__GetEndpointIdsInput) GetIncludeInactive() *bool { return v.IncludeInactive }
 
 // __GetMaliciousIpRangeRuleDetailsInput is used internally by genqlient
 type __GetMaliciousIpRangeRuleDetailsInput struct {
@@ -8235,6 +8752,162 @@ func GetCountries(
 	}
 
 	data_ = &GetCountriesResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetDataSetsId.
+const GetDataSetsId_Operation = `
+query GetDataSetsId {
+	dataSets {
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetDataSetsId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetDataSetsIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetDataSetsId",
+		Query:  GetDataSetsId_Operation,
+	}
+
+	data_ = &GetDataSetsIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetDataTypesId.
+const GetDataTypesId_Operation = `
+query GetDataTypesId {
+	dataTypes {
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetDataTypesId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetDataTypesIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetDataTypesId",
+		Query:  GetDataTypesId_Operation,
+	}
+
+	data_ = &GetDataTypesIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetEndpointIds.
+const GetEndpointIds_Operation = `
+query GetEndpointIds ($entityType: EntityType, $scope: String, $between: InputTimeRange!, $space: String, $filterBy: [InputFilter], $orderBy: [InputAggregatableOrder], $limit: Int, $offset: Int, $includeInactive: Boolean) {
+	entities(type: $entityType, scope: $scope, between: $between, space: $space, filterBy: $filterBy, orderBy: $orderBy, limit: $limit, offset: $offset, includeInactive: $includeInactive) {
+		results {
+			entityId: id
+			id: attribute(expression: {key:"id"})
+			name: attribute(expression: {key:"name"})
+		}
+		total
+	}
+}
+`
+
+func GetEndpointIds(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	entityType *EntityType,
+	scope *string,
+	between InputTimeRange,
+	space *string,
+	filterBy []*InputFilter,
+	orderBy []*InputAggregatableOrder,
+	limit *int64,
+	offset *int64,
+	includeInactive *bool,
+) (data_ *GetEndpointIdsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetEndpointIds",
+		Query:  GetEndpointIds_Operation,
+		Variables: &__GetEndpointIdsInput{
+			EntityType:      entityType,
+			Scope:           scope,
+			Between:         between,
+			Space:           space,
+			FilterBy:        filterBy,
+			OrderBy:         orderBy,
+			Limit:           limit,
+			Offset:          offset,
+			IncludeInactive: includeInactive,
+		},
+	}
+
+	data_ = &GetEndpointIdsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetEndpointLabelsId.
+const GetEndpointLabelsId_Operation = `
+query GetEndpointLabelsId {
+	labels {
+		count
+		results {
+			id
+			key
+		}
+		total
+	}
+}
+`
+
+func GetEndpointLabelsId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetEndpointLabelsIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetEndpointLabelsId",
+		Query:  GetEndpointLabelsId_Operation,
+	}
+
+	data_ = &GetEndpointLabelsIdResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
