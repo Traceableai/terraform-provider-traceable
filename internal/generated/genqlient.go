@@ -943,46 +943,6 @@ func (v *GetDataTypesIdResponse) GetDataTypes() GetDataTypesIdDataTypesDataTypeR
 	return v.DataTypes
 }
 
-// GetEndpointIdsEntitiesEntityResultSet includes the requested fields of the GraphQL type EntityResultSet.
-type GetEndpointIdsEntitiesEntityResultSet struct {
-	Results []*GetEndpointIdsEntitiesEntityResultSetResultsEntity `json:"results"`
-	Total   int64                                                 `json:"total"`
-}
-
-// GetResults returns GetEndpointIdsEntitiesEntityResultSet.Results, and is useful for accessing the field via an interface.
-func (v *GetEndpointIdsEntitiesEntityResultSet) GetResults() []*GetEndpointIdsEntitiesEntityResultSetResultsEntity {
-	return v.Results
-}
-
-// GetTotal returns GetEndpointIdsEntitiesEntityResultSet.Total, and is useful for accessing the field via an interface.
-func (v *GetEndpointIdsEntitiesEntityResultSet) GetTotal() int64 { return v.Total }
-
-// GetEndpointIdsEntitiesEntityResultSetResultsEntity includes the requested fields of the GraphQL type Entity.
-type GetEndpointIdsEntitiesEntityResultSetResultsEntity struct {
-	EntityId string       `json:"entityId"`
-	Id       *interface{} `json:"id"`
-	Name     *interface{} `json:"name"`
-}
-
-// GetEntityId returns GetEndpointIdsEntitiesEntityResultSetResultsEntity.EntityId, and is useful for accessing the field via an interface.
-func (v *GetEndpointIdsEntitiesEntityResultSetResultsEntity) GetEntityId() string { return v.EntityId }
-
-// GetId returns GetEndpointIdsEntitiesEntityResultSetResultsEntity.Id, and is useful for accessing the field via an interface.
-func (v *GetEndpointIdsEntitiesEntityResultSetResultsEntity) GetId() *interface{} { return v.Id }
-
-// GetName returns GetEndpointIdsEntitiesEntityResultSetResultsEntity.Name, and is useful for accessing the field via an interface.
-func (v *GetEndpointIdsEntitiesEntityResultSetResultsEntity) GetName() *interface{} { return v.Name }
-
-// GetEndpointIdsResponse is returned by GetEndpointIds on success.
-type GetEndpointIdsResponse struct {
-	Entities GetEndpointIdsEntitiesEntityResultSet `json:"entities"`
-}
-
-// GetEntities returns GetEndpointIdsResponse.Entities, and is useful for accessing the field via an interface.
-func (v *GetEndpointIdsResponse) GetEntities() GetEndpointIdsEntitiesEntityResultSet {
-	return v.Entities
-}
-
 // GetEndpointLabelsIdLabelsLabelResultSet includes the requested fields of the GraphQL type LabelResultSet.
 type GetEndpointLabelsIdLabelsLabelResultSet struct {
 	Count   int64                                                  `json:"count"`
@@ -1021,6 +981,46 @@ type GetEndpointLabelsIdResponse struct {
 // GetLabels returns GetEndpointLabelsIdResponse.Labels, and is useful for accessing the field via an interface.
 func (v *GetEndpointLabelsIdResponse) GetLabels() GetEndpointLabelsIdLabelsLabelResultSet {
 	return v.Labels
+}
+
+// GetEntitiesIdsEntitiesEntityResultSet includes the requested fields of the GraphQL type EntityResultSet.
+type GetEntitiesIdsEntitiesEntityResultSet struct {
+	Results []*GetEntitiesIdsEntitiesEntityResultSetResultsEntity `json:"results"`
+	Total   int64                                                 `json:"total"`
+}
+
+// GetResults returns GetEntitiesIdsEntitiesEntityResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSet) GetResults() []*GetEntitiesIdsEntitiesEntityResultSetResultsEntity {
+	return v.Results
+}
+
+// GetTotal returns GetEntitiesIdsEntitiesEntityResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSet) GetTotal() int64 { return v.Total }
+
+// GetEntitiesIdsEntitiesEntityResultSetResultsEntity includes the requested fields of the GraphQL type Entity.
+type GetEntitiesIdsEntitiesEntityResultSetResultsEntity struct {
+	EntityId string       `json:"entityId"`
+	Id       *interface{} `json:"id"`
+	Name     *interface{} `json:"name"`
+}
+
+// GetEntityId returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.EntityId, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetEntityId() string { return v.EntityId }
+
+// GetId returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.Id, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetId() *interface{} { return v.Id }
+
+// GetName returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.Name, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetName() *interface{} { return v.Name }
+
+// GetEntitiesIdsResponse is returned by GetEntitiesIds on success.
+type GetEntitiesIdsResponse struct {
+	Entities GetEntitiesIdsEntitiesEntityResultSet `json:"entities"`
+}
+
+// GetEntities returns GetEntitiesIdsResponse.Entities, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsResponse) GetEntities() GetEntitiesIdsEntitiesEntityResultSet {
+	return v.Entities
 }
 
 // GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet includes the requested fields of the GraphQL type IpRangeRuleResultSet.
@@ -7879,8 +7879,8 @@ type __DeleteRateLimitingRuleInput struct {
 // GetId returns __DeleteRateLimitingRuleInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteRateLimitingRuleInput) GetId() string { return v.Id }
 
-// __GetEndpointIdsInput is used internally by genqlient
-type __GetEndpointIdsInput struct {
+// __GetEntitiesIdsInput is used internally by genqlient
+type __GetEntitiesIdsInput struct {
 	EntityType      *EntityType               `json:"entityType"`
 	Scope           *string                   `json:"scope"`
 	Between         InputTimeRange            `json:"between"`
@@ -7892,32 +7892,32 @@ type __GetEndpointIdsInput struct {
 	IncludeInactive *bool                     `json:"includeInactive"`
 }
 
-// GetEntityType returns __GetEndpointIdsInput.EntityType, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetEntityType() *EntityType { return v.EntityType }
+// GetEntityType returns __GetEntitiesIdsInput.EntityType, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetEntityType() *EntityType { return v.EntityType }
 
-// GetScope returns __GetEndpointIdsInput.Scope, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetScope() *string { return v.Scope }
+// GetScope returns __GetEntitiesIdsInput.Scope, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetScope() *string { return v.Scope }
 
-// GetBetween returns __GetEndpointIdsInput.Between, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetBetween() InputTimeRange { return v.Between }
+// GetBetween returns __GetEntitiesIdsInput.Between, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetBetween() InputTimeRange { return v.Between }
 
-// GetSpace returns __GetEndpointIdsInput.Space, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetSpace() *string { return v.Space }
+// GetSpace returns __GetEntitiesIdsInput.Space, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetSpace() *string { return v.Space }
 
-// GetFilterBy returns __GetEndpointIdsInput.FilterBy, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetFilterBy() []*InputFilter { return v.FilterBy }
+// GetFilterBy returns __GetEntitiesIdsInput.FilterBy, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetFilterBy() []*InputFilter { return v.FilterBy }
 
-// GetOrderBy returns __GetEndpointIdsInput.OrderBy, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetOrderBy() []*InputAggregatableOrder { return v.OrderBy }
+// GetOrderBy returns __GetEntitiesIdsInput.OrderBy, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetOrderBy() []*InputAggregatableOrder { return v.OrderBy }
 
-// GetLimit returns __GetEndpointIdsInput.Limit, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetLimit() *int64 { return v.Limit }
+// GetLimit returns __GetEntitiesIdsInput.Limit, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetLimit() *int64 { return v.Limit }
 
-// GetOffset returns __GetEndpointIdsInput.Offset, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetOffset() *int64 { return v.Offset }
+// GetOffset returns __GetEntitiesIdsInput.Offset, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetOffset() *int64 { return v.Offset }
 
-// GetIncludeInactive returns __GetEndpointIdsInput.IncludeInactive, and is useful for accessing the field via an interface.
-func (v *__GetEndpointIdsInput) GetIncludeInactive() *bool { return v.IncludeInactive }
+// GetIncludeInactive returns __GetEntitiesIdsInput.IncludeInactive, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetIncludeInactive() *bool { return v.IncludeInactive }
 
 // __GetMaliciousIpRangeRuleDetailsInput is used internally by genqlient
 type __GetMaliciousIpRangeRuleDetailsInput struct {
@@ -8829,61 +8829,6 @@ func GetDataTypesId(
 	return data_, err_
 }
 
-// The query executed by GetEndpointIds.
-const GetEndpointIds_Operation = `
-query GetEndpointIds ($entityType: EntityType, $scope: String, $between: InputTimeRange!, $space: String, $filterBy: [InputFilter], $orderBy: [InputAggregatableOrder], $limit: Int, $offset: Int, $includeInactive: Boolean) {
-	entities(type: $entityType, scope: $scope, between: $between, space: $space, filterBy: $filterBy, orderBy: $orderBy, limit: $limit, offset: $offset, includeInactive: $includeInactive) {
-		results {
-			entityId: id
-			id: attribute(expression: {key:"id"})
-			name: attribute(expression: {key:"name"})
-		}
-		total
-	}
-}
-`
-
-func GetEndpointIds(
-	ctx_ context.Context,
-	client_ graphql.Client,
-	entityType *EntityType,
-	scope *string,
-	between InputTimeRange,
-	space *string,
-	filterBy []*InputFilter,
-	orderBy []*InputAggregatableOrder,
-	limit *int64,
-	offset *int64,
-	includeInactive *bool,
-) (data_ *GetEndpointIdsResponse, err_ error) {
-	req_ := &graphql.Request{
-		OpName: "GetEndpointIds",
-		Query:  GetEndpointIds_Operation,
-		Variables: &__GetEndpointIdsInput{
-			EntityType:      entityType,
-			Scope:           scope,
-			Between:         between,
-			Space:           space,
-			FilterBy:        filterBy,
-			OrderBy:         orderBy,
-			Limit:           limit,
-			Offset:          offset,
-			IncludeInactive: includeInactive,
-		},
-	}
-
-	data_ = &GetEndpointIdsResponse{}
-	resp_ := &graphql.Response{Data: data_}
-
-	err_ = client_.MakeRequest(
-		ctx_,
-		req_,
-		resp_,
-	)
-
-	return data_, err_
-}
-
 // The query executed by GetEndpointLabelsId.
 const GetEndpointLabelsId_Operation = `
 query GetEndpointLabelsId {
@@ -8908,6 +8853,61 @@ func GetEndpointLabelsId(
 	}
 
 	data_ = &GetEndpointLabelsIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetEntitiesIds.
+const GetEntitiesIds_Operation = `
+query GetEntitiesIds ($entityType: EntityType, $scope: String, $between: InputTimeRange!, $space: String, $filterBy: [InputFilter], $orderBy: [InputAggregatableOrder], $limit: Int, $offset: Int, $includeInactive: Boolean) {
+	entities(type: $entityType, scope: $scope, between: $between, space: $space, filterBy: $filterBy, orderBy: $orderBy, limit: $limit, offset: $offset, includeInactive: $includeInactive) {
+		results {
+			entityId: id
+			id: attribute(expression: {key:"id"})
+			name: attribute(expression: {key:"name"})
+		}
+		total
+	}
+}
+`
+
+func GetEntitiesIds(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	entityType *EntityType,
+	scope *string,
+	between InputTimeRange,
+	space *string,
+	filterBy []*InputFilter,
+	orderBy []*InputAggregatableOrder,
+	limit *int64,
+	offset *int64,
+	includeInactive *bool,
+) (data_ *GetEntitiesIdsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetEntitiesIds",
+		Query:  GetEntitiesIds_Operation,
+		Variables: &__GetEntitiesIdsInput{
+			EntityType:      entityType,
+			Scope:           scope,
+			Between:         between,
+			Space:           space,
+			FilterBy:        filterBy,
+			OrderBy:         orderBy,
+			Limit:           limit,
+			Offset:          offset,
+			IncludeInactive: includeInactive,
+		},
+	}
+
+	data_ = &GetEntitiesIdsResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

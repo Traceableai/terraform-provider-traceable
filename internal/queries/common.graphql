@@ -45,7 +45,7 @@ query GetDataTypesId{
 #   entities(type: EntityType, scope: String, between: InputTimeRange!, space: String, filterBy: [InputFilter], orderBy: [InputAggregatableOrder], limit: Int, offset: Int, includeInactive: Boolean): EntityResultSet!
 
 
-query GetEndpointIds(
+query GetEntitiesIds(
   $entityType: EntityType, 
   $scope: String, 
   $between: InputTimeRange!, 
