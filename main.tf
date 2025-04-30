@@ -17,108 +17,271 @@ provider "traceable" {
   api_token    =""
 }
 
+data "traceable_endpoint_labels" "sample1"{
+    labels = ["CDE","Login APIs","test-anish"]
+}
+output "traceable_labels_sample" {
+  value = data.traceable_endpoint_labels.sample1.label_ids
+}
+data "traceable_datasets" "sample2"{
+    data_sets = ["dlp-automation-dataset","exclude-dlp-automation-dataset"]
+}
+output "traceable_datasets_sample2" {
+  value = data.traceable_datasets.sample2.data_set_ids
+}
+data "traceable_data_types" "sample"{
+    data_types = ["exclude-dlp-automation-datatype","dlp_automation_datatype_23"]
+}
+output "traceable_data_types_sample" {
+  value = data.traceable_data_types.sample.data_type_ids
+}
 
-
-
-# resource "traceable_rate_limiting" "sample"{
-#     name = "shreyanshrevamp12"
-#     description = "revamp"
-#     enabled = true
-#     environments = ["env2","env1"]
-#     threshold_configs=[
-#       {
-#         api_aggregate_type = "PER_ENDPOINT"
-#         user_aggregate_type = "PER_USER"
-#         rolling_window_count_allowed = 10
-#         rolling_window_duration = "PT1M"
-#         threshold_config_type = "ROLLING_WINDOW"
-#     },
-#     {
-       
-#        dynamic_duration = "PT1M"
-#        dynamic_percentage_exceding_mean_allowed = 10
-#        dynamic_mean_calculation_duration ="PT24H"
-#         threshold_config_type = "DYNAMIC"
-#     }
-
-#     ]
-#     action = {
-#        action_type = "ALERT"
-#         duration = "PT1M"
-#         event_severity = "LOW"    
-#         # header_injections = [
-#         #     {
-#         #         key = "X-Custom-Header"
-#         #         value = "CustomValue"
-#         #     },
-#         #     {
-#         #         key = "X-Custom-Header2"
-#         #         value = "CustomValue2"
-#         #     }
-#         # ] 
-#     }
-#     sources = {
-#         ip_asn = {
-#             ip_asn_regexes = ["vmv"]
-#             exclude = true  
-#         }
-#         ip_connection_type = {
-#             ip_connection_type_list = ["RESIDENTIAL","MOBILE"]
-#             exclude = true  
-#         }
-#         user_id = {
-#             exclude = true  
-#         }
-#         # endpoint_labels = ["/abc123"]
-#         # endpoints = ["/abc123"]
-       
-        
-    
-
-#         ip_reputation = "LOW"
-#         ip_location_type = {
-#             ip_location_types = ["BOT"]
-#             exclude = true  
-#         }
-#         ip_abuse_velocity = "LOW"
-#         ip_address= {
-#             ip_address_list = ["192.168.1.1"]
-#             exclude = true  
-#         }
-#         email_domain = {
-#             email_domain_regexes = ["abc*.*gmail.com"]
-#             exclude = true  
-#         }
-
-#         user_agents = {
-#             user_agents_list = ["chrome"]
-#             exclude = true  
-#         }
-#         regions = {
-#             regions_ids = ["AF","AW"]
-#             # regions_ids =["AF","AQ"]
-#             exclude = true  
-#         }
-#         ip_organisation = {
-#             ip_organisation_regexes = ["192.168.1.1"]
-#             exclude = true  
-#         }
-#         request_response = [  
-#             {
-#                 metadata_type = "REQUEST_HEADER"
-#                 key_operator = "EQUALS"
-#                 key_value = "key"
-#                 value_operator = "EQUALS"
-#                 value = "value"
-#             },
-#             {
-#                 metadata_type = "URL"
-#                 value_operator = "EQUALS"
-#                 value = "https://example.com/abc"
-#             }
-#         ]
-#     }
+data "traceable_endpoints" "sample3"{
+    endpoints = ["GET /precedence_check_test","GET /test-call-from-dev-random-user"]
+}
+# output "traceable_endpoint_sample" {
+#   value = data.traceable_endpoints.sample3.endpoint_ids
 # }
+
+
+
+
+
+resource "traceable_rate_limiting" "sample"{
+    name = "gen"
+    description = "revamp"
+    enabled = true
+    environments = ["env2","env1"]
+    threshold_configs=[
+      {
+        api_aggregate_type = "PER_ENDPOINT"
+        user_aggregate_type = "PER_USER"
+        rolling_window_count_allowed = 10
+        rolling_window_duration = "PT1M"
+        threshold_config_type = "ROLLING_WINDOW"
+    },
+    {
+       
+       dynamic_duration = "PT1M"
+       dynamic_percentage_exceding_mean_allowed = 10
+       dynamic_mean_calculation_duration ="PT24H"
+        threshold_config_type = "DYNAMIC"
+    }
+
+    ]
+    action = {
+       action_type = "ALERT"
+        duration = "PT1M"
+        event_severity = "LOW"    
+    }
+    sources = {
+        ip_asn = {
+            ip_asn_regexes = ["vmv"]
+            exclude = true  
+        }
+        ip_connection_type = {
+            ip_connection_type_list = ["RESIDENTIAL","MOBILE"]
+            exclude = true  
+        }
+        user_id = {
+            user_ids = ["123"]
+            exclude = true  
+        }
+        endpoint_labels = data.traceable_endpoint_labels.sample1.label_ids
+        # endpoints = data.traceable_endpoints.sample3.endpoint_ids 
+       
+        ip_reputation = "LOW"
+        ip_location_type = {
+            ip_location_types = ["BOT"]
+            exclude = true  
+        }
+        ip_abuse_velocity = "LOW"
+        # ip_address= {
+        #     ip_address_list = ["192.168.1.1"]
+        #     exclude = true  
+        # }
+        email_domain = {
+            email_domain_regexes = ["abc*.*gmail.com"]
+            exclude = true  
+        }
+
+        user_agents = {
+            user_agents_list = ["chrome"]
+            exclude = true  
+        }
+        regions = {
+            regions_ids = ["AF","AW"]
+            # regions_ids =["AF","AQ"]
+            exclude = true  
+        }
+        ip_organisation = {
+            ip_organisation_regexes = ["192.168.1.1"]
+            exclude = true  
+        }
+        request_response = [  
+            {
+                metadata_type = "REQUEST_HEADER"
+                key_operator = "EQUALS"
+                key_value = "key"
+                value_operator = "EQUALS"
+                value = "value"
+            },
+            {
+                metadata_type = "URL"
+                value_operator = "EQUALS"
+                value = "https://example.com/abc"
+            },
+            {
+              metadata_type ="TAG"
+              key_operator = "EQUALS"
+              key_value = "key"
+              value_operator = "EQUALS"
+              value = "value"
+            }
+
+        ]
+    }
+    depends_on = ["data.traceable_endpoint_labels.sample1","data.traceable_endpoints.sample3"]
+}
+
+
+resource "traceable_enumeration" "sample"{
+    name = "gen"
+    description = "revamp"
+    enabled = true
+    environments = ["env2","env1"]
+    threshold_configs=[
+      {
+        api_aggregate_type = "PER_ENDPOINT"
+        value_type ="SENSITIVE_PARAMS"
+        unique_values_allowed = 10
+        duration ="PT1M"
+        threshold_config_type = "VALUE_BASED"
+        user_aggregate_type = "PER_USER"
+        sensitive_params_evaluation_type = "ALL"
+    },
+    {
+        api_aggregate_type = "PER_ENDPOINT"
+        value_type ="REQUEST_BODY"
+        unique_values_allowed = 10
+        duration ="PT1M"
+        threshold_config_type = "VALUE_BASED"
+        user_aggregate_type = "PER_USER"
+    },
+    {
+        api_aggregate_type = "PER_ENDPOINT"
+        value_type ="PATH_PARAMS"
+        unique_values_allowed = 10
+        duration ="PT1M"
+        threshold_config_type = "VALUE_BASED"
+        user_aggregate_type = "PER_USER"
+    },
+   
+
+    ]
+    action = {
+       action_type = "ALERT"
+        duration = "PT1M"
+        event_severity = "LOW"    
+    }
+    sources = {
+        ip_asn = {
+            ip_asn_regexes = ["vmv"]
+            exclude = true  
+        }
+        ip_connection_type = {
+            ip_connection_type_list = ["RESIDENTIAL","MOBILE"]
+            exclude = true  
+        }
+        user_id = {
+            user_ids = ["123"]
+            exclude = true  
+        }
+        endpoint_labels = data.traceable_endpoint_labels.sample1.label_ids
+        # endpoints = data.traceable_endpoints.sample3.endpoint_ids 
+       
+        ip_reputation = "LOW"
+        ip_location_type = {
+            ip_location_types = ["BOT"]
+            exclude = true  
+        }
+        ip_abuse_velocity = "LOW"
+        ip_address= {
+            ip_address_list = ["192.168.1.1"]
+            exclude = true  
+        }
+        email_domain = {
+            email_domain_regexes = ["abc*.*gmail.com"]
+            exclude = true  
+        }
+
+        user_agents = {
+            user_agents_list = ["chrome"]
+            exclude = true  
+        }
+        regions = {
+            regions_ids = ["AF","AW"]
+          
+            exclude = true  
+        }
+        ip_organisation = {
+            ip_organisation_regexes = ["192.168.1.1"]
+            exclude = true  
+        }
+        request_response = [  
+            {
+                metadata_type = "REQUEST_HEADER"
+                key_operator = "EQUALS"
+                key_value = "key"
+                value_operator = "EQUALS"
+                value = "value"
+            },
+            {
+                metadata_type = "URL"
+                value_operator = "EQUALS"
+                value = "https://example.com/abc"
+            },
+            {
+              metadata_type ="TAG"
+              key_operator = "EQUALS"
+              key_value = "key"
+              value_operator = "EQUALS"
+              value = "value"
+            }
+
+        ]
+        data_set = [
+          {
+            data_sets_ids=data.traceable_datasets.sample2.data_set_ids
+            data_location = "REQUEST"
+
+          },
+            {
+            data_sets_ids=data.traceable_datasets.sample2.data_set_ids
+            data_location = "RESPONSE"
+          },
+           {
+            data_sets_ids=data.traceable_datasets.sample2.data_set_ids
+           }
+        ] 
+
+        data_type = [
+          {
+            data_types_ids=data.traceable_data_types.sample.data_type_ids
+            data_location = "REQUEST"
+
+          },
+           {
+            data_types_ids=data.traceable_data_types.sample.data_type_ids
+            data_location = "RESPONSE"
+          },
+          {
+            data_types_ids=data.traceable_data_types.sample.data_type_ids
+          }
+        ]
+    }
+    depends_on = ["data.traceable_endpoint_labels.sample1","data.traceable_endpoints.sample3","data.traceable_datasets.sample2","data.traceable_data_types.sample"]
+}
 
     
        
@@ -147,16 +310,16 @@ provider "traceable" {
 #        ]
 # }
 
-resource "traceable_malicious_ip_type" "sample"{
-    name = "tftest1234"
-    description = "revamp"
-    enabled = true
-    event_severity = "HIGH"
-    duration = "PT1M"
-    action = "ALERT"
-    environments = ["env1","env2"]
-    ip_type = ["ANONYMOUS_VPN","BOT",]
-}
+# resource "traceable_malicious_ip_type" "sample"{
+#     name = "tftest1234"
+#     description = "revamp"
+#     enabled = true
+#     event_severity = "HIGH"
+#     duration = "PT1M"
+#     action = "ALERT"
+#     environments = ["env1","env2"]
+#     ip_type = ["ANONYMOUS_VPN","BOT",]
+# }
 
 
 

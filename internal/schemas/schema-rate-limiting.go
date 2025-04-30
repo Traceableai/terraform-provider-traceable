@@ -72,6 +72,22 @@ func RateLimitingResourceSchema() schema.Schema {
 							MarkdownDescription: "Dynamic percentage exceeding mean allowed",
 							Optional:            true,
 						},
+						"value_type": schema.StringAttribute{
+							MarkdownDescription: "Value type",
+							Optional:            true,
+						},
+						"unique_values_allowed": schema.Int64Attribute{
+							MarkdownDescription: "Unique values allowed",
+							Optional:            true,
+						},
+						"sensitive_params_evaluation_type": schema.StringAttribute{
+							MarkdownDescription: "Sensitive params evaluation type",
+							Optional:            true,
+						},
+						"duration": schema.StringAttribute{
+							MarkdownDescription: "Duration",
+							Optional:            true,
+						},
 					},
 				},
 			},
@@ -313,6 +329,40 @@ func RateLimitingResourceSchema() schema.Schema {
 								"value": schema.StringAttribute{
 									MarkdownDescription: "Value to match",
 									Optional:            true,
+								},
+							},
+						},
+					},
+					"data_set": schema.SetNestedAttribute{
+						MarkdownDescription: "Request/response attributes as source",
+						Optional:            true,
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"data_location": schema.StringAttribute{
+									MarkdownDescription: "Which Metadatype to include",
+									Optional:            true,
+								},
+								"data_sets_ids": schema.SetAttribute{
+									MarkdownDescription: "Which operator to use",
+									Optional:            true,
+									ElementType:         types.StringType,
+								},
+							},
+						},
+					},
+					"data_type": schema.SetNestedAttribute{
+						MarkdownDescription: "Request/response attributes as source",
+						Optional:            true,
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"data_location": schema.StringAttribute{
+									MarkdownDescription: "Which Metadatype to include",
+									Optional:            true,
+								},
+								"data_types_ids": schema.SetAttribute{
+									MarkdownDescription: "Which operator to use",
+									Optional:            true,
+									ElementType:         types.StringType,
 								},
 							},
 						},

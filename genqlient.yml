@@ -26,5 +26,7 @@ bindings:
     type: string
   DateTime:
     type: string
+  Unknown:
+   type: interface{}  
 
 optional: pointer

@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/traceableai/terraform-provider-traceable/internal/api"
+	"github.com/traceableai/terraform-provider-traceable/internal/datasources"
 	"github.com/traceableai/terraform-provider-traceable/internal/resources"
 )
 
@@ -120,13 +121,19 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 		resources.NewMaliciousIpRangeResource,
 		resources.NewMaliciousRegionResource,
 		resources.NewMaliciousIpTypeResource,
+		resources.NewEnumerationResource,
 	}
 }
 
 // Register your data sources
 func (p *traceableProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		datasources.NewEndpointLabelDataSource,
+		datasources.NewDatasetDataSource,
+		datasources.NewDataTypeDataSource,
+		datasources.NewEndpointDataSource,
+	}
 }
 
 func New(version string) func() provider.Provider {
