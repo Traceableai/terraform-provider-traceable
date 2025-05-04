@@ -231,8 +231,8 @@ func getRateLimitingRuleId(ruleName string, ctx context.Context, r graphql.Clien
 		}
 	}
 	return "", nil
-
 }
+
 func convertRateLimitingModelToCreateInput(ctx context.Context, data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleData, error) {
 	var input = generated.InputRateLimitingRuleData{}
 	if HasValue(data.Name) {

@@ -5,6 +5,7 @@ operations:
   - internal/queries/malicious_ip_range.graphql
   - internal/queries/malicious_region.graphql
   - internal/queries/common.graphql
+  - internal/queries/custom_signature.graphql
   
 generated: internal/generated/genqlient.go
 package: generated
