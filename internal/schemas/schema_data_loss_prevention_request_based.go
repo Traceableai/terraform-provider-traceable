@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func RateLimitingResourceSchema() schema.Schema {
+func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 	return schema.Schema{
-		MarkdownDescription: "Traceable Rate Limiting Resource",
+		MarkdownDescription: "Traceable Data Loss Prevention Request Based Resource",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the Rate Limiting Rule",

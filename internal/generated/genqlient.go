@@ -9,6 +9,194 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+type AttributeScope string
+
+const (
+	// TRACE
+	AttributeScopeTrace AttributeScope = "TRACE"
+	// SPAN
+	AttributeScopeSpan AttributeScope = "SPAN"
+	// API
+	AttributeScopeApi AttributeScope = "API"
+	// API_TRACE
+	AttributeScopeApiTrace AttributeScope = "API_TRACE"
+	// BACKEND
+	AttributeScopeBackend AttributeScope = "BACKEND"
+	// BACKEND_TRACE
+	AttributeScopeBackendTrace AttributeScope = "BACKEND_TRACE"
+	// INTERACTION
+	AttributeScopeInteraction AttributeScope = "INTERACTION"
+	// SERVICE
+	AttributeScopeService AttributeScope = "SERVICE"
+	// ACTOR
+	AttributeScopeActor AttributeScope = "ACTOR"
+	// DOMAIN
+	AttributeScopeDomain AttributeScope = "DOMAIN"
+	// DOMAIN_EVENT
+	AttributeScopeDomainEvent AttributeScope = "DOMAIN_EVENT"
+	// BACKEND_API
+	AttributeScopeBackendApi AttributeScope = "BACKEND_API"
+)
+
+var AllAttributeScope = []AttributeScope{
+	AttributeScopeTrace,
+	AttributeScopeSpan,
+	AttributeScopeApi,
+	AttributeScopeApiTrace,
+	AttributeScopeBackend,
+	AttributeScopeBackendTrace,
+	AttributeScopeInteraction,
+	AttributeScopeService,
+	AttributeScopeActor,
+	AttributeScopeDomain,
+	AttributeScopeDomainEvent,
+	AttributeScopeBackendApi,
+}
+
+// CreateCustomSignatureCreateCustomSignatureRule includes the requested fields of the GraphQL type CustomSignatureRule.
+type CreateCustomSignatureCreateCustomSignatureRule struct {
+	CustomSignatureFields `json:"-"`
+}
+
+// GetId returns CreateCustomSignatureCreateCustomSignatureRule.Id, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetId() string {
+	return v.CustomSignatureFields.Id
+}
+
+// GetName returns CreateCustomSignatureCreateCustomSignatureRule.Name, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetName() string {
+	return v.CustomSignatureFields.Name
+}
+
+// GetDescription returns CreateCustomSignatureCreateCustomSignatureRule.Description, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetDescription() string {
+	return v.CustomSignatureFields.Description
+}
+
+// GetDisabled returns CreateCustomSignatureCreateCustomSignatureRule.Disabled, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetDisabled() *bool {
+	return v.CustomSignatureFields.Disabled
+}
+
+// GetInternal returns CreateCustomSignatureCreateCustomSignatureRule.Internal, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetInternal() *bool {
+	return v.CustomSignatureFields.Internal
+}
+
+// GetBlockingExpirationDuration returns CreateCustomSignatureCreateCustomSignatureRule.BlockingExpirationDuration, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetBlockingExpirationDuration() *string {
+	return v.CustomSignatureFields.BlockingExpirationDuration
+}
+
+// GetBlockingExpirationTime returns CreateCustomSignatureCreateCustomSignatureRule.BlockingExpirationTime, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetBlockingExpirationTime() *string {
+	return v.CustomSignatureFields.BlockingExpirationTime
+}
+
+// GetRuleSource returns CreateCustomSignatureCreateCustomSignatureRule.RuleSource, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetRuleSource() *CustomSignatureRuleSource {
+	return v.CustomSignatureFields.RuleSource
+}
+
+// GetRuleEffect returns CreateCustomSignatureCreateCustomSignatureRule.RuleEffect, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetRuleEffect() CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect {
+	return v.CustomSignatureFields.RuleEffect
+}
+
+// GetRuleDefinition returns CreateCustomSignatureCreateCustomSignatureRule.RuleDefinition, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetRuleDefinition() CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition {
+	return v.CustomSignatureFields.RuleDefinition
+}
+
+// GetRuleScope returns CreateCustomSignatureCreateCustomSignatureRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureCreateCustomSignatureRule) GetRuleScope() *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope {
+	return v.CustomSignatureFields.RuleScope
+}
+
+func (v *CreateCustomSignatureCreateCustomSignatureRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CreateCustomSignatureCreateCustomSignatureRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CreateCustomSignatureCreateCustomSignatureRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CustomSignatureFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCreateCustomSignatureCreateCustomSignatureRule struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Description string `json:"description"`
+
+	Disabled *bool `json:"disabled"`
+
+	Internal *bool `json:"internal"`
+
+	BlockingExpirationDuration *string `json:"blockingExpirationDuration"`
+
+	BlockingExpirationTime *string `json:"blockingExpirationTime"`
+
+	RuleSource *CustomSignatureRuleSource `json:"ruleSource"`
+
+	RuleEffect CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect `json:"ruleEffect"`
+
+	RuleDefinition CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition `json:"ruleDefinition"`
+
+	RuleScope *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope `json:"ruleScope"`
+}
+
+func (v *CreateCustomSignatureCreateCustomSignatureRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CreateCustomSignatureCreateCustomSignatureRule) __premarshalJSON() (*__premarshalCreateCustomSignatureCreateCustomSignatureRule, error) {
+	var retval __premarshalCreateCustomSignatureCreateCustomSignatureRule
+
+	retval.Id = v.CustomSignatureFields.Id
+	retval.Name = v.CustomSignatureFields.Name
+	retval.Description = v.CustomSignatureFields.Description
+	retval.Disabled = v.CustomSignatureFields.Disabled
+	retval.Internal = v.CustomSignatureFields.Internal
+	retval.BlockingExpirationDuration = v.CustomSignatureFields.BlockingExpirationDuration
+	retval.BlockingExpirationTime = v.CustomSignatureFields.BlockingExpirationTime
+	retval.RuleSource = v.CustomSignatureFields.RuleSource
+	retval.RuleEffect = v.CustomSignatureFields.RuleEffect
+	retval.RuleDefinition = v.CustomSignatureFields.RuleDefinition
+	retval.RuleScope = v.CustomSignatureFields.RuleScope
+	return &retval, nil
+}
+
+// CreateCustomSignatureResponse is returned by CreateCustomSignature on success.
+type CreateCustomSignatureResponse struct {
+	CreateCustomSignatureRule CreateCustomSignatureCreateCustomSignatureRule `json:"createCustomSignatureRule"`
+}
+
+// GetCreateCustomSignatureRule returns CreateCustomSignatureResponse.CreateCustomSignatureRule, and is useful for accessing the field via an interface.
+func (v *CreateCustomSignatureResponse) GetCreateCustomSignatureRule() CreateCustomSignatureCreateCustomSignatureRule {
+	return v.CreateCustomSignatureRule
+}
+
 // CreateDataSetCreateDataSet includes the requested fields of the GraphQL type DataSet.
 type CreateDataSetCreateDataSet struct {
 	Id          string  `json:"id"`
@@ -609,6 +797,782 @@ func (v *CreateRateLimitingRuleResponse) GetCreateRateLimitingRule() CreateRateL
 	return v.CreateRateLimitingRule
 }
 
+// CustomSignatureFields includes the GraphQL fields of CustomSignatureRule requested by the fragment CustomSignatureFields.
+type CustomSignatureFields struct {
+	Id                         string                                                           `json:"id"`
+	Name                       string                                                           `json:"name"`
+	Description                string                                                           `json:"description"`
+	Disabled                   *bool                                                            `json:"disabled"`
+	Internal                   *bool                                                            `json:"internal"`
+	BlockingExpirationDuration *string                                                          `json:"blockingExpirationDuration"`
+	BlockingExpirationTime     *string                                                          `json:"blockingExpirationTime"`
+	RuleSource                 *CustomSignatureRuleSource                                       `json:"ruleSource"`
+	RuleEffect                 CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect         `json:"ruleEffect"`
+	RuleDefinition             CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition `json:"ruleDefinition"`
+	RuleScope                  *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope          `json:"ruleScope"`
+}
+
+// GetId returns CustomSignatureFields.Id, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetId() string { return v.Id }
+
+// GetName returns CustomSignatureFields.Name, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetName() string { return v.Name }
+
+// GetDescription returns CustomSignatureFields.Description, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetDescription() string { return v.Description }
+
+// GetDisabled returns CustomSignatureFields.Disabled, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetDisabled() *bool { return v.Disabled }
+
+// GetInternal returns CustomSignatureFields.Internal, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetInternal() *bool { return v.Internal }
+
+// GetBlockingExpirationDuration returns CustomSignatureFields.BlockingExpirationDuration, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetBlockingExpirationDuration() *string {
+	return v.BlockingExpirationDuration
+}
+
+// GetBlockingExpirationTime returns CustomSignatureFields.BlockingExpirationTime, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetBlockingExpirationTime() *string { return v.BlockingExpirationTime }
+
+// GetRuleSource returns CustomSignatureFields.RuleSource, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetRuleSource() *CustomSignatureRuleSource { return v.RuleSource }
+
+// GetRuleEffect returns CustomSignatureFields.RuleEffect, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetRuleEffect() CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect {
+	return v.RuleEffect
+}
+
+// GetRuleDefinition returns CustomSignatureFields.RuleDefinition, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetRuleDefinition() CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition {
+	return v.RuleDefinition
+}
+
+// GetRuleScope returns CustomSignatureFields.RuleScope, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFields) GetRuleScope() *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope {
+	return v.RuleScope
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition includes the requested fields of the GraphQL type CustomSignatureRuleDefinition.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition struct {
+	Labels      []*CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel         `json:"labels"`
+	ClauseGroup CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup `json:"clauseGroup"`
+}
+
+// GetLabels returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition.Labels, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition) GetLabels() []*CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel {
+	return v.Labels
+}
+
+// GetClauseGroup returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition.ClauseGroup, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition) GetClauseGroup() CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup {
+	return v.ClauseGroup
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup includes the requested fields of the GraphQL type CustomSignatureRuleClauseGroup.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup struct {
+	ClauseOperator CustomSignatureRuleClauseOperator                                                                                                                   `json:"clauseOperator"`
+	Clauses        []*CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest `json:"clauses"`
+}
+
+// GetClauseOperator returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup.ClauseOperator, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup) GetClauseOperator() CustomSignatureRuleClauseOperator {
+	return v.ClauseOperator
+}
+
+// GetClauses returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup.Clauses, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroup) GetClauses() []*CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest {
+	return v.Clauses
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest includes the requested fields of the GraphQL type CustomSignatureRuleClauseRequest.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest struct {
+	ClauseType                  CustomSignatureRuleClauseType                                                                                                                                                                                              `json:"clauseType"`
+	MatchExpression             *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression                         `json:"matchExpression"`
+	KeyValueExpression          *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression                   `json:"keyValueExpression"`
+	AttributeKeyValueExpression *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression `json:"attributeKeyValueExpression"`
+	// Custom sec rule
+	CustomSecRule *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestCustomSecRuleCustomSignatureSecRule `json:"customSecRule"`
+}
+
+// GetClauseType returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest.ClauseType, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest) GetClauseType() CustomSignatureRuleClauseType {
+	return v.ClauseType
+}
+
+// GetMatchExpression returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest.MatchExpression, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest) GetMatchExpression() *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression {
+	return v.MatchExpression
+}
+
+// GetKeyValueExpression returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest.KeyValueExpression, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest) GetKeyValueExpression() *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression {
+	return v.KeyValueExpression
+}
+
+// GetAttributeKeyValueExpression returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest.AttributeKeyValueExpression, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest) GetAttributeKeyValueExpression() *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression {
+	return v.AttributeKeyValueExpression
+}
+
+// GetCustomSecRule returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest.CustomSecRule, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequest) GetCustomSecRule() *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestCustomSecRuleCustomSignatureSecRule {
+	return v.CustomSecRule
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression includes the requested fields of the GraphQL type CustomSignatureRuleAttributeKeyValueExpression.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression struct {
+	// Key condition
+	KeyCondition *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition `json:"keyCondition"`
+	// Value condition
+	ValueCondition *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition `json:"valueCondition"`
+}
+
+// GetKeyCondition returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression.KeyCondition, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression) GetKeyCondition() *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition {
+	return v.KeyCondition
+}
+
+// GetValueCondition returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression.ValueCondition, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpression) GetValueCondition() *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition {
+	return v.ValueCondition
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition includes the requested fields of the GraphQL type CustomSignatureStringMatchCondition.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition struct {
+	// Key match operator
+	Operator CustomSignatureRuleMatchOperator `json:"operator"`
+	// Match key
+	Value string `json:"value"`
+}
+
+// GetOperator returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition.Operator, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition) GetOperator() CustomSignatureRuleMatchOperator {
+	return v.Operator
+}
+
+// GetValue returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition.Value, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionKeyConditionCustomSignatureStringMatchCondition) GetValue() string {
+	return v.Value
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition includes the requested fields of the GraphQL type CustomSignatureStringMatchCondition.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition struct {
+	// Key match operator
+	Operator CustomSignatureRuleMatchOperator `json:"operator"`
+	// Match key
+	Value string `json:"value"`
+}
+
+// GetOperator returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition.Operator, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition) GetOperator() CustomSignatureRuleMatchOperator {
+	return v.Operator
+}
+
+// GetValue returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition.Value, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestAttributeKeyValueExpressionCustomSignatureRuleAttributeKeyValueExpressionValueConditionCustomSignatureStringMatchCondition) GetValue() string {
+	return v.Value
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestCustomSecRuleCustomSignatureSecRule includes the requested fields of the GraphQL type CustomSignatureSecRule.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestCustomSecRuleCustomSignatureSecRule struct {
+	// Input sec rule string
+	InputSecRuleString *string `json:"inputSecRuleString"`
+}
+
+// GetInputSecRuleString returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestCustomSecRuleCustomSignatureSecRule.InputSecRuleString, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestCustomSecRuleCustomSignatureSecRule) GetInputSecRuleString() *string {
+	return v.InputSecRuleString
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression includes the requested fields of the GraphQL type CustomSignatureRuleKeyValueExpression.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression struct {
+	KeyValueTag        CustomSignatureRuleKeyValueTag    `json:"keyValueTag"`
+	MatchKey           string                            `json:"matchKey"`
+	MatchValue         string                            `json:"matchValue"`
+	KeyMatchOperator   CustomSignatureRuleMatchOperator  `json:"keyMatchOperator"`
+	ValueMatchOperator CustomSignatureRuleMatchOperator  `json:"valueMatchOperator"`
+	MatchCategory      *CustomSignatureRuleMatchCategory `json:"matchCategory"`
+}
+
+// GetKeyValueTag returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression.KeyValueTag, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression) GetKeyValueTag() CustomSignatureRuleKeyValueTag {
+	return v.KeyValueTag
+}
+
+// GetMatchKey returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression.MatchKey, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression) GetMatchKey() string {
+	return v.MatchKey
+}
+
+// GetMatchValue returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression.MatchValue, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression) GetMatchValue() string {
+	return v.MatchValue
+}
+
+// GetKeyMatchOperator returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression.KeyMatchOperator, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression) GetKeyMatchOperator() CustomSignatureRuleMatchOperator {
+	return v.KeyMatchOperator
+}
+
+// GetValueMatchOperator returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression.ValueMatchOperator, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression) GetValueMatchOperator() CustomSignatureRuleMatchOperator {
+	return v.ValueMatchOperator
+}
+
+// GetMatchCategory returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression.MatchCategory, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestKeyValueExpressionCustomSignatureRuleKeyValueExpression) GetMatchCategory() *CustomSignatureRuleMatchCategory {
+	return v.MatchCategory
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression includes the requested fields of the GraphQL type CustomSignatureRuleMatchExpression.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression struct {
+	MatchKey      CustomSignatureRuleMatchKey       `json:"matchKey"`
+	MatchOperator CustomSignatureRuleMatchOperator  `json:"matchOperator"`
+	MatchValue    *string                           `json:"matchValue"`
+	MatchCategory *CustomSignatureRuleMatchCategory `json:"matchCategory"`
+}
+
+// GetMatchKey returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression.MatchKey, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression) GetMatchKey() CustomSignatureRuleMatchKey {
+	return v.MatchKey
+}
+
+// GetMatchOperator returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression.MatchOperator, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression) GetMatchOperator() CustomSignatureRuleMatchOperator {
+	return v.MatchOperator
+}
+
+// GetMatchValue returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression.MatchValue, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression) GetMatchValue() *string {
+	return v.MatchValue
+}
+
+// GetMatchCategory returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression.MatchCategory, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression) GetMatchCategory() *CustomSignatureRuleMatchCategory {
+	return v.MatchCategory
+}
+
+// CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel includes the requested fields of the GraphQL type CustomSignatureRuleLabel.
+type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// GetKey returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel.Key, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel.Value, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionLabelsCustomSignatureRuleLabel) GetValue() string {
+	return v.Value
+}
+
+// CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect includes the requested fields of the GraphQL type CustomSignatureRuleEffect.
+type CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect struct {
+	EventType     CustomSignatureRuleEventType                                                                                `json:"eventType"`
+	EventSeverity *CustomSignatureRuleEventSeverity                                                                           `json:"eventSeverity"`
+	Effects       []*CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification `json:"effects"`
+}
+
+// GetEventType returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect.EventType, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect) GetEventType() CustomSignatureRuleEventType {
+	return v.EventType
+}
+
+// GetEventSeverity returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect.EventSeverity, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect) GetEventSeverity() *CustomSignatureRuleEventSeverity {
+	return v.EventSeverity
+}
+
+// GetEffects returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect.Effects, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect) GetEffects() []*CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification {
+	return v.Effects
+}
+
+// CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification includes the requested fields of the GraphQL type CustomSignatureRuleEffectWithModification.
+type CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification struct {
+	RuleEffectType CustomSignatureRuleEffectModificationType `json:"ruleEffectType"`
+	// Effects enforced for agent while inline processing of requests
+	AgentEffect CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffect `json:"agentEffect"`
+}
+
+// GetRuleEffectType returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification.RuleEffectType, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification) GetRuleEffectType() CustomSignatureRuleEffectModificationType {
+	return v.RuleEffectType
+}
+
+// GetAgentEffect returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification.AgentEffect, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModification) GetAgentEffect() CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffect {
+	return v.AgentEffect
+}
+
+// CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffect includes the requested fields of the GraphQL type CustomSignatureRuleAgentEffect.
+type CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffect struct {
+	AgentModifications []*CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification `json:"agentModifications"`
+}
+
+// GetAgentModifications returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffect.AgentModifications, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffect) GetAgentModifications() []*CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification {
+	return v.AgentModifications
+}
+
+// CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification includes the requested fields of the GraphQL type CustomSignatureRuleAgentModification.
+type CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification struct {
+	AgentModificationType CustomSignatureRuleAgentModificationType                                                                                                                                                                                                                 `json:"agentModificationType"`
+	HeaderInjection       CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection `json:"headerInjection"`
+}
+
+// GetAgentModificationType returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification.AgentModificationType, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification) GetAgentModificationType() CustomSignatureRuleAgentModificationType {
+	return v.AgentModificationType
+}
+
+// GetHeaderInjection returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification.HeaderInjection, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModification) GetHeaderInjection() CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection {
+	return v.HeaderInjection
+}
+
+// CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection includes the requested fields of the GraphQL type CustomSignatureRuleHeaderInjection.
+type CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection struct {
+	Key            string                           `json:"key"`
+	Value          string                           `json:"value"`
+	HeaderCategory CustomSignatureRuleMatchCategory `json:"headerCategory"`
+}
+
+// GetKey returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection.Key, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection) GetKey() string {
+	return v.Key
+}
+
+// GetValue returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection.Value, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection) GetValue() string {
+	return v.Value
+}
+
+// GetHeaderCategory returns CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection.HeaderCategory, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleEffectCustomSignatureRuleEffectEffectsCustomSignatureRuleEffectWithModificationAgentEffectCustomSignatureRuleAgentEffectAgentModificationsCustomSignatureRuleAgentModificationHeaderInjectionCustomSignatureRuleHeaderInjection) GetHeaderCategory() CustomSignatureRuleMatchCategory {
+	return v.HeaderCategory
+}
+
+// CustomSignatureFieldsRuleScopeCustomSignatureRuleScope includes the requested fields of the GraphQL type CustomSignatureRuleScope.
+type CustomSignatureFieldsRuleScopeCustomSignatureRuleScope struct {
+	EnvironmentScope *CustomSignatureFieldsRuleScopeCustomSignatureRuleScopeEnvironmentScopeCustomSignatureEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns CustomSignatureFieldsRuleScopeCustomSignatureRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope) GetEnvironmentScope() *CustomSignatureFieldsRuleScopeCustomSignatureRuleScopeEnvironmentScopeCustomSignatureEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// CustomSignatureFieldsRuleScopeCustomSignatureRuleScopeEnvironmentScopeCustomSignatureEnvironmentScope includes the requested fields of the GraphQL type CustomSignatureEnvironmentScope.
+type CustomSignatureFieldsRuleScopeCustomSignatureRuleScopeEnvironmentScopeCustomSignatureEnvironmentScope struct {
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns CustomSignatureFieldsRuleScopeCustomSignatureRuleScopeEnvironmentScopeCustomSignatureEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *CustomSignatureFieldsRuleScopeCustomSignatureRuleScopeEnvironmentScopeCustomSignatureEnvironmentScope) GetEnvironmentIds() []*string {
+	return v.EnvironmentIds
+}
+
+type CustomSignatureRuleAgentModificationType string
+
+const (
+	// Add a header with inline processing of request on matching conditions
+	CustomSignatureRuleAgentModificationTypeHeaderInjection CustomSignatureRuleAgentModificationType = "HEADER_INJECTION"
+)
+
+var AllCustomSignatureRuleAgentModificationType = []CustomSignatureRuleAgentModificationType{
+	CustomSignatureRuleAgentModificationTypeHeaderInjection,
+}
+
+type CustomSignatureRuleClauseOperator string
+
+const (
+	// AND
+	CustomSignatureRuleClauseOperatorAnd CustomSignatureRuleClauseOperator = "AND"
+)
+
+var AllCustomSignatureRuleClauseOperator = []CustomSignatureRuleClauseOperator{
+	CustomSignatureRuleClauseOperatorAnd,
+}
+
+type CustomSignatureRuleClauseType string
+
+const (
+	// MATCH_EXPRESSION
+	CustomSignatureRuleClauseTypeMatchExpression CustomSignatureRuleClauseType = "MATCH_EXPRESSION"
+	// KEY_VALUE_EXPRESSION
+	CustomSignatureRuleClauseTypeKeyValueExpression CustomSignatureRuleClauseType = "KEY_VALUE_EXPRESSION"
+	// ATTRIBUTE_KEY_VALUE_EXPRESSION
+	CustomSignatureRuleClauseTypeAttributeKeyValueExpression CustomSignatureRuleClauseType = "ATTRIBUTE_KEY_VALUE_EXPRESSION"
+	// CUSTOM_SEC_RULE
+	CustomSignatureRuleClauseTypeCustomSecRule CustomSignatureRuleClauseType = "CUSTOM_SEC_RULE"
+	// IP_ADDRESS_EXPRESSION
+	CustomSignatureRuleClauseTypeIpAddressExpression CustomSignatureRuleClauseType = "IP_ADDRESS_EXPRESSION"
+	// IP_TYPE_EXPRESSION
+	CustomSignatureRuleClauseTypeIpTypeExpression CustomSignatureRuleClauseType = "IP_TYPE_EXPRESSION"
+	// IP_REPUTATION_EXPRESSION
+	CustomSignatureRuleClauseTypeIpReputationExpression CustomSignatureRuleClauseType = "IP_REPUTATION_EXPRESSION"
+	// IP_CONNECTION_TYPE_EXPRESSION
+	CustomSignatureRuleClauseTypeIpConnectionTypeExpression CustomSignatureRuleClauseType = "IP_CONNECTION_TYPE_EXPRESSION"
+	// IP_ORGANISATION_EXPRESSION
+	CustomSignatureRuleClauseTypeIpOrganisationExpression CustomSignatureRuleClauseType = "IP_ORGANISATION_EXPRESSION"
+	// IP_ASN_EXPRESSION
+	CustomSignatureRuleClauseTypeIpAsnExpression CustomSignatureRuleClauseType = "IP_ASN_EXPRESSION"
+	// IP_ABUSE_VELOCITY_EXPRESSION
+	CustomSignatureRuleClauseTypeIpAbuseVelocityExpression CustomSignatureRuleClauseType = "IP_ABUSE_VELOCITY_EXPRESSION"
+	// REGION_EXPRESSION
+	CustomSignatureRuleClauseTypeRegionExpression CustomSignatureRuleClauseType = "REGION_EXPRESSION"
+	// USER_ID_EXPRESSION
+	CustomSignatureRuleClauseTypeUserIdExpression CustomSignatureRuleClauseType = "USER_ID_EXPRESSION"
+	// EMAIL_DOMAIN_EXPRESSION
+	CustomSignatureRuleClauseTypeEmailDomainExpression CustomSignatureRuleClauseType = "EMAIL_DOMAIN_EXPRESSION"
+	// USER_AGENT_EXPRESSION
+	CustomSignatureRuleClauseTypeUserAgentExpression CustomSignatureRuleClauseType = "USER_AGENT_EXPRESSION"
+	// REQUEST_SCANNER_TYPE_EXPRESSION
+	CustomSignatureRuleClauseTypeRequestScannerTypeExpression CustomSignatureRuleClauseType = "REQUEST_SCANNER_TYPE_EXPRESSION"
+	// SCOPE_EXPRESSION
+	CustomSignatureRuleClauseTypeScopeExpression CustomSignatureRuleClauseType = "SCOPE_EXPRESSION"
+)
+
+var AllCustomSignatureRuleClauseType = []CustomSignatureRuleClauseType{
+	CustomSignatureRuleClauseTypeMatchExpression,
+	CustomSignatureRuleClauseTypeKeyValueExpression,
+	CustomSignatureRuleClauseTypeAttributeKeyValueExpression,
+	CustomSignatureRuleClauseTypeCustomSecRule,
+	CustomSignatureRuleClauseTypeIpAddressExpression,
+	CustomSignatureRuleClauseTypeIpTypeExpression,
+	CustomSignatureRuleClauseTypeIpReputationExpression,
+	CustomSignatureRuleClauseTypeIpConnectionTypeExpression,
+	CustomSignatureRuleClauseTypeIpOrganisationExpression,
+	CustomSignatureRuleClauseTypeIpAsnExpression,
+	CustomSignatureRuleClauseTypeIpAbuseVelocityExpression,
+	CustomSignatureRuleClauseTypeRegionExpression,
+	CustomSignatureRuleClauseTypeUserIdExpression,
+	CustomSignatureRuleClauseTypeEmailDomainExpression,
+	CustomSignatureRuleClauseTypeUserAgentExpression,
+	CustomSignatureRuleClauseTypeRequestScannerTypeExpression,
+	CustomSignatureRuleClauseTypeScopeExpression,
+}
+
+type CustomSignatureRuleEffectModificationType string
+
+const (
+	// Modifications to be done on agent
+	CustomSignatureRuleEffectModificationTypeAgentEffect CustomSignatureRuleEffectModificationType = "AGENT_EFFECT"
+)
+
+var AllCustomSignatureRuleEffectModificationType = []CustomSignatureRuleEffectModificationType{
+	CustomSignatureRuleEffectModificationTypeAgentEffect,
+}
+
+type CustomSignatureRuleEntityType string
+
+const (
+	// API
+	CustomSignatureRuleEntityTypeApi CustomSignatureRuleEntityType = "API"
+	// SERVICE
+	CustomSignatureRuleEntityTypeService CustomSignatureRuleEntityType = "SERVICE"
+)
+
+var AllCustomSignatureRuleEntityType = []CustomSignatureRuleEntityType{
+	CustomSignatureRuleEntityTypeApi,
+	CustomSignatureRuleEntityTypeService,
+}
+
+type CustomSignatureRuleEventSeverity string
+
+const (
+	// LOW
+	CustomSignatureRuleEventSeverityLow CustomSignatureRuleEventSeverity = "LOW"
+	// MEDIUM
+	CustomSignatureRuleEventSeverityMedium CustomSignatureRuleEventSeverity = "MEDIUM"
+	// HIGH
+	CustomSignatureRuleEventSeverityHigh CustomSignatureRuleEventSeverity = "HIGH"
+	// CRITICAL
+	CustomSignatureRuleEventSeverityCritical CustomSignatureRuleEventSeverity = "CRITICAL"
+)
+
+var AllCustomSignatureRuleEventSeverity = []CustomSignatureRuleEventSeverity{
+	CustomSignatureRuleEventSeverityLow,
+	CustomSignatureRuleEventSeverityMedium,
+	CustomSignatureRuleEventSeverityHigh,
+	CustomSignatureRuleEventSeverityCritical,
+}
+
+type CustomSignatureRuleEventType string
+
+const (
+	// Mark for Testing and Generate Events
+	CustomSignatureRuleEventTypeTestingDetection CustomSignatureRuleEventType = "TESTING_DETECTION"
+	// Generate Events
+	CustomSignatureRuleEventTypeNormalDetection CustomSignatureRuleEventType = "NORMAL_DETECTION"
+	// Block Requests and Generate Events
+	CustomSignatureRuleEventTypeDetectionAndBlocking CustomSignatureRuleEventType = "DETECTION_AND_BLOCKING"
+	// Allow Requests
+	CustomSignatureRuleEventTypeAllow CustomSignatureRuleEventType = "ALLOW"
+)
+
+var AllCustomSignatureRuleEventType = []CustomSignatureRuleEventType{
+	CustomSignatureRuleEventTypeTestingDetection,
+	CustomSignatureRuleEventTypeNormalDetection,
+	CustomSignatureRuleEventTypeDetectionAndBlocking,
+	CustomSignatureRuleEventTypeAllow,
+}
+
+type CustomSignatureRuleIpAbuseVelocity string
+
+const (
+	// LOW
+	CustomSignatureRuleIpAbuseVelocityLow CustomSignatureRuleIpAbuseVelocity = "LOW"
+	// MEDIUM
+	CustomSignatureRuleIpAbuseVelocityMedium CustomSignatureRuleIpAbuseVelocity = "MEDIUM"
+	// HIGH
+	CustomSignatureRuleIpAbuseVelocityHigh CustomSignatureRuleIpAbuseVelocity = "HIGH"
+)
+
+var AllCustomSignatureRuleIpAbuseVelocity = []CustomSignatureRuleIpAbuseVelocity{
+	CustomSignatureRuleIpAbuseVelocityLow,
+	CustomSignatureRuleIpAbuseVelocityMedium,
+	CustomSignatureRuleIpAbuseVelocityHigh,
+}
+
+type CustomSignatureRuleIpAddressExpressionType string
+
+const (
+	// ALL_INTERNAL
+	CustomSignatureRuleIpAddressExpressionTypeAllInternal CustomSignatureRuleIpAddressExpressionType = "ALL_INTERNAL"
+	// ALL_EXTERNAL
+	CustomSignatureRuleIpAddressExpressionTypeAllExternal CustomSignatureRuleIpAddressExpressionType = "ALL_EXTERNAL"
+)
+
+var AllCustomSignatureRuleIpAddressExpressionType = []CustomSignatureRuleIpAddressExpressionType{
+	CustomSignatureRuleIpAddressExpressionTypeAllInternal,
+	CustomSignatureRuleIpAddressExpressionTypeAllExternal,
+}
+
+type CustomSignatureRuleIpConnectionType string
+
+const (
+	// RESIDENTIAL
+	CustomSignatureRuleIpConnectionTypeResidential CustomSignatureRuleIpConnectionType = "RESIDENTIAL"
+	// MOBILE
+	CustomSignatureRuleIpConnectionTypeMobile CustomSignatureRuleIpConnectionType = "MOBILE"
+	// CORPORATE
+	CustomSignatureRuleIpConnectionTypeCorporate CustomSignatureRuleIpConnectionType = "CORPORATE"
+	// DATA_CENTER
+	CustomSignatureRuleIpConnectionTypeDataCenter CustomSignatureRuleIpConnectionType = "DATA_CENTER"
+	// EDUCATION
+	CustomSignatureRuleIpConnectionTypeEducation CustomSignatureRuleIpConnectionType = "EDUCATION"
+)
+
+var AllCustomSignatureRuleIpConnectionType = []CustomSignatureRuleIpConnectionType{
+	CustomSignatureRuleIpConnectionTypeResidential,
+	CustomSignatureRuleIpConnectionTypeMobile,
+	CustomSignatureRuleIpConnectionTypeCorporate,
+	CustomSignatureRuleIpConnectionTypeDataCenter,
+	CustomSignatureRuleIpConnectionTypeEducation,
+}
+
+type CustomSignatureRuleIpReputationSeverity string
+
+const (
+	// LOW
+	CustomSignatureRuleIpReputationSeverityLow CustomSignatureRuleIpReputationSeverity = "LOW"
+	// MEDIUM
+	CustomSignatureRuleIpReputationSeverityMedium CustomSignatureRuleIpReputationSeverity = "MEDIUM"
+	// HIGH
+	CustomSignatureRuleIpReputationSeverityHigh CustomSignatureRuleIpReputationSeverity = "HIGH"
+	// CRITICAL
+	CustomSignatureRuleIpReputationSeverityCritical CustomSignatureRuleIpReputationSeverity = "CRITICAL"
+)
+
+var AllCustomSignatureRuleIpReputationSeverity = []CustomSignatureRuleIpReputationSeverity{
+	CustomSignatureRuleIpReputationSeverityLow,
+	CustomSignatureRuleIpReputationSeverityMedium,
+	CustomSignatureRuleIpReputationSeverityHigh,
+	CustomSignatureRuleIpReputationSeverityCritical,
+}
+
+type CustomSignatureRuleIpType string
+
+const (
+	// ANONYMOUS_VPN
+	CustomSignatureRuleIpTypeAnonymousVpn CustomSignatureRuleIpType = "ANONYMOUS_VPN"
+	// HOSTING_PROVIDER
+	CustomSignatureRuleIpTypeHostingProvider CustomSignatureRuleIpType = "HOSTING_PROVIDER"
+	// PUBLIC_PROXY
+	CustomSignatureRuleIpTypePublicProxy CustomSignatureRuleIpType = "PUBLIC_PROXY"
+	// TOR_EXIT_NODE
+	CustomSignatureRuleIpTypeTorExitNode CustomSignatureRuleIpType = "TOR_EXIT_NODE"
+	// BOT
+	CustomSignatureRuleIpTypeBot CustomSignatureRuleIpType = "BOT"
+	// SCANNER
+	CustomSignatureRuleIpTypeScanner CustomSignatureRuleIpType = "SCANNER"
+)
+
+var AllCustomSignatureRuleIpType = []CustomSignatureRuleIpType{
+	CustomSignatureRuleIpTypeAnonymousVpn,
+	CustomSignatureRuleIpTypeHostingProvider,
+	CustomSignatureRuleIpTypePublicProxy,
+	CustomSignatureRuleIpTypeTorExitNode,
+	CustomSignatureRuleIpTypeBot,
+	CustomSignatureRuleIpTypeScanner,
+}
+
+type CustomSignatureRuleKeyValueTag string
+
+const (
+	// HEADER
+	CustomSignatureRuleKeyValueTagHeader CustomSignatureRuleKeyValueTag = "HEADER"
+	// PARAMETER
+	CustomSignatureRuleKeyValueTagParameter CustomSignatureRuleKeyValueTag = "PARAMETER"
+	// COOKIE
+	CustomSignatureRuleKeyValueTagCookie CustomSignatureRuleKeyValueTag = "COOKIE"
+)
+
+var AllCustomSignatureRuleKeyValueTag = []CustomSignatureRuleKeyValueTag{
+	CustomSignatureRuleKeyValueTagHeader,
+	CustomSignatureRuleKeyValueTagParameter,
+	CustomSignatureRuleKeyValueTagCookie,
+}
+
+type CustomSignatureRuleLabelType string
+
+const (
+	// API
+	CustomSignatureRuleLabelTypeApi CustomSignatureRuleLabelType = "API"
+	// SERVICE
+	CustomSignatureRuleLabelTypeService CustomSignatureRuleLabelType = "SERVICE"
+)
+
+var AllCustomSignatureRuleLabelType = []CustomSignatureRuleLabelType{
+	CustomSignatureRuleLabelTypeApi,
+	CustomSignatureRuleLabelTypeService,
+}
+
+type CustomSignatureRuleMatchCategory string
+
+const (
+	// REQUEST
+	CustomSignatureRuleMatchCategoryRequest CustomSignatureRuleMatchCategory = "REQUEST"
+	// RESPONSE
+	CustomSignatureRuleMatchCategoryResponse CustomSignatureRuleMatchCategory = "RESPONSE"
+)
+
+var AllCustomSignatureRuleMatchCategory = []CustomSignatureRuleMatchCategory{
+	CustomSignatureRuleMatchCategoryRequest,
+	CustomSignatureRuleMatchCategoryResponse,
+}
+
+type CustomSignatureRuleMatchKey string
+
+const (
+	// URL
+	CustomSignatureRuleMatchKeyUrl CustomSignatureRuleMatchKey = "URL"
+	// HEADER_NAME
+	CustomSignatureRuleMatchKeyHeaderName CustomSignatureRuleMatchKey = "HEADER_NAME"
+	// HEADER_VALUE
+	CustomSignatureRuleMatchKeyHeaderValue CustomSignatureRuleMatchKey = "HEADER_VALUE"
+	// PARAMETER_NAME
+	CustomSignatureRuleMatchKeyParameterName CustomSignatureRuleMatchKey = "PARAMETER_NAME"
+	// PARAMETER_VALUE
+	CustomSignatureRuleMatchKeyParameterValue CustomSignatureRuleMatchKey = "PARAMETER_VALUE"
+	// HTTP_METHOD
+	CustomSignatureRuleMatchKeyHttpMethod CustomSignatureRuleMatchKey = "HTTP_METHOD"
+	// HOST
+	CustomSignatureRuleMatchKeyHost CustomSignatureRuleMatchKey = "HOST"
+	// USER_AGENT
+	CustomSignatureRuleMatchKeyUserAgent CustomSignatureRuleMatchKey = "USER_AGENT"
+	// STATUS_CODE
+	CustomSignatureRuleMatchKeyStatusCode CustomSignatureRuleMatchKey = "STATUS_CODE"
+	// BODY
+	CustomSignatureRuleMatchKeyBody CustomSignatureRuleMatchKey = "BODY"
+	// BODY_SIZE
+	CustomSignatureRuleMatchKeyBodySize CustomSignatureRuleMatchKey = "BODY_SIZE"
+	// COOKIE_NAME
+	CustomSignatureRuleMatchKeyCookieName CustomSignatureRuleMatchKey = "COOKIE_NAME"
+	// COOKIE_VALUE
+	CustomSignatureRuleMatchKeyCookieValue CustomSignatureRuleMatchKey = "COOKIE_VALUE"
+	// QUERY_PARAMS_COUNT
+	CustomSignatureRuleMatchKeyQueryParamsCount CustomSignatureRuleMatchKey = "QUERY_PARAMS_COUNT"
+	// HEADERS_COUNT
+	CustomSignatureRuleMatchKeyHeadersCount CustomSignatureRuleMatchKey = "HEADERS_COUNT"
+	// COOKIES_COUNT
+	CustomSignatureRuleMatchKeyCookiesCount CustomSignatureRuleMatchKey = "COOKIES_COUNT"
+)
+
+var AllCustomSignatureRuleMatchKey = []CustomSignatureRuleMatchKey{
+	CustomSignatureRuleMatchKeyUrl,
+	CustomSignatureRuleMatchKeyHeaderName,
+	CustomSignatureRuleMatchKeyHeaderValue,
+	CustomSignatureRuleMatchKeyParameterName,
+	CustomSignatureRuleMatchKeyParameterValue,
+	CustomSignatureRuleMatchKeyHttpMethod,
+	CustomSignatureRuleMatchKeyHost,
+	CustomSignatureRuleMatchKeyUserAgent,
+	CustomSignatureRuleMatchKeyStatusCode,
+	CustomSignatureRuleMatchKeyBody,
+	CustomSignatureRuleMatchKeyBodySize,
+	CustomSignatureRuleMatchKeyCookieName,
+	CustomSignatureRuleMatchKeyCookieValue,
+	CustomSignatureRuleMatchKeyQueryParamsCount,
+	CustomSignatureRuleMatchKeyHeadersCount,
+	CustomSignatureRuleMatchKeyCookiesCount,
+}
+
+type CustomSignatureRuleMatchOperator string
+
+const (
+	// EQUALS
+	CustomSignatureRuleMatchOperatorEquals CustomSignatureRuleMatchOperator = "EQUALS"
+	// NOT_EQUAL
+	CustomSignatureRuleMatchOperatorNotEqual CustomSignatureRuleMatchOperator = "NOT_EQUAL"
+	// CONTAINS
+	CustomSignatureRuleMatchOperatorContains CustomSignatureRuleMatchOperator = "CONTAINS"
+	// NOT_CONTAIN
+	CustomSignatureRuleMatchOperatorNotContain CustomSignatureRuleMatchOperator = "NOT_CONTAIN"
+	// MATCHES_REGEX
+	CustomSignatureRuleMatchOperatorMatchesRegex CustomSignatureRuleMatchOperator = "MATCHES_REGEX"
+	// NOT_MATCH_REGEX
+	CustomSignatureRuleMatchOperatorNotMatchRegex CustomSignatureRuleMatchOperator = "NOT_MATCH_REGEX"
+	// GREATER_THAN
+	CustomSignatureRuleMatchOperatorGreaterThan CustomSignatureRuleMatchOperator = "GREATER_THAN"
+	// LESS_THAN
+	CustomSignatureRuleMatchOperatorLessThan CustomSignatureRuleMatchOperator = "LESS_THAN"
+)
+
+var AllCustomSignatureRuleMatchOperator = []CustomSignatureRuleMatchOperator{
+	CustomSignatureRuleMatchOperatorEquals,
+	CustomSignatureRuleMatchOperatorNotEqual,
+	CustomSignatureRuleMatchOperatorContains,
+	CustomSignatureRuleMatchOperatorNotContain,
+	CustomSignatureRuleMatchOperatorMatchesRegex,
+	CustomSignatureRuleMatchOperatorNotMatchRegex,
+	CustomSignatureRuleMatchOperatorGreaterThan,
+	CustomSignatureRuleMatchOperatorLessThan,
+}
+
+// The source of the rule, or who created the rule
+type CustomSignatureRuleSource string
+
+const (
+	// Rule created by the customer
+	CustomSignatureRuleSourceCustomer CustomSignatureRuleSource = "CUSTOMER"
+	// Rule created by a Traceable user
+	CustomSignatureRuleSourceTraceable CustomSignatureRuleSource = "TRACEABLE"
+	// Rule created by the Traceable system
+	CustomSignatureRuleSourceSystem CustomSignatureRuleSource = "SYSTEM"
+)
+
+var AllCustomSignatureRuleSource = []CustomSignatureRuleSource{
+	CustomSignatureRuleSourceCustomer,
+	CustomSignatureRuleSourceTraceable,
+	CustomSignatureRuleSourceSystem,
+}
+
 type DataSensitivity string
 
 const (
@@ -693,6 +1657,26 @@ var AllDataSuppression = []DataSuppression{
 	DataSuppressionRaw,
 	DataSuppressionRedact,
 	DataSuppressionObfuscate,
+}
+
+// DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse includes the requested fields of the GraphQL type DeleteCustomSignatureRuleResponse.
+type DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse struct {
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse.Success, and is useful for accessing the field via an interface.
+func (v *DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse) GetSuccess() bool {
+	return v.Success
+}
+
+// DeleteCustomSignatureResponse is returned by DeleteCustomSignature on success.
+type DeleteCustomSignatureResponse struct {
+	DeleteCustomSignatureRule DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse `json:"deleteCustomSignatureRule"`
+}
+
+// GetDeleteCustomSignatureRule returns DeleteCustomSignatureResponse.DeleteCustomSignatureRule, and is useful for accessing the field via an interface.
+func (v *DeleteCustomSignatureResponse) GetDeleteCustomSignatureRule() DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse {
+	return v.DeleteCustomSignatureRule
 }
 
 // DeleteDataSetResponse is returned by DeleteDataSet on success.
@@ -813,6 +1797,90 @@ func (v *DeleteRateLimitingRuleResponse) GetDeleteRateLimitingRule() DeleteRateL
 	return v.DeleteRateLimitingRule
 }
 
+type EntityType string
+
+const (
+	// API
+	EntityTypeApi EntityType = "API"
+	// SERVICE
+	EntityTypeService EntityType = "SERVICE"
+	// BACKEND
+	EntityTypeBackend EntityType = "BACKEND"
+	// DOMAIN
+	EntityTypeDomain EntityType = "DOMAIN"
+	// ACTOR
+	EntityTypeActor EntityType = "ACTOR"
+)
+
+var AllEntityType = []EntityType{
+	EntityTypeApi,
+	EntityTypeService,
+	EntityTypeBackend,
+	EntityTypeDomain,
+	EntityTypeActor,
+}
+
+type FilterOperatorType string
+
+const (
+	// EQUALS
+	FilterOperatorTypeEquals FilterOperatorType = "EQUALS"
+	// NOT_EQUALS
+	FilterOperatorTypeNotEquals FilterOperatorType = "NOT_EQUALS"
+	// LESS_THAN
+	FilterOperatorTypeLessThan FilterOperatorType = "LESS_THAN"
+	// LESS_THAN_OR_EQUAL_TO
+	FilterOperatorTypeLessThanOrEqualTo FilterOperatorType = "LESS_THAN_OR_EQUAL_TO"
+	// GREATER_THAN
+	FilterOperatorTypeGreaterThan FilterOperatorType = "GREATER_THAN"
+	// GREATER_THAN_OR_EQUAL_TO
+	FilterOperatorTypeGreaterThanOrEqualTo FilterOperatorType = "GREATER_THAN_OR_EQUAL_TO"
+	// LIKE
+	FilterOperatorTypeLike FilterOperatorType = "LIKE"
+	// IN
+	FilterOperatorTypeIn FilterOperatorType = "IN"
+	// NOT_IN
+	FilterOperatorTypeNotIn FilterOperatorType = "NOT_IN"
+	// CONTAINS_KEY
+	FilterOperatorTypeContainsKey FilterOperatorType = "CONTAINS_KEY"
+	// CONTAINS_KEY_VALUE
+	FilterOperatorTypeContainsKeyValue FilterOperatorType = "CONTAINS_KEY_VALUE"
+	// CONTAINS_KEY_LIKE
+	FilterOperatorTypeContainsKeyLike FilterOperatorType = "CONTAINS_KEY_LIKE"
+	// NOT_CONTAINS_KEY
+	FilterOperatorTypeNotContainsKey FilterOperatorType = "NOT_CONTAINS_KEY"
+)
+
+var AllFilterOperatorType = []FilterOperatorType{
+	FilterOperatorTypeEquals,
+	FilterOperatorTypeNotEquals,
+	FilterOperatorTypeLessThan,
+	FilterOperatorTypeLessThanOrEqualTo,
+	FilterOperatorTypeGreaterThan,
+	FilterOperatorTypeGreaterThanOrEqualTo,
+	FilterOperatorTypeLike,
+	FilterOperatorTypeIn,
+	FilterOperatorTypeNotIn,
+	FilterOperatorTypeContainsKey,
+	FilterOperatorTypeContainsKeyValue,
+	FilterOperatorTypeContainsKeyLike,
+	FilterOperatorTypeNotContainsKey,
+}
+
+type FilterType string
+
+const (
+	// ATTRIBUTE
+	FilterTypeAttribute FilterType = "ATTRIBUTE"
+	// ID
+	FilterTypeId FilterType = "ID"
+)
+
+var AllFilterType = []FilterType{
+	FilterTypeAttribute,
+	FilterTypeId,
+}
+
 // GetCountriesCountriesRegionResultSet includes the requested fields of the GraphQL type RegionResultSet.
 type GetCountriesCountriesRegionResultSet struct {
 	Results []*GetCountriesCountriesRegionResultSetResultsRegion `json:"results"`
@@ -862,6 +1930,344 @@ type GetCountriesResponse struct {
 // GetCountries returns GetCountriesResponse.Countries, and is useful for accessing the field via an interface.
 func (v *GetCountriesResponse) GetCountries() GetCountriesCountriesRegionResultSet {
 	return v.Countries
+}
+
+// GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSet includes the requested fields of the GraphQL type CustomSignatureRuleResultSet.
+type GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSet struct {
+	Results []*GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule `json:"results"`
+}
+
+// GetResults returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSet) GetResults() []*GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule {
+	return v.Results
+}
+
+// GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule includes the requested fields of the GraphQL type CustomSignatureRule.
+type GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule struct {
+	CustomSignatureFields `json:"-"`
+}
+
+// GetId returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.Id, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetId() string {
+	return v.CustomSignatureFields.Id
+}
+
+// GetName returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.Name, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetName() string {
+	return v.CustomSignatureFields.Name
+}
+
+// GetDescription returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.Description, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetDescription() string {
+	return v.CustomSignatureFields.Description
+}
+
+// GetDisabled returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.Disabled, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetDisabled() *bool {
+	return v.CustomSignatureFields.Disabled
+}
+
+// GetInternal returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.Internal, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetInternal() *bool {
+	return v.CustomSignatureFields.Internal
+}
+
+// GetBlockingExpirationDuration returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.BlockingExpirationDuration, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetBlockingExpirationDuration() *string {
+	return v.CustomSignatureFields.BlockingExpirationDuration
+}
+
+// GetBlockingExpirationTime returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.BlockingExpirationTime, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetBlockingExpirationTime() *string {
+	return v.CustomSignatureFields.BlockingExpirationTime
+}
+
+// GetRuleSource returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.RuleSource, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetRuleSource() *CustomSignatureRuleSource {
+	return v.CustomSignatureFields.RuleSource
+}
+
+// GetRuleEffect returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.RuleEffect, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetRuleEffect() CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect {
+	return v.CustomSignatureFields.RuleEffect
+}
+
+// GetRuleDefinition returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.RuleDefinition, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetRuleDefinition() CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition {
+	return v.CustomSignatureFields.RuleDefinition
+}
+
+// GetRuleScope returns GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetRuleScope() *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope {
+	return v.CustomSignatureFields.RuleScope
+}
+
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CustomSignatureFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalGetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Description string `json:"description"`
+
+	Disabled *bool `json:"disabled"`
+
+	Internal *bool `json:"internal"`
+
+	BlockingExpirationDuration *string `json:"blockingExpirationDuration"`
+
+	BlockingExpirationTime *string `json:"blockingExpirationTime"`
+
+	RuleSource *CustomSignatureRuleSource `json:"ruleSource"`
+
+	RuleEffect CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect `json:"ruleEffect"`
+
+	RuleDefinition CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition `json:"ruleDefinition"`
+
+	RuleScope *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope `json:"ruleScope"`
+}
+
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) __premarshalJSON() (*__premarshalGetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule, error) {
+	var retval __premarshalGetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule
+
+	retval.Id = v.CustomSignatureFields.Id
+	retval.Name = v.CustomSignatureFields.Name
+	retval.Description = v.CustomSignatureFields.Description
+	retval.Disabled = v.CustomSignatureFields.Disabled
+	retval.Internal = v.CustomSignatureFields.Internal
+	retval.BlockingExpirationDuration = v.CustomSignatureFields.BlockingExpirationDuration
+	retval.BlockingExpirationTime = v.CustomSignatureFields.BlockingExpirationTime
+	retval.RuleSource = v.CustomSignatureFields.RuleSource
+	retval.RuleEffect = v.CustomSignatureFields.RuleEffect
+	retval.RuleDefinition = v.CustomSignatureFields.RuleDefinition
+	retval.RuleScope = v.CustomSignatureFields.RuleScope
+	return &retval, nil
+}
+
+// GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSet includes the requested fields of the GraphQL type CustomSignatureRuleResultSet.
+type GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSet struct {
+	Results []*GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule `json:"results"`
+}
+
+// GetResults returns GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSet) GetResults() []*GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule {
+	return v.Results
+}
+
+// GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule includes the requested fields of the GraphQL type CustomSignatureRule.
+type GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetId returns GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.Id, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetId() string {
+	return v.Id
+}
+
+// GetName returns GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule.Name, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSetResultsCustomSignatureRule) GetName() string {
+	return v.Name
+}
+
+// GetCustomSignatureIdResponse is returned by GetCustomSignatureId on success.
+type GetCustomSignatureIdResponse struct {
+	CustomSignatureRules GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSet `json:"customSignatureRules"`
+}
+
+// GetCustomSignatureRules returns GetCustomSignatureIdResponse.CustomSignatureRules, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureIdResponse) GetCustomSignatureRules() GetCustomSignatureIdCustomSignatureRulesCustomSignatureRuleResultSet {
+	return v.CustomSignatureRules
+}
+
+// GetCustomSignatureResponse is returned by GetCustomSignature on success.
+type GetCustomSignatureResponse struct {
+	CustomSignatureRules GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSet `json:"customSignatureRules"`
+}
+
+// GetCustomSignatureRules returns GetCustomSignatureResponse.CustomSignatureRules, and is useful for accessing the field via an interface.
+func (v *GetCustomSignatureResponse) GetCustomSignatureRules() GetCustomSignatureCustomSignatureRulesCustomSignatureRuleResultSet {
+	return v.CustomSignatureRules
+}
+
+// GetDataSetsIdDataSetsDataSetResultSet includes the requested fields of the GraphQL type DataSetResultSet.
+type GetDataSetsIdDataSetsDataSetResultSet struct {
+	Results []*GetDataSetsIdDataSetsDataSetResultSetResultsDataSet `json:"results"`
+}
+
+// GetResults returns GetDataSetsIdDataSetsDataSetResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSet) GetResults() []*GetDataSetsIdDataSetsDataSetResultSetResultsDataSet {
+	return v.Results
+}
+
+// GetDataSetsIdDataSetsDataSetResultSetResultsDataSet includes the requested fields of the GraphQL type DataSet.
+type GetDataSetsIdDataSetsDataSetResultSetResultsDataSet struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetId returns GetDataSetsIdDataSetsDataSetResultSetResultsDataSet.Id, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSetResultsDataSet) GetId() string { return v.Id }
+
+// GetName returns GetDataSetsIdDataSetsDataSetResultSetResultsDataSet.Name, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSetResultsDataSet) GetName() string { return v.Name }
+
+// GetDataSetsIdResponse is returned by GetDataSetsId on success.
+type GetDataSetsIdResponse struct {
+	DataSets GetDataSetsIdDataSetsDataSetResultSet `json:"dataSets"`
+}
+
+// GetDataSets returns GetDataSetsIdResponse.DataSets, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdResponse) GetDataSets() GetDataSetsIdDataSetsDataSetResultSet {
+	return v.DataSets
+}
+
+// GetDataTypesIdDataTypesDataTypeResultSet includes the requested fields of the GraphQL type DataTypeResultSet.
+type GetDataTypesIdDataTypesDataTypeResultSet struct {
+	Results []*GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype `json:"results"`
+}
+
+// GetResults returns GetDataTypesIdDataTypesDataTypeResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSet) GetResults() []*GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype {
+	return v.Results
+}
+
+// GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype includes the requested fields of the GraphQL type ResolvedDatatype.
+type GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype struct {
+	// Unique Identifier for the datatype. This cannot be changed
+	Id string `json:"id"`
+	// The configured name for the datatype
+	Name string `json:"name"`
+}
+
+// GetId returns GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype.Id, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype) GetId() string { return v.Id }
+
+// GetName returns GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype.Name, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype) GetName() string {
+	return v.Name
+}
+
+// GetDataTypesIdResponse is returned by GetDataTypesId on success.
+type GetDataTypesIdResponse struct {
+	DataTypes GetDataTypesIdDataTypesDataTypeResultSet `json:"dataTypes"`
+}
+
+// GetDataTypes returns GetDataTypesIdResponse.DataTypes, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdResponse) GetDataTypes() GetDataTypesIdDataTypesDataTypeResultSet {
+	return v.DataTypes
+}
+
+// GetEndpointLabelsIdLabelsLabelResultSet includes the requested fields of the GraphQL type LabelResultSet.
+type GetEndpointLabelsIdLabelsLabelResultSet struct {
+	Count   int64                                                  `json:"count"`
+	Results []*GetEndpointLabelsIdLabelsLabelResultSetResultsLabel `json:"results"`
+	Total   int64                                                  `json:"total"`
+}
+
+// GetCount returns GetEndpointLabelsIdLabelsLabelResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetCount() int64 { return v.Count }
+
+// GetResults returns GetEndpointLabelsIdLabelsLabelResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetResults() []*GetEndpointLabelsIdLabelsLabelResultSetResultsLabel {
+	return v.Results
+}
+
+// GetTotal returns GetEndpointLabelsIdLabelsLabelResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetTotal() int64 { return v.Total }
+
+// GetEndpointLabelsIdLabelsLabelResultSetResultsLabel includes the requested fields of the GraphQL type Label.
+type GetEndpointLabelsIdLabelsLabelResultSetResultsLabel struct {
+	Id  string `json:"id"`
+	Key string `json:"key"`
+}
+
+// GetId returns GetEndpointLabelsIdLabelsLabelResultSetResultsLabel.Id, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSetResultsLabel) GetId() string { return v.Id }
+
+// GetKey returns GetEndpointLabelsIdLabelsLabelResultSetResultsLabel.Key, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSetResultsLabel) GetKey() string { return v.Key }
+
+// GetEndpointLabelsIdResponse is returned by GetEndpointLabelsId on success.
+type GetEndpointLabelsIdResponse struct {
+	Labels GetEndpointLabelsIdLabelsLabelResultSet `json:"labels"`
+}
+
+// GetLabels returns GetEndpointLabelsIdResponse.Labels, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdResponse) GetLabels() GetEndpointLabelsIdLabelsLabelResultSet {
+	return v.Labels
+}
+
+// GetEntitiesIdsEntitiesEntityResultSet includes the requested fields of the GraphQL type EntityResultSet.
+type GetEntitiesIdsEntitiesEntityResultSet struct {
+	Results []*GetEntitiesIdsEntitiesEntityResultSetResultsEntity `json:"results"`
+	Total   int64                                                 `json:"total"`
+}
+
+// GetResults returns GetEntitiesIdsEntitiesEntityResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSet) GetResults() []*GetEntitiesIdsEntitiesEntityResultSetResultsEntity {
+	return v.Results
+}
+
+// GetTotal returns GetEntitiesIdsEntitiesEntityResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSet) GetTotal() int64 { return v.Total }
+
+// GetEntitiesIdsEntitiesEntityResultSetResultsEntity includes the requested fields of the GraphQL type Entity.
+type GetEntitiesIdsEntitiesEntityResultSetResultsEntity struct {
+	EntityId string       `json:"entityId"`
+	Id       *interface{} `json:"id"`
+	Name     *interface{} `json:"name"`
+}
+
+// GetEntityId returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.EntityId, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetEntityId() string { return v.EntityId }
+
+// GetId returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.Id, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetId() *interface{} { return v.Id }
+
+// GetName returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.Name, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetName() *interface{} { return v.Name }
+
+// GetEntitiesIdsResponse is returned by GetEntitiesIds on success.
+type GetEntitiesIdsResponse struct {
+	Entities GetEntitiesIdsEntitiesEntityResultSet `json:"entities"`
+}
+
+// GetEntities returns GetEntitiesIdsResponse.Entities, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsResponse) GetEntities() GetEntitiesIdsEntitiesEntityResultSet {
+	return v.Entities
 }
 
 // GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet includes the requested fields of the GraphQL type MaliciousSourcesRuleResultSet.
@@ -1852,6 +3258,834 @@ func (v *GetRateLimitingRulesNameResponse) GetRateLimitingRules() GetRateLimitin
 	return v.RateLimitingRules
 }
 
+type InputAggregatableOrder struct {
+	Aggregation   *MetricAggregationType    `json:"aggregation"`
+	Direction     *OrderDirection           `json:"direction"`
+	Key           *string                   `json:"key"`
+	KeyExpression *InputAttributeExpression `json:"keyExpression"`
+	Size          *int64                    `json:"size"`
+	// Time Units used for this orderBy argument
+	Units *TimeUnit `json:"units"`
+}
+
+// GetAggregation returns InputAggregatableOrder.Aggregation, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetAggregation() *MetricAggregationType { return v.Aggregation }
+
+// GetDirection returns InputAggregatableOrder.Direction, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetDirection() *OrderDirection { return v.Direction }
+
+// GetKey returns InputAggregatableOrder.Key, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetKey() *string { return v.Key }
+
+// GetKeyExpression returns InputAggregatableOrder.KeyExpression, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetKeyExpression() *InputAttributeExpression { return v.KeyExpression }
+
+// GetSize returns InputAggregatableOrder.Size, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetSize() *int64 { return v.Size }
+
+// GetUnits returns InputAggregatableOrder.Units, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetUnits() *TimeUnit { return v.Units }
+
+type InputAttributeExpression struct {
+	Key     string  `json:"key"`
+	Subpath *string `json:"subpath"`
+}
+
+// GetKey returns InputAttributeExpression.Key, and is useful for accessing the field via an interface.
+func (v *InputAttributeExpression) GetKey() string { return v.Key }
+
+// GetSubpath returns InputAttributeExpression.Subpath, and is useful for accessing the field via an interface.
+func (v *InputAttributeExpression) GetSubpath() *string { return v.Subpath }
+
+type InputCustomSignatureEnvironmentScope struct {
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns InputCustomSignatureEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureEnvironmentScope) GetEnvironmentIds() []*string { return v.EnvironmentIds }
+
+type InputCustomSignatureRuleAgentEffect struct {
+	AgentModifications []*InputCustomSignatureRuleAgentModification `json:"agentModifications"`
+}
+
+// GetAgentModifications returns InputCustomSignatureRuleAgentEffect.AgentModifications, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAgentEffect) GetAgentModifications() []*InputCustomSignatureRuleAgentModification {
+	return v.AgentModifications
+}
+
+type InputCustomSignatureRuleAgentModification struct {
+	AgentModificationType CustomSignatureRuleAgentModificationType `json:"agentModificationType"`
+	HeaderInjection       InputCustomSignatureRuleHeaderInjection  `json:"headerInjection"`
+}
+
+// GetAgentModificationType returns InputCustomSignatureRuleAgentModification.AgentModificationType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAgentModification) GetAgentModificationType() CustomSignatureRuleAgentModificationType {
+	return v.AgentModificationType
+}
+
+// GetHeaderInjection returns InputCustomSignatureRuleAgentModification.HeaderInjection, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAgentModification) GetHeaderInjection() InputCustomSignatureRuleHeaderInjection {
+	return v.HeaderInjection
+}
+
+type InputCustomSignatureRuleAttributeKeyValueExpression struct {
+	// Key condition
+	KeyCondition *InputCustomSignatureStringMatchCondition `json:"keyCondition"`
+	// Key match operator
+	KeyMatchOperator *CustomSignatureRuleMatchOperator `json:"keyMatchOperator"`
+	// Match key
+	MatchKey *string `json:"matchKey"`
+	// Match value
+	MatchValue *string `json:"matchValue"`
+	// Value condition
+	ValueCondition *InputCustomSignatureStringMatchCondition `json:"valueCondition"`
+	// Value match operator
+	ValueMatchOperator *CustomSignatureRuleMatchOperator `json:"valueMatchOperator"`
+}
+
+// GetKeyCondition returns InputCustomSignatureRuleAttributeKeyValueExpression.KeyCondition, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAttributeKeyValueExpression) GetKeyCondition() *InputCustomSignatureStringMatchCondition {
+	return v.KeyCondition
+}
+
+// GetKeyMatchOperator returns InputCustomSignatureRuleAttributeKeyValueExpression.KeyMatchOperator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAttributeKeyValueExpression) GetKeyMatchOperator() *CustomSignatureRuleMatchOperator {
+	return v.KeyMatchOperator
+}
+
+// GetMatchKey returns InputCustomSignatureRuleAttributeKeyValueExpression.MatchKey, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAttributeKeyValueExpression) GetMatchKey() *string {
+	return v.MatchKey
+}
+
+// GetMatchValue returns InputCustomSignatureRuleAttributeKeyValueExpression.MatchValue, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAttributeKeyValueExpression) GetMatchValue() *string {
+	return v.MatchValue
+}
+
+// GetValueCondition returns InputCustomSignatureRuleAttributeKeyValueExpression.ValueCondition, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAttributeKeyValueExpression) GetValueCondition() *InputCustomSignatureStringMatchCondition {
+	return v.ValueCondition
+}
+
+// GetValueMatchOperator returns InputCustomSignatureRuleAttributeKeyValueExpression.ValueMatchOperator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleAttributeKeyValueExpression) GetValueMatchOperator() *CustomSignatureRuleMatchOperator {
+	return v.ValueMatchOperator
+}
+
+type InputCustomSignatureRuleClauseGroup struct {
+	ClauseOperator CustomSignatureRuleClauseOperator        `json:"clauseOperator"`
+	Clauses        []*InputCustomSignatureRuleClauseRequest `json:"clauses"`
+}
+
+// GetClauseOperator returns InputCustomSignatureRuleClauseGroup.ClauseOperator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseGroup) GetClauseOperator() CustomSignatureRuleClauseOperator {
+	return v.ClauseOperator
+}
+
+// GetClauses returns InputCustomSignatureRuleClauseGroup.Clauses, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseGroup) GetClauses() []*InputCustomSignatureRuleClauseRequest {
+	return v.Clauses
+}
+
+type InputCustomSignatureRuleClauseRequest struct {
+	AttributeKeyValueExpression *InputCustomSignatureRuleAttributeKeyValueExpression `json:"attributeKeyValueExpression"`
+	ClauseType                  CustomSignatureRuleClauseType                        `json:"clauseType"`
+	// Custom sec rule
+	CustomSecRule *InputCustomSignatureSecRule `json:"customSecRule"`
+	// Email domain expression applicable on a custom signature rule
+	EmailDomainExpression *InputCustomSignatureRuleEmailDomainExpression `json:"emailDomainExpression"`
+	// Ip abuse velocity expression applicable on a custom signature rule
+	IpAbuseVelocityExpression *InputCustomSignatureRuleIpAbuseVelocityExpression `json:"ipAbuseVelocityExpression"`
+	// IP address expression applicable on a custom signature rule
+	IpAddressExpression *InputCustomSignatureRuleIpAddressExpression `json:"ipAddressExpression"`
+	// Ip asn expression applicable on a custom signature rule
+	IpAsnExpression *InputCustomSignatureRuleIpAsnExpression `json:"ipAsnExpression"`
+	// IP connection type expression applicable on a custom signature rule
+	IpConnectionTypeExpression *InputCustomSignatureRuleIpConnectionTypeExpression `json:"ipConnectionTypeExpression"`
+	// Ip organisation expression applicable on a custom signature rule
+	IpOrganisationExpression *InputCustomSignatureRuleIpOrganisationExpression `json:"ipOrganisationExpression"`
+	// IP reputation expression applicable on a custom signature rule
+	IpReputationExpression *InputCustomSignatureRuleIpReputationExpression `json:"ipReputationExpression"`
+	// IP type expression applicable on a custom signature rule
+	IpTypeExpression   *InputCustomSignatureRuleIpTypeExpression   `json:"ipTypeExpression"`
+	KeyValueExpression *InputCustomSignatureRuleKeyValueExpression `json:"keyValueExpression"`
+	MatchExpression    *InputCustomSignatureRuleMatchExpression    `json:"matchExpression"`
+	// Region expression applicable on a custom signature rule
+	RegionExpression *InputCustomSignatureRuleRegionExpression `json:"regionExpression"`
+	// Request scanner type expression applicable on a custom signature rule
+	RequestScannerTypeExpression *InputCustomSignatureRuleRequestScannerTypeExpression `json:"requestScannerTypeExpression"`
+	// Scope expression applicable on a custom signature rule
+	ScopeExpression *InputCustomSignatureRuleScopeExpression `json:"scopeExpression"`
+	// User agent expression applicable on a custom signature rule
+	UserAgentExpression *InputCustomSignatureRuleUserAgentExpression `json:"userAgentExpression"`
+	// User ID expression applicable on a custom signature rule
+	UserIdExpression *InputCustomSignatureRuleUserIdExpression `json:"userIdExpression"`
+}
+
+// GetAttributeKeyValueExpression returns InputCustomSignatureRuleClauseRequest.AttributeKeyValueExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetAttributeKeyValueExpression() *InputCustomSignatureRuleAttributeKeyValueExpression {
+	return v.AttributeKeyValueExpression
+}
+
+// GetClauseType returns InputCustomSignatureRuleClauseRequest.ClauseType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetClauseType() CustomSignatureRuleClauseType {
+	return v.ClauseType
+}
+
+// GetCustomSecRule returns InputCustomSignatureRuleClauseRequest.CustomSecRule, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetCustomSecRule() *InputCustomSignatureSecRule {
+	return v.CustomSecRule
+}
+
+// GetEmailDomainExpression returns InputCustomSignatureRuleClauseRequest.EmailDomainExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetEmailDomainExpression() *InputCustomSignatureRuleEmailDomainExpression {
+	return v.EmailDomainExpression
+}
+
+// GetIpAbuseVelocityExpression returns InputCustomSignatureRuleClauseRequest.IpAbuseVelocityExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetIpAbuseVelocityExpression() *InputCustomSignatureRuleIpAbuseVelocityExpression {
+	return v.IpAbuseVelocityExpression
+}
+
+// GetIpAddressExpression returns InputCustomSignatureRuleClauseRequest.IpAddressExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetIpAddressExpression() *InputCustomSignatureRuleIpAddressExpression {
+	return v.IpAddressExpression
+}
+
+// GetIpAsnExpression returns InputCustomSignatureRuleClauseRequest.IpAsnExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetIpAsnExpression() *InputCustomSignatureRuleIpAsnExpression {
+	return v.IpAsnExpression
+}
+
+// GetIpConnectionTypeExpression returns InputCustomSignatureRuleClauseRequest.IpConnectionTypeExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetIpConnectionTypeExpression() *InputCustomSignatureRuleIpConnectionTypeExpression {
+	return v.IpConnectionTypeExpression
+}
+
+// GetIpOrganisationExpression returns InputCustomSignatureRuleClauseRequest.IpOrganisationExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetIpOrganisationExpression() *InputCustomSignatureRuleIpOrganisationExpression {
+	return v.IpOrganisationExpression
+}
+
+// GetIpReputationExpression returns InputCustomSignatureRuleClauseRequest.IpReputationExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetIpReputationExpression() *InputCustomSignatureRuleIpReputationExpression {
+	return v.IpReputationExpression
+}
+
+// GetIpTypeExpression returns InputCustomSignatureRuleClauseRequest.IpTypeExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetIpTypeExpression() *InputCustomSignatureRuleIpTypeExpression {
+	return v.IpTypeExpression
+}
+
+// GetKeyValueExpression returns InputCustomSignatureRuleClauseRequest.KeyValueExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetKeyValueExpression() *InputCustomSignatureRuleKeyValueExpression {
+	return v.KeyValueExpression
+}
+
+// GetMatchExpression returns InputCustomSignatureRuleClauseRequest.MatchExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetMatchExpression() *InputCustomSignatureRuleMatchExpression {
+	return v.MatchExpression
+}
+
+// GetRegionExpression returns InputCustomSignatureRuleClauseRequest.RegionExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetRegionExpression() *InputCustomSignatureRuleRegionExpression {
+	return v.RegionExpression
+}
+
+// GetRequestScannerTypeExpression returns InputCustomSignatureRuleClauseRequest.RequestScannerTypeExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetRequestScannerTypeExpression() *InputCustomSignatureRuleRequestScannerTypeExpression {
+	return v.RequestScannerTypeExpression
+}
+
+// GetScopeExpression returns InputCustomSignatureRuleClauseRequest.ScopeExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetScopeExpression() *InputCustomSignatureRuleScopeExpression {
+	return v.ScopeExpression
+}
+
+// GetUserAgentExpression returns InputCustomSignatureRuleClauseRequest.UserAgentExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetUserAgentExpression() *InputCustomSignatureRuleUserAgentExpression {
+	return v.UserAgentExpression
+}
+
+// GetUserIdExpression returns InputCustomSignatureRuleClauseRequest.UserIdExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetUserIdExpression() *InputCustomSignatureRuleUserIdExpression {
+	return v.UserIdExpression
+}
+
+type InputCustomSignatureRuleDefinition struct {
+	ClauseGroup InputCustomSignatureRuleClauseGroup `json:"clauseGroup"`
+	Labels      []*InputCustomSignatureRuleLabel    `json:"labels"`
+}
+
+// GetClauseGroup returns InputCustomSignatureRuleDefinition.ClauseGroup, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDefinition) GetClauseGroup() InputCustomSignatureRuleClauseGroup {
+	return v.ClauseGroup
+}
+
+// GetLabels returns InputCustomSignatureRuleDefinition.Labels, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDefinition) GetLabels() []*InputCustomSignatureRuleLabel {
+	return v.Labels
+}
+
+type InputCustomSignatureRuleDelete struct {
+	Id string `json:"id"`
+}
+
+// GetId returns InputCustomSignatureRuleDelete.Id, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDelete) GetId() string { return v.Id }
+
+type InputCustomSignatureRuleDescriptor struct {
+	BlockingExpirationDuration *string                            `json:"blockingExpirationDuration"`
+	Description                string                             `json:"description"`
+	Disabled                   *bool                              `json:"disabled"`
+	Internal                   *bool                              `json:"internal"`
+	Name                       string                             `json:"name"`
+	RuleDefinition             InputCustomSignatureRuleDefinition `json:"ruleDefinition"`
+	RuleEffect                 InputCustomSignatureRuleEffect     `json:"ruleEffect"`
+	RuleScope                  *InputCustomSignatureRuleScope     `json:"ruleScope"`
+	RuleSource                 *CustomSignatureRuleSource         `json:"ruleSource"`
+}
+
+// GetBlockingExpirationDuration returns InputCustomSignatureRuleDescriptor.BlockingExpirationDuration, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetBlockingExpirationDuration() *string {
+	return v.BlockingExpirationDuration
+}
+
+// GetDescription returns InputCustomSignatureRuleDescriptor.Description, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetDescription() string { return v.Description }
+
+// GetDisabled returns InputCustomSignatureRuleDescriptor.Disabled, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetDisabled() *bool { return v.Disabled }
+
+// GetInternal returns InputCustomSignatureRuleDescriptor.Internal, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetInternal() *bool { return v.Internal }
+
+// GetName returns InputCustomSignatureRuleDescriptor.Name, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetName() string { return v.Name }
+
+// GetRuleDefinition returns InputCustomSignatureRuleDescriptor.RuleDefinition, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetRuleDefinition() InputCustomSignatureRuleDefinition {
+	return v.RuleDefinition
+}
+
+// GetRuleEffect returns InputCustomSignatureRuleDescriptor.RuleEffect, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetRuleEffect() InputCustomSignatureRuleEffect {
+	return v.RuleEffect
+}
+
+// GetRuleScope returns InputCustomSignatureRuleDescriptor.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetRuleScope() *InputCustomSignatureRuleScope {
+	return v.RuleScope
+}
+
+// GetRuleSource returns InputCustomSignatureRuleDescriptor.RuleSource, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetRuleSource() *CustomSignatureRuleSource {
+	return v.RuleSource
+}
+
+type InputCustomSignatureRuleEffect struct {
+	Effects       []*InputCustomSignatureRuleEffectWithModification `json:"effects"`
+	EventSeverity *CustomSignatureRuleEventSeverity                 `json:"eventSeverity"`
+	EventType     CustomSignatureRuleEventType                      `json:"eventType"`
+}
+
+// GetEffects returns InputCustomSignatureRuleEffect.Effects, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEffect) GetEffects() []*InputCustomSignatureRuleEffectWithModification {
+	return v.Effects
+}
+
+// GetEventSeverity returns InputCustomSignatureRuleEffect.EventSeverity, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEffect) GetEventSeverity() *CustomSignatureRuleEventSeverity {
+	return v.EventSeverity
+}
+
+// GetEventType returns InputCustomSignatureRuleEffect.EventType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEffect) GetEventType() CustomSignatureRuleEventType {
+	return v.EventType
+}
+
+type InputCustomSignatureRuleEffectWithModification struct {
+	// Effects enforced for agent while inline processing of requests
+	AgentEffect    InputCustomSignatureRuleAgentEffect       `json:"agentEffect"`
+	RuleEffectType CustomSignatureRuleEffectModificationType `json:"ruleEffectType"`
+}
+
+// GetAgentEffect returns InputCustomSignatureRuleEffectWithModification.AgentEffect, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEffectWithModification) GetAgentEffect() InputCustomSignatureRuleAgentEffect {
+	return v.AgentEffect
+}
+
+// GetRuleEffectType returns InputCustomSignatureRuleEffectWithModification.RuleEffectType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEffectWithModification) GetRuleEffectType() CustomSignatureRuleEffectModificationType {
+	return v.RuleEffectType
+}
+
+type InputCustomSignatureRuleEmailDomainExpression struct {
+	// List of email domains
+	EmailDomains []*string `json:"emailDomains"`
+	// List of email regexes
+	EmailRegexes []*string `json:"emailRegexes"`
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+}
+
+// GetEmailDomains returns InputCustomSignatureRuleEmailDomainExpression.EmailDomains, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEmailDomainExpression) GetEmailDomains() []*string {
+	return v.EmailDomains
+}
+
+// GetEmailRegexes returns InputCustomSignatureRuleEmailDomainExpression.EmailRegexes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEmailDomainExpression) GetEmailRegexes() []*string {
+	return v.EmailRegexes
+}
+
+// GetExclude returns InputCustomSignatureRuleEmailDomainExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEmailDomainExpression) GetExclude() *bool { return v.Exclude }
+
+type InputCustomSignatureRuleEntityScopeExpression struct {
+	// Entity ids for entity scope expression type of custom signature rule
+	EntityIds []*string `json:"entityIds"`
+	// Entity type for entity scope expression type of custom signature rule
+	EntityType CustomSignatureRuleEntityType `json:"entityType"`
+}
+
+// GetEntityIds returns InputCustomSignatureRuleEntityScopeExpression.EntityIds, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEntityScopeExpression) GetEntityIds() []*string { return v.EntityIds }
+
+// GetEntityType returns InputCustomSignatureRuleEntityScopeExpression.EntityType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEntityScopeExpression) GetEntityType() CustomSignatureRuleEntityType {
+	return v.EntityType
+}
+
+type InputCustomSignatureRuleHeaderInjection struct {
+	HeaderCategory CustomSignatureRuleMatchCategory `json:"headerCategory"`
+	Key            string                           `json:"key"`
+	Value          string                           `json:"value"`
+}
+
+// GetHeaderCategory returns InputCustomSignatureRuleHeaderInjection.HeaderCategory, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleHeaderInjection) GetHeaderCategory() CustomSignatureRuleMatchCategory {
+	return v.HeaderCategory
+}
+
+// GetKey returns InputCustomSignatureRuleHeaderInjection.Key, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleHeaderInjection) GetKey() string { return v.Key }
+
+// GetValue returns InputCustomSignatureRuleHeaderInjection.Value, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleHeaderInjection) GetValue() string { return v.Value }
+
+type InputCustomSignatureRuleIpAbuseVelocityExpression struct {
+	// Minimum IP abuse velocity applicable
+	MinIpAbuseVelocity CustomSignatureRuleIpAbuseVelocity `json:"minIpAbuseVelocity"`
+}
+
+// GetMinIpAbuseVelocity returns InputCustomSignatureRuleIpAbuseVelocityExpression.MinIpAbuseVelocity, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAbuseVelocityExpression) GetMinIpAbuseVelocity() CustomSignatureRuleIpAbuseVelocity {
+	return v.MinIpAbuseVelocity
+}
+
+type InputCustomSignatureRuleIpAddressExpression struct {
+	// List of CIDR IP ranges
+	CidrIpRanges []*string `json:"cidrIpRanges"`
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// IP address expression type
+	IpAddressExpressionType *CustomSignatureRuleIpAddressExpressionType `json:"ipAddressExpressionType"`
+	// List of IP addresses
+	IpAddresses []*string `json:"ipAddresses"`
+	// List of IP addresses and CIDR IP ranges
+	RawInputIpData []*string `json:"rawInputIpData"`
+}
+
+// GetCidrIpRanges returns InputCustomSignatureRuleIpAddressExpression.CidrIpRanges, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAddressExpression) GetCidrIpRanges() []*string {
+	return v.CidrIpRanges
+}
+
+// GetExclude returns InputCustomSignatureRuleIpAddressExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAddressExpression) GetExclude() *bool { return v.Exclude }
+
+// GetIpAddressExpressionType returns InputCustomSignatureRuleIpAddressExpression.IpAddressExpressionType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAddressExpression) GetIpAddressExpressionType() *CustomSignatureRuleIpAddressExpressionType {
+	return v.IpAddressExpressionType
+}
+
+// GetIpAddresses returns InputCustomSignatureRuleIpAddressExpression.IpAddresses, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAddressExpression) GetIpAddresses() []*string {
+	return v.IpAddresses
+}
+
+// GetRawInputIpData returns InputCustomSignatureRuleIpAddressExpression.RawInputIpData, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAddressExpression) GetRawInputIpData() []*string {
+	return v.RawInputIpData
+}
+
+type InputCustomSignatureRuleIpAsnExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of IP ASN regexes
+	IpAsnRegexes []*string `json:"ipAsnRegexes"`
+}
+
+// GetExclude returns InputCustomSignatureRuleIpAsnExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAsnExpression) GetExclude() *bool { return v.Exclude }
+
+// GetIpAsnRegexes returns InputCustomSignatureRuleIpAsnExpression.IpAsnRegexes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpAsnExpression) GetIpAsnRegexes() []*string { return v.IpAsnRegexes }
+
+type InputCustomSignatureRuleIpConnectionTypeExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of IP connection types
+	IpConnectionTypes []*CustomSignatureRuleIpConnectionType `json:"ipConnectionTypes"`
+}
+
+// GetExclude returns InputCustomSignatureRuleIpConnectionTypeExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpConnectionTypeExpression) GetExclude() *bool { return v.Exclude }
+
+// GetIpConnectionTypes returns InputCustomSignatureRuleIpConnectionTypeExpression.IpConnectionTypes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpConnectionTypeExpression) GetIpConnectionTypes() []*CustomSignatureRuleIpConnectionType {
+	return v.IpConnectionTypes
+}
+
+type InputCustomSignatureRuleIpOrganisationExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of IP organisation regexes
+	IpOrganisationRegexes []*string `json:"ipOrganisationRegexes"`
+}
+
+// GetExclude returns InputCustomSignatureRuleIpOrganisationExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpOrganisationExpression) GetExclude() *bool { return v.Exclude }
+
+// GetIpOrganisationRegexes returns InputCustomSignatureRuleIpOrganisationExpression.IpOrganisationRegexes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpOrganisationExpression) GetIpOrganisationRegexes() []*string {
+	return v.IpOrganisationRegexes
+}
+
+type InputCustomSignatureRuleIpReputationExpression struct {
+	// Minimum IP reputation severity applicable
+	MinIpReputationSeverity CustomSignatureRuleIpReputationSeverity `json:"minIpReputationSeverity"`
+}
+
+// GetMinIpReputationSeverity returns InputCustomSignatureRuleIpReputationExpression.MinIpReputationSeverity, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpReputationExpression) GetMinIpReputationSeverity() CustomSignatureRuleIpReputationSeverity {
+	return v.MinIpReputationSeverity
+}
+
+type InputCustomSignatureRuleIpTypeExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of IP types applicable
+	IpTypes []*CustomSignatureRuleIpType `json:"ipTypes"`
+}
+
+// GetExclude returns InputCustomSignatureRuleIpTypeExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpTypeExpression) GetExclude() *bool { return v.Exclude }
+
+// GetIpTypes returns InputCustomSignatureRuleIpTypeExpression.IpTypes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleIpTypeExpression) GetIpTypes() []*CustomSignatureRuleIpType {
+	return v.IpTypes
+}
+
+type InputCustomSignatureRuleKeyValueExpression struct {
+	KeyMatchOperator   CustomSignatureRuleMatchOperator  `json:"keyMatchOperator"`
+	KeyValueTag        CustomSignatureRuleKeyValueTag    `json:"keyValueTag"`
+	MatchCategory      *CustomSignatureRuleMatchCategory `json:"matchCategory"`
+	MatchKey           string                            `json:"matchKey"`
+	MatchValue         string                            `json:"matchValue"`
+	ValueMatchOperator CustomSignatureRuleMatchOperator  `json:"valueMatchOperator"`
+}
+
+// GetKeyMatchOperator returns InputCustomSignatureRuleKeyValueExpression.KeyMatchOperator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleKeyValueExpression) GetKeyMatchOperator() CustomSignatureRuleMatchOperator {
+	return v.KeyMatchOperator
+}
+
+// GetKeyValueTag returns InputCustomSignatureRuleKeyValueExpression.KeyValueTag, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleKeyValueExpression) GetKeyValueTag() CustomSignatureRuleKeyValueTag {
+	return v.KeyValueTag
+}
+
+// GetMatchCategory returns InputCustomSignatureRuleKeyValueExpression.MatchCategory, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleKeyValueExpression) GetMatchCategory() *CustomSignatureRuleMatchCategory {
+	return v.MatchCategory
+}
+
+// GetMatchKey returns InputCustomSignatureRuleKeyValueExpression.MatchKey, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleKeyValueExpression) GetMatchKey() string { return v.MatchKey }
+
+// GetMatchValue returns InputCustomSignatureRuleKeyValueExpression.MatchValue, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleKeyValueExpression) GetMatchValue() string { return v.MatchValue }
+
+// GetValueMatchOperator returns InputCustomSignatureRuleKeyValueExpression.ValueMatchOperator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleKeyValueExpression) GetValueMatchOperator() CustomSignatureRuleMatchOperator {
+	return v.ValueMatchOperator
+}
+
+type InputCustomSignatureRuleLabel struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// GetKey returns InputCustomSignatureRuleLabel.Key, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLabel) GetKey() string { return v.Key }
+
+// GetValue returns InputCustomSignatureRuleLabel.Value, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLabel) GetValue() string { return v.Value }
+
+type InputCustomSignatureRuleLabelScopeExpression struct {
+	// Label ids for label scope expression type of custom signature rule
+	LabelIds []*string `json:"labelIds"`
+	// Label type for label scope expression type of custom signature rule
+	LabelType CustomSignatureRuleLabelType `json:"labelType"`
+}
+
+// GetLabelIds returns InputCustomSignatureRuleLabelScopeExpression.LabelIds, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLabelScopeExpression) GetLabelIds() []*string { return v.LabelIds }
+
+// GetLabelType returns InputCustomSignatureRuleLabelScopeExpression.LabelType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLabelScopeExpression) GetLabelType() CustomSignatureRuleLabelType {
+	return v.LabelType
+}
+
+type InputCustomSignatureRuleMatchExpression struct {
+	MatchCategory *CustomSignatureRuleMatchCategory `json:"matchCategory"`
+	MatchKey      CustomSignatureRuleMatchKey       `json:"matchKey"`
+	MatchOperator CustomSignatureRuleMatchOperator  `json:"matchOperator"`
+	MatchValue    *string                           `json:"matchValue"`
+}
+
+// GetMatchCategory returns InputCustomSignatureRuleMatchExpression.MatchCategory, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleMatchExpression) GetMatchCategory() *CustomSignatureRuleMatchCategory {
+	return v.MatchCategory
+}
+
+// GetMatchKey returns InputCustomSignatureRuleMatchExpression.MatchKey, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleMatchExpression) GetMatchKey() CustomSignatureRuleMatchKey {
+	return v.MatchKey
+}
+
+// GetMatchOperator returns InputCustomSignatureRuleMatchExpression.MatchOperator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleMatchExpression) GetMatchOperator() CustomSignatureRuleMatchOperator {
+	return v.MatchOperator
+}
+
+// GetMatchValue returns InputCustomSignatureRuleMatchExpression.MatchValue, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleMatchExpression) GetMatchValue() *string { return v.MatchValue }
+
+type InputCustomSignatureRuleRegionExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of region identifiers
+	RegionIdentifiers []*InputCustomSignatureRuleRegionIdentifier `json:"regionIdentifiers"`
+}
+
+// GetExclude returns InputCustomSignatureRuleRegionExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRegionExpression) GetExclude() *bool { return v.Exclude }
+
+// GetRegionIdentifiers returns InputCustomSignatureRuleRegionExpression.RegionIdentifiers, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRegionExpression) GetRegionIdentifiers() []*InputCustomSignatureRuleRegionIdentifier {
+	return v.RegionIdentifiers
+}
+
+type InputCustomSignatureRuleRegionIdentifier struct {
+	// Country ISO code for region identifier
+	CountryIsoCode string `json:"countryIsoCode"`
+}
+
+// GetCountryIsoCode returns InputCustomSignatureRuleRegionIdentifier.CountryIsoCode, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRegionIdentifier) GetCountryIsoCode() string {
+	return v.CountryIsoCode
+}
+
+type InputCustomSignatureRuleRequestScannerTypeExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of scanner types
+	ScannerTypes []*string `json:"scannerTypes"`
+}
+
+// GetExclude returns InputCustomSignatureRuleRequestScannerTypeExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRequestScannerTypeExpression) GetExclude() *bool { return v.Exclude }
+
+// GetScannerTypes returns InputCustomSignatureRuleRequestScannerTypeExpression.ScannerTypes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRequestScannerTypeExpression) GetScannerTypes() []*string {
+	return v.ScannerTypes
+}
+
+type InputCustomSignatureRuleScope struct {
+	EnvironmentScope *InputCustomSignatureEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns InputCustomSignatureRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScope) GetEnvironmentScope() *InputCustomSignatureEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+type InputCustomSignatureRuleScopeExpression struct {
+	// Scope expression of type ENTITY
+	EntityScope *InputCustomSignatureRuleEntityScopeExpression `json:"entityScope"`
+	// Exclude field for scope expression in custom signature rule
+	Exclude *bool `json:"exclude"`
+	// Scope expression of type LABEL
+	LabelScope *InputCustomSignatureRuleLabelScopeExpression `json:"labelScope"`
+	// Scope expression of type URL
+	UrlScope *InputCustomSignatureUrlScopeExpression `json:"urlScope"`
+}
+
+// GetEntityScope returns InputCustomSignatureRuleScopeExpression.EntityScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetEntityScope() *InputCustomSignatureRuleEntityScopeExpression {
+	return v.EntityScope
+}
+
+// GetExclude returns InputCustomSignatureRuleScopeExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetExclude() *bool { return v.Exclude }
+
+// GetLabelScope returns InputCustomSignatureRuleScopeExpression.LabelScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetLabelScope() *InputCustomSignatureRuleLabelScopeExpression {
+	return v.LabelScope
+}
+
+// GetUrlScope returns InputCustomSignatureRuleScopeExpression.UrlScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetUrlScope() *InputCustomSignatureUrlScopeExpression {
+	return v.UrlScope
+}
+
+type InputCustomSignatureRuleUpdate struct {
+	BlockingExpirationDuration *string                            `json:"blockingExpirationDuration"`
+	Description                string                             `json:"description"`
+	Disabled                   *bool                              `json:"disabled"`
+	Id                         string                             `json:"id"`
+	Internal                   *bool                              `json:"internal"`
+	Name                       string                             `json:"name"`
+	RuleDefinition             InputCustomSignatureRuleDefinition `json:"ruleDefinition"`
+	RuleEffect                 InputCustomSignatureRuleEffect     `json:"ruleEffect"`
+	RuleScope                  *InputCustomSignatureRuleScope     `json:"ruleScope"`
+	RuleSource                 *CustomSignatureRuleSource         `json:"ruleSource"`
+}
+
+// GetBlockingExpirationDuration returns InputCustomSignatureRuleUpdate.BlockingExpirationDuration, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetBlockingExpirationDuration() *string {
+	return v.BlockingExpirationDuration
+}
+
+// GetDescription returns InputCustomSignatureRuleUpdate.Description, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetDescription() string { return v.Description }
+
+// GetDisabled returns InputCustomSignatureRuleUpdate.Disabled, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetDisabled() *bool { return v.Disabled }
+
+// GetId returns InputCustomSignatureRuleUpdate.Id, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetId() string { return v.Id }
+
+// GetInternal returns InputCustomSignatureRuleUpdate.Internal, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetInternal() *bool { return v.Internal }
+
+// GetName returns InputCustomSignatureRuleUpdate.Name, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetName() string { return v.Name }
+
+// GetRuleDefinition returns InputCustomSignatureRuleUpdate.RuleDefinition, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetRuleDefinition() InputCustomSignatureRuleDefinition {
+	return v.RuleDefinition
+}
+
+// GetRuleEffect returns InputCustomSignatureRuleUpdate.RuleEffect, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetRuleEffect() InputCustomSignatureRuleEffect {
+	return v.RuleEffect
+}
+
+// GetRuleScope returns InputCustomSignatureRuleUpdate.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetRuleScope() *InputCustomSignatureRuleScope {
+	return v.RuleScope
+}
+
+// GetRuleSource returns InputCustomSignatureRuleUpdate.RuleSource, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetRuleSource() *CustomSignatureRuleSource {
+	return v.RuleSource
+}
+
+type InputCustomSignatureRuleUserAgentExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of user agent regexes
+	UserAgentRegexes []*string `json:"userAgentRegexes"`
+	// List of user agents
+	UserAgents []*string `json:"userAgents"`
+}
+
+// GetExclude returns InputCustomSignatureRuleUserAgentExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUserAgentExpression) GetExclude() *bool { return v.Exclude }
+
+// GetUserAgentRegexes returns InputCustomSignatureRuleUserAgentExpression.UserAgentRegexes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUserAgentExpression) GetUserAgentRegexes() []*string {
+	return v.UserAgentRegexes
+}
+
+// GetUserAgents returns InputCustomSignatureRuleUserAgentExpression.UserAgents, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUserAgentExpression) GetUserAgents() []*string { return v.UserAgents }
+
+type InputCustomSignatureRuleUserIdExpression struct {
+	// Boolean denoting exclude condition
+	Exclude *bool `json:"exclude"`
+	// List of user ID regexes
+	UserIdRegexes []*string `json:"userIdRegexes"`
+	// List of user IDs
+	UserIds []*string `json:"userIds"`
+}
+
+// GetExclude returns InputCustomSignatureRuleUserIdExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUserIdExpression) GetExclude() *bool { return v.Exclude }
+
+// GetUserIdRegexes returns InputCustomSignatureRuleUserIdExpression.UserIdRegexes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUserIdExpression) GetUserIdRegexes() []*string {
+	return v.UserIdRegexes
+}
+
+// GetUserIds returns InputCustomSignatureRuleUserIdExpression.UserIds, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUserIdExpression) GetUserIds() []*string { return v.UserIds }
+
+type InputCustomSignatureRulesFilter struct {
+	RuleScope InputCustomSignatureRuleScope `json:"ruleScope"`
+}
+
+// GetRuleScope returns InputCustomSignatureRulesFilter.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRulesFilter) GetRuleScope() InputCustomSignatureRuleScope {
+	return v.RuleScope
+}
+
+type InputCustomSignatureSecRule struct {
+	// Input sec rule string
+	InputSecRuleString *string `json:"inputSecRuleString"`
+}
+
+// GetInputSecRuleString returns InputCustomSignatureSecRule.InputSecRuleString, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureSecRule) GetInputSecRuleString() *string { return v.InputSecRuleString }
+
+type InputCustomSignatureStringMatchCondition struct {
+	// Key match operator
+	Operator CustomSignatureRuleMatchOperator `json:"operator"`
+	// Match key
+	Value string `json:"value"`
+}
+
+// GetOperator returns InputCustomSignatureStringMatchCondition.Operator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureStringMatchCondition) GetOperator() CustomSignatureRuleMatchOperator {
+	return v.Operator
+}
+
+// GetValue returns InputCustomSignatureStringMatchCondition.Value, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureStringMatchCondition) GetValue() string { return v.Value }
+
+type InputCustomSignatureUrlScopeExpression struct {
+	// Url regexes for url type scope expression of custom signature rule
+	UrlRegexes []*string `json:"urlRegexes"`
+}
+
+// GetUrlRegexes returns InputCustomSignatureUrlScopeExpression.UrlRegexes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureUrlScopeExpression) GetUrlRegexes() []*string { return v.UrlRegexes }
+
 type InputDataSetCreate struct {
 	Color           *string          `json:"color"`
 	DataSuppression *DataSuppression `json:"dataSuppression"`
@@ -1958,6 +4192,44 @@ type InputEnvironmentScope struct {
 
 // GetEnvironmentIds returns InputEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
 func (v *InputEnvironmentScope) GetEnvironmentIds() []*string { return v.EnvironmentIds }
+
+type InputFilter struct {
+	IdScope       *string                   `json:"idScope"`
+	IdType        *AttributeScope           `json:"idType"`
+	Key           *string                   `json:"key"`
+	KeyExpression *InputAttributeExpression `json:"keyExpression"`
+	Operator      FilterOperatorType        `json:"operator"`
+	// Transformation function
+	TransformationFunction *InputTransformationFunction `json:"transformationFunction"`
+	Type                   FilterType                   `json:"type"`
+	Value                  interface{}                  `json:"value"`
+}
+
+// GetIdScope returns InputFilter.IdScope, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetIdScope() *string { return v.IdScope }
+
+// GetIdType returns InputFilter.IdType, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetIdType() *AttributeScope { return v.IdType }
+
+// GetKey returns InputFilter.Key, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetKey() *string { return v.Key }
+
+// GetKeyExpression returns InputFilter.KeyExpression, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetKeyExpression() *InputAttributeExpression { return v.KeyExpression }
+
+// GetOperator returns InputFilter.Operator, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetOperator() FilterOperatorType { return v.Operator }
+
+// GetTransformationFunction returns InputFilter.TransformationFunction, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetTransformationFunction() *InputTransformationFunction {
+	return v.TransformationFunction
+}
+
+// GetType returns InputFilter.Type, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetType() FilterType { return v.Type }
+
+// GetValue returns InputFilter.Value, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetValue() interface{} { return v.Value }
 
 type InputIpRangeEnvironmentScope struct {
 	EnvironmentIds []*string `json:"environmentIds"`
@@ -2133,6 +4405,21 @@ type InputIpRangeRulesFilter struct {
 
 // GetRuleScope returns InputIpRangeRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRulesFilter) GetRuleScope() InputIpRangeRuleScope { return v.RuleScope }
+
+type InputJsonExtractTransformationFunction struct {
+	// Attribute expression
+	Attribute InputAttributeExpression `json:"attribute"`
+	// Json path
+	JsonPath string `json:"jsonPath"`
+}
+
+// GetAttribute returns InputJsonExtractTransformationFunction.Attribute, and is useful for accessing the field via an interface.
+func (v *InputJsonExtractTransformationFunction) GetAttribute() InputAttributeExpression {
+	return v.Attribute
+}
+
+// GetJsonPath returns InputJsonExtractTransformationFunction.JsonPath, and is useful for accessing the field via an interface.
+func (v *InputJsonExtractTransformationFunction) GetJsonPath() string { return v.JsonPath }
 
 // Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
 type InputMaliciousSourcesRule struct {
@@ -3861,6 +6148,27 @@ type InputRuleConfigScope struct {
 // GetEnvironmentScope returns InputRuleConfigScope.EnvironmentScope, and is useful for accessing the field via an interface.
 func (v *InputRuleConfigScope) GetEnvironmentScope() *InputEnvironmentScope {
 	return v.EnvironmentScope
+}
+
+type InputTimeRange struct {
+	EndTime   string `json:"endTime"`
+	StartTime string `json:"startTime"`
+}
+
+// GetEndTime returns InputTimeRange.EndTime, and is useful for accessing the field via an interface.
+func (v *InputTimeRange) GetEndTime() string { return v.EndTime }
+
+// GetStartTime returns InputTimeRange.StartTime, and is useful for accessing the field via an interface.
+func (v *InputTimeRange) GetStartTime() string { return v.StartTime }
+
+type InputTransformationFunction struct {
+	// Json extraction transform function
+	JsonExtract *InputJsonExtractTransformationFunction `json:"jsonExtract"`
+}
+
+// GetJsonExtract returns InputTransformationFunction.JsonExtract, and is useful for accessing the field via an interface.
+func (v *InputTransformationFunction) GetJsonExtract() *InputJsonExtractTransformationFunction {
+	return v.JsonExtract
 }
 
 // Threshold config which specifies unique values allowed over the given time range
@@ -5677,6 +7985,58 @@ var AllMaliciousSourcesRuleRegionType = []MaliciousSourcesRuleRegionType{
 	MaliciousSourcesRuleRegionTypeCountryIsoCode,
 }
 
+type MetricAggregationType string
+
+const (
+	// COUNT
+	MetricAggregationTypeCount MetricAggregationType = "COUNT"
+	// AVG
+	MetricAggregationTypeAvg MetricAggregationType = "AVG"
+	// SUM
+	MetricAggregationTypeSum MetricAggregationType = "SUM"
+	// MIN
+	MetricAggregationTypeMin MetricAggregationType = "MIN"
+	// MAX
+	MetricAggregationTypeMax MetricAggregationType = "MAX"
+	// AVGRATE
+	MetricAggregationTypeAvgrate MetricAggregationType = "AVGRATE"
+	// PERCENTILE
+	MetricAggregationTypePercentile MetricAggregationType = "PERCENTILE"
+	// DISTINCTCOUNT
+	MetricAggregationTypeDistinctcount MetricAggregationType = "DISTINCTCOUNT"
+	// DISTINCT_ARRAY
+	MetricAggregationTypeDistinctArray MetricAggregationType = "DISTINCT_ARRAY"
+	// ANY_VALUE
+	MetricAggregationTypeAnyValue MetricAggregationType = "ANY_VALUE"
+)
+
+var AllMetricAggregationType = []MetricAggregationType{
+	MetricAggregationTypeCount,
+	MetricAggregationTypeAvg,
+	MetricAggregationTypeSum,
+	MetricAggregationTypeMin,
+	MetricAggregationTypeMax,
+	MetricAggregationTypeAvgrate,
+	MetricAggregationTypePercentile,
+	MetricAggregationTypeDistinctcount,
+	MetricAggregationTypeDistinctArray,
+	MetricAggregationTypeAnyValue,
+}
+
+type OrderDirection string
+
+const (
+	// ASC
+	OrderDirectionAsc OrderDirection = "ASC"
+	// DESC
+	OrderDirectionDesc OrderDirection = "DESC"
+)
+
+var AllOrderDirection = []OrderDirection{
+	OrderDirectionAsc,
+	OrderDirectionDesc,
+}
+
 type RateLimitingRuleActionType string
 
 const (
@@ -7255,6 +9615,29 @@ func (v *ThresholdActionConfigFieldsThresholdConfigsRateLimitingRuleThresholdCon
 	return v.SensitiveParamsEvaluationType
 }
 
+type TimeUnit string
+
+const (
+	// MILLISECONDS
+	TimeUnitMilliseconds TimeUnit = "MILLISECONDS"
+	// SECONDS
+	TimeUnitSeconds TimeUnit = "SECONDS"
+	// MINUTES
+	TimeUnitMinutes TimeUnit = "MINUTES"
+	// HOURS
+	TimeUnitHours TimeUnit = "HOURS"
+	// DAYS
+	TimeUnitDays TimeUnit = "DAYS"
+)
+
+var AllTimeUnit = []TimeUnit{
+	TimeUnitMilliseconds,
+	TimeUnitSeconds,
+	TimeUnitMinutes,
+	TimeUnitHours,
+	TimeUnitDays,
+}
+
 // Fragment for transactionActionConfigs
 type TransactionActionConfigFields struct {
 	// Rate limit rule action
@@ -7355,6 +9738,150 @@ func (v *TransactionActionConfigFieldsActionRateLimitingRuleActionBlockRateLimit
 // GetEventSeverity returns TransactionActionConfigFieldsActionRateLimitingRuleActionBlockRateLimitingRuleBlockAction.EventSeverity, and is useful for accessing the field via an interface.
 func (v *TransactionActionConfigFieldsActionRateLimitingRuleActionBlockRateLimitingRuleBlockAction) GetEventSeverity() RateLimitingRuleEventSeverity {
 	return v.EventSeverity
+}
+
+// UpdateCustomSignatureResponse is returned by UpdateCustomSignature on success.
+type UpdateCustomSignatureResponse struct {
+	UpdateCustomSignatureRule UpdateCustomSignatureUpdateCustomSignatureRule `json:"updateCustomSignatureRule"`
+}
+
+// GetUpdateCustomSignatureRule returns UpdateCustomSignatureResponse.UpdateCustomSignatureRule, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureResponse) GetUpdateCustomSignatureRule() UpdateCustomSignatureUpdateCustomSignatureRule {
+	return v.UpdateCustomSignatureRule
+}
+
+// UpdateCustomSignatureUpdateCustomSignatureRule includes the requested fields of the GraphQL type CustomSignatureRule.
+type UpdateCustomSignatureUpdateCustomSignatureRule struct {
+	CustomSignatureFields `json:"-"`
+}
+
+// GetId returns UpdateCustomSignatureUpdateCustomSignatureRule.Id, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetId() string {
+	return v.CustomSignatureFields.Id
+}
+
+// GetName returns UpdateCustomSignatureUpdateCustomSignatureRule.Name, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetName() string {
+	return v.CustomSignatureFields.Name
+}
+
+// GetDescription returns UpdateCustomSignatureUpdateCustomSignatureRule.Description, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetDescription() string {
+	return v.CustomSignatureFields.Description
+}
+
+// GetDisabled returns UpdateCustomSignatureUpdateCustomSignatureRule.Disabled, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetDisabled() *bool {
+	return v.CustomSignatureFields.Disabled
+}
+
+// GetInternal returns UpdateCustomSignatureUpdateCustomSignatureRule.Internal, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetInternal() *bool {
+	return v.CustomSignatureFields.Internal
+}
+
+// GetBlockingExpirationDuration returns UpdateCustomSignatureUpdateCustomSignatureRule.BlockingExpirationDuration, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetBlockingExpirationDuration() *string {
+	return v.CustomSignatureFields.BlockingExpirationDuration
+}
+
+// GetBlockingExpirationTime returns UpdateCustomSignatureUpdateCustomSignatureRule.BlockingExpirationTime, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetBlockingExpirationTime() *string {
+	return v.CustomSignatureFields.BlockingExpirationTime
+}
+
+// GetRuleSource returns UpdateCustomSignatureUpdateCustomSignatureRule.RuleSource, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetRuleSource() *CustomSignatureRuleSource {
+	return v.CustomSignatureFields.RuleSource
+}
+
+// GetRuleEffect returns UpdateCustomSignatureUpdateCustomSignatureRule.RuleEffect, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetRuleEffect() CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect {
+	return v.CustomSignatureFields.RuleEffect
+}
+
+// GetRuleDefinition returns UpdateCustomSignatureUpdateCustomSignatureRule.RuleDefinition, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetRuleDefinition() CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition {
+	return v.CustomSignatureFields.RuleDefinition
+}
+
+// GetRuleScope returns UpdateCustomSignatureUpdateCustomSignatureRule.RuleScope, and is useful for accessing the field via an interface.
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) GetRuleScope() *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope {
+	return v.CustomSignatureFields.RuleScope
+}
+
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateCustomSignatureUpdateCustomSignatureRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateCustomSignatureUpdateCustomSignatureRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CustomSignatureFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalUpdateCustomSignatureUpdateCustomSignatureRule struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	Description string `json:"description"`
+
+	Disabled *bool `json:"disabled"`
+
+	Internal *bool `json:"internal"`
+
+	BlockingExpirationDuration *string `json:"blockingExpirationDuration"`
+
+	BlockingExpirationTime *string `json:"blockingExpirationTime"`
+
+	RuleSource *CustomSignatureRuleSource `json:"ruleSource"`
+
+	RuleEffect CustomSignatureFieldsRuleEffectCustomSignatureRuleEffect `json:"ruleEffect"`
+
+	RuleDefinition CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinition `json:"ruleDefinition"`
+
+	RuleScope *CustomSignatureFieldsRuleScopeCustomSignatureRuleScope `json:"ruleScope"`
+}
+
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateCustomSignatureUpdateCustomSignatureRule) __premarshalJSON() (*__premarshalUpdateCustomSignatureUpdateCustomSignatureRule, error) {
+	var retval __premarshalUpdateCustomSignatureUpdateCustomSignatureRule
+
+	retval.Id = v.CustomSignatureFields.Id
+	retval.Name = v.CustomSignatureFields.Name
+	retval.Description = v.CustomSignatureFields.Description
+	retval.Disabled = v.CustomSignatureFields.Disabled
+	retval.Internal = v.CustomSignatureFields.Internal
+	retval.BlockingExpirationDuration = v.CustomSignatureFields.BlockingExpirationDuration
+	retval.BlockingExpirationTime = v.CustomSignatureFields.BlockingExpirationTime
+	retval.RuleSource = v.CustomSignatureFields.RuleSource
+	retval.RuleEffect = v.CustomSignatureFields.RuleEffect
+	retval.RuleDefinition = v.CustomSignatureFields.RuleDefinition
+	retval.RuleScope = v.CustomSignatureFields.RuleScope
+	return &retval, nil
 }
 
 // UpdateDataSetResponse is returned by UpdateDataSet on success.
@@ -7975,6 +10502,14 @@ var AllValueBasedThresholdConfigType = []ValueBasedThresholdConfigType{
 	ValueBasedThresholdConfigTypePathParams,
 }
 
+// __CreateCustomSignatureInput is used internally by genqlient
+type __CreateCustomSignatureInput struct {
+	Input InputCustomSignatureRuleDescriptor `json:"input"`
+}
+
+// GetInput returns __CreateCustomSignatureInput.Input, and is useful for accessing the field via an interface.
+func (v *__CreateCustomSignatureInput) GetInput() InputCustomSignatureRuleDescriptor { return v.Input }
+
 // __CreateDataSetInput is used internally by genqlient
 type __CreateDataSetInput struct {
 	DataSetCreate InputDataSetCreate `json:"dataSetCreate"`
@@ -8025,6 +10560,14 @@ type __CreateRateLimitingRuleInput struct {
 // GetInput returns __CreateRateLimitingRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__CreateRateLimitingRuleInput) GetInput() InputRateLimitingRuleData { return v.Input }
 
+// __DeleteCustomSignatureInput is used internally by genqlient
+type __DeleteCustomSignatureInput struct {
+	Input InputCustomSignatureRuleDelete `json:"input"`
+}
+
+// GetInput returns __DeleteCustomSignatureInput.Input, and is useful for accessing the field via an interface.
+func (v *__DeleteCustomSignatureInput) GetInput() InputCustomSignatureRuleDelete { return v.Input }
+
 // __DeleteDataSetInput is used internally by genqlient
 type __DeleteDataSetInput struct {
 	Id string `json:"id"`
@@ -8074,26 +10617,6 @@ type __DeleteRateLimitingRuleInput struct {
 
 // GetId returns __DeleteRateLimitingRuleInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteRateLimitingRuleInput) GetId() string { return v.Id }
-
-// __GetMaliciousEmailDomainRuleDetailsInput is used internally by genqlient
-type __GetMaliciousEmailDomainRuleDetailsInput struct {
-	Input *InputMaliciousSourcesRulesFilter `json:"input"`
-}
-
-// GetInput returns __GetMaliciousEmailDomainRuleDetailsInput.Input, and is useful for accessing the field via an interface.
-func (v *__GetMaliciousEmailDomainRuleDetailsInput) GetInput() *InputMaliciousSourcesRulesFilter {
-	return v.Input
-}
-
-// __GetMaliciousEmailDomainRulesNameInput is used internally by genqlient
-type __GetMaliciousEmailDomainRulesNameInput struct {
-	Input *InputMaliciousSourcesRulesFilter `json:"input"`
-}
-
-// GetInput returns __GetMaliciousEmailDomainRulesNameInput.Input, and is useful for accessing the field via an interface.
-func (v *__GetMaliciousEmailDomainRulesNameInput) GetInput() *InputMaliciousSourcesRulesFilter {
-	return v.Input
-}
 
 // __GetMaliciousIpRangeRuleDetailsInput is used internally by genqlient
 type __GetMaliciousIpRangeRuleDetailsInput struct {
@@ -8177,6 +10700,14 @@ func (v *__GetRateLimitingRulesNameInput) GetRateLimitingRulesFilter() *InputRat
 	return v.RateLimitingRulesFilter
 }
 
+// __UpdateCustomSignatureInput is used internally by genqlient
+type __UpdateCustomSignatureInput struct {
+	Input InputCustomSignatureRuleUpdate `json:"input"`
+}
+
+// GetInput returns __UpdateCustomSignatureInput.Input, and is useful for accessing the field via an interface.
+func (v *__UpdateCustomSignatureInput) GetInput() InputCustomSignatureRuleUpdate { return v.Input }
+
 // __UpdateDataSetInput is used internally by genqlient
 type __UpdateDataSetInput struct {
 	DataSetUpdate InputDataSetUpdate `json:"dataSetUpdate"`
@@ -8226,6 +10757,111 @@ type __UpdateRateLimitingRuleInput struct {
 
 // GetInput returns __UpdateRateLimitingRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__UpdateRateLimitingRuleInput) GetInput() InputRateLimitingRule { return v.Input }
+
+// The mutation executed by CreateCustomSignature.
+const CreateCustomSignature_Operation = `
+mutation CreateCustomSignature ($input: InputCustomSignatureRuleDescriptor!) {
+	createCustomSignatureRule(create: $input) {
+		... CustomSignatureFields
+	}
+}
+fragment CustomSignatureFields on CustomSignatureRule {
+	id
+	name
+	description
+	disabled
+	internal
+	blockingExpirationDuration
+	blockingExpirationTime
+	ruleSource
+	ruleEffect {
+		eventType
+		eventSeverity
+		effects {
+			ruleEffectType
+			agentEffect {
+				agentModifications {
+					agentModificationType
+					headerInjection {
+						key
+						value
+						headerCategory
+					}
+				}
+			}
+		}
+	}
+	ruleDefinition {
+		labels {
+			key
+			value
+		}
+		clauseGroup {
+			clauseOperator
+			clauses {
+				clauseType
+				matchExpression {
+					matchKey
+					matchOperator
+					matchValue
+					matchCategory
+				}
+				keyValueExpression {
+					keyValueTag
+					matchKey
+					matchValue
+					keyMatchOperator
+					valueMatchOperator
+					matchCategory
+				}
+				attributeKeyValueExpression {
+					keyCondition {
+						operator
+						value
+					}
+					valueCondition {
+						operator
+						value
+					}
+				}
+				customSecRule {
+					inputSecRuleString
+				}
+			}
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+}
+`
+
+func CreateCustomSignature(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputCustomSignatureRuleDescriptor,
+) (data_ *CreateCustomSignatureResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CreateCustomSignature",
+		Query:  CreateCustomSignature_Operation,
+		Variables: &__CreateCustomSignatureInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CreateCustomSignatureResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
 
 // The mutation executed by CreateDataSet.
 const CreateDataSet_Operation = `
@@ -8815,6 +11451,40 @@ func DataSets(
 	return data_, err_
 }
 
+// The mutation executed by DeleteCustomSignature.
+const DeleteCustomSignature_Operation = `
+mutation DeleteCustomSignature ($input: InputCustomSignatureRuleDelete!) {
+	deleteCustomSignatureRule(delete: $input) {
+		success
+	}
+}
+`
+
+func DeleteCustomSignature(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputCustomSignatureRuleDelete,
+) (data_ *DeleteCustomSignatureResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteCustomSignature",
+		Query:  DeleteCustomSignature_Operation,
+		Variables: &__DeleteCustomSignatureInput{
+			Input: input,
+		},
+	}
+
+	data_ = &DeleteCustomSignatureResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteDataSet.
 const DeleteDataSet_Operation = `
 mutation DeleteDataSet ($id: String!) {
@@ -9042,121 +11712,6 @@ func GetCountries(
 	}
 
 	data_ = &GetCountriesResponse{}
-	resp_ := &graphql.Response{Data: data_}
-
-	err_ = client_.MakeRequest(
-		ctx_,
-		req_,
-		resp_,
-	)
-
-	return data_, err_
-}
-
-// The query executed by GetMaliciousEmailDomainRuleDetails.
-const GetMaliciousEmailDomainRuleDetails_Operation = `
-query GetMaliciousEmailDomainRuleDetails ($input: InputMaliciousSourcesRulesFilter) {
-	maliciousSourcesRules(filter: $input) {
-		count
-		total
-		results {
-			... MaliciousEmailDomainRuleFields
-		}
-	}
-}
-fragment MaliciousEmailDomainRuleFields on MaliciousSourcesRule {
-	id
-	info {
-		name
-		description
-		action {
-			eventSeverity
-			expirationDetails {
-				expirationDuration
-			}
-			ruleActionType
-		}
-		conditions {
-			conditionType
-			emailDomainCondition {
-				dataLeakedEmail
-				disposableEmailDomain
-				emailDomains
-				emailFraudScore {
-					minEmailFraudScoreLevel
-					emailFraudScoreType
-				}
-				emailRegexes
-			}
-		}
-	}
-	scope {
-		environmentScope {
-			environmentIds
-		}
-	}
-	status {
-		disabled
-		internal
-	}
-}
-`
-
-func GetMaliciousEmailDomainRuleDetails(
-	ctx_ context.Context,
-	client_ graphql.Client,
-	input *InputMaliciousSourcesRulesFilter,
-) (data_ *GetMaliciousEmailDomainRuleDetailsResponse, err_ error) {
-	req_ := &graphql.Request{
-		OpName: "GetMaliciousEmailDomainRuleDetails",
-		Query:  GetMaliciousEmailDomainRuleDetails_Operation,
-		Variables: &__GetMaliciousEmailDomainRuleDetailsInput{
-			Input: input,
-		},
-	}
-
-	data_ = &GetMaliciousEmailDomainRuleDetailsResponse{}
-	resp_ := &graphql.Response{Data: data_}
-
-	err_ = client_.MakeRequest(
-		ctx_,
-		req_,
-		resp_,
-	)
-
-	return data_, err_
-}
-
-// The query executed by GetMaliciousEmailDomainRulesName.
-const GetMaliciousEmailDomainRulesName_Operation = `
-query GetMaliciousEmailDomainRulesName ($input: InputMaliciousSourcesRulesFilter) {
-	maliciousSourcesRules(filter: $input) {
-		count
-		total
-		results {
-			info {
-				name
-			}
-			id
-		}
-	}
-}
-`
-
-func GetMaliciousEmailDomainRulesName(
-	ctx_ context.Context,
-	client_ graphql.Client,
-	input *InputMaliciousSourcesRulesFilter,
-) (data_ *GetMaliciousEmailDomainRulesNameResponse, err_ error) {
-	req_ := &graphql.Request{
-		OpName: "GetMaliciousEmailDomainRulesName",
-		Query:  GetMaliciousEmailDomainRulesName_Operation,
-		Variables: &__GetMaliciousEmailDomainRulesNameInput{
-			Input: input,
-		},
-	}
-
-	data_ = &GetMaliciousEmailDomainRulesNameResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -9781,6 +12336,111 @@ func GetRateLimitingRulesName(
 	}
 
 	data_ = &GetRateLimitingRulesNameResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateCustomSignature.
+const UpdateCustomSignature_Operation = `
+mutation UpdateCustomSignature ($input: InputCustomSignatureRuleUpdate!) {
+	updateCustomSignatureRule(update: $input) {
+		... CustomSignatureFields
+	}
+}
+fragment CustomSignatureFields on CustomSignatureRule {
+	id
+	name
+	description
+	disabled
+	internal
+	blockingExpirationDuration
+	blockingExpirationTime
+	ruleSource
+	ruleEffect {
+		eventType
+		eventSeverity
+		effects {
+			ruleEffectType
+			agentEffect {
+				agentModifications {
+					agentModificationType
+					headerInjection {
+						key
+						value
+						headerCategory
+					}
+				}
+			}
+		}
+	}
+	ruleDefinition {
+		labels {
+			key
+			value
+		}
+		clauseGroup {
+			clauseOperator
+			clauses {
+				clauseType
+				matchExpression {
+					matchKey
+					matchOperator
+					matchValue
+					matchCategory
+				}
+				keyValueExpression {
+					keyValueTag
+					matchKey
+					matchValue
+					keyMatchOperator
+					valueMatchOperator
+					matchCategory
+				}
+				attributeKeyValueExpression {
+					keyCondition {
+						operator
+						value
+					}
+					valueCondition {
+						operator
+						value
+					}
+				}
+				customSecRule {
+					inputSecRuleString
+				}
+			}
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+}
+`
+
+func UpdateCustomSignature(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputCustomSignatureRuleUpdate,
+) (data_ *UpdateCustomSignatureResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateCustomSignature",
+		Query:  UpdateCustomSignature_Operation,
+		Variables: &__UpdateCustomSignatureInput{
+			Input: input,
+		},
+	}
+
+	data_ = &UpdateCustomSignatureResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

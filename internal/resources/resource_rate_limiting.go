@@ -56,7 +56,7 @@ func (r *RateLimitingResource) Create(ctx context.Context, req resource.CreateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	ruleInput, err := convertRateLimitingModelToCreateInput(ctx, data)
+	ruleInput, err := convertRateLimitingModelToCreateInput(ctx, data, r.client)
 	if ruleInput == nil || err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
@@ -103,7 +103,6 @@ func (r *RateLimitingResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	updatedData, err := convertRateLimitingRuleFieldsToModel(ctx, &response)
-	tflog.Trace(ctx, "Shreyansh Gupta 3")
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
@@ -130,7 +129,7 @@ func (r *RateLimitingResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	input, err := convertRateLimitingModelToUpdateInput(ctx, data, dataState.Id.ValueString())
+	input, err := convertRateLimitingModelToUpdateInput(ctx, data, dataState.Id.ValueString(), r.client)
 	if err != nil {
 		resp.Diagnostics.AddError("Error in Updating rate limiting rule", err.Error())
 		return
@@ -231,9 +230,8 @@ func getRateLimitingRuleId(ruleName string, ctx context.Context, r graphql.Clien
 		}
 	}
 	return "", nil
-
 }
-func convertRateLimitingModelToCreateInput(ctx context.Context, data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleData, error) {
+func convertRateLimitingModelToCreateInput(ctx context.Context, data *models.RateLimitingRuleModel, client *graphql.Client) (*generated.InputRateLimitingRuleData, error) {
 	var input = generated.InputRateLimitingRuleData{}
 	if HasValue(data.Name) {
 		name := data.Name.ValueString()
@@ -269,17 +267,27 @@ func convertRateLimitingModelToCreateInput(ctx context.Context, data *models.Rat
 	} else {
 		input.ThresholdActionConfigs = thresholdActionConfigs
 	}
-	conditions, err := convertToRateLimitingRuleCondition(data)
+	conditions, err := convertToRateLimitingRuleCondition(ctx, data, client)
 	if err != nil {
 		return nil, err
 	} else {
 		input.Conditions = conditions
 	}
 
+	if HasValue(data.Sources.DataSet) {
+		return nil, utils.NewInvalidError("sources.data_set", "data_set field must not be present")
+	}
+	if HasValue(data.Sources.DataType) {
+		return nil, utils.NewInvalidError("sources.data_type", "data_type field must not be present ")
+	}
+	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
+		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
+	}
+
 	return &input, nil
 }
 
-func convertRateLimitingModelToUpdateInput(ctx context.Context, data *models.RateLimitingRuleModel, id string) (*generated.InputRateLimitingRule, error) {
+func convertRateLimitingModelToUpdateInput(ctx context.Context, data *models.RateLimitingRuleModel, id string, client *graphql.Client) (*generated.InputRateLimitingRule, error) {
 	input := generated.InputRateLimitingRule{}
 
 	if id != "" {
@@ -321,11 +329,20 @@ func convertRateLimitingModelToUpdateInput(ctx context.Context, data *models.Rat
 	} else {
 		input.ThresholdActionConfigs = thresholdActionConfigs
 	}
-	conditions, err := convertToRateLimitingRuleCondition(data)
+	conditions, err := convertToRateLimitingRuleCondition(ctx, data, client)
 	if err != nil {
 		return nil, err
 	} else {
 		input.Conditions = conditions
+	}
+	if HasValue(data.Sources.DataSet) {
+		return nil, utils.NewInvalidError("sources.data_set", "data_set field must not be present")
+	}
+	if HasValue(data.Sources.DataType) {
+		return nil, utils.NewInvalidError("sources.data_type", "data_type field must not be present ")
+	}
+	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
+		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
 	}
 
 	return &input, nil
@@ -350,9 +367,6 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 			return nil, err
 		}
 		model.Environments = environments
-		tflog.Trace(ctx, "Shreyansh Gupta 123", map[string]interface{}{
-			"environments": environments,
-		})
 
 	} else {
 		model.Environments = types.SetNull(types.StringType)
@@ -364,6 +378,8 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 	if data.Conditions != nil {
 		sources := models.RateLimitingSources{}
 		reqresarr := []models.RateLimitingRequestResponseCondition{}
+		dataSetarr := []models.RateLimitingDataSet{}
+		dataTypearr := []models.RateLimitingDataType{}
 		for _, condition := range data.GetConditions() {
 			leafCondition := condition.LeafCondition.LeafConditionFields
 			switch string(leafCondition.ConditionType) {
@@ -404,6 +420,32 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				}
 
 			case "DATATYPE":
+
+				if len(leafCondition.DatatypeCondition.GetDatasetIds()) > 0 {
+					dataSet := models.RateLimitingDataSet{}
+
+					dataSetsIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.DatatypeCondition.GetDatasetIds())
+					if err != nil {
+						return nil, err
+					}
+					if leafCondition.DatatypeCondition.DataLocation != nil {
+						dataSet.DataLocation = types.StringValue(string(*leafCondition.DatatypeCondition.DataLocation))
+					}
+					dataSet.DataSetsIds = dataSetsIds
+					dataSetarr = append(dataSetarr, dataSet)
+				}
+				if len(leafCondition.DatatypeCondition.GetDatatypeIds()) > 0 {
+					dataTypes := models.RateLimitingDataType{}
+					dataTypesIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.DatatypeCondition.GetDatatypeIds())
+					if err != nil {
+						return nil, err
+					}
+					if leafCondition.DatatypeCondition.DataLocation != nil {
+						dataTypes.DataLocation = types.StringValue(string(*leafCondition.DatatypeCondition.DataLocation))
+					}
+					dataTypes.DataTypesIds = dataTypesIds
+					dataTypearr = append(dataTypearr, dataTypes)
+				}
 
 			case "IP_ADDRESS":
 				ipAddressList, err := utils.ConvertStringPtrToTerraformSet(leafCondition.IpAddressCondition.GetIpAddresses())
@@ -476,21 +518,28 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				}
 
 			case "USER_ID":
-
-				userIdRegexes, err := utils.ConvertStringPtrToTerraformSet(leafCondition.UserIdCondition.GetUserIdRegexes())
-				if err != nil {
-					return nil, err
+				if leafCondition.UserIdCondition.GetUserIdRegexes() != nil && len(leafCondition.UserIdCondition.GetUserIdRegexes()) > 0 {
+					userIdRegexes, err := utils.ConvertStringPtrToTerraformSet(leafCondition.UserIdCondition.GetUserIdRegexes())
+					if err != nil {
+						return nil, err
+					}
+					sources.UserId = &models.RateLimitingUserIdSource{
+						UserIdRegexes: userIdRegexes,
+						UserIds:       types.SetNull(types.StringType),
+						Exclude:       types.BoolValue(*leafCondition.UserIdCondition.GetExclude()),
+					}
 				}
 
-				userIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.UserIdCondition.UserIds)
-				if err != nil {
-					return nil, err
-				}
-
-				sources.UserId = &models.RateLimitingUserIdSource{
-					UserIdRegexes: userIdRegexes,
-					UserIds:       userIds,
-					Exclude:       types.BoolValue(*leafCondition.UserIdCondition.GetExclude()),
+				if leafCondition.UserIdCondition.UserIds != nil && len(leafCondition.UserIdCondition.UserIds) > 0 {
+					userIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.UserIdCondition.UserIds)
+					if err != nil {
+						return nil, err
+					}
+					sources.UserId = &models.RateLimitingUserIdSource{
+						UserIds:       userIds,
+						UserIdRegexes: types.SetNull(types.StringType),
+						Exclude:       types.BoolValue(*leafCondition.UserIdCondition.GetExclude()),
+					}
 				}
 
 			case "IP_ORGANISATION":
@@ -512,6 +561,9 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					IpAsnRegexes: ipAsnRegexes,
 					Exclude:      types.BoolValue(*leafCondition.IpAsnCondition.GetExclude()),
 				}
+			case "IP_ABUSE_VELOCITY":
+				sources.IpAbuseVelocity = types.StringValue(string(leafCondition.IpAbuseVelocityCondition.GetMinIpAbuseVelocity()))
+
 			}
 
 		}
@@ -521,25 +573,86 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 		if !endpointLabelScope {
 			sources.EndpointLabels = types.SetNull(types.StringType)
 		}
-		reqresset, diags := types.SetValueFrom(
-			ctx,
-			types.ObjectType{
-				AttrTypes: map[string]attr.Type{
-					"metadata_type":  types.StringType,
-					"value":          types.StringType,
-					"key_operator":   types.StringType,
-					"key_value":      types.StringType,
-					"value_operator": types.StringType,
-				},
+		requestResponseObjectType := types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"metadata_type":  types.StringType,
+				"value":          types.StringType,
+				"key_operator":   types.StringType,
+				"key_value":      types.StringType,
+				"value_operator": types.StringType,
 			},
-			reqresarr,
-		)
-		if diags.HasError() {
-			return nil, fmt.Errorf("Threshold config conversion failed")
 		}
-		sources.RequestResponse = reqresset
+		if len(reqresarr) > 0 {
+			reqresset, diags := types.SetValueFrom(
+				ctx,
+				requestResponseObjectType,
+				reqresarr,
+			)
+			if diags.HasError() {
+				return nil, fmt.Errorf("request response conversion failed")
+			}
+			sources.RequestResponse = reqresset
+		} else {
+			sources.RequestResponse = types.SetNull(requestResponseObjectType)
+		}
+		if len(reqresarr) > 0 {
+			reqresset, diags := types.SetValueFrom(
+				ctx,
+				requestResponseObjectType,
+				reqresarr,
+			)
+
+			if diags.HasError() {
+				return nil, fmt.Errorf("request response conversion failed")
+			}
+			sources.RequestResponse = reqresset
+		} else {
+			sources.RequestResponse = types.SetNull(requestResponseObjectType)
+		}
+
+		dataSetObjectType := types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"data_location": types.StringType,
+				"data_sets_ids": types.SetType{ElemType: types.StringType},
+			},
+		}
+		if len(dataSetarr) > 0 {
+			dataSetset, diags := types.SetValueFrom(
+				ctx,
+				dataSetObjectType,
+				dataSetarr,
+			)
+			if diags.HasError() {
+				return nil, fmt.Errorf("data Set conversion failed")
+			}
+			sources.DataSet = dataSetset
+		} else {
+			sources.DataSet = types.SetNull(dataSetObjectType)
+		}
+
+		dataTypeObjectType := types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"data_location":  types.StringType,
+				"data_types_ids": types.SetType{ElemType: types.StringType},
+			},
+		}
+		if len(dataTypearr) > 0 {
+			dataTypeSet, diags := types.SetValueFrom(
+				ctx,
+				dataTypeObjectType,
+				dataTypearr,
+			)
+			if diags.HasError() {
+				return nil, fmt.Errorf("data type conversion failed")
+			}
+			sources.DataType = dataTypeSet
+		} else {
+			sources.DataType = types.SetNull(dataTypeObjectType)
+		}
 		model.Sources = &sources
+
 	}
+
 	if data.GetThresholdActionConfigs() != nil && len(data.ThresholdActionConfigs) == 1 {
 
 		config := data.ThresholdActionConfigs[0]
@@ -551,6 +664,18 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 
 				actiontemp := models.RateLimitingAction{}
 				switch string(action.GetActionType()) {
+
+				case "ALLOW":
+					actiontemp.ActionType = types.StringValue("ALLOW")
+					actions = append(actions, actiontemp)
+					actiontemp.HeaderInjections = types.SetNull(types.ObjectType{
+						AttrTypes: map[string]attr.Type{
+							"key":   types.StringType,
+							"value": types.StringType,
+						},
+					})
+					actions = append(actions, actiontemp)
+
 				case "ALERT":
 					actiontemp.ActionType = types.StringValue("ALERT")
 					if action.Alert != nil {
@@ -564,6 +689,7 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 								Key:   types.StringValue(header.HeaderInjection.GetKey()),
 								Value: types.StringValue(header.GetHeaderInjection().Value),
 							}
+
 							headerInjections = append(headerInjections, headerInj)
 						}
 						headerInjectionSet, diag := types.SetValueFrom(
@@ -595,7 +721,15 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					actiontemp.ActionType = types.StringValue("BLOCK")
 					if action.Block != nil {
 						actiontemp.EventSeverity = types.StringValue(string(action.Block.GetEventSeverity()))
-						actiontemp.Duration = types.StringValue(*action.Block.GetDuration())
+						if action.Block.GetUseThresholdDuration() != nil {
+							actiontemp.Duration = types.StringValue(*action.Block.GetDuration())
+						}
+						actiontemp.HeaderInjections = types.SetNull(types.ObjectType{
+							AttrTypes: map[string]attr.Type{
+								"key":   types.StringType,
+								"value": types.StringType,
+							},
+						})
 					}
 					actions = append(actions, actiontemp)
 
@@ -622,11 +756,13 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 						headerInjections,
 					)
 					if diag.HasError() {
-						return nil, fmt.Errorf("Threshold config conversion failed")
+						return nil, fmt.Errorf("Header Injection  failed")
 					}
 					actiontemp.HeaderInjections = headerInjectionSet
+					actions = append(actions, actiontemp)
 
 				}
+				actions = append(actions, actiontemp)
 
 			}
 			model.Action = actions[0]
@@ -654,12 +790,18 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 					thresholdConfig.DynamicMeanCalculationDuration = types.StringValue(threshold.GetDynamicThresholdConfig().GetMeanCalculationDuration())
 					thresholdConfig.DynamicPercentageExcedingMeanAllowed = types.Int64Value(threshold.GetDynamicThresholdConfig().GetPercentageExceedingMeanAllowed())
 				}
+				if threshold.GetValueBasedThresholdConfig() != nil {
+					thresholdConfig.ApiAggregateType = types.StringValue(string(threshold.GetApiAggregateType()))
+					thresholdConfig.UserAggregateType = types.StringValue(string(threshold.GetUserAggregateType()))
+					thresholdConfig.ValueType = types.StringValue(string(threshold.GetValueBasedThresholdConfig().GetValueType()))
+					thresholdConfig.UniqueValuesAllowed = types.Int64Value(threshold.GetValueBasedThresholdConfig().GetUniqueValuesAllowed())
+					thresholdConfig.Duration = types.StringValue(threshold.GetValueBasedThresholdConfig().GetDuration())
+					if threshold.GetValueBasedThresholdConfig().GetSensitiveParamsEvaluationType() != nil {
+						thresholdConfig.SensitiveParamsEvaluationType = types.StringValue(string(*threshold.GetValueBasedThresholdConfig().GetSensitiveParamsEvaluationType()))
+					}
+				}
 				thresholdConfigs = append(thresholdConfigs, thresholdConfig)
 			}
-			tflog.Trace(ctx, "Shreyansh Gupta powerful", map[string]interface{}{
-				"thresholdConfigs": len(thresholdConfigs),
-			})
-
 			thresholdConfigsSet, diags := types.SetValueFrom(
 				ctx,
 				types.ObjectType{
@@ -672,21 +814,27 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 						"dynamic_mean_calculation_duration":        types.StringType,
 						"dynamic_duration":                         types.StringType,
 						"dynamic_percentage_exceding_mean_allowed": types.Int64Type,
+						"value_type":                               types.StringType,
+						"unique_values_allowed":                    types.Int64Type,
+						"duration":                                 types.StringType,
+						"sensitive_params_evaluation_type":         types.StringType,
 					},
 				},
 				thresholdConfigs,
 			)
 			if diags.HasError() {
+				// diags.Append(fmt.Errorf("Threshold config conversion failed"))
+				// resp.Diagnostics.Append(diags)
 				return nil, fmt.Errorf("Threshold config conversion failed")
 			}
 			model.ThresholdConfigs = thresholdConfigsSet
 		}
 
 	}
-	tflog.Trace(ctx, "Shreyansh Gupta 2")
-	return &model, nil
-}
 
+	return &model, nil
+
+}
 func convertToRateLimitingRuleStatus(data *models.RateLimitingRuleModel) (*generated.InputRateLimitingRuleStatus, error) {
 	var internal = false
 	var status *generated.InputRateLimitingRuleStatus
@@ -854,11 +1002,110 @@ func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitin
 					},
 				}
 				thresholdConfigs = append(thresholdConfigs, thresholdConfig)
-			default:
-				return nil, utils.NewInvalidError("threshold_configs threshold_config_type", fmt.Sprintf("%s is not a vaidl thresholdConfigType", config.ThresholdConfigType.ValueString()))
 
+			case "VALUE_BASED":
+
+				if !HasValue(config.ValueType) {
+					return nil, utils.NewInvalidError("threshold_configs value_type", "ValueType must be present and not empty")
+
+				}
+				if !HasValue(config.ApiAggregateType) {
+					return nil, utils.NewInvalidError("threshold_configs api_aggregate_type", "ApiAggregateType must be present and not empty")
+				}
+				if !HasValue(config.UserAggregateType) {
+					return nil, utils.NewInvalidError("threshold_configs user_aggregate_type", "UserAggregateType must be present and not empty")
+				}
+				apiAggregateType, exists := RateLimitingApiAggregateMap[config.ApiAggregateType.ValueString()]
+				if !exists {
+					return nil, utils.NewInvalidError("threshold_configs api_aggregate_type", fmt.Sprintf("%s is not a valid api_aggregate_type", config.ApiAggregateType.ValueString()))
+				}
+				userAggregateType, exists := RateLimitingUserAggregateMap[config.UserAggregateType.ValueString()]
+				if !exists {
+					return nil, utils.NewInvalidError("threshold_configs user_aggregate_type", fmt.Sprintf("%s is not a valid user_aggregate_type", config.UserAggregateType.ValueString()))
+				}
+				if !HasValue(config.ValueType) {
+					return nil, utils.NewInvalidError("threshold_configs value_type", "ValueType must be present and not empty")
+				}
+				valueType, exists := valueBasedThresholdConfigMap[config.ValueType.ValueString()]
+				if !exists {
+					return nil, utils.NewInvalidError("threshold_configs value_type", fmt.Sprintf("%s is not a valid valueType", config.ValueType.ValueString()))
+				}
+				switch config.ValueType.ValueString() {
+
+				case "SENSITIVE_PARAMS":
+					if !HasValue(config.SensitiveParamsEvaluationType) {
+						return nil, utils.NewInvalidError("threshold_configs sensitive_params_evaluation_type", "SensitiveParamsEvaluationType must be present and not empty")
+					}
+					if !HasValue(config.UniqueValuesAllowed) {
+						return nil, utils.NewInvalidError("threshold_configs unique_values_allowed", "UniqueValuesAllowed must be present and not empty")
+					}
+					if !HasValue(config.Duration) {
+						return nil, utils.NewInvalidError("threshold_configs duration", "Duration must be present and not empty")
+					}
+					sensitiveParamsEvaluationType, exists := RateLimitingSensitiveParamsEvaluationTypeMap[config.SensitiveParamsEvaluationType.ValueString()]
+					if !exists {
+						return nil, utils.NewInvalidError("threshold_configs sensitive_params_evaluation_type", fmt.Sprintf("%s is not a valid  sensitiveParamsEvaluationType", config.SensitiveParamsEvaluationType.ValueString()))
+					}
+					uniqueValuesAllowed := config.UniqueValuesAllowed.ValueInt64()
+					duration := config.Duration.ValueString()
+
+					thresholdConfig := &generated.InputRateLimitingRuleThresholdConfig{
+						ThresholdConfigType: generated.RateLimitingRuleThresholdConfigTypeValueBased,
+						ApiAggregateType:    apiAggregateType,
+						UserAggregateType:   userAggregateType,
+						ValueBasedThresholdConfig: &generated.InputValueBasedThresholdConfig{
+							ValueType:                     valueType,
+							UniqueValuesAllowed:           uniqueValuesAllowed,
+							Duration:                      duration,
+							SensitiveParamsEvaluationType: &sensitiveParamsEvaluationType,
+						},
+					}
+					thresholdConfigs = append(thresholdConfigs, thresholdConfig)
+
+				case "PATH_PARAMS":
+					if !HasValue(config.UniqueValuesAllowed) {
+						return nil, utils.NewInvalidError("threshold_configs unique_values_allowed", "UniqueValuesAllowed must be present and not empty")
+					}
+					if !HasValue(config.Duration) {
+						return nil, utils.NewInvalidError("threshold_configs duration", "Duration must be present and not empty")
+					}
+					uniqueValuesAllowed := config.UniqueValuesAllowed.ValueInt64()
+					duration := config.Duration.ValueString()
+
+					thresholdConfig := &generated.InputRateLimitingRuleThresholdConfig{
+						ThresholdConfigType: generated.RateLimitingRuleThresholdConfigTypeValueBased,
+						ApiAggregateType:    apiAggregateType,
+						UserAggregateType:   userAggregateType,
+						ValueBasedThresholdConfig: &generated.InputValueBasedThresholdConfig{
+							ValueType:           valueType,
+							UniqueValuesAllowed: uniqueValuesAllowed,
+							Duration:            duration,
+						},
+					}
+					thresholdConfigs = append(thresholdConfigs, thresholdConfig)
+				case "REQUEST_BODY":
+					if !HasValue(config.UniqueValuesAllowed) {
+						return nil, utils.NewInvalidError("threshold_configs unique_values_allowed", "UniqueValuesAllowed must be present and not empty")
+					}
+					if !HasValue(config.Duration) {
+						return nil, utils.NewInvalidError("threshold_configs duration", "Duration must be present and not empty")
+					}
+					uniqueValuesAllowed := config.UniqueValuesAllowed.ValueInt64()
+					duration := config.Duration.ValueString()
+
+					thresholdConfig := &generated.InputRateLimitingRuleThresholdConfig{
+						ThresholdConfigType: generated.RateLimitingRuleThresholdConfigTypeValueBased,
+						ApiAggregateType:    apiAggregateType,
+						UserAggregateType:   userAggregateType,
+						ValueBasedThresholdConfig: &generated.InputValueBasedThresholdConfig{
+							ValueType:           valueType,
+							UniqueValuesAllowed: uniqueValuesAllowed,
+							Duration:            duration,
+						},
+					}
+					thresholdConfigs = append(thresholdConfigs, thresholdConfig)
+				}
 			}
-
 		}
 
 	} else {
@@ -912,7 +1159,7 @@ func convertToRateLimitingRuleAgentEffect(data *models.RateLimitingRuleModel) (*
 
 }
 
-func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*generated.InputRateLimitingRuleCondition, error) {
+func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLimitingRuleModel, client *graphql.Client) ([]*generated.InputRateLimitingRuleCondition, error) {
 
 	conditions := []*generated.InputRateLimitingRuleCondition{}
 
@@ -1076,15 +1323,11 @@ func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*
 				conditions = append(conditions, &input)
 			}
 		}
-		// labels ki id chaiye
-		if HasValue(data.Sources.EndpointLabels) {
-			labelIds := []*string{}
-			for _, label := range data.Sources.EndpointLabels.Elements() {
-				if label, ok := label.(types.String); ok {
-					id := label.ValueString()
-					labelIds = append(labelIds, &id)
 
-				}
+		if HasValue(data.Sources.EndpointLabels) {
+			endpointLabelsIds, err := utils.ConvertSetToStrPointer(data.Sources.EndpointLabels)
+			if err != nil {
+				return nil, fmt.Errorf("converting endpoint labels to string pointer fails")
 			}
 			var input = generated.InputRateLimitingRuleCondition{
 				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
@@ -1092,7 +1335,7 @@ func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*
 					ScopeCondition: &generated.InputRateLimitingRuleScopeCondition{
 						ScopeType: generated.RateLimitingRuleScopeConditionTypeLabel,
 						LabelScope: &generated.InputRateLimitingRuleLabelScope{
-							LabelIds:  labelIds,
+							LabelIds:  endpointLabelsIds,
 							LabelType: generated.RateLimitingRuleLabelTypeApi,
 						},
 					},
@@ -1100,10 +1343,8 @@ func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*
 			}
 			conditions = append(conditions, &input)
 		}
-
-		//endpoint id chaiye
+		//Endpoint id
 		if HasValue(data.Sources.Endpoints) {
-
 			endpointIds := []*string{}
 			for _, endpoint := range data.Sources.Endpoints.Elements() {
 				if endpoint, ok := endpoint.(types.String); ok {
@@ -1288,13 +1529,20 @@ func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*
 				return nil, utils.NewInvalidError("sources regions region_ids", " Must be present and not empty")
 			}
 			regionIdentifieres := []*generated.InputRateLimitingRegionIdentifier{}
-			for _, region := range data.Sources.Regions.RegionsIds.Elements() {
-				if region, ok := region.(types.String); ok {
-					identifiers := &generated.InputRateLimitingRegionIdentifier{
-						CountryIsoCode: region.ValueString(),
-					}
-					regionIdentifieres = append(regionIdentifieres, identifiers)
+
+			regions, err := utils.ConvertSetToStrPointer(data.Sources.Regions.RegionsIds)
+			if err != nil {
+				return nil, fmt.Errorf("converting regions to string pointer fails")
+			}
+			_, err = GetCountriesId(regions, ctx, *client)
+			if err != nil {
+				return nil, err
+			}
+			for _, region := range regions {
+				identifiers := &generated.InputRateLimitingRegionIdentifier{
+					CountryIsoCode: *region,
 				}
+				regionIdentifieres = append(regionIdentifieres, identifiers)
 			}
 			exclude := data.Sources.Regions.Exclude.ValueBool()
 			var input = generated.InputRateLimitingRuleCondition{
@@ -1396,6 +1644,88 @@ func convertToRateLimitingRuleCondition(data *models.RateLimitingRuleModel) ([]*
 
 		}
 
+		if HasValue(data.Sources.DataSet) {
+			fmt.Println("Shreyansh Gupta from dataset")
+			dataSets := []models.RateLimitingDataSet{}
+			err := utils.ConvertElementsSet(data.Sources.DataSet, &dataSets)
+			if err != nil {
+				return nil, fmt.Errorf("converting data_set set to slice fails")
+			}
+
+			for _, dataSet := range dataSets {
+
+				if !HasValue(dataSet.DataSetsIds) {
+					return nil, utils.NewInvalidError("data_sets_ids", " Must be present and not empty")
+				}
+				dataSetIds, err := utils.ConvertSetToStrPointer(dataSet.DataSetsIds)
+				if err != nil {
+					return nil, fmt.Errorf("converting data_sets_ids set to slice fails")
+				}
+				var dataLocation *generated.RateLimitingRuleDataLocation
+				if !HasValue(dataSet.DataLocation) {
+					dataLocation = nil
+				} else {
+					dataLocationPtr, exists := RateLimitingDataLocationMap[dataSet.DataLocation.ValueString()]
+					if !exists {
+						return nil, utils.NewInvalidError("data_location", fmt.Sprintf(" %s Inavlid dataLocation", dataSet.DataLocation.ValueString()))
+					}
+					dataLocation = &dataLocationPtr
+				}
+				input := generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
+						DatatypeCondition: &generated.InputRateLimitingRuleDatatypeCondition{
+							DataLocation: dataLocation,
+							DatasetIds:   dataSetIds,
+						},
+					},
+				}
+
+				conditions = append(conditions, &input)
+			}
+
+		}
+
+		if HasValue(data.Sources.DataType) {
+			dataTypes := []models.RateLimitingDataType{}
+			err := utils.ConvertElementsSet(data.Sources.DataType, &dataTypes)
+			if err != nil {
+				return nil, fmt.Errorf("converting data_type set to slice fails")
+			}
+
+			for _, dataType := range dataTypes {
+
+				if !HasValue(dataType.DataTypesIds) {
+					return nil, utils.NewInvalidError("data_types_ids", " Must be present and not empty")
+				}
+
+				dataTypesIds, err := utils.ConvertSetToStrPointer(dataType.DataTypesIds)
+				if err != nil {
+					return nil, fmt.Errorf("converting data_types_ids set to slice fails")
+				}
+				var dataLocation *generated.RateLimitingRuleDataLocation
+				if !HasValue(dataType.DataLocation) {
+					dataLocation = nil
+				} else {
+					dataLocationPtr, exists := RateLimitingDataLocationMap[dataType.DataLocation.ValueString()]
+					if !exists {
+						return nil, utils.NewInvalidError("data_location", fmt.Sprintf(" %s Inavlid dataLocation", dataType.DataLocation.ValueString()))
+					}
+					dataLocation = &dataLocationPtr
+				}
+				input := generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
+						DatatypeCondition: &generated.InputRateLimitingRuleDatatypeCondition{
+							DataLocation: dataLocation,
+							DatatypeIds:  dataTypesIds,
+						},
+					},
+				}
+
+				conditions = append(conditions, &input)
+			}
+		}
 	}
 	return conditions, nil
 

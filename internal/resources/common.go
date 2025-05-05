@@ -12,6 +12,43 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/internal/utils"
 )
 
+var CustomSignatureKeyValuesExpressionMap = map[string]generated.CustomSignatureRuleKeyValueTag{
+	"HEADER":    generated.CustomSignatureRuleKeyValueTagHeader,
+	"PARAMETER": generated.CustomSignatureRuleKeyValueTagParameter,
+	"COOKIE":    generated.CustomSignatureRuleKeyValueTagCookie,
+}
+
+var CustomSignatureRuleMatchCategoryMap = map[string]generated.CustomSignatureRuleMatchCategory{
+	"REQUEST":  generated.CustomSignatureRuleMatchCategoryRequest,
+	"RESPONSE": generated.CustomSignatureRuleMatchCategoryResponse,
+}
+
+var CustomSignatureRuleEventTypeMap = map[string]generated.CustomSignatureRuleEventType{
+	"TESTING_DETECTION":      generated.CustomSignatureRuleEventTypeTestingDetection,
+	"NORMAL_DETECTION":       generated.CustomSignatureRuleEventTypeNormalDetection,
+	"DETECTION_AND_BLOCKING": generated.CustomSignatureRuleEventTypeDetectionAndBlocking,
+	"ALLOW":                  generated.CustomSignatureRuleEventTypeAllow,
+}
+
+var CustomSignatureRuleMatchKeyMap = map[string]generated.CustomSignatureRuleMatchKey{
+	"URL":                generated.CustomSignatureRuleMatchKeyUrl,
+	"HEADER_NAME":        generated.CustomSignatureRuleMatchKeyHeaderName,
+	"HEADER_VALUE":       generated.CustomSignatureRuleMatchKeyHeaderValue,
+	"PARAMETER_NAME":     generated.CustomSignatureRuleMatchKeyParameterName,
+	"PARAMETER_VALUE":    generated.CustomSignatureRuleMatchKeyParameterValue,
+	"HTTP_METHOD":        generated.CustomSignatureRuleMatchKeyHttpMethod,
+	"HOST":               generated.CustomSignatureRuleMatchKeyHost,
+	"USER_AGENT":         generated.CustomSignatureRuleMatchKeyUserAgent,
+	"STATUS_CODE":        generated.CustomSignatureRuleMatchKeyStatusCode,
+	"BODY":               generated.CustomSignatureRuleMatchKeyBody,
+	"BODY_SIZE":          generated.CustomSignatureRuleMatchKeyBodySize,
+	"COOKIE_NAME":        generated.CustomSignatureRuleMatchKeyCookieName,
+	"COOKIE_VALUE":       generated.CustomSignatureRuleMatchKeyCookieValue,
+	"QUERY_PARAMS_COUNT": generated.CustomSignatureRuleMatchKeyQueryParamsCount,
+	"HEADERS_COUNT":      generated.CustomSignatureRuleMatchKeyHeadersCount,
+	"COOKIES_COUNT":      generated.CustomSignatureRuleMatchKeyCookiesCount,
+}
+
 var RateLimitingRuleEventSeverityMap = map[string]generated.RateLimitingRuleEventSeverity{
 	"LOW":      generated.RateLimitingRuleEventSeverityLow,
 	"MEDIUM":   generated.RateLimitingRuleEventSeverityMedium,
@@ -179,6 +216,20 @@ var MaliciousIpTypeMap = map[string]generated.MaliciousSourcesRuleIpLocationType
 	"PUBLIC_PROXY":     generated.MaliciousSourcesRuleIpLocationTypePublicProxy,
 	"TOR_EXIT_NODE":    generated.MaliciousSourcesRuleIpLocationTypeTorExitNode,
 	"BOT":              generated.MaliciousSourcesRuleIpLocationTypeBot,
+}
+
+var RateLimitingDataLocationMap = map[string]generated.RateLimitingRuleDataLocation{
+	"REQUEST":  generated.RateLimitingRuleDataLocationRequest,
+	"RESPONSE": generated.RateLimitingRuleDataLocationResponse,
+}
+var RateLimitingValueBasedThresholdConfigTypeMap = map[string]generated.ValueBasedThresholdConfigType{
+	"REQUEST_BODY":     generated.ValueBasedThresholdConfigTypeRequestBody,
+	"SENSITIVE_PARAMS": generated.ValueBasedThresholdConfigTypeSensitiveParams,
+	"PATH_PARAMS":      generated.ValueBasedThresholdConfigTypePathParams,
+}
+var RateLimitingSensitiveParamsEvaluationTypeMap = map[string]generated.SensitiveParamsEvaluationType{
+	"ALL":                 generated.SensitiveParamsEvaluationTypeAll,
+	"SELECTED_DATA_TYPES": generated.SensitiveParamsEvaluationTypeSelectedDataTypes,
 }
 
 var MaliciousEmailDomainEventSeverityMap = map[string]generated.MaliciousSourcesRuleEventSeverity{
