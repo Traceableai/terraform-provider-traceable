@@ -101,8 +101,12 @@ func (r *CustomSignatureResource) Read(ctx context.Context, req resource.ReadReq
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
+	if response == nil {
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
-	updatedData, err := convertCustomSignatureFieldsToModel(ctx, &response)
+	updatedData, err := convertCustomSignatureFieldsToModel(ctx, response)
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
@@ -164,22 +168,22 @@ func (r *CustomSignatureResource) Delete(ctx context.Context, req resource.Delet
 	resp.State.RemoveResource(ctx)
 }
 
-func getCustomSignatureRule(id string, ctx context.Context, r graphql.Client) (generated.CustomSignatureFields, error) {
+func getCustomSignatureRule(id string, ctx context.Context, r graphql.Client) (*generated.CustomSignatureFields, error) {
 	customSignatureFeilds := generated.CustomSignatureFields{}
 	filter := &generated.InputCustomSignatureRulesFilter{}
 	response, err := generated.GetCustomSignature(ctx, r, *filter)
 	if err != nil {
-		return customSignatureFeilds, err
+		return nil, err
 	}
 
 	for _, rule := range response.CustomSignatureRules.Results {
 		if rule.Id == id {
 			customSignatureFeilds = rule.CustomSignatureFields
-			return customSignatureFeilds, nil
+			return &customSignatureFeilds, nil
 		}
 	}
 
-	return customSignatureFeilds, nil
+	return nil, nil
 }
 
 func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.CustomSignatureFields) (*models.CustomSignatureModel, error) {
@@ -632,7 +636,7 @@ func (r *CustomSignatureResource) ImportState(ctx context.Context, req resource.
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
-	data, err := convertCustomSignatureFieldsToModel(ctx, &response)
+	data, err := convertCustomSignatureFieldsToModel(ctx, response)
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
