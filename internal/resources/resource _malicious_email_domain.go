@@ -14,6 +14,7 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/internal/utils"
 )
 
+// Value needs to be set to MIN_SEVERITY for user to set MinEmailFraudScoreLevel, since value for EmailFraudScoreType will be constant, not exposing to the end user
 const DefaultEmailFraudScoreType = "MIN_SEVERITY"
 
 func NewMaliciousEmailDomainResource() resource.Resource {
