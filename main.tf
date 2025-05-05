@@ -4,17 +4,13 @@ terraform {
       source  = "traceableai/traceable"
       version = "0.0.1"
     }
-    # aws = {
-    #   source  = "hashicorp/aws"
-    #   version = "5.35.0"
-    # }
   }
 }
 
 //object empty ka case check karna hai 
 provider "traceable" {
-  platform_url ="https://api-dev.traceable.ai"
-  api_token    =""
+  platform_url = "https://api-dev.traceable.ai"
+  api_token    = ""
 }
 
 # data "traceable_endpoint_labels" "sample1"{
