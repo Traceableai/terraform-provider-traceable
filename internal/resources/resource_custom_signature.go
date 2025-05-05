@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Khan/genqlient/graphql"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -155,29 +156,37 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 	for _, clause := range clauses {
 		clauseType := clause.GetClauseType()
 		if clauseType == "MATCH_EXPRESSION" || clauseType == "KEY_VALUE_EXPRESSION" {
-			matchCategory := clause.GetMatchExpression().GetMatchCategory()
-			matchKey := clause.GetMatchExpression().GetMatchKey()
-			valueMatchOperator := clause.GetMatchExpression().GetMatchOperator()
-			matchValue := clause.GetMatchExpression().GetMatchValue()
-			var keyValueTag string
-			var KeyMatchOperator string
 			if clauseType == "KEY_VALUE_EXPRESSION" {
-				keyValueTag = string(clause.GetKeyValueExpression().GetKeyValueTag())
-				KeyMatchOperator = string(clause.GetKeyValueExpression().GetKeyMatchOperator())
+				matchCategory := clause.GetKeyValueExpression().GetMatchCategory()
+				matchKey := clause.GetKeyValueExpression().GetMatchKey()
+				valueMatchOperator := clause.GetKeyValueExpression().GetValueMatchOperator()
+				matchValue := clause.GetKeyValueExpression().GetMatchValue()
+				keyValueTag := string(clause.GetKeyValueExpression().GetKeyValueTag())
+				KeyMatchOperator := string(clause.GetKeyValueExpression().GetKeyMatchOperator())
+				kvTag := types.StringValue(keyValueTag)
+				keyMatchOp := types.StringValue(KeyMatchOperator)
+				requestReponseModel = append(requestReponseModel, models.RequestResponseModel{
+					MatchCategory:      types.StringValue(string(*matchCategory)),
+					MatchKey:           types.StringValue(string(matchKey)),
+					ValueMatchOperator: types.StringValue(string(valueMatchOperator)),
+					MatchValue:         types.StringValue(matchValue),
+					KeyValueTag:        kvTag,
+					KeyMatchOperator:   keyMatchOp,
+				})
 			} else {
-				keyValueTag = ""
-				KeyMatchOperator = ""
+				matchCategory := clause.GetMatchExpression().GetMatchCategory()
+				matchKey := clause.GetMatchExpression().GetMatchKey()
+				valueMatchOperator := clause.GetMatchExpression().GetMatchOperator()
+				matchValue := clause.GetMatchExpression().GetMatchValue()
+				requestReponseModel = append(requestReponseModel, models.RequestResponseModel{
+					MatchCategory:      types.StringValue(string(*matchCategory)),
+					MatchKey:           types.StringValue(string(matchKey)),
+					ValueMatchOperator: types.StringValue(string(valueMatchOperator)),
+					MatchValue:         types.StringValue(*matchValue),
+					KeyValueTag:        types.StringNull(),
+					KeyMatchOperator:   types.StringNull(),
+				})
 			}
-			kvTag := types.StringValue(keyValueTag)
-			keyMatchOp := types.StringValue(KeyMatchOperator)
-			requestReponseModel = append(requestReponseModel, models.RequestResponseModel{
-				MatchCategory:      types.StringValue(string(*matchCategory)),
-				MatchKey:           types.StringValue(string(matchKey)),
-				ValueMatchOperator: types.StringValue(string(valueMatchOperator)),
-				MatchValue:         types.StringValue(*matchValue),
-				KeyValueTag:        &kvTag,
-				KeyMatchOperator:   &keyMatchOp,
-			})
 		} else if clauseType == "ATTRIBUTE_KEY_VALUE_EXPRESSION" {
 			keyConditionOperator := clause.GetAttributeKeyValueExpression().GetKeyCondition().GetOperator()
 			keyConditionValue := clause.GetAttributeKeyValueExpression().GetKeyCondition().GetValue()
@@ -188,22 +197,64 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 			attributeConditionModel = append(attributeConditionModel, models.AttributeConditionModel{
 				KeyConditionOperator:   types.StringValue(string(keyConditionOperator)),
 				KeyConditionValue:      types.StringValue(string(keyConditionValue)),
-				ValueConditionOperator: &valConditionOperator,
-				ValueConditionValue:    &valConditionValue,
+				ValueConditionOperator: valConditionOperator,
+				ValueConditionValue:    valConditionValue,
 			})
 		} else if clauseType == "CUSTOM_SEC_RULE" {
 			customSignatureModel.PayloadCriteria.CustomSecRule = types.StringValue(*clause.GetCustomSecRule().GetInputSecRuleString())
 		}
 	}
-	customSignatureModel.PayloadCriteria.RequestResponse = requestReponseModel
-	customSignatureModel.PayloadCriteria.Attributes = attributeConditionModel
+	requestResponseObjectType := types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"key_value_tag":        types.StringType,
+			"match_category":       types.StringType,
+			"key_match_operator":   types.StringType,
+			"match_key":            types.StringType,
+			"value_match_operator": types.StringType,
+			"match_value":          types.StringType,
+		},
+	}
+	if len(requestReponseModel) > 0 {
+		reqresset, diags := types.SetValueFrom(
+			ctx,
+			requestResponseObjectType,
+			requestReponseModel,
+		)
+		if diags.HasError() {
+			return nil, fmt.Errorf("request response conversion failed")
+		}
+		customSignatureModel.PayloadCriteria.RequestResponse = reqresset
+	} else {
+		customSignatureModel.PayloadCriteria.RequestResponse = types.SetNull(requestResponseObjectType)
+	}
+	attributesObjectType := types.ObjectType{
+		AttrTypes: map[string]attr.Type{
+			"key_condition_operator":   types.StringType,
+			"key_condition_value":      types.StringType,
+			"value_condition_operator": types.StringType,
+			"value_condition_value":    types.StringType,
+		},
+	}
+	if len(attributeConditionModel) > 0 {
+		attributesSet, diags := types.SetValueFrom(
+			ctx,
+			attributesObjectType,
+			attributeConditionModel,
+		)
+		if diags.HasError() {
+			return nil, fmt.Errorf("request response conversion failed")
+		}
+		customSignatureModel.PayloadCriteria.Attributes = attributesSet
+	} else {
+		customSignatureModel.PayloadCriteria.Attributes = types.SetNull(attributesObjectType)
+	}
 	ruleEffect := data.RuleEffect
 	eventSev := types.StringValue(string(*ruleEffect.GetEventSeverity()))
 	eventType := types.StringValue(string(ruleEffect.GetEventType()))
-	customSignatureModel.Action.EventSeverity = &eventSev
+	customSignatureModel.Action.EventSeverity = eventSev
 	customSignatureModel.Action.ActionType = eventType
 	duration := types.StringValue(string(*data.GetBlockingExpirationDuration()))
-	customSignatureModel.Action.Duration = &duration
+	customSignatureModel.Action.Duration = duration
 	return &customSignatureModel, nil
 }
 
@@ -255,6 +306,8 @@ func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.
 		disabled := data.Disabled.ValueBool()
 		input.Disabled = &disabled
 	}
+	internal:=false
+	input.Internal = &internal
 	scope, err := convertToCustomSignatureRuleConfigScope(data.Environments)
 	if err != nil {
 		return nil, err
@@ -276,6 +329,9 @@ func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.
 	if HasValue(data.Action.Duration) {
 		duration := data.Action.Duration.ValueString()
 		input.BlockingExpirationDuration = &duration
+	}
+	if HasValue(data.PayloadCriteria.Attributes) && data.Action.ActionType == types.StringValue("ALLOW") {
+		return nil, utils.NewInvalidError("action_type", "action_type ALLOW is not valid with payload_criteria attributes")
 	}
 	return &input, nil
 }
@@ -345,6 +401,8 @@ func convertCustomSignatureModelToCreateInput(ctx context.Context, data *models.
 		disabled := data.Disabled.ValueBool()
 		input.Disabled = &disabled
 	}
+	internal:=false
+	input.Internal = &internal
 	scope, err := convertToCustomSignatureRuleConfigScope(data.Environments)
 	if err != nil {
 		return nil, err
@@ -366,6 +424,9 @@ func convertCustomSignatureModelToCreateInput(ctx context.Context, data *models.
 	if HasValue(data.Action.Duration) {
 		duration := data.Action.Duration.ValueString()
 		input.BlockingExpirationDuration = &duration
+	}
+	if HasValue(data.PayloadCriteria.Attributes) && data.Action.ActionType == types.StringValue("ALLOW") {
+		return nil, utils.NewInvalidError("action_type", "action_type ALLOW is not valid with payload_criteria attributes")
 	}
 	return &input, nil
 }
@@ -405,7 +466,12 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 	var customSignatureRuleClauseRequest []*generated.InputCustomSignatureRuleClauseRequest
 	if HasValue(data.PayloadCriteria) {
 		if HasValue(data.PayloadCriteria.RequestResponse) {
-			for _, reqResp := range data.PayloadCriteria.RequestResponse {
+			var customSigReqRes []*models.RequestResponseModel
+			err := utils.ConvertElementsSet(data.PayloadCriteria.RequestResponse, &customSigReqRes)
+			if err != nil {
+				return nil, fmt.Errorf("failed to convert elements: %v", err)
+			}
+			for _, reqResp := range customSigReqRes {
 				_, isValidMatchCat := CustomSignatureRuleMatchCategoryMap[reqResp.MatchCategory.ValueString()]
 				if !isValidMatchCat {
 					return nil, utils.NewInvalidError("sources request_response match_category", fmt.Sprintf(" %s Inavlid match_category", reqResp.MatchCategory.ValueString()))
@@ -422,10 +488,9 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 				}
 
 				var clause *generated.InputCustomSignatureRuleClauseRequest
-				_, isValidKeyValTag := CustomSignatureKeyValuesExpressionMap[reqResp.KeyValueTag.ValueString()]
-				if isValidKeyValTag {
-					if HasValue(reqResp.KeyValueTag.ValueString()) && HasValue(reqResp.KeyMatchOperator.ValueString()) {
-
+				if HasValue(reqResp.KeyValueTag) && HasValue(reqResp.KeyMatchOperator) {
+					_, isValidKeyValTag := CustomSignatureKeyValuesExpressionMap[reqResp.KeyValueTag.ValueString()]
+					if isValidKeyValTag {
 						_, KeyMatchOperator := RateLimitingKeyValueMatchOperatorMap[reqResp.KeyMatchOperator.ValueString()]
 						if !KeyMatchOperator {
 							return nil, utils.NewInvalidError("sources request_response key_match_operator", fmt.Sprintf(" %s Inavlid key_match_operator", reqResp.KeyMatchOperator.ValueString()))
@@ -449,9 +514,9 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 							},
 						}
 					} else {
-						return nil, utils.NewInvalidError("key_value_tag and key_match_operator", "Must be present and not empty")
+						return nil, utils.NewInvalidError("key_value_tag", fmt.Sprintf("%s not a valid key_value_tag", reqResp.KeyValueTag.ValueString()))
 					}
-				} else {
+				} else if !HasValue(reqResp.KeyValueTag) && !HasValue(reqResp.KeyMatchOperator) {
 					matchKey := generated.CustomSignatureRuleMatchKey(reqResp.MatchKey.ValueString())
 					matchCategory := generated.CustomSignatureRuleMatchCategory(reqResp.MatchCategory.ValueString())
 					valueMatchOperator := generated.CustomSignatureRuleMatchOperator(reqResp.ValueMatchOperator.ValueString())
@@ -465,12 +530,19 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 							MatchOperator: valueMatchOperator,
 						},
 					}
+				} else {
+					return nil, utils.NewInvalidError("key_value_tag or key_match_operator", "either both or none of them is required")
 				}
 				customSignatureRuleClauseRequest = append(customSignatureRuleClauseRequest, clause)
 			}
 		}
 		if HasValue(data.PayloadCriteria.Attributes) {
-			for _, attr := range data.PayloadCriteria.Attributes {
+			var customSigAttributes []*models.AttributeConditionModel
+			err := utils.ConvertElementsSet(data.PayloadCriteria.Attributes, &customSigAttributes)
+			if err != nil {
+				return nil, fmt.Errorf("failed to convert elements: %v", err)
+			}
+			for _, attr := range customSigAttributes {
 				_, keyCondtionOperatorExist := RateLimitingKeyValueMatchOperatorMap[attr.KeyConditionOperator.ValueString()]
 
 				if !keyCondtionOperatorExist {
@@ -542,4 +614,32 @@ func convertToCustomSignatureRuleConfigScope(environments types.Set) (*generated
 		},
 	}
 	return scope, nil
+}
+
+func (r *CustomSignatureResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	ruleName := req.ID
+	id, err := getCustomSignatureId(ruleName, ctx, *r.client)
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	if id == "" {
+		resp.Diagnostics.AddError("Resource Not Found", fmt.Sprintf("%s rule of this name not found", ruleName))
+		return
+	}
+	response, err := getCustomSignatureRule(id, ctx, *r.client)
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	data, err := convertCustomSignatureFieldsToModel(ctx, &response)
+
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
