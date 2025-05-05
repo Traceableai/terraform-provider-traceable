@@ -24,6 +24,10 @@ type RateLimitingThresholdConfig struct {
 	DynamicMeanCalculationDuration       types.String `tfsdk:"dynamic_mean_calculation_duration"`
 	DynamicDuration                      types.String `tfsdk:"dynamic_duration"`
 	DynamicPercentageExcedingMeanAllowed types.Int64  `tfsdk:"dynamic_percentage_exceding_mean_allowed"`
+	ValueType                            types.String `tfsdk:"value_type"`
+	UniqueValuesAllowed                  types.Int64  `tfsdk:"unique_values_allowed"`
+	Duration                             types.String `tfsdk:"duration"`
+	SensitiveParamsEvaluationType        types.String `tfsdk:"sensitive_params_evaluation_type"`
 }
 
 type RateLimitingAction struct {
@@ -54,6 +58,8 @@ type RateLimitingSources struct {
 	Regions          *RateLimitingRegionsSource          `tfsdk:"regions"`
 	IpOrganisation   *RateLimitingIpOrganisationSource   `tfsdk:"ip_organisation"`
 	RequestResponse  types.Set                           `tfsdk:"request_response"`
+	DataSet          types.Set                           `tfsdk:"data_set"`
+	DataType         types.Set                           `tfsdk:"data_type"`
 }
 
 type RateLimitingScannerSource struct {
@@ -114,4 +120,14 @@ type RateLimitingRequestResponseCondition struct {
 	KeyOperator   types.String `tfsdk:"key_operator"`
 	KeyValue      types.String `tfsdk:"key_value"`
 	ValueOperator types.String `tfsdk:"value_operator"`
+}
+
+type RateLimitingDataType struct {
+	DataLocation types.String `tfsdk:"data_location"`
+	DataTypesIds types.Set    `tfsdk:"data_types_ids"`
+}
+
+type RateLimitingDataSet struct {
+	DataLocation types.String `tfsdk:"data_location"`
+	DataSetsIds  types.Set    `tfsdk:"data_sets_ids"`
 }

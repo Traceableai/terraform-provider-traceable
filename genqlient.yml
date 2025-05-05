@@ -6,6 +6,7 @@ operations:
   - internal/queries/malicious_region.graphql
   - internal/queries/common.graphql
   - internal/queries/custom_signature.graphql
+  - internal/queries/malicious_ip_type.graphql
   
 generated: internal/generated/genqlient.go
 package: generated
@@ -26,5 +27,7 @@ bindings:
     type: string
   DateTime:
     type: string
+  Unknown:
+   type: interface{}  
 
 optional: pointer

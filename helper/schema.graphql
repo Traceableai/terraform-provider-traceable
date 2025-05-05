@@ -961,6 +961,9 @@ type AkamaiIntegrationDetails {
   """Akamai auth credentials"""
   authCredentials: AkamaiAuthCredentials!
 
+  """Akamai network list id"""
+  networkListId: String!
+
   """Akamai security policy configuration id"""
   configurationId: String!
 
@@ -1187,19 +1190,6 @@ enum AnalyticsQueryState {
 
 type AncestorTestResultDetails {
   testId: String!
-}
-
-type AnomalyActorExclusionInfo {
-  actorExclusionType: AnomalyActorExclusionType!
-  actorId: String
-}
-
-enum AnomalyActorExclusionType {
-  """ALL"""
-  ALL
-
-  """ACTOR"""
-  ACTOR
 }
 
 """API Param scope for anomaly configs"""
@@ -1460,24 +1450,6 @@ enum AnomalyEventCategory {
   BLOCKED
 }
 
-type AnomalyEventExclusionInfo {
-  eventExclusionType: AnomalyEventExclusionType!
-  eventFamily: AnomalyEventFamily
-  eventTypeId: String
-  eventTypeName: String
-}
-
-enum AnomalyEventExclusionType {
-  """ALL"""
-  ALL
-
-  """EVENT_TYPE"""
-  EVENT_TYPE
-
-  """EVENT_SUBTYPE"""
-  EVENT_SUBTYPE
-}
-
 enum AnomalyEventFamily {
   """UNKNOWN"""
   UNKNOWN
@@ -1530,13 +1502,6 @@ type AnomalyExclusionConfigOptions {
   paramScopeApplicable: Boolean! @deprecated(reason: "Deprecated")
 }
 
-type AnomalyExclusionRuleConfig {
-  configStatus: AnomalyConfigStatus!
-  entity(type: String!): Entity
-  id: String!
-  ruleData: AnomalyExclusionRuleData!
-}
-
 """Anomaly Exclusion Rule Configuration change details"""
 type AnomalyExclusionRuleConfigurationChange {
   configStatusChangeToggleAction: ToggleAction
@@ -1547,21 +1512,6 @@ type AnomalyExclusionRuleConfigurationChange {
   oldIdentity: ActivityLogIdentity
   threatActorEntityId: String
   threatActorId: String
-}
-
-type AnomalyExclusionRuleData {
-  actorExclusionInfo: AnomalyActorExclusionInfo!
-  anomalyScope: AnomalyScope!
-  description: String!
-  eventExclusionInfo: AnomalyEventExclusionInfo!
-  name: String!
-  sourceScope: AnomalyScope
-}
-
-type AnomalyExclusionRuleResultSet {
-  count: Long!
-  total: Long!
-  results: [AnomalyExclusionRuleConfig]!
 }
 
 type AnomalyParamInfo {
@@ -3197,6 +3147,9 @@ enum ApiSpecConformanceJobField {
   """SPEC_CONFORMANCE_JOB_RESULT_FIELD_LEARNING_ORPHAN_ENDPOINTS_COUNT"""
   SPEC_CONFORMANCE_JOB_RESULT_FIELD_LEARNING_ORPHAN_ENDPOINTS_COUNT
 
+  """SPEC_CONFORMANCE_JOB_RESULT_FIELD_SPEC_TYPE"""
+  SPEC_CONFORMANCE_JOB_RESULT_FIELD_SPEC_TYPE
+
   """SPEC_CONFORMANCE_MESSAGE_FIELD_ERROR"""
   SPEC_CONFORMANCE_MESSAGE_FIELD_ERROR
 }
@@ -3216,6 +3169,7 @@ type ApiSpecConformanceJobQueryResultSet {
 type ApiSpecConformanceJobResult {
   apiSpecConformanceJobResultSummary: ApiSpecConformanceJobResultSummary!
   openApiDiffResult: ApiSpecConformanceOpenApiDiffResult!
+  specType: SpecType!
 }
 
 type ApiSpecConformanceJobResultSummary {
@@ -3478,6 +3432,10 @@ type ApiTagResponse {
   success: Boolean!
 }
 
+type ApiTokenIdentifier {
+  id: String
+}
+
 type ApiTokenMetadata {
   id: String
   creationTimestamp: DateTime!
@@ -3650,8 +3608,17 @@ enum AstAggregationField {
   """SKIPPED_API_REASON"""
   SKIPPED_API_REASON
 
+  """SCAN_ID"""
+  SCAN_ID
+
   """SCAN_STATUS"""
   SCAN_STATUS
+
+  """ATTACK_POLICY"""
+  ATTACK_POLICY
+
+  """ENVIRONMENT"""
+  ENVIRONMENT
 
   """VULNERABILITY_SEVERITY"""
   VULNERABILITY_SEVERITY
@@ -3746,9 +3713,6 @@ type AstCustomTestPluginResultSet {
 
 """Ast Data Source"""
 enum astDataSource {
-  """SUITES"""
-  SUITES
-
   """API_COVERAGE"""
   API_COVERAGE
 
@@ -3811,8 +3775,8 @@ enum AstFilterField {
   """API_NAME"""
   API_NAME
 
-  """API_REACHABILITY"""
-  API_REACHABILITY
+  """IS_API_REACHABLE"""
+  IS_API_REACHABLE
 
   """SKIPPED_API_REASON"""
   SKIPPED_API_REASON
@@ -3848,6 +3812,9 @@ enum AstGroupByField {
 
   """SCAN_STATUS"""
   SCAN_STATUS
+
+  """SUITE_ID"""
+  SUITE_ID
 
   """SUITE_NAME"""
   SUITE_NAME
@@ -3886,10 +3853,22 @@ type AstHook {
   name: String!
 }
 
+"""AST hook environment scope"""
+type AstHookEnvironmentScope {
+  """Hook environment scope ids"""
+  environmentIds: [String]!
+}
+
 type AstHookResultV2 {
   astHookV2: AstHookV2!
   createdBy: String!
   astHookTestStatus: AstHookTestStatus
+}
+
+"""AST hook scope"""
+type AstHookScope {
+  """Hook environment scope"""
+  environmentScope: AstHookEnvironmentScope!
 }
 
 type AstHooksResultSet {
@@ -3929,6 +3908,9 @@ type AstHookTest {
 
   """Role of the user of the hook"""
   role: AstHookUserRole!
+
+  """Hook scope"""
+  scope: AstHookScope
 
   """Status of ast hook test"""
   hookTestStatus: AstHookTestStatus
@@ -4004,11 +3986,38 @@ type AstHookV2 {
 
   """Role of the user of the hook"""
   role: AstHookUserRole
+
+  """Hook scope"""
+  scope: AstHookScope
 }
 
 type AstHookV2Status {
   """status of whether the token is persisted"""
   tokenStatus: Boolean!
+}
+
+type AstJobReferencedScanScope {
+  """The type of the reference to the scan scope"""
+  referencedScanScopeType: AstJobReferencedScanScopeType!
+
+  """The test level scope details for the referenced scan"""
+  testLevelScope: AstJobTestLevelScope!
+}
+
+enum AstJobReferencedScanScopeType {
+  """TEST_LEVEL_SCOPE"""
+  TEST_LEVEL_SCOPE
+}
+
+type AstJobTestLevelScope {
+  """Scan run number within the suite which contains the tests to verify"""
+  scanRunNumber: Long!
+
+  """ID of the suite which contains the tests to verify"""
+  suiteId: String!
+
+  """IDs of the tests to verify"""
+  testIds: [String]!
 }
 
 type AstMapData {
@@ -4026,20 +4035,44 @@ type AstMutationOverride {
 }
 
 enum AstOrder {
-  """APIS_COUNT"""
-  APIS_COUNT
+  """API_NAME"""
+  API_NAME
 
   """SCAN_COUNT"""
   SCAN_COUNT
 
-  """EXECUTED_TESTS"""
-  EXECUTED_TESTS
+  """EXECUTED_TESTS_COUNT"""
+  EXECUTED_TESTS_COUNT
 
-  """DISCOVERED_VULNERABILITY_COUNT"""
-  DISCOVERED_VULNERABILITY_COUNT
+  """GENERATED_TESTS_COUNT"""
+  GENERATED_TESTS_COUNT
+
+  """VULNERABILITY_DISCOVERED_COUNT"""
+  VULNERABILITY_DISCOVERED_COUNT
 
   """SCAN_START_TIME"""
   SCAN_START_TIME
+
+  """SUITE_NAME"""
+  SUITE_NAME
+
+  """POLICY_NAME"""
+  POLICY_NAME
+
+  """ENVIRONMENT"""
+  ENVIRONMENT
+
+  """RESPONSE_CODES"""
+  RESPONSE_CODES
+
+  """SCAN_RUN_NUMBER"""
+  SCAN_RUN_NUMBER
+
+  """SCANNED_APIS_COUNT"""
+  SCANNED_APIS_COUNT
+
+  """SCANNED_APIS_COUNT_FOR_SUITE"""
+  SCANNED_APIS_COUNT_FOR_SUITE
 }
 
 """AST Override"""
@@ -4133,12 +4166,12 @@ type AstPolicyV2Metadata {
   lastEditedBy: String
 }
 
-type AstReferencedScanScope {
+type AstReferencedScanDetails {
   """The type of the reference to the scan scope"""
   referencedScanScopeType: ReferencedScanScopeType!
 
   """The test level scope details for the referenced scan"""
-  testLevelScope: TestLevelScope!
+  testLevelScope: TestLevelScope
 }
 
 enum AstRelationalOperator {
@@ -4238,7 +4271,7 @@ type AstScanJob {
 
 type AstScanJobSpec {
   """Scope of the referenced scan"""
-  referencedScanScope: AstReferencedScanScope
+  referencedScanScope: AstJobReferencedScanScope
 
   """Allowed runner ids to run the scheduled scan"""
   runnerIds: [String]
@@ -4359,6 +4392,9 @@ enum AstSelectionField {
 
   """SCANNED_APIS_COUNT"""
   SCANNED_APIS_COUNT
+
+  """SCANNED_APIS_COUNT_FOR_SUITE"""
+  SCANNED_APIS_COUNT_FOR_SUITE
 
   """API_NAME"""
   API_NAME
@@ -5551,6 +5587,10 @@ type BoolChange {
   oldValue: Boolean
 }
 
+type BulkJiraIssueResponse {
+  jiraIssueResponses: [JiraIssueResponse]
+}
+
 enum BulkUpdateOperationType {
   """SINGLE_VALUED_ATTRIBUTE_SET_OPERATION"""
   SINGLE_VALUED_ATTRIBUTE_SET_OPERATION
@@ -6273,6 +6313,9 @@ type CustomSignatureRuleClauseRequest {
   """Request scanner type expression applicable on a custom signature rule"""
   requestScannerTypeExpression: CustomSignatureRuleRequestScannerTypeExpression
 
+  """Scope expression applicable on a custom signature rule"""
+  scopeExpression: CustomSignatureRuleScopeExpression
+
   """User agent expression applicable on a custom signature rule"""
   userAgentExpression: CustomSignatureRuleUserAgentExpression
 
@@ -6328,6 +6371,9 @@ enum CustomSignatureRuleClauseType {
 
   """REQUEST_SCANNER_TYPE_EXPRESSION"""
   REQUEST_SCANNER_TYPE_EXPRESSION
+
+  """SCOPE_EXPRESSION"""
+  SCOPE_EXPRESSION
 }
 
 type CustomSignatureRuleDefinition {
@@ -6361,6 +6407,22 @@ type CustomSignatureRuleEmailDomainExpression {
 
   """Boolean denoting exclude condition"""
   exclude: Boolean
+}
+
+type CustomSignatureRuleEntityScopeExpression {
+  """Entity ids for entity scope expression type of custom signature rule"""
+  entityIds: [String]!
+
+  """Entity type for entity scope expression type of custom signature rule"""
+  entityType: CustomSignatureRuleEntityType!
+}
+
+enum CustomSignatureRuleEntityType {
+  """API"""
+  API
+
+  """SERVICE"""
+  SERVICE
 }
 
 enum CustomSignatureRuleEventSeverity {
@@ -6571,6 +6633,22 @@ type CustomSignatureRuleLabel {
   value: String!
 }
 
+type CustomSignatureRuleLabelScopeExpression {
+  """Label ids for label scope expression type of custom signature rule"""
+  labelIds: [String]!
+
+  """Label type for label scope expression type of custom signature rule"""
+  labelType: CustomSignatureRuleLabelType!
+}
+
+enum CustomSignatureRuleLabelType {
+  """API"""
+  API
+
+  """SERVICE"""
+  SERVICE
+}
+
 enum CustomSignatureRuleMatchCategory {
   """REQUEST"""
   REQUEST
@@ -6717,6 +6795,20 @@ type CustomSignatureRuleScope {
   environmentScope: CustomSignatureEnvironmentScope
 }
 
+type CustomSignatureRuleScopeExpression {
+  """Scope expression of type ENTITY"""
+  entityScope: CustomSignatureRuleEntityScopeExpression
+
+  """Exclude field for scope expression in custom signature rule"""
+  exclude: Boolean
+
+  """Scope expression of type LABEL"""
+  labelScope: CustomSignatureRuleLabelScopeExpression
+
+  """Scope expression of type URL"""
+  urlScope: CustomSignatureUrlScopeExpression
+}
+
 """The source of the rule, or who created the rule"""
 enum CustomSignatureRuleSource {
   """Rule created by the customer"""
@@ -6762,6 +6854,11 @@ type CustomSignatureStringMatchCondition {
 
   """Match key"""
   value: String!
+}
+
+type CustomSignatureUrlScopeExpression {
+  """Url regexes for url type scope expression of custom signature rule"""
+  urlRegexes: [String]!
 }
 
 type CustomTags {
@@ -8505,6 +8602,11 @@ type EdgeResultSet {
   total: Long!
 }
 
+type EmailAddress {
+  """Address of email notification recipient"""
+  address: String
+}
+
 """Initiator Attributes for the fraud detected based on email"""
 type EmailBasedInitiatorAttributes {
   """Email using which the incident was initiated"""
@@ -8513,6 +8615,11 @@ type EmailBasedInitiatorAttributes {
 
 type EmailChannelConfig {
   address: String!
+}
+
+type EmailDestination {
+  """To address"""
+  toAddress: EmailAddress!
 }
 
 type EmailDomainAnomalyConfig {
@@ -10038,6 +10145,38 @@ enum GcpSecurityPolicyScopeType {
   REGION
 }
 
+type GenAiConfig {
+  """The config scope"""
+  genAiConfigScope: GenAiConfigScope!
+
+  """Whether the genAi features are globally enabled"""
+  globallyEnabled: Boolean!
+
+  """The Gen AI issues summary feature config"""
+  issuesSummaryFeatureConfig: IssuesSummaryFeatureConfig
+}
+
+type GenAiConfigScope {
+  """The environment scope"""
+  environmentScope: GenAiEnvironmentScope
+
+  """The scope level"""
+  genAiConfigScopeLevel: GenAiConfigScopeLevel!
+}
+
+enum GenAiConfigScopeLevel {
+  """GLOBAL"""
+  GLOBAL
+
+  """ENVIRONMENT"""
+  ENVIRONMENT
+}
+
+type GenAiEnvironmentScope {
+  """The environment id"""
+  environmentId: String!
+}
+
 type GenerateCardUpdateSecretResponse {
   clientSecret: String!
 }
@@ -10163,8 +10302,8 @@ enum GithubIntegrationStatus {
 }
 
 type GoogleAuth {
-  domainBasedProvisioningEnabled: Boolean!
-  domains: [String]!
+  domainBasedProvisioningEnabled: Boolean
+  domains: [String]
   enabled: Boolean!
 }
 
@@ -10555,6 +10694,9 @@ input InputAkamaiIntegrationDetails {
   """Akamai auth credentials"""
   authCredentials: InputAkamaiAuthCredentials!
 
+  """Akamai network list id"""
+  networkListId: String!
+
   """Akamai security policy configuration id"""
   configurationId: String!
 
@@ -10697,11 +10839,6 @@ input InputAnalyticsQuerySelectionArgument {
   units: TimeUnit
 }
 
-input InputAnomalyActorExclusionInfo {
-  actorExclusionType: AnomalyActorExclusionType!
-  actorId: String
-}
-
 input InputAnomalyAggregationConfigDelete {
   anomalyScope: InputAnomalyScope!
 }
@@ -10756,11 +10893,6 @@ input InputAnomalyBackendScope {
 input InputAnomalyCategoryConfig {
   eventScoreCategory: AnomalyEventScoreCategory
   securityEventCategory: AnomalySecurityEventCategory
-}
-
-input InputAnomalyConfigStatus {
-  disabled: Boolean!
-  internal: Boolean!
 }
 
 input InputAnomalyConfigStatusChange {
@@ -10878,37 +11010,10 @@ input InputAnomalyEnvironmentScope {
   id: String!
 }
 
-input InputAnomalyEventExclusionInfo {
-  eventExclusionType: AnomalyEventExclusionType!
-  eventFamily: AnomalyEventFamily
-  eventTypeId: String
-  eventTypeName: String
-}
-
 input InputAnomalyExclusionApplicableOptionsRequest {
   eventCategory: AnomalyEventCategory!
   eventFamily: AnomalyEventFamily!
   paramName: String
-}
-
-input InputAnomalyExclusionRuleData {
-  actorExclusionInfo: InputAnomalyActorExclusionInfo!
-  anomalyScope: InputAnomalyScope!
-  description: String!
-  eventExclusionInfo: InputAnomalyEventExclusionInfo!
-  name: String!
-  sourceScope: InputAnomalyScope
-}
-
-input InputAnomalyExclusionRuleDelete {
-  id: String!
-}
-
-input InputAnomalyExclusionRuleUpdate {
-  id: String!
-  configStatus: InputAnomalyConfigStatus!
-  description: String!
-  name: String!
 }
 
 input InputAnomalyGlobalConfigStatusUpdate {
@@ -11401,6 +11506,12 @@ input InputAssetSelection {
   service: InputSelectedServiceAsset
 }
 
+"""Ast Aggregation"""
+input InputAstAggregation {
+  aggregation: AstAggregationType!
+  key: AstAggregationField!
+}
+
 """AST Assertion Override config. Only one of the below must be set."""
 input InputAstAssertionOverride {
   """System defined Assertion Override"""
@@ -11452,6 +11563,37 @@ input InputAstFilterValue {
 
 input InputAstGroupByArgument {
   key: AstGroupByField!
+}
+
+"""AST hook environment scope"""
+input InputAstHookEnvironmentScope {
+  """Hook environment scope ids"""
+  environmentIds: [String]!
+}
+
+"""AST hook scope"""
+input InputAstHookScope {
+  """Hook environment scope"""
+  environmentScope: InputAstHookEnvironmentScope!
+}
+
+input InputAstJobReferencedScanScope {
+  """The type of the reference to the scan scope"""
+  referencedScanScopeType: AstJobReferencedScanScopeType!
+
+  """The test level scope details for the referenced scan"""
+  testLevelScope: InputAstJobTestLevelScope!
+}
+
+input InputAstJobTestLevelScope {
+  """Scan run number within the suite which contains the tests to verify"""
+  scanRunNumber: Long!
+
+  """ID of the suite which contains the tests to verify"""
+  suiteId: String!
+
+  """IDs of the tests to verify"""
+  testIds: [String]!
 }
 
 input InputAstMapData {
@@ -11528,14 +11670,6 @@ input InputAstPolicyV2Configuration {
   attacksSelection: [InputAttackSelection]!
 }
 
-input InputAstReferencedScanScope {
-  """The type of the reference to the scan scope"""
-  referencedScanScopeType: ReferencedScanScopeType!
-
-  """The test level scope details for the referenced scan"""
-  testLevelScope: InputTestLevelScope!
-}
-
 """
 Describes AST replay configurations for this environment. By default, AST replay is disabled.
 """
@@ -11565,7 +11699,7 @@ input InputAstReplayConfig {
 
 input InputAstScanJobSpec {
   """Scope of the referenced scan"""
-  referencedScanScope: InputAstReferencedScanScope
+  referencedScanScope: InputAstJobReferencedScanScope
 
   """Allowed runner ids to run the scheduled scan"""
   runnerIds: [String]
@@ -11623,6 +11757,42 @@ Sorting options for the stored API metadata, by default sorted based on last sto
 input InputAstStoredApiMetadataSortBy {
   sortField: AstStoredApiMetadataSortField
   sortOrder: AstSortOrder
+}
+
+"""Ast SubQuery"""
+input InputAstSubQuery {
+  aggregations: [InputAstAggregation]
+  filterBy: [InputastFilter]
+  groupBy: [InputAstGroupByArgument]
+  orderBy: [InputAstOrderArgument]
+  selections: [AstSelectionField]!
+}
+
+"""Ast SubQuery Join Argument"""
+input InputAstSubQueryJoinArgument {
+  """
+  The list of conditions to join the main query with the sub query. All these conditions are ANDed by default
+  """
+  joinConditions: [InputAstSubQueryJoinCondition]!
+
+  """The sub query to join the main query with"""
+  subQuery: InputAstSubQuery!
+}
+
+"""
+AstSubQueryJoinCondition represents a condition to join the main query with the sub query
+"""
+input InputAstSubQueryJoinCondition {
+  """The key in the main query to be matched in the join condition"""
+  mainQueryKey: AstFilterField!
+
+  """
+  Relational operator to be applied to match the main query key with the sub query key
+  """
+  operator: FilterOperatorType!
+
+  """The key in the sub query to be matched in the join condition"""
+  subQueryKey: AstFilterField!
 }
 
 input InputAttackSelection {
@@ -12338,6 +12508,12 @@ input InputBlockingMetadataAnomalyDetectionConfig {
   name: BlockingMetadataAnomalyDetectionConfigName!
 }
 
+input InputBulkJiraIssueDetails {
+  description: InputJiraIssueDescription!
+  reference: InputJiraIssueReference!
+  summary: String!
+}
+
 input InputBulkUpdateEntities {
   """Indicates the type of the filter applied for updating"""
   filterType: FilterType!
@@ -12539,6 +12715,9 @@ input InputCreateAstHookTest {
 
   """Role of the user of the hook"""
   role: AstHookUserRole!
+
+  """Hook scope"""
+  scope: InputAstHookScope
 }
 
 """AST hook to be used by runner/cli for scan runs"""
@@ -12569,6 +12748,9 @@ input InputCreateAstHookV2 {
 
   """Role of the user of the hook"""
   role: AstHookUserRole!
+
+  """Hook scope"""
+  scope: InputAstHookScope
 }
 
 input InputcreateAstInstantScan {
@@ -12614,6 +12796,17 @@ input InputCreateAstScanJob {
   weeklySchedule: InputWeeklySchedule
 }
 
+input InputCreateBulkJiraIssuesInput {
+  """Details about Jira issue to be created"""
+  bulkJiraIssueDetails: [InputBulkJiraIssueDetails]
+
+  """Optionally specify the environment of the jira integration"""
+  environmentId: String
+  fields: [InputJiraIssueField]!
+  jiraIssueType: String!
+  projectId: Int!
+}
+
 """Request to create custom test plugin"""
 input InputCreateCustomTestPluginRequest {
   codeSnippetDetails: InputCustomTestPluginCodeSnippetDetails!
@@ -12621,10 +12814,19 @@ input InputCreateCustomTestPluginRequest {
   name: String!
 }
 
-"""Create custom vulnerability type request"""
+"""
+Create custom vulnerability type request with mutually exclusive yamlConfiguration or vulnerabilityMetadata field
+"""
 input InputCreateCustomVulnerabilityTypeRequest {
-  """Yaml configuration for the custom vulnerability type"""
-  yamlConfiguration: String!
+  """
+  Form-based vulnerability metadata (mutually exclusive with yamlConfiguration)
+  """
+  vulnerabilityMetadata: InputNewVulnerabilityMetadata
+
+  """
+  Yaml configuration for the custom vulnerability type (mutually exclusive with vulnerabilityMetadata)
+  """
+  yamlConfiguration: String
 }
 
 """Create request of a detection exclusion rules"""
@@ -13168,6 +13370,9 @@ input InputCustomSignatureRuleClauseRequest {
   """Request scanner type expression applicable on a custom signature rule"""
   requestScannerTypeExpression: InputCustomSignatureRuleRequestScannerTypeExpression
 
+  """Scope expression applicable on a custom signature rule"""
+  scopeExpression: InputCustomSignatureRuleScopeExpression
+
   """User agent expression applicable on a custom signature rule"""
   userAgentExpression: InputCustomSignatureRuleUserAgentExpression
 
@@ -13217,6 +13422,14 @@ input InputCustomSignatureRuleEmailDomainExpression {
 
   """Boolean denoting exclude condition"""
   exclude: Boolean
+}
+
+input InputCustomSignatureRuleEntityScopeExpression {
+  """Entity ids for entity scope expression type of custom signature rule"""
+  entityIds: [String]!
+
+  """Entity type for entity scope expression type of custom signature rule"""
+  entityType: CustomSignatureRuleEntityType!
 }
 
 input InputCustomSignatureRuleHeaderInjection {
@@ -13298,6 +13511,14 @@ input InputCustomSignatureRuleLabel {
   value: String!
 }
 
+input InputCustomSignatureRuleLabelScopeExpression {
+  """Label ids for label scope expression type of custom signature rule"""
+  labelIds: [String]!
+
+  """Label type for label scope expression type of custom signature rule"""
+  labelType: CustomSignatureRuleLabelType!
+}
+
 input InputCustomSignatureRuleMatchExpression {
   matchCategory: CustomSignatureRuleMatchCategory
   matchKey: CustomSignatureRuleMatchKey!
@@ -13328,6 +13549,20 @@ input InputCustomSignatureRuleRequestScannerTypeExpression {
 
 input InputCustomSignatureRuleScope {
   environmentScope: InputCustomSignatureEnvironmentScope
+}
+
+input InputCustomSignatureRuleScopeExpression {
+  """Scope expression of type ENTITY"""
+  entityScope: InputCustomSignatureRuleEntityScopeExpression
+
+  """Exclude field for scope expression in custom signature rule"""
+  exclude: Boolean
+
+  """Scope expression of type LABEL"""
+  labelScope: InputCustomSignatureRuleLabelScopeExpression
+
+  """Scope expression of type URL"""
+  urlScope: InputCustomSignatureUrlScopeExpression
 }
 
 input InputCustomSignatureRulesFilter {
@@ -13380,6 +13615,11 @@ input InputCustomSignatureStringMatchCondition {
 
   """Match key"""
   value: String!
+}
+
+input InputCustomSignatureUrlScopeExpression {
+  """Url regexes for url type scope expression of custom signature rule"""
+  urlRegexes: [String]!
 }
 
 input InputCustomTags {
@@ -14377,8 +14617,18 @@ input InputDynamicThresholdConfig {
   percentageExceedingMeanAllowed: Int!
 }
 
+input InputEmailAddress {
+  """Address of email notification recipient"""
+  address: String
+}
+
 input InputEmailChannelConfig {
   address: String!
+}
+
+input InputEmailDestination {
+  """To address"""
+  toAddress: InputEmailAddress!
 }
 
 input InputEmailDomainAnomalyConfig {
@@ -14951,6 +15201,32 @@ input InputGcpWafConnectionValidationInput {
   gcpValidationIntegrationDetails: InputGcpValidationIntegrationDetails!
 }
 
+input InputGenAiConfigScope {
+  """The environment scope"""
+  environmentScope: InputGenAiEnvironmentScope
+
+  """The scope level"""
+  genAiConfigScopeLevel: GenAiConfigScopeLevel!
+}
+
+input InputGenAiConfigScopeFilter {
+  """The config scope"""
+  genAiConfigScope: InputGenAiConfigScope!
+}
+
+input InputGenAiConfigUpdate {
+  """The genAi config scope filter"""
+  genAiConfigScopeFilter: InputGenAiConfigScopeFilter!
+
+  """The issues summary feature config"""
+  issuesSummaryFeatureConfig: InputIssuesSummaryFeatureConfig
+}
+
+input InputGenAiEnvironmentScope {
+  """The environment id"""
+  environmentId: String!
+}
+
 input InputGenericFilter {
   id: String
 
@@ -14971,6 +15247,9 @@ input InputGetAllDescriptionTemplatesInput {
 
 """input for getAllProjects"""
 input InputGetAllProjectsInput {
+  """apiIds of the entity on which ticket is being created"""
+  apiIds: [String]
+
   """entityId of the entity on which ticket is being created"""
   entityId: String
 
@@ -15127,8 +15406,8 @@ input InputGibberishConfig {
 }
 
 input InputGoogleAuth {
-  domainBasedProvisioningEnabled: Boolean!
-  domains: [String]!
+  domainBasedProvisioningEnabled: Boolean
+  domains: [String]
   enabled: Boolean!
 }
 
@@ -15473,6 +15752,7 @@ input InputIpRangeRulesFilter {
 input InputIpRangeRuleUpdate {
   id: String
   disabled: Boolean
+  hidden: Boolean
   internal: Boolean
   ruleDetails: InputIpRangeRuleDetailsRequest!
   ruleScope: InputIpRangeRuleScope
@@ -15600,6 +15880,11 @@ input InputIssueSeverityRule {
   Once the filter condition is matched this severity will be assigned to the issue.
   """
   severity: VulnerabilitySeverity!
+}
+
+input InputIssuesSummaryFeatureConfig {
+  """Whether the issues summary feature is enabled"""
+  enabled: Boolean!
 }
 
 input InputJiraCloudIntegrationParams {
@@ -16297,6 +16582,9 @@ input InputMaliciousSourcesRuleStatus {
   """Disables rule"""
   disabled: Boolean!
 
+  """Boolean denoting if rule should be hidden"""
+  hidden: Boolean
+
   """
   Sets rule as internal, visible only to traceable users. Consumed only if disabled is set to true
   """
@@ -16450,7 +16738,7 @@ input InputnewVulnerability {
 """New vulnerability metadata creation object"""
 input InputNewVulnerabilityMetadata {
   """Vulnerability category"""
-  category: String!
+  category: String
 
   """Vulnerability cvss score"""
   cvssScore: Float!
@@ -16479,11 +16767,17 @@ input InputNewVulnerabilityMetadata {
   """Vulnerability severity"""
   vulnerabilitySeverity: VulnerabilitySeverity!
 
+  """Subcategory"""
+  subcategory: String
+
+  """Subcategory display name"""
+  subcategoryDisplayName: String
+
   """tags"""
   tags: [InputVulnerabilityMetadataTagsKeyValue]
 
   """Vulnerability title"""
-  title: String!
+  title: String
 }
 
 input InputNotificationChannelConfig {
@@ -17021,6 +17315,9 @@ input InputPolicyNotificationDestination {
   """channel id"""
   channelId: String
 
+  """Email"""
+  email: InputEmailDestination
+
   """Format in which the notification should be sent"""
   format: InputPolicyNotificationFormat!
 
@@ -17167,11 +17464,14 @@ input InputPolicySource {
   """Applicable AST scan event types"""
   astScanEventTypes: [PolicySourceAstScanEventType]
 
+  """The event type on which this policy should be applicable to"""
+  policyEventType: PolicyEventType
+
   """Applicable span event types"""
   spanEventTypes: [PolicySourceSpanEventType]
 
   """The source on which the policy conditions are to be checked"""
-  type: PolicySourceType!
+  type: PolicySourceType
 
   """Applicable vulnerability event types"""
   vulnerabilityEventTypes: [PolicySourceVulnerabilityEventType]
@@ -17673,7 +17973,16 @@ input InputRateLimitingRuleKeyValueCondition {
   keyCondition: InputRateLimitingRuleStringCondition
 
   """Key value condition metadata type"""
-  metadataType: RateLimitingRuleKeyValueConditionMetadataType!
+  metadataType: RateLimitingRuleKeyValueConditionMetadataType
+
+  """Type of key value condition - static value or lhs-rhs keys"""
+  keyValueType: RateLimitingRuleKeyValueConditionType
+
+  """LHS-RHS keys' values matching condition"""
+  lhsRhsCondition: InputRateLimitingRuleLhsRhsKeysCondition
+
+  """Static values matching condition"""
+  staticValueCondition: InputRateLimitingRuleStaticValueCondition
 
   """Value condition"""
   valueCondition: InputRateLimitingRuleStringCondition
@@ -17748,6 +18057,26 @@ input InputRateLimitingRuleLeafCondition {
   userIdCondition: InputRateLimitingRuleUserIdCondition
 }
 
+"""
+Lhs-Rhs keys' values matching condition applicable on a rate limit rule
+"""
+input InputRateLimitingRuleLhsRhsKeysCondition {
+  """LHS Key condition"""
+  lhsKeyCondition: InputRateLimitingRuleStringCondition
+
+  """LHS key metadata type"""
+  lhsMetadataType: RateLimitingRuleKeyValueConditionMetadataType!
+
+  """RHS Key condition"""
+  lhsRhsMatchOperator: RateLimitingRuleKeyValueMatchOperator!
+
+  """RHS Key condition"""
+  rhsKeyCondition: InputRateLimitingRuleStringCondition
+
+  """RHS key metadata type"""
+  rhsMetadataType: RateLimitingRuleKeyValueConditionMetadataType!
+}
+
 """Logical condition for a rate limited rule"""
 input InputRateLimitingRuleLogicalCondition {
   """Child conditions of rate limit rule logical condition"""
@@ -17813,6 +18142,18 @@ input InputRateLimitingRuleScopeCondition {
 input InputRateLimitingRulesFilter {
   categories: [RateLimitingRuleCategory]
   scope: InputRuleConfigScope
+}
+
+"""Static value matching condition applicable on a rate limit rule"""
+input InputRateLimitingRuleStaticValueCondition {
+  """Key condition"""
+  keyCondition: InputRateLimitingRuleStringCondition
+
+  """Key value condition metadata type"""
+  metadataType: RateLimitingRuleKeyValueConditionMetadataType!
+
+  """Value condition"""
+  valueCondition: InputRateLimitingRuleStringCondition
 }
 
 """Status of rate limit rule"""
@@ -17996,6 +18337,7 @@ input InputRegionRuleUpdate {
   duration: Duration
   effects: [InputRegionRuleEffectWithModification]
   eventSeverity: RegionRuleEventSeverity
+  hidden: Boolean
   id: String!
   internal: Boolean
   name: String!
@@ -18228,7 +18570,7 @@ input InputS3WebIdentityAuthenticationCredential {
 input InputSamlAuth {
   enabled: Boolean!
   samlConnectionIds: [String]
-  ssoBasedProvisioningEnabled: Boolean!
+  ssoBasedProvisioningEnabled: Boolean
 }
 
 input InputSamplingConfigCreate {
@@ -20095,17 +20437,6 @@ input InputTestAssertion {
   sourceIdentity: InputSourceIdentity
 }
 
-input InputTestLevelScope {
-  """Scan run number within the suite which contains the tests to verify"""
-  scanRunNumber: Long!
-
-  """ID of the suite which contains the tests to verify"""
-  suiteId: String!
-
-  """IDs of the tests to verify"""
-  testIds: [String]!
-}
-
 input InputTestMutation {
   action: MutationAction!
 
@@ -20534,6 +20865,9 @@ input InputUpdateAstHookV2 {
 
   """Role of the user of the hook"""
   role: AstHookUserRole!
+
+  """Hook scope"""
+  scope: InputAstHookScope
 }
 
 """Request to update ast override"""
@@ -20565,13 +20899,22 @@ input InputUpdateCustomTestPluginRequest {
   name: String!
 }
 
-"""Update custom vulnerability type request"""
+"""
+Update custom vulnerability type request with mutually exclusive yamlConfiguration or vulnerabilityMetadata field
+"""
 input InputUpdateCustomVulnerabilityTypeRequest {
   """Custom vulnerability type id"""
   id: String!
 
-  """Yaml configuration for the custom vulnerability type"""
-  yamlConfiguration: String!
+  """
+  Form-based vulnerability metadata (mutually exclusive with yamlConfiguration)
+  """
+  vulnerabilityMetadata: InputNewVulnerabilityMetadata
+
+  """
+  Yaml configuration for the custom vulnerability type (mutually exclusive with vulnerabilityMetadata)
+  """
+  yamlConfiguration: String
 }
 
 """Updated Akamai integration details"""
@@ -21120,8 +21463,14 @@ input InputUpdateVulnerabilityV3Request {
   """Vulnerability id of the vulnerability to be updated"""
   id: String!
 
+  """Boolean to which the vulnerability isFalsePositive is to be updated to"""
+  isFalsePositive: Boolean
+
   """Status to which the vulnerability status is to be updated to"""
   status: VulnerabilityV3Status
+
+  """Status to which the vulnerability status is to be updated to with info"""
+  statusUpdateInfo: InputVulnerabilityStatusUpdateInfo
 }
 
 input InputUpdateWafIntegrationInput {
@@ -21387,6 +21736,12 @@ input InputUserAttributionTokenRule {
   rootRelativeProjection: InputUserAttributionTokenRootRelativeProjection
 }
 
+"""Jwt payload claim projection for the attribute value"""
+input InputUserAttributionTokenUrlDecodeStringProjection {
+  """Set to true to decode quote_plus url encoded string"""
+  quotePlus: Boolean!
+}
+
 """Matching condition for the attribute value"""
 input InputUserAttributionTokenValueMatchCondition {
   """Matching operator for the value which needs to be matched"""
@@ -21406,6 +21761,9 @@ input InputUserAttributionTokenValueProjection {
 
   """Regex capture group projection for the attribute value"""
   regexCaptureGroupProjection: InputUserAttributionTokenRegexCaptureGroupProjection
+
+  """URL decode string projection for the attribute value"""
+  urlDecodeStringProjection: InputUserAttributionTokenUrlDecodeStringProjection
 
   """Projection type for the attribute value"""
   valueProjectionType: UserAttributionTokenValueProjectionType!
@@ -21599,6 +21957,15 @@ input InputVulnerabilityStatusChangeCriteria {
 input InputVulnerabilityStatusUpdate {
   id: String!
   status: String!
+}
+
+"""Vulnerability status update with info"""
+input InputVulnerabilityStatusUpdateInfo {
+  """Vulnerability status update message"""
+  message: String!
+
+  """ vulnerability status is to be updated to"""
+  status: VulnerabilityV3Status!
 }
 
 input InputVulnerabilitySummarizeRequest {
@@ -22625,6 +22992,7 @@ type IpRangeExpirationDetails {
 type IpRangeRule {
   id: String
   disabled: Boolean!
+  hidden: Boolean!
   internal: Boolean!
   ruleDetails: IpRangeRuleDetails!
   ruleScope: IpRangeRuleScope
@@ -22923,6 +23291,11 @@ type IssueSeverityRule {
   Once the filter condition is matched this severity will be assigned to the issue.
   """
   severity: VulnerabilitySeverity!
+}
+
+type IssuesSummaryFeatureConfig {
+  """Whether the issues summary feature is enabled"""
+  enabled: Boolean!
 }
 
 type IssueTypeStatusDetail {
@@ -24276,6 +24649,9 @@ type MaliciousSourcesRuleStatus {
   """Disables rule"""
   disabled: Boolean!
 
+  """Boolean denoting if rule should be hidden"""
+  hidden: Boolean
+
   """
   Sets rule as internal, visible only to traceable users. Consumed only if disabled is set to true
   """
@@ -24534,6 +24910,9 @@ enum ModsecDefaultConfigsType {
 
   """STRICT_BLOCKING"""
   STRICT_BLOCKING
+
+  """ALL_ENVIRONMENT"""
+  ALL_ENVIRONMENT
 }
 
 """Modsec Evaluation Config"""
@@ -24656,59 +25035,6 @@ type MultiValuedStringParamRule {
 }
 
 type Mutation {
-  """
-  Mutation for updating the status of all the fraud incident components in the given incident
-  """
-  updateAllIncidentComponentsStatus(
-    """
-    Input for updating the status of all the fraud incident components in the given incident
-    """
-    input: InputUpdateAllIncidentComponentsStatus!
-  ): UpdateAllIncidentComponentsStatusResponse!
-
-  """Mutation for taking an action on the fraud incident"""
-  updateFraudIncidentAction(
-    """Input for taking an action on the fraud incident"""
-    input: InputFraudIncidentActionUpdate!
-  ): UpdateFraudIncidentActionResponse!
-
-  """Mutation for updating the status of the fraud incident component"""
-  updateFraudIncidentComponentStatus(
-    """Input for updating the status of the fraud incident component"""
-    input: InputFraudIncidentComponentStatusUpdate!
-  ): UpdateFraudIncidentComponentStatusResponse!
-
-  """Mutation for updating the status of the fraud incident"""
-  updateFraudIncidentStatus(
-    """Input for updating the status of the fraud incident"""
-    input: InputFraudIncidentStatusUpdate!
-  ): UpdateFraudIncidentStatusResponse! @deprecated(reason: "Deprecated")
-
-  """Mutation API to create detection exclusion rule"""
-  createDetectionExclusionRule(create: InputCreateDetectionExclusionRuleRequest!): DetectionExclusionRule!
-
-  """Mutation API to delete detection exclusion rule"""
-  deleteDetectionExclusionRule(id: String!): DeleteDetectionExclusionRuleResponse!
-
-  """Mutation API to update detection exclusion rule"""
-  updateDetectionExclusionRule(rule: InputDetectionExclusionRule!): DetectionExclusionRule!
-  createExcludeSpanRule(input: InputExcludeSpanRuleCreate!): ExcludeSpanRule!
-  deleteExcludeSpanRule(input: InputExcludeSpanRuleDelete!): DeleteSpanProcessingRuleResponse!
-  updateExcludeSpanRule(input: InputExcludeSpanRuleUpdate!): ExcludeSpanRule!
-
-  """Update confidence scoring config"""
-  updateConfidenceScoringConfig(input: InputUpdateConfidenceScoringConfig!): ConfidenceScoringConfig! @deprecated(reason: "Deprecated")
-
-  """Update impact scoring config"""
-  updateImpactScoringConfig(input: InputUpdateImpactScoringConfig!): ImpactScoringConfig! @deprecated(reason: "Deprecated")
-  createRegionRule(input: InputRegionRuleCreate!): RegionRule!
-  deleteRegionRule(input: InputRegionRuleDelete!): DeleteRegionRuleResponse!
-  updateRegionRule(input: InputRegionRuleUpdate!): RegionRule!
-  createAgentToken(input: InputCreateAgentTokenInput!): AgentToken
-  deleteAgentToken(input: InputDeleteAgentTokenInput!): Identifiable
-  updateAgentTokenMetadata(input: InputUpdateAgentTokenMetadataInput!): AgentTokenMetadata
-  removeApiAttributeOverrides(input: InputRemoveApiAttributeOverridesRequest!): ApiAttributeOverrides
-  upsertApiAttributeOverrides(input: InputUpsertApiAttributesOverrideRequest!): ApiAttributeOverrides
   createInstantReport(input: InputInstantReportCreation!): InstantReport
   createReport(input: InputReportCreation!): Report
 
@@ -24721,35 +25047,208 @@ type Mutation {
 
   """Update template based report"""
   updateTemplatedReport(input: InputTemplatedReportUpdate!): TemplatedReport
-  convertTrialToFree: LicenseInfo
-  createOidcGroupMapping(input: InputIdpGroupMappingCreate!): IdpGroupMappingMetadata
 
-  """Create custom user roles"""
-  createRole(input: InputCreateRoleInput!): Role!
-  createSamlGroupMapping(input: InputIdpGroupMappingCreate!): IdpGroupMappingMetadata
-  createUser(input: InputUserInput!): User
-  deleteApiToken(input: InputDeleteApiTokenInput!): Identifiable
-  deleteOidcGroupMapping(id: String!): Boolean
+  """Create an attribute"""
+  createAttribute(
+    """The attribute to be created"""
+    attributeMetadataInput: InputAttributeMetadataInput!
+  ): AttributeMetadata
 
-  """Delete custom user roles"""
-  deleteRole(id: String!): ConfirmationResponse!
-  deleteSamlGroupMapping(id: String!): Boolean
-  deleteUser(input: InputDeleteUserInput!): User
+  """Delete an attribute"""
+  deleteAttribute(
+    """Identifier of the attribute to be deleted"""
+    attributeIdentifierInput: InputAttributeIdentifierInput!
+  ): ConfirmationResponse
 
-  """Sign the Master Service Agreement for your account"""
-  signMsa(input: InputSignMsaInput!): MsaSigningInfo!
-  updateApiTokenMetadata(input: InputUpdateApiTokenMetadataInput!): ApiTokenMetadata
-  updateOidcGroupMapping(input: InputIdpGroupMappingMetadata!): IdpGroupMappingMetadata
+  """Update an attribute"""
+  updateAttribute(
+    """Input arguments for updating an attribute"""
+    attributeUpdateInput: InputAttributeUpdateInput!
+  ): AttributeMetadata
 
-  """Update custom user roles"""
-  updateRole(input: InputUpdateRoleInput!): Role!
-  updateSamlGroupMapping(input: InputIdpGroupMappingMetadata!): IdpGroupMappingMetadata
+  """Creates a new saved query"""
+  createSavedQuery(create: InputSavedQueryCreate!): SavedQuery!
 
-  """Updates session configuration of tenant"""
-  updateSessionConfiguration(input: InputUpdateSessionConfigurationInput!): sessionConfiguration!
-  updateUser(input: InputUpdateUserInput!): User
-  updateUserProvisioning(input: InputUserProvisioningInput!): ConfirmationResponse!
-  updateUserProvisioningV2(input: InputUserProvisionInfoV2!): ConfirmationResponse!
+  """Deletes an existing saved query"""
+  deleteSavedQuery(delete: InputSavedQueryDelete!): ConfirmationResponse!
+
+  """Updates an existing saved query"""
+  updateSavedQuery(update: InputSavedQueryUpdate!): SavedQuery!
+
+  """Mutator for creating Jwt Extraction Rules"""
+  createJwtExtractionRule(input: InputJwtExtractionRuleCreateInput!): JwtExtractionRule!
+
+  """Mutator for deleting Jwt Extraction Rules"""
+  deleteJwtExtractionRule(input: InputJwtExtractionRuleDeleteInput!): ConfirmationResponse!
+
+  """Mutator for updating Jwt Extraction Rules"""
+  updateJwtExtractionRule(input: InputJwtExtractionRuleUpdateInput!): JwtExtractionRule!
+  createCustomSignatureRule(create: InputCustomSignatureRuleDescriptor!): CustomSignatureRule!
+  deleteCustomSignatureRule(delete: InputCustomSignatureRuleDelete!): DeleteCustomSignatureRuleResponse!
+  updateCustomSignatureRule(update: InputCustomSignatureRuleUpdate!): CustomSignatureRule!
+
+  """Creates the described auth detection rule"""
+  createAuthDetectionRule(input: InputAuthDetectionRuleCreateInput!): AuthDetectionRule!
+
+  """Deletes the identified auth detection rule"""
+  deleteAuthDetectionRule(input: InputAuthDetectionRuleDeleteInput!): ConfirmationResponse!
+
+  """Updates the described auth detection rule"""
+  updateAuthDetectionRule(input: InputAuthDetectionRuleUpdateInput!): AuthDetectionRule!
+
+  """Creates snyk integration config as described"""
+  createSnykIntegration(input: InputSnykIntegrationCreateInput!): ConfirmationResponse!
+
+  """Deletes the snyk integration config"""
+  deleteSnykIntegration: ConfirmationResponse!
+
+  """Updates snyk integration config as described"""
+  updateSnykIntegration(input: InputSnykIntegrationUpdateInput!): ConfirmationResponse!
+
+  """Mutation to update vulnerability"""
+  updateVulnerabilityV3(update: InputUpdateVulnerabilityV3Request!): ConfirmationResponse!
+  cancelSubscription: SubscriptionCancelResponse
+  generateCardUpdateSecret: GenerateCardUpdateSecretResponse
+  setupSubscription(input: InputSubscriptionInput!): SetupSubscriptionResponse
+  synchronizeLicenseFromSubscription: SynchronizeLicenseFromSubscriptionResponse
+  updateDefaultPaymentMethod(paymentMethodId: String!): Boolean
+  updateSubscription(input: InputSubscriptionInput!): SubscriptionUpdateResponse
+
+  """Mutation to create api naming rule"""
+  createApiNamingRule(input: InputApiNamingRuleCreate!): ApiNamingRule!
+
+  """Mutation to create protection span rule"""
+  createProtectionSpanRule(input: InputProtectionSpanRuleCreate!): ProtectionSpanRule!
+  createSamplingConfig(input: InputSamplingConfigCreate!): SpanProcessingSamplingConfig!
+
+  """Creates the described service naming rule"""
+  createServiceNamingRule(input: InputServiceNamingRuleCreateInput!): ServiceNamingRule!
+
+  """Mutation to delete api naming rule"""
+  deleteApiNamingRule(input: InputApiNamingRuleDelete!): DeleteTraceableSpanProcessingRuleResponse!
+
+  """Mutation to delete protection span rule"""
+  deleteProtectionSpanRule(input: InputProtectionSpanRuleDelete!): DeleteTraceableSpanProcessingRuleResponse!
+  deleteSamplingConfig(input: InputSamplingConfigDelete!): DeleteTraceableSpanProcessingRuleResponse!
+
+  """Deletes the identified service naming rule"""
+  deleteServiceNamingRule(input: InputServiceNamingRuleDeleteInput!): ConfirmationResponse!
+
+  """Mutation to update api naming rule"""
+  updateApiNamingRule(input: InputApiNamingRuleUpdate!): ApiNamingRule!
+
+  """Mutation to update protection span rule"""
+  updateProtectionSpanRule(input: InputProtectionSpanRuleUpdate!): ProtectionSpanRule!
+  updateSamplingConfig(input: InputSamplingConfigUpdate!): SpanProcessingSamplingConfig!
+
+  """Updates the described service naming rule"""
+  updateServiceNamingRule(input: InputServiceNamingRuleUpdateInput!): ServiceNamingRule!
+  updateRunnerLogsPersistenceConfig(update: InputUpdateRunnerLogsPersistenceConfigRequest!): RunnerLogsPersistenceConfig!
+  updateRunnerLogsPurgeConfig(update: InputUpdateRunnerLogsPurgeConfigRequest!): RunnerLogsPurgeConfig!
+  createLabel(label: InputCreateLabel!): Label!
+  createLabelApplicationRule(labelApplicationRuleData: InputLabelApplicationRuleData!): LabelApplicationRule!
+  deleteLabelApplicationRule(id: String!): Boolean!
+  updateLabel(label: InputUpdateLabel!): Label!
+  updateLabelApplicationRule(labelApplicationRule: InputLabelApplicationRule!): LabelApplicationRule!
+  updateAnomalyScoreContributions(input: InputUpdateAnomalyScoreContributions!): AnomalyScoreContributions!
+  updateEventScoreContributions(input: InputUpdateEventScoreContributions!): EventScoreContributions!
+  updateEventTypeContribution(input: InputUpdateEventTypeContribution!): EventTypeContribution!
+  updateIpReputationThreatScoreConfig(input: InputUpdateIpReputationThreatScoreConfig!): IpReputationThreatScoreConfig!
+  updateStatusCodeThreatScoreConfigs(input: InputUpdateStatusCodeThreatScoreConfigs!): StatusCodeThreatScoreConfigs!
+  updateThreatAutoBlocking(input: InputUpdateThreatAutoBlocking!): ThreatAutoBlocking!
+  updateThreatScoreBounds(input: InputUpdateThreatScoreBounds!): ThreatScoreBounds!
+
+  """Mutation to create vulnerability status change config"""
+  createVulnerabilityStatusChangeConfig(create: InputCreateVulnerabilityStatusChangeConfigRequest!): VulnerabilityStatusChangeConfig!
+
+  """Mutation to create custom vulnerability type"""
+  createCustomVulnerabilityType(create: InputCreateCustomVulnerabilityTypeRequest!): CreateCustomVulnerabilityTypeResponse!
+
+  """Mutation to create vulnerability"""
+  createVulnerabilities(create: InputCreateVulnerabilitiesRequest!): CreateVulnerabilitiesResponse!
+
+  """Mutation to delete vulnerability status change config"""
+  deleteVulnerabilityStatusChangeConfig(delete: InputDeleteVulnerabilityStatusChangeConfigsRequest!): ConfirmationResponse!
+
+  """Mutation to delete custom vulnerability type"""
+  deleteCustomVulnerabilityType(delete: InputDeleteCustomVulnerabilityTypeRequest!): ConfirmationResponse!
+
+  """Mutation to update vulnerability status change config"""
+  updateVulnerabilityStatusChangeConfig(update: InputUpdateVulnerabilityStatusChangeConfigRequest!): VulnerabilityStatusChangeConfig!
+
+  """Mutation to update custom vulnerability type"""
+  updateCustomVulnerabilityType(update: InputUpdateCustomVulnerabilityTypeRequest!): UpdateCustomVulnerabilityTypeResponse!
+
+  """Mutation to update vulnerability config"""
+  updateIssueConfig(update: InputUpdateIssueConfigRequest!): IssueConfig!
+
+  """Reset factors and elements to default values"""
+  resetApiRiskFactorConfigs(filter: InputApiRiskFactorConfigsResetFilter): ApiRiskFactorConfigs!
+
+  """Reset grid to default values"""
+  resetApiRiskScoringConfig(filter: InputApiRiskConfigScopeFilter): ApiRiskScoringConfigs!
+
+  """Update factors and elements"""
+  updateApiRiskFactorConfigs(update: InputApiRiskFactorConfigsUpdate!): ApiRiskFactorConfigs!
+
+  """Update the grid cell scores"""
+  updateApiRiskScoringConfig(update: InputApiRiskScoringGridUpdate!): ApiRiskScoringConfigs!
+  markParametersInsensitive(parameters: [InputParameter]!, apiId: String): MarkParametersResponse @deprecated(reason: "Marking parameters insensitive is deprecated")
+  markParametersSensitive(parameters: [InputParameter]!, apiId: String, piiType: String): MarkParametersResponse @deprecated(reason: "Marking parameters sensitive is deprecated")
+  setApiTags(input: InputApiTagUpdate!): ApiTagResponse @deprecated(reason: "tagging APIs is deprecated")
+  updateApiInsights(input: [InputApiInsightUpdate]!): UpdateApiInsightsResponse @deprecated(reason: "Insights updates is not longer supported")
+  updateThreatActivity(ids: [String]!, update: [InputThreatActivityUpdateArgument]!): UpdateThreatActivitiesResponse
+  updateVulnerabilityStatus(input: InputVulnerabilityStatusUpdate!): UpdateVulnerabilityStatusResponse @deprecated(reason: "Vulnerability as a feature is replaced by insights")
+  createBulkJiraIssues(input: InputCreateBulkJiraIssuesInput!): BulkJiraIssueResponse
+  createJiraIntegration(input: InputCreateJiraIntegrationInput!): JiraIntegration!
+  createJiraIssue(input: InputCreateJiraIssueInput!): JiraIssueResponse
+  createJiraProjectIssueConfigurations(input: InputCreateProjectIssueConfigurationsInput!): ProjectIssueConfigurationsResponse
+  deleteJiraIntegration(integrationId: String): DeleteJiraIntegrationResponse!
+  deleteJiraProjectIssueConfiguration(input: InputDeleteProjectIssueConfigurationInput): ConfirmationResponse
+  generateJiraAuthorizationLink(input: InputAuthorizationLinkRequest!): AuthorizationLinkResponse
+  manageJiraProjectIssueConfigurations(input: InputManageProjectIssueConfigurationsInput!): ManageProjectIssueConfigurationsResponse
+  unlinkJiraIssueReferences(input: InputUnlinkJiraIssueReferencesInput!): UnlinkJiraIssueReferencesResponse
+  updateJiraIntegration(input: InputUpdateJiraIntegrationInput!): JiraIntegration!
+  updateJiraProjectIssueConfigurations(input: InputUpdateProjectIssueConfigurationsInput!): ProjectIssueConfigurationsResponse
+  createApiSpec(input: InputCreateApiSpec!): ApiSpec!
+  deleteApiSpec(input: InputDeleteApiSpec!): DeleteApiSpecResponse!
+  updateApiSpec(input: InputUpdateApiSpec!): ApiSpec!
+
+  """Create ast hook"""
+  createAstHook(input: InputCreateAstHook!): AstHook! @deprecated(reason: "Deprecated")
+
+  """Create ast hook test"""
+  createAstHookTest(input: InputCreateAstHookTest!): AstHookTest!
+
+  """Create ast hook V2"""
+  createAstHookV2(input: InputCreateAstHookV2!): AstHookV2!
+
+  """Delete ast hook"""
+  deleteAstHook(id: String!): ConfirmationResponse! @deprecated(reason: "Deprecated")
+
+  """Delete ast hook test"""
+  deleteAstHookTest(astHookTestIdList: [String]): ConfirmationResponse! @deprecated(reason: "Deprecated")
+
+  """Delete ast hooks"""
+  deleteAstHookV2(input: InputDeleteAstHookV2!): ConfirmationResponse!
+
+  """Update ast hook"""
+  updateAstHook(input: InputUpdateAstHook!): AstHook! @deprecated(reason: "Deprecated")
+
+  """Update ast hook test"""
+  updateAstHookTest(input: InputUpdateAstHookTest!): AstHookTest! @deprecated(reason: "Deprecated")
+
+  """Update ast hook V2"""
+  updateAstHookV2(input: InputUpdateAstHookV2!): AstHookV2!
+
+  """Mutation API to create detection exclusion rule"""
+  createDetectionExclusionRule(create: InputCreateDetectionExclusionRuleRequest!): DetectionExclusionRule!
+
+  """Mutation API to delete detection exclusion rule"""
+  deleteDetectionExclusionRule(id: String!): DeleteDetectionExclusionRuleResponse!
+
+  """Mutation API to update detection exclusion rule"""
+  updateDetectionExclusionRule(rule: InputDetectionExclusionRule!): DetectionExclusionRule!
   cloneAndRunScan(cloneAndRunScanRequest: InputCloneAndRunScanRequest!): CloneAndRunScanResponse!
 
   """Create AST Override config"""
@@ -24787,17 +25286,131 @@ type Mutation {
   updateScanStatus(update: InputUpdateScanStatusRequest!): UpdateScanStatusResponse!
   updateVulnerabilityMetadata(update: InputUpdateVulnerabilityMetadataRequest!): ConfirmationResponse!
   updateVulnerabilityV2Status(update: InputUpdateVulnerabilityV2Request!): UpdateVulnerabilityV2StatusResponse!
-  createLabel(label: InputCreateLabel!): Label!
-  createLabelApplicationRule(labelApplicationRuleData: InputLabelApplicationRuleData!): LabelApplicationRule!
-  deleteLabelApplicationRule(id: String!): Boolean!
-  updateLabel(label: InputUpdateLabel!): Label!
-  updateLabelApplicationRule(labelApplicationRule: InputLabelApplicationRule!): LabelApplicationRule!
-  markParametersInsensitive(parameters: [InputParameter]!, apiId: String): MarkParametersResponse @deprecated(reason: "Marking parameters insensitive is deprecated")
-  markParametersSensitive(parameters: [InputParameter]!, apiId: String, piiType: String): MarkParametersResponse @deprecated(reason: "Marking parameters sensitive is deprecated")
-  setApiTags(input: InputApiTagUpdate!): ApiTagResponse @deprecated(reason: "tagging APIs is deprecated")
-  updateApiInsights(input: [InputApiInsightUpdate]!): UpdateApiInsightsResponse @deprecated(reason: "Insights updates is not longer supported")
-  updateThreatActivity(ids: [String]!, update: [InputThreatActivityUpdateArgument]!): UpdateThreatActivitiesResponse
-  updateVulnerabilityStatus(input: InputVulnerabilityStatusUpdate!): UpdateVulnerabilityStatusResponse @deprecated(reason: "Vulnerability as a feature is replaced by insights")
+
+  """Creates a servicenow itsm incident"""
+  createServiceNowItsmIncident(input: InputServiceNowItsmIntegrationCreateIncidentInput): ServiceNowItsmIntegrationIncidentResponse
+
+  """Creates a servicenow integration post validation"""
+  createServiceNowItsmIntegration(input: InputServiceNowItsmIntegrationCreateIntegrationInput): ServiceNowItsmIntegrationResponse
+
+  """Deletes a servicenow integration post validation"""
+  deleteServiceNowItsmIntegration(integrationConfigId: String): ConfirmationResponse
+
+  """Unlinks a servicenow itsm incident"""
+  unlinkServiceNowItsmIncident(input: InputServiceNowItsmIntegrationUnlinkIncidentInput): ConfirmationResponse
+
+  """Updates a servicenow integration post validation"""
+  updateServiceNowItsmIntegration(input: InputServiceNowItsmIntegrationUpdateIntegrationInput): ServiceNowItsmIntegrationResponse
+  createIpRangeRule(create: InputIpRangeRuleCreate!): IpRangeRule!
+  deleteIpRangeRule(delete: InputIpRangeRuleDelete!): DeleteIpRangeRuleResponse!
+  updateIpRangeRule(update: InputIpRangeRuleUpdate!): IpRangeRule!
+  createAgentToken(input: InputCreateAgentTokenInput!): AgentToken
+  deleteAgentToken(input: InputDeleteAgentTokenInput!): Identifiable
+  updateAgentTokenMetadata(input: InputUpdateAgentTokenMetadataInput!): AgentTokenMetadata
+  bulkUpdateEntities(input: InputBulkUpdateEntities!): BulkUpdateResponse
+  updateEntity(input: InputEntityUpdate!): UpdatedEntity
+
+  """Deletes repositories with given ids"""
+  deleteRepositories(repositoryIds: [String]!): ConfirmationResponse!
+
+  """Submits the requested code for analysis"""
+  startCodeAnalysis(parameters: InputCodeAnalysisParameters!): SubmittedCodeAnalysisJobResultSet!
+
+  """Creates wiz integration config as described"""
+  createWizIntegration(input: InputWizIntegrationCreateInput!): WizIntegration!
+
+  """Deletes wiz integration config"""
+  deleteWizIntegration(input: InputWizIntegrationDeleteInput!): ConfirmationResponse!
+
+  """Updates wiz integration config as described"""
+  updateWizIntegration(input: InputWizIntegrationUpdateInput!): WizIntegration!
+
+  """Creates syslog server integration config as described"""
+  createSyslogServerIntegration(input: InputCreateSyslogServerIntegrationInput!): SyslogServerIntegration!
+
+  """Deletes the syslog server integration config"""
+  deleteSyslogServerIntegration(input: InputDeleteSyslogServerIntegrationInput!): ConfirmationResponse!
+
+  """Updates syslog server integration config as described"""
+  updateSyslogServerIntegration(input: InputUpdateServerSyslogIntegrationInput!): SyslogServerIntegration!
+
+  """Creates a new User Attribution rule"""
+  createUserAttributionRuleV2(create: InputCreateUserAttributionRule!): UserAttributionRuleResultSetV2!
+
+  """Deletes an existing User Attribution rule"""
+  deleteUserAttributionRuleV2(delete: InputDeleteUserAttributionRule!): ConfirmationResponse!
+
+  """Rank an existing User Attribution rule"""
+  rankUserAttributionRuleV2(rank: InputRankUserAttributionRule!): UserAttributionRuleResultSetV2!
+
+  """Updates an existing User Attribution rule"""
+  updateUserAttributionRuleV2(update: InputUpdateUserAttributionRule!): UserAttributionRuleV2!
+  createSecuritySchemeRole(input: InputCreateSecuritySchemeRoleInput!): EntityIdentifier
+  createSecuritySchemeRoleRelationships(input: InputCreateSecuritySchemeRoleRelationshipsInput!): ConfirmationResponse
+  createSecuritySchemeScope(input: InputCreateSecuritySchemeScopeInput!): EntityIdentifier
+  createSecuritySchemeScopeRelationships(input: InputCreateSecuritySchemeScopeRelationshipsInput!): ConfirmationResponse
+  deleteSecuritySchemeRoleRelationships(input: InputDeleteSecuritySchemeRoleRelationshipsInput!): ConfirmationResponse
+  deleteSecuritySchemeRoles(input: InputDeleteSecuritySchemeRolesInput!): ConfirmationResponse
+  deleteSecuritySchemeScopeRelationships(input: InputDeleteSecuritySchemeScopeRelationshipsInput!): ConfirmationResponse
+  deleteSecuritySchemeScopes(input: InputDeleteSecuritySchemeScopesInput!): ConfirmationResponse
+  updateSecuritySchemeRole(input: InputUpdateSecuritySchemeRoleInput!): EntityIdentifier
+  updateSecuritySchemeScope(input: InputUpdateSecuritySchemeScopeInput!): EntityIdentifier
+  updateActorStatus(input: InputActorStatusUpdate!): UpdatedActorStatus
+
+  """Creates a new Data Classification Override Rule"""
+  createDataClassificationOverride(input: InputDataClassificationOverrideRuleCreateInput!): DataClassificationOverrideRule!
+  createDataSet(dataSetCreate: InputDataSetCreate!): DataSet!
+  createDataType(dataTypeRule: InputDataTypeRule!): DataType!
+
+  """Deletes an existing Data Classification Override Rule"""
+  deleteDataClassificationOverride(input: InputDataClassificationOverrideRuleDeleteInput!): ConfirmationResponse!
+  deleteDataSet(id: String!): Boolean!
+  deleteDataType(id: String!): ConfirmationResponse!
+
+  """Updates an existing new Data Classification Override Rule"""
+  updateDataClassificationOverride(input: InputDataClassificationOverrideRuleUpdateInput!): DataClassificationOverrideRule!
+  updateDataSet(dataSetUpdate: InputDataSetUpdate!): DataSet!
+  updateDataType(dataType: InputDataType!): DataType!
+  createNotificationChannel(input: InputNotificationChannelCreation!): NotificationChannel
+  createNotificationRule(input: InputNotificationRuleCreation!): NotificationRule
+  deleteNotificationChannel(input: InputNotificationChannelDeletion!): DeleteNotificationChannelResponse
+  deleteNotificationRule(input: InputNotificationRuleDeletion!): DeleteNotificationRuleResponse
+  updateNotificationChannel(input: InputNotificationChannelUpdate!): NotificationChannel
+  updateNotificationRule(input: InputNotificationRuleUpdate!): NotificationRule
+
+  """Create a new policy"""
+  createPolicy(createPolicyRequest: InputCreatePolicyRequest!): Policy
+
+  """Delete the policies by giving the policyIds"""
+  deletePolicies(deletePoliciesRequest: InputDeletePoliciesRequest!): ConfirmationResponse
+
+  """Bulk update policies for selected fields"""
+  updatePolicies(policyUpdates: [InputPolicyUpdate]!): ConfirmationResponse
+
+  """Update an existing policy"""
+  updatePolicy(updatePolicyRequest: InputUpdatePolicyRequest!): Policy
+
+  """Creates a new Saved Filter"""
+  createSavedFilter(create: InputSavedFilterCreate!): SavedFilter!
+
+  """Deletes an existing Saved Filter"""
+  deleteSavedFilter(delete: InputSavedFilterDelete!): ConfirmationResponse!
+
+  """Updates an existing Saved Filter"""
+  updateSavedFilter(update: InputSavedFilterUpdate!): SavedFilter!
+
+  """Mutation API to create Malicious Sources rule"""
+  createMaliciousSourcesRule(create: InputMaliciousSourcesRuleCreate!): MaliciousSourcesRule!
+
+  """Mutation API to delete Malicious Sources rule"""
+  deleteMaliciousSourcesRule(delete: InputMaliciousSourcesRuleDelete!): DeleteMaliciousSourcesRuleResponse!
+
+  """Mutation API to update Malicious Sources rule"""
+  updateMaliciousSourcesRule(update: InputMaliciousSourcesRuleUpdate!): MaliciousSourcesRule!
+  createLocalProcessingRule(input: InputLocalProcessingRuleCreation!): LocalProcessingRule!
+  deleteLocalProcessingRule(input: InputLocalProcessingRuleDeletion!): DeleteLocalProcessingRuleResponse!
+  updateDefaultProtectionMode(input: InputDefaultProtectionModeUpdate!): ProtectionMode!
+  updateLocalProcessingRule(input: InputLocalProcessingRuleUpdate!): LocalProcessingRule!
 
   """Creates azure devops integration post validation"""
   createAzureDevopsIntegration(input: InputAzureDevopsIntegrationCreateIntegrationInput): AzureDevopsIntegrationResponse
@@ -24813,26 +25426,54 @@ type Mutation {
 
   """Updates azure devops integration post validation"""
   updateAzureDevopsIntegration(input: InputAzureDevopsIntegrationUpdateIntegrationInput): AzureDevopsIntegrationResponse
+  createUserAttributionRule(input: InputUserAttributionCreateInput!): UserAttributionRuleResultSet!
+  deleteUserAttributionRule(input: InputUserAttributionDeleteInput!): UserAttributionRuleResultSet!
+  rankUserAttributionRule(input: InputUserAttributionRankInput!): UserAttributionRuleResultSet!
+  updateUserAttributionRule(rule: InputUserAttributionRule!): UserAttributionRule!
 
-  """Create Sonar Scan"""
-  createSonarScanV2(create: InputCreateSonarScanV2Request!): SonarScanV2!
+  """
+  Mutation for updating the status of all the fraud incident components in the given incident
+  """
+  updateAllIncidentComponentsStatus(
+    """
+    Input for updating the status of all the fraud incident components in the given incident
+    """
+    input: InputUpdateAllIncidentComponentsStatus!
+  ): UpdateAllIncidentComponentsStatusResponse!
 
-  """Update Sonar Scan"""
-  updateSonarScanV2(update: InputUpdateSonarScanV2Request!): SonarScanV2!
-  createNotificationChannel(input: InputNotificationChannelCreation!): NotificationChannel
-  createNotificationRule(input: InputNotificationRuleCreation!): NotificationRule
-  deleteNotificationChannel(input: InputNotificationChannelDeletion!): DeleteNotificationChannelResponse
-  deleteNotificationRule(input: InputNotificationRuleDeletion!): DeleteNotificationRuleResponse
-  updateNotificationChannel(input: InputNotificationChannelUpdate!): NotificationChannel
-  updateNotificationRule(input: InputNotificationRuleUpdate!): NotificationRule
-  updateRunnerLogsPersistenceConfig(update: InputUpdateRunnerLogsPersistenceConfigRequest!): RunnerLogsPersistenceConfig!
-  updateRunnerLogsPurgeConfig(update: InputUpdateRunnerLogsPurgeConfigRequest!): RunnerLogsPurgeConfig!
+  """Mutation for taking an action on the fraud incident"""
+  updateFraudIncidentAction(
+    """Input for taking an action on the fraud incident"""
+    input: InputFraudIncidentActionUpdate!
+  ): UpdateFraudIncidentActionResponse!
+
+  """Mutation for updating the status of the fraud incident component"""
+  updateFraudIncidentComponentStatus(
+    """Input for updating the status of the fraud incident component"""
+    input: InputFraudIncidentComponentStatusUpdate!
+  ): UpdateFraudIncidentComponentStatusResponse!
+
+  """Mutation for updating the status of the fraud incident"""
+  updateFraudIncidentStatus(
+    """Input for updating the status of the fraud incident"""
+    input: InputFraudIncidentStatusUpdate!
+  ): UpdateFraudIncidentStatusResponse! @deprecated(reason: "Deprecated")
+  createSonarScan(create: InputCreateSonarScanRequest!): SonarScan!
+  deleteSonarScan(delete: InputDeleteSonarScanRequest!): ConfirmationResponse!
+  updateSonarScan(update: InputUpdateSonarScanRequest!): SonarScan!
+
+  """Deletes existing scoped data protection config"""
+  deleteScopedDataProtectionConfig(delete: InputDeleteScopedDataProtectionConfigRequest!): ConfirmationResponse!
+
+  """Update scoped data protection config"""
+  updateScopedDataProtectionConfig(upsert: InputUpdateScopedDataProtectionConfigRequest!): DataProtectionConfig!
 
   """Delete a batch of analytics queries"""
   deleteAnalyticsQueryBatch(batchId: String!): ConfirmationResponse!
 
   """Submit a batch of analytics queries with a given scope"""
   submitAnalyticsQueryBatch(input: InputAnalyticsQueryBatchCreateRequest!): AnalyticsQueryBatchDetailWithResults!
+  bootstrapAwsWafIntegration(AwsBootstrapWafIntegrationInput: InputAwsBootstrapWafIntegrationInput!): ConfirmationResponse
   createAstPolicy(create: InputCreateAstPolicyV2Request!): CreateAstPolicyV2Response!
 
   """Create a Scan Evaluation Criteria"""
@@ -24862,184 +25503,6 @@ type Mutation {
   """Update an existing scan suite"""
   updateScanSuite(update: InputUpdateScanSuiteRequest!): ConfirmationResponse!
 
-  """Mutation to update vulnerability"""
-  updateVulnerabilityV3(update: InputUpdateVulnerabilityV3Request!): ConfirmationResponse!
-  createSecuritySchemeRole(input: InputCreateSecuritySchemeRoleInput!): EntityIdentifier
-  createSecuritySchemeRoleRelationships(input: InputCreateSecuritySchemeRoleRelationshipsInput!): ConfirmationResponse
-  createSecuritySchemeScope(input: InputCreateSecuritySchemeScopeInput!): EntityIdentifier
-  createSecuritySchemeScopeRelationships(input: InputCreateSecuritySchemeScopeRelationshipsInput!): ConfirmationResponse
-  deleteSecuritySchemeRoleRelationships(input: InputDeleteSecuritySchemeRoleRelationshipsInput!): ConfirmationResponse
-  deleteSecuritySchemeRoles(input: InputDeleteSecuritySchemeRolesInput!): ConfirmationResponse
-  deleteSecuritySchemeScopeRelationships(input: InputDeleteSecuritySchemeScopeRelationshipsInput!): ConfirmationResponse
-  deleteSecuritySchemeScopes(input: InputDeleteSecuritySchemeScopesInput!): ConfirmationResponse
-  updateSecuritySchemeRole(input: InputUpdateSecuritySchemeRoleInput!): EntityIdentifier
-  updateSecuritySchemeScope(input: InputUpdateSecuritySchemeScopeInput!): EntityIdentifier
-
-  """Creates a servicenow itsm incident"""
-  createServiceNowItsmIncident(input: InputServiceNowItsmIntegrationCreateIncidentInput): ServiceNowItsmIntegrationIncidentResponse
-
-  """Creates a servicenow integration post validation"""
-  createServiceNowItsmIntegration(input: InputServiceNowItsmIntegrationCreateIntegrationInput): ServiceNowItsmIntegrationResponse
-
-  """Deletes a servicenow integration post validation"""
-  deleteServiceNowItsmIntegration(integrationConfigId: String): ConfirmationResponse
-
-  """Unlinks a servicenow itsm incident"""
-  unlinkServiceNowItsmIncident(input: InputServiceNowItsmIntegrationUnlinkIncidentInput): ConfirmationResponse
-
-  """Updates a servicenow integration post validation"""
-  updateServiceNowItsmIntegration(input: InputServiceNowItsmIntegrationUpdateIntegrationInput): ServiceNowItsmIntegrationResponse
-
-  """Creates the dashboard"""
-  createDashboard(input: InputDashboardCreateInput!): Dashboard!
-
-  """Deletes the dashboard"""
-  deleteDashboard(input: InputDashboardDeleteInput!): ConfirmationResponse!
-
-  """Updates the dashboard"""
-  updateDashboard(input: InputDashboardUpdateInput!): Dashboard!
-
-  """Creates a new Saved Filter"""
-  createSavedFilter(create: InputSavedFilterCreate!): SavedFilter!
-
-  """Deletes an existing Saved Filter"""
-  deleteSavedFilter(delete: InputSavedFilterDelete!): ConfirmationResponse!
-
-  """Updates an existing Saved Filter"""
-  updateSavedFilter(update: InputSavedFilterUpdate!): SavedFilter!
-  updateAnomalyScoreContributions(input: InputUpdateAnomalyScoreContributions!): AnomalyScoreContributions!
-  updateEventScoreContributions(input: InputUpdateEventScoreContributions!): EventScoreContributions!
-  updateEventTypeContribution(input: InputUpdateEventTypeContribution!): EventTypeContribution!
-  updateIpReputationThreatScoreConfig(input: InputUpdateIpReputationThreatScoreConfig!): IpReputationThreatScoreConfig!
-  updateStatusCodeThreatScoreConfigs(input: InputUpdateStatusCodeThreatScoreConfigs!): StatusCodeThreatScoreConfigs!
-  updateThreatAutoBlocking(input: InputUpdateThreatAutoBlocking!): ThreatAutoBlocking!
-  updateThreatScoreBounds(input: InputUpdateThreatScoreBounds!): ThreatScoreBounds!
-
-  """Creates wiz integration config as described"""
-  createWizIntegration(input: InputWizIntegrationCreateInput!): WizIntegration!
-
-  """Deletes wiz integration config"""
-  deleteWizIntegration(input: InputWizIntegrationDeleteInput!): ConfirmationResponse!
-
-  """Updates wiz integration config as described"""
-  updateWizIntegration(input: InputWizIntegrationUpdateInput!): WizIntegration!
-  createLocalProcessingRule(input: InputLocalProcessingRuleCreation!): LocalProcessingRule!
-  deleteLocalProcessingRule(input: InputLocalProcessingRuleDeletion!): DeleteLocalProcessingRuleResponse!
-  updateDefaultProtectionMode(input: InputDefaultProtectionModeUpdate!): ProtectionMode!
-  updateLocalProcessingRule(input: InputLocalProcessingRuleUpdate!): LocalProcessingRule!
-
-  """Creates the given span ingestion rule"""
-  createSpanIngestionRule(input: InputSpanIngestionRuleCreateInput!): SpanIngestionRule!
-
-  """Deletes the given span ingestion rule"""
-  deleteSpanIngestionRule(input: InputSpanIngestionRuleDeleteInput!): ConfirmationResponse!
-
-  """Ranks the given span ingestion rule"""
-  rankSpanIngestionRule(input: InputSpanIngestionRuleRankInput!): ConfirmationResponse!
-
-  """Updates the given span ingestion rule"""
-  updateSpanIngestionRule(input: InputSpanIngestionRuleUpdateInput!): SpanIngestionRule!
-
-  """Mutator for creating Jwt Extraction Rules"""
-  createJwtExtractionRule(input: InputJwtExtractionRuleCreateInput!): JwtExtractionRule!
-
-  """Mutator for deleting Jwt Extraction Rules"""
-  deleteJwtExtractionRule(input: InputJwtExtractionRuleDeleteInput!): ConfirmationResponse!
-
-  """Mutator for updating Jwt Extraction Rules"""
-  updateJwtExtractionRule(input: InputJwtExtractionRuleUpdateInput!): JwtExtractionRule!
-  bulkUpdateEntities(input: InputBulkUpdateEntities!): BulkUpdateResponse
-  updateEntity(input: InputEntityUpdate!): UpdatedEntity
-
-  """Creates the described auth detection rule"""
-  createAuthDetectionRule(input: InputAuthDetectionRuleCreateInput!): AuthDetectionRule!
-
-  """Deletes the identified auth detection rule"""
-  deleteAuthDetectionRule(input: InputAuthDetectionRuleDeleteInput!): ConfirmationResponse!
-
-  """Updates the described auth detection rule"""
-  updateAuthDetectionRule(input: InputAuthDetectionRuleUpdateInput!): AuthDetectionRule!
-  createExfiltrationDetectionRule(input: InputExfiltrationDetectionRuleData!): ExfiltrationDetectionRule
-  deleteExfiltrationDetectionRule(id: String!): Boolean
-  updateExfiltrationDetectionRule(input: InputExfiltrationDetectionRule!): ExfiltrationDetectionRule
-  createIpRangeRule(create: InputIpRangeRuleCreate!): IpRangeRule!
-  deleteIpRangeRule(delete: InputIpRangeRuleDelete!): DeleteIpRangeRuleResponse!
-  updateIpRangeRule(update: InputIpRangeRuleUpdate!): IpRangeRule!
-
-  """Create an attribute"""
-  createAttribute(
-    """The attribute to be created"""
-    attributeMetadataInput: InputAttributeMetadataInput!
-  ): AttributeMetadata
-
-  """Delete an attribute"""
-  deleteAttribute(
-    """Identifier of the attribute to be deleted"""
-    attributeIdentifierInput: InputAttributeIdentifierInput!
-  ): ConfirmationResponse
-
-  """Update an attribute"""
-  updateAttribute(
-    """Input arguments for updating an attribute"""
-    attributeUpdateInput: InputAttributeUpdateInput!
-  ): AttributeMetadata
-  createApiSpec(input: InputCreateApiSpec!): ApiSpec!
-  deleteApiSpec(input: InputDeleteApiSpec!): DeleteApiSpecResponse!
-  updateApiSpec(input: InputUpdateApiSpec!): ApiSpec!
-  bootstrapAwsWafIntegration(AwsBootstrapWafIntegrationInput: InputAwsBootstrapWafIntegrationInput!): ConfirmationResponse
-
-  """Creates snyk integration config as described"""
-  createSnykIntegration(input: InputSnykIntegrationCreateInput!): ConfirmationResponse!
-
-  """Deletes the snyk integration config"""
-  deleteSnykIntegration: ConfirmationResponse!
-
-  """Updates snyk integration config as described"""
-  updateSnykIntegration(input: InputSnykIntegrationUpdateInput!): ConfirmationResponse!
-  createSonarScan(create: InputCreateSonarScanRequest!): SonarScan!
-  deleteSonarScan(delete: InputDeleteSonarScanRequest!): ConfirmationResponse!
-  updateSonarScan(update: InputUpdateSonarScanRequest!): SonarScan!
-  createAnomalyExclusionRule(create: InputAnomalyExclusionRuleData!): AnomalyExclusionRuleConfig!
-  deleteAnomalyExclusionRule(delete: InputAnomalyExclusionRuleDelete!): Boolean!
-  deleteScopedAnomalyAggregationConfig(delete: InputAnomalyAggregationConfigDelete!): DeleteScopedAnomalyAggregationConfigResponse!
-  deleteScopedAnomalyDetectionConfig(delete: InputAnomalyDetectionConfigDelete!): ScopedAnomalyDetectionConfig!
-  deleteScopedTrainingConfig(delete: InputTrainingConfigDelete!): ScopedTrainingConfig!
-  updateAnomalyExclusionRule(update: InputAnomalyExclusionRuleUpdate!): AnomalyExclusionRuleConfig!
-  updateAnomalyGlobalConfigStatus(update: InputAnomalyGlobalConfigStatusUpdate!): AnomalyConfigStatusChange! @deprecated(reason: "Deprecated")
-  updateAnomalyRuleConfig(update: InputScopedAnomalyRuleConfigUpdate!): AnomalyRuleConfigUpdate!
-  updateScopedAnomalyAggregationConfig(update: InputAnomalyAggregationConfigUpdate!): ScopedAnomalyAggregationConfig!
-  updateScopedAnomalyDetectionConfig(update: InputAnomalyDetectionConfigUpdate!): ScopedAnomalyDetectionConfig!
-  updateScopedAnomalyGlobalConfig(update: InputScopedAnomalyGlobalConfigChange!): ScopedAnomalyGlobalConfigChange!
-  updateScopedTrainingConfig(update: InputTrainingConfigUpdate!): ScopedTrainingConfig!
-  upsertTrainingAction(upsertAction: InputTrainerActionUpsert!): ScopedTrainingActionConfig!
-
-  """Create ast hook"""
-  createAstHook(input: InputCreateAstHook!): AstHook!
-
-  """Create ast hook test"""
-  createAstHookTest(input: InputCreateAstHookTest!): AstHookTest!
-
-  """Create ast hook V2"""
-  createAstHookV2(input: InputCreateAstHookV2!): AstHookV2!
-
-  """Delete ast hook"""
-  deleteAstHook(id: String!): ConfirmationResponse!
-
-  """Delete ast hook test"""
-  deleteAstHookTest(astHookTestIdList: [String]): ConfirmationResponse!
-
-  """Delete ast hooks"""
-  deleteAstHookV2(input: InputDeleteAstHookV2!): ConfirmationResponse!
-
-  """Update ast hook"""
-  updateAstHook(input: InputUpdateAstHook!): AstHook!
-
-  """Update ast hook test"""
-  updateAstHookTest(input: InputUpdateAstHookTest!): AstHookTest!
-
-  """Update ast hook V2"""
-  updateAstHookV2(input: InputUpdateAstHookV2!): AstHookV2!
-
   """
   Accepts parameters from a GitHub callback to link a registered application
   with Traceable a unique URL to integrate with GitHub. GitHub response must be
@@ -25056,173 +25519,123 @@ type Mutation {
   Deletes a registered GitHub application installation and associated configuration.
   """
   deleteGithubIntegration(id: String!): ConfirmationResponse!
-  createJiraIntegration(input: InputCreateJiraIntegrationInput!): JiraIntegration!
-  createJiraIssue(input: InputCreateJiraIssueInput!): JiraIssueResponse
-  createJiraProjectIssueConfigurations(input: InputCreateProjectIssueConfigurationsInput!): ProjectIssueConfigurationsResponse
-  deleteJiraIntegration(integrationId: String): DeleteJiraIntegrationResponse!
-  deleteJiraProjectIssueConfiguration(input: InputDeleteProjectIssueConfigurationInput): ConfirmationResponse
-  generateJiraAuthorizationLink(input: InputAuthorizationLinkRequest!): AuthorizationLinkResponse
-  manageJiraProjectIssueConfigurations(input: InputManageProjectIssueConfigurationsInput!): ManageProjectIssueConfigurationsResponse
-  unlinkJiraIssueReferences(input: InputUnlinkJiraIssueReferencesInput!): UnlinkJiraIssueReferencesResponse
-  updateJiraIntegration(input: InputUpdateJiraIntegrationInput!): JiraIntegration!
-  updateJiraProjectIssueConfigurations(input: InputUpdateProjectIssueConfigurationsInput!): ProjectIssueConfigurationsResponse
 
-  """Mutation to create api naming rule"""
-  createApiNamingRule(input: InputApiNamingRuleCreate!): ApiNamingRule!
+  """Creates the dashboard"""
+  createDashboard(input: InputDashboardCreateInput!): Dashboard!
 
-  """Mutation to create protection span rule"""
-  createProtectionSpanRule(input: InputProtectionSpanRuleCreate!): ProtectionSpanRule!
-  createSamplingConfig(input: InputSamplingConfigCreate!): SpanProcessingSamplingConfig!
+  """Deletes the dashboard"""
+  deleteDashboard(input: InputDashboardDeleteInput!): ConfirmationResponse!
 
-  """Creates the described service naming rule"""
-  createServiceNamingRule(input: InputServiceNamingRuleCreateInput!): ServiceNamingRule!
+  """Updates the dashboard"""
+  updateDashboard(input: InputDashboardUpdateInput!): Dashboard!
 
-  """Mutation to delete api naming rule"""
-  deleteApiNamingRule(input: InputApiNamingRuleDelete!): DeleteTraceableSpanProcessingRuleResponse!
+  """Create Sonar Scan"""
+  createSonarScanV2(create: InputCreateSonarScanV2Request!): SonarScanV2!
 
-  """Mutation to delete protection span rule"""
-  deleteProtectionSpanRule(input: InputProtectionSpanRuleDelete!): DeleteTraceableSpanProcessingRuleResponse!
-  deleteSamplingConfig(input: InputSamplingConfigDelete!): DeleteTraceableSpanProcessingRuleResponse!
+  """Update Sonar Scan"""
+  updateSonarScanV2(update: InputUpdateSonarScanV2Request!): SonarScanV2!
 
-  """Deletes the identified service naming rule"""
-  deleteServiceNamingRule(input: InputServiceNamingRuleDeleteInput!): ConfirmationResponse!
+  """Creates splunk integration config as described"""
+  createSplunkIntegration(input: InputCreateSplunkIntegrationInput!): SplunkIntegration!
 
-  """Mutation to update api naming rule"""
-  updateApiNamingRule(input: InputApiNamingRuleUpdate!): ApiNamingRule!
+  """Deletes the splunk integration config"""
+  deleteSplunkIntegration(input: InputDeleteSplunkIntegrationInput!): ConfirmationResponse!
 
-  """Mutation to update protection span rule"""
-  updateProtectionSpanRule(input: InputProtectionSpanRuleUpdate!): ProtectionSpanRule!
-  updateSamplingConfig(input: InputSamplingConfigUpdate!): SpanProcessingSamplingConfig!
-
-  """Updates the described service naming rule"""
-  updateServiceNamingRule(input: InputServiceNamingRuleUpdateInput!): ServiceNamingRule!
-  createSessionIdentificationRule(input: InputSessionIdentificationCreateInput!): SessionIdentificationRuleResultSet!
-  deleteSessionIdentificationRule(input: InputSessionIdentificationDeleteInput!): SessionIdentificationRuleResultSet!
-  updateSessionIdentificationRule(rule: InputSessionIdentificationRule!): SessionIdentificationRule!
-  createCustomSignatureRule(create: InputCustomSignatureRuleDescriptor!): CustomSignatureRule!
-  deleteCustomSignatureRule(delete: InputCustomSignatureRuleDelete!): DeleteCustomSignatureRuleResponse!
-  updateCustomSignatureRule(update: InputCustomSignatureRuleUpdate!): CustomSignatureRule!
-
-  """Create a new policy"""
-  createPolicy(createPolicyRequest: InputCreatePolicyRequest!): Policy
-
-  """Delete the policies by giving the policyIds"""
-  deletePolicies(deletePoliciesRequest: InputDeletePoliciesRequest!): ConfirmationResponse
-
-  """Bulk update policies for selected fields"""
-  updatePolicies(policyUpdates: [InputPolicyUpdate]!): ConfirmationResponse
-
-  """Update an existing policy"""
-  updatePolicy(updatePolicyRequest: InputUpdatePolicyRequest!): Policy
-
-  """Deletes repositories with given ids"""
-  deleteRepositories(repositoryIds: [String]!): ConfirmationResponse!
-
-  """Submits the requested code for analysis"""
-  startCodeAnalysis(parameters: InputCodeAnalysisParameters!): SubmittedCodeAnalysisJobResultSet!
-
-  """Creates a new saved query"""
-  createSavedQuery(create: InputSavedQueryCreate!): SavedQuery!
-
-  """Deletes an existing saved query"""
-  deleteSavedQuery(delete: InputSavedQueryDelete!): ConfirmationResponse!
-
-  """Updates an existing saved query"""
-  updateSavedQuery(update: InputSavedQueryUpdate!): SavedQuery!
-
-  """Creates a new User Attribution rule"""
-  createUserAttributionRuleV2(create: InputCreateUserAttributionRule!): UserAttributionRuleResultSetV2!
-
-  """Deletes an existing User Attribution rule"""
-  deleteUserAttributionRuleV2(delete: InputDeleteUserAttributionRule!): ConfirmationResponse!
-
-  """Rank an existing User Attribution rule"""
-  rankUserAttributionRuleV2(rank: InputRankUserAttributionRule!): UserAttributionRuleResultSetV2!
-
-  """Updates an existing User Attribution rule"""
-  updateUserAttributionRuleV2(update: InputUpdateUserAttributionRule!): UserAttributionRuleV2!
-
-  """Mutation to create vulnerability status change config"""
-  createVulnerabilityStatusChangeConfig(create: InputCreateVulnerabilityStatusChangeConfigRequest!): VulnerabilityStatusChangeConfig!
-
-  """Mutation to create custom vulnerability type"""
-  createCustomVulnerabilityType(create: InputCreateCustomVulnerabilityTypeRequest!): CreateCustomVulnerabilityTypeResponse!
-
-  """Mutation to create vulnerability"""
-  createVulnerabilities(create: InputCreateVulnerabilitiesRequest!): CreateVulnerabilitiesResponse!
-
-  """Mutation to delete vulnerability status change config"""
-  deleteVulnerabilityStatusChangeConfig(delete: InputDeleteVulnerabilityStatusChangeConfigsRequest!): ConfirmationResponse!
-
-  """Mutation to delete custom vulnerability type"""
-  deleteCustomVulnerabilityType(delete: InputDeleteCustomVulnerabilityTypeRequest!): ConfirmationResponse!
-
-  """Mutation to update vulnerability status change config"""
-  updateVulnerabilityStatusChangeConfig(update: InputUpdateVulnerabilityStatusChangeConfigRequest!): VulnerabilityStatusChangeConfig!
-
-  """Mutation to update custom vulnerability type"""
-  updateCustomVulnerabilityType(update: InputUpdateCustomVulnerabilityTypeRequest!): UpdateCustomVulnerabilityTypeResponse!
-
-  """Mutation to update vulnerability config"""
-  updateIssueConfig(update: InputUpdateIssueConfigRequest!): IssueConfig!
-  createUserAttributionRule(input: InputUserAttributionCreateInput!): UserAttributionRuleResultSet!
-  deleteUserAttributionRule(input: InputUserAttributionDeleteInput!): UserAttributionRuleResultSet!
-  rankUserAttributionRule(input: InputUserAttributionRankInput!): UserAttributionRuleResultSet!
-  updateUserAttributionRule(rule: InputUserAttributionRule!): UserAttributionRule!
-
-  """Mutation API to create Malicious Sources rule"""
-  createMaliciousSourcesRule(create: InputMaliciousSourcesRuleCreate!): MaliciousSourcesRule!
-
-  """Mutation API to delete Malicious Sources rule"""
-  deleteMaliciousSourcesRule(delete: InputMaliciousSourcesRuleDelete!): DeleteMaliciousSourcesRuleResponse!
-
-  """Mutation API to update Malicious Sources rule"""
-  updateMaliciousSourcesRule(update: InputMaliciousSourcesRuleUpdate!): MaliciousSourcesRule!
-  cancelSubscription: SubscriptionCancelResponse
-  generateCardUpdateSecret: GenerateCardUpdateSecretResponse
-  setupSubscription(input: InputSubscriptionInput!): SetupSubscriptionResponse
-  synchronizeLicenseFromSubscription: SynchronizeLicenseFromSubscriptionResponse
-  updateDefaultPaymentMethod(paymentMethodId: String!): Boolean
-  updateSubscription(input: InputSubscriptionInput!): SubscriptionUpdateResponse
-  createWafIntegration(input: InputCreateWafIntegrationInput!): WafIntegration
-  deleteWafIntegration(input: InputDeleteWafIntegrationInput!): DeleteWafIntegrationResponse
-  updateWafIntegration(input: InputUpdateWafIntegrationInput!): WafIntegration
+  """Updates splunk integration config as described"""
+  updateSplunkIntegration(input: InputUpdateSplunkIntegrationInput!): SplunkIntegration!
   createRateLimitingRule(rateLimitingRuleData: InputRateLimitingRuleData!): RateLimitingRule!
   deleteRateLimitingRule(id: String!): DeleteRateLimitingRuleResponse!
   updateRateLimitingRule(rateLimitingRule: InputRateLimitingRule!): RateLimitingRule!
+  createWafIntegration(input: InputCreateWafIntegrationInput!): WafIntegration
+  deleteWafIntegration(input: InputDeleteWafIntegrationInput!): DeleteWafIntegrationResponse
+  updateWafIntegration(input: InputUpdateWafIntegrationInput!): WafIntegration
 
-  """Creates a new Data Classification Override Rule"""
-  createDataClassificationOverride(input: InputDataClassificationOverrideRuleCreateInput!): DataClassificationOverrideRule!
-  createDataSet(dataSetCreate: InputDataSetCreate!): DataSet!
-  createDataType(dataTypeRule: InputDataTypeRule!): DataType!
+  """Update the genAi config"""
+  updateGenAiConfig(update: InputGenAiConfigUpdate!): GenAiConfig!
 
-  """Deletes an existing Data Classification Override Rule"""
-  deleteDataClassificationOverride(input: InputDataClassificationOverrideRuleDeleteInput!): ConfirmationResponse!
-  deleteDataSet(id: String!): Boolean!
-  deleteDataType(id: String!): ConfirmationResponse!
+  """Creates the given span ingestion rule"""
+  createSpanIngestionRule(input: InputSpanIngestionRuleCreateInput!): SpanIngestionRule!
 
-  """Updates an existing new Data Classification Override Rule"""
-  updateDataClassificationOverride(input: InputDataClassificationOverrideRuleUpdateInput!): DataClassificationOverrideRule!
-  updateDataSet(dataSetUpdate: InputDataSetUpdate!): DataSet!
-  updateDataType(dataType: InputDataType!): DataType!
+  """Deletes the given span ingestion rule"""
+  deleteSpanIngestionRule(input: InputSpanIngestionRuleDeleteInput!): ConfirmationResponse!
 
-  """Deletes existing scoped data protection config"""
-  deleteScopedDataProtectionConfig(delete: InputDeleteScopedDataProtectionConfigRequest!): ConfirmationResponse!
+  """Ranks the given span ingestion rule"""
+  rankSpanIngestionRule(input: InputSpanIngestionRuleRankInput!): ConfirmationResponse!
 
-  """Update scoped data protection config"""
-  updateScopedDataProtectionConfig(upsert: InputUpdateScopedDataProtectionConfigRequest!): DataProtectionConfig!
+  """Updates the given span ingestion rule"""
+  updateSpanIngestionRule(input: InputSpanIngestionRuleUpdateInput!): SpanIngestionRule!
+  createExfiltrationDetectionRule(input: InputExfiltrationDetectionRuleData!): ExfiltrationDetectionRule
+  deleteExfiltrationDetectionRule(id: String!): Boolean
+  updateExfiltrationDetectionRule(input: InputExfiltrationDetectionRule!): ExfiltrationDetectionRule
+  convertTrialToFree: LicenseInfo
+  createOidcGroupMapping(input: InputIdpGroupMappingCreate!): IdpGroupMappingMetadata
 
-  """Reset factors and elements to default values"""
-  resetApiRiskFactorConfigs(filter: InputApiRiskFactorConfigsResetFilter): ApiRiskFactorConfigs!
+  """Create custom user roles"""
+  createRole(input: InputCreateRoleInput!): Role!
+  createSamlGroupMapping(input: InputIdpGroupMappingCreate!): IdpGroupMappingMetadata
+  createUser(input: InputUserInput!): User
+  deleteApiToken(input: InputDeleteApiTokenInput!): Identifiable
+  deleteOidcGroupMapping(id: String!): Boolean
 
-  """Reset grid to default values"""
-  resetApiRiskScoringConfig(filter: InputApiRiskConfigScopeFilter): ApiRiskScoringConfigs!
+  """Delete custom user roles"""
+  deleteRole(id: String!): ConfirmationResponse!
+  deleteSamlGroupMapping(id: String!): Boolean
+  deleteUser(input: InputDeleteUserInput!): User
+  initApiToken(name: String!): ApiTokenIdentifier
 
-  """Update factors and elements"""
-  updateApiRiskFactorConfigs(update: InputApiRiskFactorConfigsUpdate!): ApiRiskFactorConfigs!
+  """Sign the Master Service Agreement for your account"""
+  signMsa(input: InputSignMsaInput!): MsaSigningInfo!
+  updateApiTokenMetadata(input: InputUpdateApiTokenMetadataInput!): ApiTokenMetadata
+  updateOidcGroupMapping(input: InputIdpGroupMappingMetadata!): IdpGroupMappingMetadata
 
-  """Update the grid cell scores"""
-  updateApiRiskScoringConfig(update: InputApiRiskScoringGridUpdate!): ApiRiskScoringConfigs!
+  """Update custom user roles"""
+  updateRole(input: InputUpdateRoleInput!): Role!
+  updateSamlGroupMapping(input: InputIdpGroupMappingMetadata!): IdpGroupMappingMetadata
+
+  """Updates session configuration of tenant"""
+  updateSessionConfiguration(input: InputUpdateSessionConfigurationInput!): sessionConfiguration!
+  updateUser(input: InputUpdateUserInput!): User
+  updateUserProvisioning(input: InputUserProvisioningInput!): ConfirmationResponse!
+  updateUserProvisioningV2(input: InputUserProvisionInfoV2!): ConfirmationResponse!
+
+  """Update confidence scoring config"""
+  updateConfidenceScoringConfig(input: InputUpdateConfidenceScoringConfig!): ConfidenceScoringConfig! @deprecated(reason: "Deprecated")
+
+  """Update impact scoring config"""
+  updateImpactScoringConfig(input: InputUpdateImpactScoringConfig!): ImpactScoringConfig! @deprecated(reason: "Deprecated")
+  removeApiAttributeOverrides(input: InputRemoveApiAttributeOverridesRequest!): ApiAttributeOverrides
+  upsertApiAttributeOverrides(input: InputUpsertApiAttributesOverrideRequest!): ApiAttributeOverrides
+  createRedactionRule(input: InputRedactionRuleCreation!): RedactionRule!
+  deleteRedactionRule(input: InputRedactionRuleDelete!): DeleteRedactionRuleResponse!
+  updateAutomaticSecretRedaction(enabled: Boolean!): UpdateAutomaticSecretRedactionResponse!
+  updateFullPrivacyMode(enabled: Boolean!): UpdateFullPrivacyModeResponse!
+  updateRedactionRule(input: InputRedactionRuleUpdate!): RedactionRule!
+  updateRedactionStrategy(type: SensitiveParameterType!, redactionStrategy: RedactionStrategy!): UpdateRedactionStrategyResponse
+
+  """Creates a new Session Identification rule"""
+  createSessionIdentificationRuleV2(create: InputCreateSessionIdentificationRule!): SessionIdentificationRuleV2!
+
+  """Deletes an existing Session Identification rule"""
+  deleteSessionIdentificationRuleV2(delete: InputDeleteSessionIdentificationRule!): ConfirmationResponse!
+
+  """Updates an existing Session Identification rule"""
+  updateSessionIdentificationRuleV2(update: InputUpdateSessionIdentificationRule!): SessionIdentificationRuleV2!
+  deleteScopedAnomalyAggregationConfig(delete: InputAnomalyAggregationConfigDelete!): DeleteScopedAnomalyAggregationConfigResponse!
+  deleteScopedAnomalyDetectionConfig(delete: InputAnomalyDetectionConfigDelete!): ScopedAnomalyDetectionConfig!
+  deleteScopedTrainingConfig(delete: InputTrainingConfigDelete!): ScopedTrainingConfig!
+  updateAnomalyGlobalConfigStatus(update: InputAnomalyGlobalConfigStatusUpdate!): AnomalyConfigStatusChange! @deprecated(reason: "Deprecated")
+  updateAnomalyRuleConfig(update: InputScopedAnomalyRuleConfigUpdate!): AnomalyRuleConfigUpdate!
+  updateScopedAnomalyAggregationConfig(update: InputAnomalyAggregationConfigUpdate!): ScopedAnomalyAggregationConfig!
+  updateScopedAnomalyDetectionConfig(update: InputAnomalyDetectionConfigUpdate!): ScopedAnomalyDetectionConfig!
+  updateScopedAnomalyGlobalConfig(update: InputScopedAnomalyGlobalConfigChange!): ScopedAnomalyGlobalConfigChange!
+  updateScopedTrainingConfig(update: InputTrainingConfigUpdate!): ScopedTrainingConfig!
+  upsertTrainingAction(upsertAction: InputTrainerActionUpsert!): ScopedTrainingActionConfig!
+  createRegionRule(input: InputRegionRuleCreate!): RegionRule!
+  deleteRegionRule(input: InputRegionRuleDelete!): DeleteRegionRuleResponse!
+  updateRegionRule(input: InputRegionRuleUpdate!): RegionRule!
+  createExcludeSpanRule(input: InputExcludeSpanRuleCreate!): ExcludeSpanRule!
+  deleteExcludeSpanRule(input: InputExcludeSpanRuleDelete!): DeleteSpanProcessingRuleResponse!
+  updateExcludeSpanRule(input: InputExcludeSpanRuleUpdate!): ExcludeSpanRule!
   createApiDefinition(apiDefinitionSpec: InputApiDefinitionSpec!): ApiDefinitionJob
   createApiSpecConformance(createApiSpecConformanceJob: InputCreateApiSpecConformanceJob!): ApiSpecConformanceJob
   createApiSpecConformanceSchedule(createApiSpecConformanceScheduledJob: InputCreateApiSpecConformanceScheduledJob!): ApiSpecConformanceScheduledJob
@@ -25235,40 +25648,9 @@ type Mutation {
   updateApiSpecConformanceScheduledJob(UpdateApiSpecConformanceScheduledJob: InputUpdateApiSpecConformanceScheduledJob!): ApiSpecConformanceScheduledJob @deprecated(reason: "Deprecated")
   createAstScanJobSpec(astScanJobSpec: InputAstScanJobSpec!): AstScanJobSpec
   updateScheduledJob(updateScheduledJob: InputUpdateScheduledJob!): ConfirmationResponse
-  updateActorStatus(input: InputActorStatusUpdate!): UpdatedActorStatus
-
-  """Creates a new Session Identification rule"""
-  createSessionIdentificationRuleV2(create: InputCreateSessionIdentificationRule!): SessionIdentificationRuleV2!
-
-  """Deletes an existing Session Identification rule"""
-  deleteSessionIdentificationRuleV2(delete: InputDeleteSessionIdentificationRule!): ConfirmationResponse!
-
-  """Updates an existing Session Identification rule"""
-  updateSessionIdentificationRuleV2(update: InputUpdateSessionIdentificationRule!): SessionIdentificationRuleV2!
-  createRedactionRule(input: InputRedactionRuleCreation!): RedactionRule!
-  deleteRedactionRule(input: InputRedactionRuleDelete!): DeleteRedactionRuleResponse!
-  updateAutomaticSecretRedaction(enabled: Boolean!): UpdateAutomaticSecretRedactionResponse!
-  updateFullPrivacyMode(enabled: Boolean!): UpdateFullPrivacyModeResponse!
-  updateRedactionRule(input: InputRedactionRuleUpdate!): RedactionRule!
-  updateRedactionStrategy(type: SensitiveParameterType!, redactionStrategy: RedactionStrategy!): UpdateRedactionStrategyResponse
-
-  """Creates splunk integration config as described"""
-  createSplunkIntegration(input: InputCreateSplunkIntegrationInput!): SplunkIntegration!
-
-  """Deletes the splunk integration config"""
-  deleteSplunkIntegration(input: InputDeleteSplunkIntegrationInput!): ConfirmationResponse!
-
-  """Updates splunk integration config as described"""
-  updateSplunkIntegration(input: InputUpdateSplunkIntegrationInput!): SplunkIntegration!
-
-  """Creates syslog server integration config as described"""
-  createSyslogServerIntegration(input: InputCreateSyslogServerIntegrationInput!): SyslogServerIntegration!
-
-  """Deletes the syslog server integration config"""
-  deleteSyslogServerIntegration(input: InputDeleteSyslogServerIntegrationInput!): ConfirmationResponse!
-
-  """Updates syslog server integration config as described"""
-  updateSyslogServerIntegration(input: InputUpdateServerSyslogIntegrationInput!): SyslogServerIntegration!
+  createSessionIdentificationRule(input: InputSessionIdentificationCreateInput!): SessionIdentificationRuleResultSet!
+  deleteSessionIdentificationRule(input: InputSessionIdentificationDeleteInput!): SessionIdentificationRuleResultSet!
+  updateSessionIdentificationRule(rule: InputSessionIdentificationRule!): SessionIdentificationRule!
   OverrideEventConfidenceScoringConfig(input: MUTATION_traceableThreatScoringConfig___OverrideEventConfidenceScoringConfigRequest___Input): MUTATION_traceableThreatScoringConfig___OverrideEventConfidenceScoringConfigResponse___
   DeleteEventConfidenceScoringConfigOverrides(input: MUTATION_traceableThreatScoringConfig___DeleteEventConfidenceScoringConfigOverridesRequest___Input): MUTATION_traceableThreatScoringConfig___DeleteEventConfidenceScoringConfigOverridesResponse___
   OverrideThreatActivityConfidenceScoringConfig(input: MUTATION_traceableThreatScoringConfig___OverrideThreatActivityConfidenceScoringConfigRequest___Input): MUTATION_traceableThreatScoringConfig___OverrideThreatActivityConfidenceScoringConfigResponse___
@@ -25368,6 +25750,9 @@ type MUTATION_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyDeta
   bot_scopes___JSON: JSON
   categorized_bot_policy_action_config: MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyActionConfig___
   categorized_bot_policy_action_config___JSON: JSON
+  categorized_bot_policy_target_scope: MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyTargetScope___
+  categorized_bot_policy_target_scope___JSON: JSON
+  is_default_policy: Boolean
 }
 
 input MUTATION_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyDetails___Input {
@@ -25380,6 +25765,9 @@ input MUTATION_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyDet
   bot_scopes___JSON: JSON
   categorized_bot_policy_action_config: MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyActionConfig___Input
   categorized_bot_policy_action_config___JSON: JSON
+  categorized_bot_policy_target_scope: MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyTargetScope___Input
+  categorized_bot_policy_target_scope___JSON: JSON
+  is_default_policy: Boolean
 }
 
 type MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyActionConfig___ {
@@ -25400,6 +25788,16 @@ input MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyScope___I
   environment_scope___JSON: JSON
 }
 
+type MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyTargetScope___ {
+  entity_scope: MUTATION_categorizedBotConfigPolicyService___EntityScope___
+  entity_scope___JSON: JSON
+}
+
+input MUTATION_categorizedBotConfigPolicyService___CategorizedBotPolicyTargetScope___Input {
+  entity_scope: MUTATION_categorizedBotConfigPolicyService___EntityScope___Input
+  entity_scope___JSON: JSON
+}
+
 input MUTATION_categorizedBotConfigPolicyService___CreateCategorizedBotConfigPolicyRequest___Input {
   categorized_bot_config_policy_details: MUTATION_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyDetails___Input
   categorized_bot_config_policy_details___JSON: JSON
@@ -25417,6 +25815,24 @@ input MUTATION_categorizedBotConfigPolicyService___DeleteCategorizedBotConfigPol
 type MUTATION_categorizedBotConfigPolicyService___DeleteCategorizedBotConfigPolicyResponse___ {
   categorized_bot_config_policy: MUTATION_categorizedBotConfigPolicyService___CategorizedBotConfigPolicy___
   categorized_bot_config_policy___JSON: JSON
+}
+
+type MUTATION_categorizedBotConfigPolicyService___EntityScope___ {
+  entity_type: MUTATION_categorizedBotConfigPolicyService___EntityType___
+  entity_ids: [String]
+  entity_ids___JSON: JSON
+}
+
+input MUTATION_categorizedBotConfigPolicyService___EntityScope___Input {
+  entity_type: MUTATION_categorizedBotConfigPolicyService___EntityType___
+  entity_ids: [String]
+  entity_ids___JSON: JSON
+}
+
+enum MUTATION_categorizedBotConfigPolicyService___EntityType___ {
+  ENTITY_TYPE_UNSPECIFIED
+  ENTITY_TYPE_API
+  ENTITY_TYPE_SERVICE
 }
 
 type MUTATION_categorizedBotConfigPolicyService___EnvironmentScope___ {
@@ -28772,6 +29188,13 @@ input MUTATION_traceablePolicyConfig___BotFingerprintScore___Input {
   low_score: Float
 }
 
+enum MUTATION_traceablePolicyConfig___CaptchaDifficulty___ {
+  CAPTCHA_DIFFICULTY_UNSPECIFIED
+  CAPTCHA_DIFFICULTY_EASY
+  CAPTCHA_DIFFICULTY_MEDIUM
+  CAPTCHA_DIFFICULTY_HARD
+}
+
 type MUTATION_traceablePolicyConfig___ClientBotFingerprintPolicy___ {
   use_default: Boolean
   bot_suspicion_threshold: Float
@@ -28802,9 +29225,53 @@ type MUTATION_traceablePolicyConfig___DeleteResponse___ {
   deleted_policy___JSON: JSON
 }
 
+type MUTATION_traceablePolicyConfig___Duration___ {
+  seconds: Int
+  nanos: Int
+}
+
+input MUTATION_traceablePolicyConfig___Duration___Input {
+  seconds: Int
+  nanos: Int
+}
+
 input MUTATION_traceablePolicyConfig___FieldMask___Input {
   paths: [String]
   paths___JSON: JSON
+}
+
+type MUTATION_traceablePolicyConfig___InvisibleCaptchaPolicy___ {
+  site_key: String
+  difficulty_category: MUTATION_traceablePolicyConfig___CaptchaDifficulty___
+  rules: [MUTATION_traceablePolicyConfig___InvisibleCaptchaRule___]
+  rules___JSON: JSON
+  custom_fields: MUTATION_traceablePolicyConfig___Value___
+  custom_fields___JSON: JSON
+  invisible_captcha_threshold: Float
+}
+
+input MUTATION_traceablePolicyConfig___InvisibleCaptchaPolicy___Input {
+  site_key: String
+  difficulty_category: MUTATION_traceablePolicyConfig___CaptchaDifficulty___
+  rules: [MUTATION_traceablePolicyConfig___InvisibleCaptchaRule___Input]
+  rules___JSON: JSON
+  custom_fields: MUTATION_traceablePolicyConfig___Value___Input
+  custom_fields___JSON: JSON
+  invisible_captcha_threshold: Float
+}
+
+type MUTATION_traceablePolicyConfig___InvisibleCaptchaRule___ {
+  rule_config: MUTATION_traceablePolicyConfig___RuleConfig___
+  rule_config___JSON: JSON
+  custom_fields: MUTATION_traceablePolicyConfig___Value___
+  custom_fields___JSON: JSON
+}
+
+input MUTATION_traceablePolicyConfig___InvisibleCaptchaRule___Input {
+  rule_config: MUTATION_traceablePolicyConfig___RuleConfig___Input
+  rule_config___JSON: JSON
+  custom_fields: MUTATION_traceablePolicyConfig___Value___Input
+  custom_fields___JSON: JSON
 }
 
 type MUTATION_traceablePolicyConfig___ListValue___ {
@@ -28819,6 +29286,41 @@ input MUTATION_traceablePolicyConfig___ListValue___Input {
 
 enum MUTATION_traceablePolicyConfig___NullValue___ {
   NULL_VALUE
+}
+
+type MUTATION_traceablePolicyConfig___RateConfig___ {
+  dimension: MUTATION_traceablePolicyConfig___RateDimension___
+  threshold: Float
+  time_window: MUTATION_traceablePolicyConfig___Duration___
+  time_window___JSON: JSON
+  complexity: MUTATION_traceablePolicyConfig___Value___
+  complexity___JSON: JSON
+}
+
+input MUTATION_traceablePolicyConfig___RateConfig___Input {
+  dimension: MUTATION_traceablePolicyConfig___RateDimension___
+  threshold: Float
+  time_window: MUTATION_traceablePolicyConfig___Duration___Input
+  time_window___JSON: JSON
+  complexity: MUTATION_traceablePolicyConfig___Value___Input
+  complexity___JSON: JSON
+}
+
+enum MUTATION_traceablePolicyConfig___RateDimension___ {
+  RATE_DIMENSION_UNSPECIFIED
+  RATE_DIMENSION_IP
+  RATE_DIMENSION_UA
+  RATE_DIMENSION_VISITOR
+}
+
+type MUTATION_traceablePolicyConfig___RuleConfig___ {
+  rate_config: MUTATION_traceablePolicyConfig___RateConfig___
+  rate_config___JSON: JSON
+}
+
+input MUTATION_traceablePolicyConfig___RuleConfig___Input {
+  rate_config: MUTATION_traceablePolicyConfig___RateConfig___Input
+  rate_config___JSON: JSON
 }
 
 type MUTATION_traceablePolicyConfig___Struct___ {
@@ -28840,6 +29342,8 @@ type MUTATION_traceablePolicyConfig___TraceablePolicy___ {
   labels___JSON: JSON
   client_bot_fingerprint_policy: MUTATION_traceablePolicyConfig___ClientBotFingerprintPolicy___
   client_bot_fingerprint_policy___JSON: JSON
+  invisible_captcha_policy: MUTATION_traceablePolicyConfig___InvisibleCaptchaPolicy___
+  invisible_captcha_policy___JSON: JSON
   template_id: String
 }
 
@@ -28852,6 +29356,8 @@ input MUTATION_traceablePolicyConfig___TraceablePolicy___Input {
   labels___JSON: JSON
   client_bot_fingerprint_policy: MUTATION_traceablePolicyConfig___ClientBotFingerprintPolicy___Input
   client_bot_fingerprint_policy___JSON: JSON
+  invisible_captcha_policy: MUTATION_traceablePolicyConfig___InvisibleCaptchaPolicy___Input
+  invisible_captcha_policy___JSON: JSON
   template_id: String
 }
 
@@ -29844,6 +30350,9 @@ type Plugin {
   """details about what will this plugin do"""
   pluginDetails: String
 
+  """Potential generated vulnerability types"""
+  potentialGeneratedVulnerabilityTypes: [String]!
+
   """Readiness Status of plugin"""
   readinessStatus: PluginReadinessStatus!
 
@@ -30061,9 +30570,6 @@ enum PolicyArrayValueType {
 }
 
 type PolicyAttribute {
-  """Groups to which this attribute belongs to"""
-  attributeGroup: [PolicyAttributeGroup]
-
   """Datatype of the attribute"""
   datatype: PolicyDatatype!
 
@@ -30072,11 +30578,6 @@ type PolicyAttribute {
 
   """Unique attribute key"""
   key: String!
-}
-
-type PolicyAttributeGroup {
-  """The name of the attribute group"""
-  name: String!
 }
 
 type PolicyConfiguration {
@@ -30118,6 +30619,46 @@ enum PolicyDatatypeType {
 type PolicyDetails {
   id: String!
   policyName: String
+}
+
+enum PolicyEventType {
+  """API_CREATE"""
+  API_CREATE
+
+  """API_UPDATE"""
+  API_UPDATE
+
+  """DOMAIN_CREATE"""
+  DOMAIN_CREATE
+
+  """SERVICE_CREATE"""
+  SERVICE_CREATE
+
+  """BACKEND_CREATE"""
+  BACKEND_CREATE
+
+  """BACKEND_API_CREATE"""
+  BACKEND_API_CREATE
+
+  """ACTOR_UPDATE"""
+  ACTOR_UPDATE
+
+  """VULNERABILITY_CREATE"""
+  VULNERABILITY_CREATE
+
+  """VULNERABILITY_UPDATE"""
+  VULNERABILITY_UPDATE
+}
+
+type PolicyEventTypeDefinition {
+  """The attribute locations applicable for the event type"""
+  applicableLocations: [PolicyLocation]!
+
+  """The display name for the specific policy event type"""
+  displayName: String!
+
+  """The event type of the policy"""
+  policyEventType: PolicyEventType!
 }
 
 type PolicyExpression {
@@ -30315,6 +30856,16 @@ type PolicyLabelValue {
   key: String!
 }
 
+type PolicyLocation {
+  """
+  The prefix display name to be used on the attribute display name for the specific field location
+  """
+  displayName: String!
+
+  """The field location of the attribute"""
+  policyFieldLocation: PolicyFieldLocation!
+}
+
 type PolicyLogicalFilter {
   """Logical operator"""
   logicalOperator: LogicalOperator!
@@ -30356,6 +30907,9 @@ type PolicyNotificationDestination {
   """channel id"""
   channelId: String
 
+  """Email"""
+  email: EmailDestination
+
   """Format in which the notification should be sent"""
   format: PolicyNotificationFormat!
 
@@ -30366,6 +30920,9 @@ type PolicyNotificationDestination {
 enum PolicyNotificationDestinationType {
   """CHANNEL"""
   CHANNEL
+
+  """EMAIL"""
+  EMAIL
 }
 
 type PolicyNotificationFormat {
@@ -30529,19 +31086,43 @@ enum PolicyRelationalOperator {
   """LESS_THAN_OR_EQUALS"""
   LESS_THAN_OR_EQUALS
 
+  """STARTS_WITH"""
+  STARTS_WITH
+
   """STRING_CONTAINS"""
   STRING_CONTAINS
+
+  """ENDS_WITH"""
+  ENDS_WITH
+
+  """REGEX_MATCH"""
+  REGEX_MATCH
+
+  """IS_PROPER_SUBSET_OF"""
+  IS_PROPER_SUBSET_OF
 }
 
 type PolicySchema {
   """Data attributes"""
   dataAttributes: [PolicyAttribute]!
 
+  """The display name of this schema"""
+  displayName: String!
+
+  """The event type definitions this schema applies to"""
+  eventTypeDefinitions: [PolicyEventTypeDefinition]!
+
   """Metadata attributes"""
   metadataAttributes: [PolicyAttribute]!
 
   """Schema type"""
-  schemaType: PolicySchemaType!
+  schemaType: PolicySchemaType
+
+  """The source type to be used in the policies created using this schema"""
+  sourceType: PolicySourceType
+
+  """The list of first-class scopes allowed on this schema"""
+  supportedScopes: [PolicyScopeType]!
 }
 
 type PolicySchemasResultSet {
@@ -30611,11 +31192,14 @@ type PolicySource {
   """Applicable AST scan event types"""
   astScanEventTypes: [PolicySourceAstScanEventType]
 
+  """The event type on which this policy should be applicable to"""
+  policyEventType: PolicyEventType
+
   """Applicable span event types"""
   spanEventTypes: [PolicySourceSpanEventType]
 
   """The source on which the policy conditions are to be checked"""
-  type: PolicySourceType!
+  type: PolicySourceType
 
   """Applicable vulnerability event types"""
   vulnerabilityEventTypes: [PolicySourceVulnerabilityEventType]
@@ -30663,6 +31247,39 @@ enum PolicySourceType {
 
   """AST_SCAN"""
   AST_SCAN
+
+  """DOMAIN"""
+  DOMAIN
+
+  """SERVICE"""
+  SERVICE
+
+  """BACKEND"""
+  BACKEND
+
+  """BACKEND_API"""
+  BACKEND_API
+
+  """ENVIRONMENT"""
+  ENVIRONMENT
+
+  """ACTOR"""
+  ACTOR
+
+  """CUSTOM_SIGNATURE_RULE"""
+  CUSTOM_SIGNATURE_RULE
+
+  """DETECTION_EXCLUSION_RULE"""
+  DETECTION_EXCLUSION_RULE
+
+  """RATE_LIMITING_RULE"""
+  RATE_LIMITING_RULE
+
+  """DATA_LOSS_PREVENTION_RULE"""
+  DATA_LOSS_PREVENTION_RULE
+
+  """ENUMERATION_RULE"""
+  ENUMERATION_RULE
 }
 
 enum PolicySourceVulnerabilityEventType {
@@ -30895,55 +31512,189 @@ type ProtectionSpanRuleResultSet {
 }
 
 type Query {
-  events(between: InputTimeRange!, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int): EventResultSet!
-
-  """
-  Query to get the fraud incident component insights. Selection and aggregation can be performed on various fields
-  """
-  fraudIncidentComponentInsights(between: InputTimeRange, filterBy: [InputFraudIncidentComponentFilter], limit: Int, offset: Int, orderBy: [InputIncidentComponentOrderByArgument], groupBy: [InputIncidentComponentGroupByArgument]): IncidentComponentInsightsResultSet!
-
-  """Query to get the fraud incident components"""
-  fraudIncidentComponents(between: InputTimeRange, filterBy: [InputFraudIncidentComponentFilter], limit: Int, offset: Int, orderBy: [InputIncidentComponentOrderByArgument]): FraudIncidentComponentResultSet!
-
-  """
-  Query to get the fraud incident insights. Selection and aggregation can be performed on various fields
-  """
-  fraudIncidentInsights(between: InputTimeRange!, filterBy: [InputFraudIncidentFilter], limit: Int, offset: Int, orderBy: [InputIncidentOrderByArgument], groupBy: [InputIncidentGroupByArgument]): IncidentInsightsResultSet!
-
-  """Query to get the fraud incidents"""
-  fraudIncidents(between: InputTimeRange!, filterBy: [InputFraudIncidentFilter], limit: Int, offset: Int, orderBy: [InputIncidentOrderByArgument]): FraudIncidentResultSet!
-
-  """Query to get the fraud metadata"""
-  fraudMetadata(filter: InputFraudMetadataFilter): FraudMetadata! @deprecated(reason: "Deprecated")
-  detectionExclusionConditionOptions: detectionExclusionConditionOptions!
-
-  """Query API to fetch detection exclusion rules"""
-  detectionExclusionRules(filter: InputDetectionExclusionRulesFilter): DetectionExclusionRuleResultSet!
-  excludeSpanRules: ExcludeSpanRuleResultSet!
-  summarize(summarizeRequest: InputSummarizeRequest): summarizeResult!
-
-  """
-  Get anomaly scoring configuration. It will return both configured and default
-  """
-  anomalyScoringConfig: AnomalyScoringConfig! @deprecated(reason: "Deprecated")
-  countries: RegionResultSet!
-  regionRules(filter: InputRegionRulesFilter): RegionRuleResultSet!
-  agentTokenMetadata: AgentTokenMetadataResultSet
-  users(limit: Int, offset: Int): UserResultSet!
-  apiAttributeOverrides: ApiAttributeOverridesResultSet
-  traces(type: TraceType, between: InputTimeRange!, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int, space: String): TraceResultSet!
   reports: ReportResultSet!
 
   """fetch template based reports"""
   templatedReports(filter: InputTemplatedReportsFilter): TemplatedReportResultSet!
-  apiTokenMetadata: ApiTokenMetadataResultSet
-  oidcGroupMappingsMetadata: IdpGroupMappingMetadataResultSet
-  roles: RoleResultSet!
-  samlGroupMappingsMetadata: IdpGroupMappingMetadataResultSet
 
-  """Gets the session configuration for the tenant"""
-  sessionConfiguration: sessionConfiguration!
-  user: UserResponse!
+  """ResultSet of saved queries"""
+  savedQueries(savedQueryCondition: InputSavedQueryFilter!): SavedQueryResultSet!
+
+  """List of authors of saved queries"""
+  savedQueryAuthors: SavedQueryAuthorsResult!
+
+  """Gets a result set of Jwt Extraction Rules"""
+  jwtExtractionRules(filter: InputJwtExtractionRuleFilter): JwtExtractionRuleResultSet!
+  customSignatureRules(filter: InputCustomSignatureRulesFilter): CustomSignatureRuleResultSet!
+  matchCombinations: CustomSignatureRuleExpressionCombinations!
+
+  """Gets a list of Auth Detection Rules"""
+  authDetectionRules(filter: InputAuthDetectionRuleFilter): AuthDetectionRuleResultSet!
+
+  """Validates snyk connection"""
+  snykConnectionValidation(input: InputSnykConnectionValidationInput!): ConfirmationResponse
+
+  """Gets the snyk integration config"""
+  snykIntegration: ConfirmationResponse
+
+  """Gets snyk code issues corresponding to provided input"""
+  snykIssues(input: InputGetSnykIssuesInput!): SnykIssuesResponse
+
+  """Gets snyk code issue summaries"""
+  snykIssuesSummary(input: InputGetSnykIssuesSummaryRequestInput!): SnykIssuesSummaryResponse
+
+  """Gets the snyk organizations corresponding to the tenant's integration"""
+  snykOrganizations: SnykOrganizationsResponse
+
+  """
+  Gets the snyk projects corresponding to tenant's integration and provided input
+  """
+  snykProjects(input: InputGetSnykProjectsInput!): SnykProjectsResponse
+
+  """Fetches vulnerability results as per query"""
+  vulnerabilitiesV3(
+    """Vulnerability filter argument"""
+    filter: InputVulnerabilityV3NestedFilter
+
+    """Vulnerability results order by argument"""
+    orderBy: [InputVulnerabilityV3Order]
+
+    """Vulnerability group by argument"""
+    groupBy: [InputVulnerabilityV3GroupByArgument]
+
+    """
+    Filters returned vulnerabilities to those which have been last seen in the provided time range.
+    """
+    lastSeenBetween: InputLastSeenTimeRange
+
+    """
+    The number of vulnerability results to return. No default is set if unset
+    """
+    limit: Int
+
+    """
+    The offset with which vulnerability results are to be queried. If unset, defaults to 0
+    """
+    offset: Int
+  ): VulnerabilityV3ResultSet
+  getUpcomingInvoice: GetUpcomingInvoiceResponse
+  previewSubscriptionChange(input: InputSubscriptionChangePreview!): PreviewSubscriptionChangeResponse
+
+  """Query to get api naming rules"""
+  apiNamingRules(filter: InputApiNamingRuleFilter): ApiNamingRuleResultSet!
+
+  """Query to get protection span rules"""
+  protectionSpanRules: ProtectionSpanRuleResultSet!
+  samplingConfigs: SamplingConfigsResultSet!
+
+  """Query for Service naming rules"""
+  serviceNamingRules(filter: InputServiceNamingRuleFilter): ServiceNamingRuleResultSet!
+  runnerLogMessages(filterBy: InputRunnerLogMessageFilterArgument!): RunnerLogMessageResultSet!
+  runnerLogsPersistenceConfig: RunnerLogsPersistenceConfig!
+  runnerLogsPurgeConfig: RunnerLogsPurgeConfig!
+  labelApplicationRules: LabelApplicationRuleResultSet!
+  labels: LabelResultSet!
+  anomalyScoreContributions: AnomalyScoreContributions!
+  eventScoreContributions: EventScoreContributions!
+  eventTypeContribution: EventTypeContribution!
+  ipReputationThreatScoreConfig: IpReputationThreatScoreConfig!
+  statusCodeThreatScoreConfigs: StatusCodeThreatScoreConfigs!
+  threatAutoBlocking: ThreatAutoBlocking!
+  threatScoreBounds: ThreatScoreBounds!
+  clusterssnapshots(id: String, between: InputTimeRange!, limit: Int): ClustersSnapshotResultSet!
+
+  """Query to fetch all issue configs"""
+  issueConfigs(get: InputGetIssueConfigsRequest!): IssueConfigsResultSet!
+
+  """Query to fetch vulnerability counts for burn down chart"""
+  vulnerabilityBurnDownChart(get: InputVulnerabilityBurnDownChartRequest!): VulnerabilityBurnDownChartResultSet!
+
+  """Query to fetch all vulnerability status change config"""
+  vulnerabilityStatusChangeConfigs: VulnerabilityStatusChangeConfigResultSet!
+
+  """The risk factors and elements"""
+  apiRiskFactorConfigs(filter: InputApiRiskConfigScopeFilter): ApiRiskFactorConfigs!
+
+  """The grid and level values"""
+  apiRiskScoringConfigs(filter: InputApiRiskConfigScopeFilter): ApiRiskScoringConfigs!
+  explore(context: ExplorerContext, scope: String, between: InputTimeRange, space: String, limit: Int, offset: Int, filterBy: [InputFilter], orderBy: [InputAggregatableOrder], groupBy: InputGroupByArgument, interval: InputIntervalArgument, entityContextOptions: InputEntityContextOptions): ExploreResultSet!
+  config: ConfigResponse!
+  apiInsight(id: String): ApiInsight @deprecated(reason: "first class APIs were introduced")
+  apiInsightByApiId(id: String!): ApiInsight
+  insightCards: InsightCardResultSet @deprecated(reason: "Use first class APIs instead")
+  paramInsight(id: String!): ParamInsight
+  parameterInsights(filterBy: [InputParameterFilter], orderBy: [InputParameterOrder], groupBy: [InputParameterGroupByArgument], limit: Int, offset: Int): ParameterInsightResultSet @deprecated(reason: "Use param insight by id query instead")
+  sensitiveParameters(type: InsightsParameterType!, apiId: String, filterBy: [InputParameterFilter], orderBy: [InputParameterOrder], limit: Int, offset: Int): ParameterDetailsResultSet! @deprecated(reason: "parameterInsights query was introduced")
+  serviceInsightByServiceId(id: String): ServiceInsight @deprecated(reason: "Service Insight as a feature is not used anymore")
+  threatActivity(filterBy: [InputThreatActivityFilter], orderBy: [InputThreatActivityOrder], groupBy: [InputThreatActivityGroupBy], unnest: [InputThreatActivityUnnestArgument], limit: Int, offset: Int): ThreatActivityResultSet
+  threatActivityGraph(between: InputTimeRange!, interval: InputIntervalArgument!, filterBy: [InputThreatActivityFilter], groupBy: [InputThreatActivityGroupBy], limit: Int): ThreatActivityGraphResultSet
+  threatActivityMetadata: ThreatActivityMetadataResultSet
+  trainingModelJson(modelScope: InputModelScope, modelType: TrainingModelType): TrainingModelJsonKeyValueNodes
+  vulnerabilities(filterBy: [InputVulnerabilityFilter], orderBy: [InputVulnerabilityOrder], limit: Int, offset: Int): VulnerabilityResultSet @deprecated(reason: "Vulnerability as a feature is replaced by insights")
+  vulnerabilityInsights(filterBy: [InputVulnerabilityFilter], orderBy: [InputVulnerabilityOrder], groupBy: [InputVulnerabilityGroupByArgument], limit: Int, offset: Int): VulnerabilityInsightResultSet @deprecated(reason: "Vulnerability as a feature is replaced by insights")
+  vulnerableServices(filterBy: [InputVulnerabilityFilter], between: InputTimeRange!): VulnerableServicesResultSet @deprecated(reason: "Vulnerability as a feature is replaced by insights")
+
+  """Query to get the reputation of a given user"""
+  userReputation(id: String!): UserReputation!
+
+  """Details of all Jira projects"""
+  getAllJiraProjects(input: InputGetAllProjectsInput): ProjectsResponse
+
+  """Url of the jira issue associated with the entity"""
+  getJiraIssue(input: InputGetJiraIssueInput!): JiraIssueResponse
+
+  """Templates for creating the description in Jira Issues"""
+  getJiraIssueTemplates(input: InputGetAllDescriptionTemplatesInput!): JiraIssueTemplatesResultSet
+
+  """Urls of the jira issues associated with the entities"""
+  getJiraIssues(input: [InputGetJiraIssueInput]!): [JiraIssueResponse]
+
+  """Query for Jira project issue configurations for bi-directional sync."""
+  getJiraProjectIssueConfiguration(input: InputGetJiraProjectIssueConfigurationInput!): ProjectIssueConfigurationsResponse
+
+  """Fetch all supported statuses for a Jira project"""
+  getJiraProjectStatuses(input: InputGetJiraProjectStatusesInput): JiraProjectStatusesResponse
+
+  """Queries for configured Jira integrations matching provided criteria"""
+  jiraIntegrations(
+    """
+    Filter to integrations that are scoped to at least one of the provided
+    Environment IDs. If omitted or empty, any environment scope is eligible for
+    the returned integrations.
+    """
+    environmentIds: [String]
+  ): JiraIntegrationsResponse!
+
+  """Details of all the assignable users for a project"""
+  jiraIssueAssignableUsers(input: InputGetJiraIssueAssignableUsersInput!): JiraUsersResultSet
+
+  """
+  Validates that the jira connection can be established for the provided params
+  """
+  validateExistingJiraConnection(input: InputJiraExistingConnectionValidationInput): ConfirmationResponse
+
+  """
+  Validates that the jira data center connection can be established for the provided params
+  """
+  validateJiraDataCenterConnection(input: InputJiraDataCenterConnectionValidationInput): ConfirmationResponse
+  apiSpecs(filter: InputApiSpecFilter): ApiSpecResultSet!
+
+  """Get all the ast hooks"""
+  allAstHooks: AstHooksResultSet @deprecated(reason: "Deprecated")
+
+  """Get all the ast hooks"""
+  allAstHooksV2: AstHooksResultSetV2
+
+  """Get ast hook test by id"""
+  astHookTestResult(id: String!): AuthHookTestResult
+
+  """Get ast hook by id"""
+  astHookV2Status(id: String!): AstHookV2Status
+  detectionExclusionConditionOptions: detectionExclusionConditionOptions!
+
+  """Query API to fetch detection exclusion rules"""
+  detectionExclusionRules(filter: InputDetectionExclusionRulesFilter): DetectionExclusionRuleResultSet!
+  traces(type: TraceType, between: InputTimeRange!, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int, space: String): TraceResultSet!
   projectionLists(between: InputTimeRange, projectionTypesList: [ProjectionType]!, filterBy: [InputProjectionFilterArgument]): ProjectionResultSet!
 
   """
@@ -30973,7 +31724,7 @@ type Query {
     """Api name filter"""
     apiNameFilter: InputOpenApiSpecDependencyGraphApiNameFilter
   ): OpenApiSpecDependencyGraphResponse!
-  pluginOptions: PluginOptions!
+  pluginOptions(pluginNames: [String]): PluginOptions!
   pluginsStats(filterBy: [InputVulnerabilityV2StatsFilterArgument], between: InputTimeRange): VulnerabilitiesV2Statistics!
   astPoliciesV2(filterBy: [InputAstPoliciesV2FilterArgument]): AstPoliciesV2ResultSet!
   quickScanCommand(quickScanCommand: InputQuickScanCommandRequest!): QuickScanCommandResponse!
@@ -30991,22 +31742,81 @@ type Query {
   vulnerabilitiesDistribution(filterBy: [InputVulnerabilityV2StatsFilterArgument], between: InputTimeRange, groupBy: InputVulnerabilityV2StatsGroupByArgument!): VulnerabilitiesV2Statistics! @deprecated(reason: "Deprecated")
   vulnerabilitiesStats(filterBy: [InputVulnerabilityV2StatsFilterArgument], between: InputTimeRange, groupBy: InputVulnerabilityV2StatsGroupByArgument!): VulnerabilitiesV2Statistics! @deprecated(reason: "Deprecated")
   vulnerabilityMetadataList(filterBy: InputVulnerabilityMetadataFilterArgument, filterArguments: [InputVulnerabilityMetadataFilterV2Argument]): VulnerabilityMetadataResultSet!
-  labelApplicationRules: LabelApplicationRuleResultSet!
-  labels: LabelResultSet!
-  apiInsight(id: String): ApiInsight @deprecated(reason: "first class APIs were introduced")
-  apiInsightByApiId(id: String!): ApiInsight
-  insightCards: InsightCardResultSet @deprecated(reason: "Use first class APIs instead")
-  paramInsight(id: String!): ParamInsight
-  parameterInsights(filterBy: [InputParameterFilter], orderBy: [InputParameterOrder], groupBy: [InputParameterGroupByArgument], limit: Int, offset: Int): ParameterInsightResultSet @deprecated(reason: "Use param insight by id query instead")
-  sensitiveParameters(type: InsightsParameterType!, apiId: String, filterBy: [InputParameterFilter], orderBy: [InputParameterOrder], limit: Int, offset: Int): ParameterDetailsResultSet! @deprecated(reason: "parameterInsights query was introduced")
-  serviceInsightByServiceId(id: String): ServiceInsight @deprecated(reason: "Service Insight as a feature is not used anymore")
-  threatActivity(filterBy: [InputThreatActivityFilter], orderBy: [InputThreatActivityOrder], groupBy: [InputThreatActivityGroupBy], unnest: [InputThreatActivityUnnestArgument], limit: Int, offset: Int): ThreatActivityResultSet
-  threatActivityGraph(between: InputTimeRange!, interval: InputIntervalArgument!, filterBy: [InputThreatActivityFilter], groupBy: [InputThreatActivityGroupBy], limit: Int): ThreatActivityGraphResultSet
-  threatActivityMetadata: ThreatActivityMetadataResultSet
-  trainingModelJson(modelScope: InputModelScope, modelType: TrainingModelType): TrainingModelJsonKeyValueNodes
-  vulnerabilities(filterBy: [InputVulnerabilityFilter], orderBy: [InputVulnerabilityOrder], limit: Int, offset: Int): VulnerabilityResultSet @deprecated(reason: "Vulnerability as a feature is replaced by insights")
-  vulnerabilityInsights(filterBy: [InputVulnerabilityFilter], orderBy: [InputVulnerabilityOrder], groupBy: [InputVulnerabilityGroupByArgument], limit: Int, offset: Int): VulnerabilityInsightResultSet @deprecated(reason: "Vulnerability as a feature is replaced by insights")
-  vulnerableServices(filterBy: [InputVulnerabilityFilter], between: InputTimeRange!): VulnerableServicesResultSet @deprecated(reason: "Vulnerability as a feature is replaced by insights")
+
+  """Fetches the applicable servicenow itsm assignee groups"""
+  getServiceNowItsmAssigneeGroups(input: InputServiceNowItsmIntegrationGetAssigneeGroupsInput): ServiceNowItsmIntegrationAssigneeGroupsResultSet
+
+  """Fetches the applicable servicenow itsm assignees"""
+  getServiceNowItsmAssignees(input: InputServiceNowItsmIntegrationGetAssigneesInput): ServiceNowItsmIntegrationAssigneesResultSet
+
+  """Fetches the applicable servicenow itsm callers"""
+  getServiceNowItsmCallers(input: InputServiceNowItsmIntegrationGetCallersInput): ServiceNowItsmIntegrationCallersResultSet
+
+  """Fetches the corresponding servicenow itsm incidents"""
+  getServiceNowItsmIncidents(input: InputServiceNowItsmIntegrationGetIncidentsInput): ServiceNowItsmIntegrationIncidentsResultSet
+
+  """Fetches all configured servicenow integrations"""
+  getServiceNowItsmIntegrations(input: InputServiceNowItsmIntegrationGetIntegrationsInput): ServiceNowItsmIntegrationsResultSet
+
+  """Fetches the corresponding reference values for a table field"""
+  getServiceNowReferenceValues(input: InputServiceNowItsmIntegrationGetServiceNowReferenceValuesInput): ServiceNowItsmIntegrationServiceNowReferenceValuesResultSet
+
+  """Validates the servicenow connection"""
+  validateServiceNowItsmConnection(input: InputServiceNowItsmIntegrationValidateConnectionInput): ConfirmationResponse
+  ipRangeRules(filter: InputIpRangeRulesFilter): IpRangeRuleResultSet!
+  agentTokenMetadata: AgentTokenMetadataResultSet
+  users(limit: Int, offset: Int): UserResultSet!
+
+  """Gets an API spec generated via code analysis"""
+  codeAnalysisApiSpec(sourceCodeApiId: String, filterBy: InputFilter): SourceCodeApiSpec!
+
+  """Validates wiz connection"""
+  wizConnectionValidation(input: InputWizIntegrationValidationInput!): ConfirmationResponse
+
+  """Get All Wiz Integrations"""
+  wizIntegrations: WizIntegrationsResultSet
+
+  """Get Wiz Issues"""
+  wizIssues(input: InputGetWizIssuesInput!): WizIssuesResponse
+
+  """Get All Syslog Server Integrations"""
+  syslogServerIntegrations: SyslogServerIntegrationsResultSet
+
+  """Validates syslog server connection"""
+  validateSyslogServerIntegration(input: InputValidateSyslogServerIntegrationInput!): ConfirmationResponse
+
+  """Gets all User Attribution rules based on the filter"""
+  userAttributionRulesV2(filter: InputUserAttributionRulesFilter): UserAttributionRuleResultSetV2!
+  actor(id: String): Actor
+  actors(foreignFilter: InputActorForeignFilter, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int): ActorResultSet
+
+  """Retrieves all Data Classification Override Rules"""
+  dataClassificationOverrideRules: DataClassificationOverrideRuleResultSet!
+  dataSets(
+    """Override the system data sets used with a specific version"""
+    version: SystemDataSetsVersion
+  ): DataSetResultSet!
+  dataTypes(
+    """Override the system data sets used with a specific version"""
+    version: SystemDataSetsVersion
+  ): DataTypeResultSet!
+  notificationChannels: NotificationChannelResultSet!
+  notificationEventConditionsOptions: NotificationEventConditionsOptions!
+  notificationRules: NotificationRuleResultSet!
+
+  """Get policies matching the input filters"""
+  policies(filter: InputPolicyRequestFilter!): PoliciesResultSet
+
+  """Get policy schemas by giving schema types"""
+  policySchema(policySchemaTypes: [PolicySchemaType]): PolicySchemasResultSet
+
+  """Queries filtered ResultSet of saved filters"""
+  savedFilters(savedFilterCondition: InputSavedFiltersQueryFilter!): SavedFiltersResultSet!
+
+  """API to fetch malicious sources rules"""
+  maliciousSourcesRules(filter: InputMaliciousSourcesRulesFilter): MaliciousSourcesRuleResultSet!
+  defaultProtectionMode: ProtectionMode!
+  localProcessingRules: LocalProcessingRuleResultSet!
 
   """Fetches all configured azure devops projects"""
   getAllAzureDevopsProjects(input: InputAzureDevopsIntegrationGetAllAzureDevopsProjectsInput): AzureDevopsIntegrationGetAllAzureDevopsProjectsResultSet
@@ -31030,24 +31840,36 @@ type Query {
 
   """Validates the azure devops connection"""
   validateAzureDevopsConnection(input: InputAzureDevopsIntegrationValidateConnectionInput): ConfirmationResponse
+  userAttributionRules: UserAttributionRuleResultSet!
 
-  """List of Sonar Scans"""
-  sonarScansV2(get: InputGetSonarScansV2Request): SonarScanV2ResultSet!
-  exportSpans(between: InputTimeRange!, filterBy: [InputFilter], limit: Int): ExportSpanResult!
-  spans(between: InputTimeRange!, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int, space: String): SpanResultSet!
-  notificationChannels: NotificationChannelResultSet!
-  notificationEventConditionsOptions: NotificationEventConditionsOptions!
-  notificationRules: NotificationRuleResultSet!
+  """
+  Query to get the fraud incident component insights. Selection and aggregation can be performed on various fields
+  """
+  fraudIncidentComponentInsights(between: InputTimeRange, filterBy: [InputFraudIncidentComponentFilter], limit: Int, offset: Int, orderBy: [InputIncidentComponentOrderByArgument], groupBy: [InputIncidentComponentGroupByArgument]): IncidentComponentInsightsResultSet!
+
+  """Query to get the fraud incident components"""
+  fraudIncidentComponents(between: InputTimeRange, filterBy: [InputFraudIncidentComponentFilter], limit: Int, offset: Int, orderBy: [InputIncidentComponentOrderByArgument]): FraudIncidentComponentResultSet!
+
+  """
+  Query to get the fraud incident insights. Selection and aggregation can be performed on various fields
+  """
+  fraudIncidentInsights(between: InputTimeRange!, filterBy: [InputFraudIncidentFilter], limit: Int, offset: Int, orderBy: [InputIncidentOrderByArgument], groupBy: [InputIncidentGroupByArgument]): IncidentInsightsResultSet!
+
+  """Query to get the fraud incidents"""
+  fraudIncidents(between: InputTimeRange!, filterBy: [InputFraudIncidentFilter], limit: Int, offset: Int, orderBy: [InputIncidentOrderByArgument]): FraudIncidentResultSet!
+
+  """Query to get the fraud metadata"""
+  fraudMetadata(filter: InputFraudMetadataFilter): FraudMetadata! @deprecated(reason: "Deprecated")
+  sonarScans(get: InputGetSonarScansRequest): SonarScansResultSet!
   metadata: [AttributeMetadata]!
-  runnerLogMessages(filterBy: InputRunnerLogMessageFilterArgument!): RunnerLogMessageResultSet!
-  runnerLogsPersistenceConfig: RunnerLogsPersistenceConfig!
-  runnerLogsPurgeConfig: RunnerLogsPurgeConfig!
+  resolvedScopedDataProtectionConfig(scope: InputDataProtectionScope): DataProtectionConfig!
 
   """Get the result of a batch of analytics queries"""
   analyticsQueryBatch(batchId: String!): AnalyticsQueryBatchDetailWithResults!
 
   """Get all batches of analytics query matching the provided filter"""
   analyticsQueryBatches(input: InputAnalyticsQueryBatchesDetailRequest): AnalyticsQueryBatchesDetail!
+  getWafIntegrations(input: InputGetWafIntegrationsInput!): WafIntegrationsResultSet
   apiStatsList(scanId: String!, limit: Int, offset: Int): ApiStatsList!
   astPolicies(filterBy: [InputAstPoliciesV2FilterArgument]): AstPoliciesV2ResultSet!
   reVerifyCommand(testId: String!): ReVerifyCommand!
@@ -31062,84 +31884,133 @@ type Query {
   scanSummaryReport(scanId: String!): ScanSummaryReport!
   scannedApiStats(filterBy: [InputScannedApiStatFilterArgument]!, sortBy: InputScannedApiStatOrderArgument, limit: Int!, offset: Int): ScannedApiStatResultSet!
   scans(filterBy: [InputScanFilterArgument], between: InputTimeRange, limit: Int, offset: Int): ScanResultSet!
-  searchAst(astDataSource: astDataSource, filterBy: [InputastFilter], orderBy: [InputAstOrderArgument], groupBy: [InputAstGroupByArgument], limit: Int, offset: Int): AstResultSet!
+  searchAst(astDataSource: astDataSource, filterBy: [InputastFilter], orderBy: [InputAstOrderArgument], groupBy: [InputAstGroupByArgument], join: InputAstSubQueryJoinArgument, limit: Int, offset: Int): AstResultSet!
   skippedApis(filterBy: [InputSkippedApisFilterArgument]!, limit: Int!, offset: Int): SkippedApiResultSet!
   testResultInfos(filterBy: [InputTestResultInfoFilterArgument]!, sortBy: InputTestResultInfoOrderArgument, limit: Int, offset: Int): TestInfoResultSet!
 
   """Query to fetch test results for a particular scan and vulnerability"""
   testResults(filterBy: InputTestResultFilterArgument, testId: [String]): TestResultSet!
   vulnerabilitiesV2(filterBy: [InputvulnerabilityFilterArgument], limit: Int, offset: Int, between: InputTimeRange, shouldResolveSpanId: Boolean, sortBy: InputVulnerabilityOrderArgument): VulnerabilityV2ResultSet! @deprecated(reason: "Deprecated")
-  explore(context: ExplorerContext, scope: String, between: InputTimeRange, space: String, limit: Int, offset: Int, filterBy: [InputFilter], orderBy: [InputAggregatableOrder], groupBy: InputGroupByArgument, interval: InputIntervalArgument, entityContextOptions: InputEntityContextOptions): ExploreResultSet!
 
-  """Fetches vulnerability results as per query"""
-  vulnerabilitiesV3(
-    """Vulnerability filter argument"""
-    filter: InputVulnerabilityV3NestedFilter
-
-    """Vulnerability results order by argument"""
-    orderBy: [InputVulnerabilityV3Order]
-
-    """Vulnerability group by argument"""
-    groupBy: [InputVulnerabilityV3GroupByArgument]
-
-    """
-    Filters returned vulnerabilities to those which have been last seen in the provided time range.
-    """
-    lastSeenBetween: InputLastSeenTimeRange
-
-    """
-    The number of vulnerability results to return. No default is set if unset
-    """
-    limit: Int
-
-    """
-    The offset with which vulnerability results are to be queried. If unset, defaults to 0
-    """
-    offset: Int
-  ): VulnerabilityV3ResultSet
-
-  """Fetches the applicable servicenow itsm assignee groups"""
-  getServiceNowItsmAssigneeGroups(input: InputServiceNowItsmIntegrationGetAssigneeGroupsInput): ServiceNowItsmIntegrationAssigneeGroupsResultSet
-
-  """Fetches the applicable servicenow itsm assignees"""
-  getServiceNowItsmAssignees(input: InputServiceNowItsmIntegrationGetAssigneesInput): ServiceNowItsmIntegrationAssigneesResultSet
-
-  """Fetches the applicable servicenow itsm callers"""
-  getServiceNowItsmCallers(input: InputServiceNowItsmIntegrationGetCallersInput): ServiceNowItsmIntegrationCallersResultSet
-
-  """Fetches the corresponding servicenow itsm incidents"""
-  getServiceNowItsmIncidents(input: InputServiceNowItsmIntegrationGetIncidentsInput): ServiceNowItsmIntegrationIncidentsResultSet
-
-  """Fetches all configured servicenow integrations"""
-  getServiceNowItsmIntegrations(input: InputServiceNowItsmIntegrationGetIntegrationsInput): ServiceNowItsmIntegrationsResultSet
-
-  """Fetches the corresponding reference values for a table field"""
-  getServiceNowReferenceValues(input: InputServiceNowItsmIntegrationGetServiceNowReferenceValuesInput): ServiceNowItsmIntegrationServiceNowReferenceValuesResultSet
-
-  """Validates the servicenow connection"""
-  validateServiceNowItsmConnection(input: InputServiceNowItsmIntegrationValidateConnectionInput): ConfirmationResponse
+  """Github Integrations"""
+  githubIntegrations: GithubIntegrationsResultSet
 
   """Gets dashboards matching the provided filter, if any"""
   dashboards(filter: InputDashboardFilter): DashboardResultSet!
+  exportSpans(between: InputTimeRange!, filterBy: [InputFilter], limit: Int): ExportSpanResult!
+  spans(between: InputTimeRange!, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int, space: String): SpanResultSet!
 
-  """Queries filtered ResultSet of saved filters"""
-  savedFilters(savedFilterCondition: InputSavedFiltersQueryFilter!): SavedFiltersResultSet!
-  anomalyScoreContributions: AnomalyScoreContributions!
-  eventScoreContributions: EventScoreContributions!
-  eventTypeContribution: EventTypeContribution!
-  ipReputationThreatScoreConfig: IpReputationThreatScoreConfig!
-  statusCodeThreatScoreConfigs: StatusCodeThreatScoreConfigs!
-  threatAutoBlocking: ThreatAutoBlocking!
-  threatScoreBounds: ThreatScoreBounds!
+  """List of Sonar Scans"""
+  sonarScansV2(get: InputGetSonarScansV2Request): SonarScanV2ResultSet!
 
-  """Validates wiz connection"""
-  wizConnectionValidation(input: InputWizIntegrationValidationInput!): ConfirmationResponse
+  """Get All Splunk Integrations"""
+  splunkIntegrations: SplunkIntegrationsResultSet
 
-  """Get All Wiz Integrations"""
-  wizIntegrations: WizIntegrationsResultSet
+  """Validates splunk connection"""
+  validateSplunkConnection(input: InputValidateSplunkIntegrationInput!): ConfirmationResponse
+  rateLimitingRuleKeyValueConditionCombinations: RateLimitingRuleKeyValueConditionCombinationResultSet! @deprecated(reason: "Deprecated")
+  rateLimitingRuleOptions: RateLimitingRuleOptions! @deprecated(reason: "Deprecated")
+  rateLimitingRules(category: [RateLimitingRuleCategory], rateLimitingRulesFilter: InputRateLimitingRulesFilter): RateLimitingRuleResultSet!
+  entities(type: EntityType, scope: String, between: InputTimeRange!, space: String, filterBy: [InputFilter], orderBy: [InputAggregatableOrder], limit: Int, offset: Int, includeInactive: Boolean): EntityResultSet!
 
-  """Get Wiz Issues"""
-  wizIssues(input: InputGetWizIssuesInput!): WizIssuesResponse
+  """Returns decrypted API keys for ids"""
+  apiKeys(ids: [String]!): ApiKeysResultSet!
+  getAllAwsWafRules(input: InputGetAwsWafRulesInput!): GetAwsWafIntegrationResponse
+
+  """API for getting Imperva WAF website domain entries"""
+  getImpervaWafWebsites(input: InputGetImpervaWafWebsitesInput!): GetImpervaWafWebsitesResponse
+  getWafIntegration(input: InputGetWafIntegrationInput!): WafIntegration
+
+  """API for validating Akamai WAF connection"""
+  validateAkamaiWafConnection(input: InputAkamaiWafValidationInput!): WafConnectionValidationResponse
+  validateAwsWafConnection(input: InputAwsWafConnectionValidationInput!): ConfirmationResponse
+
+  """API for validating Azure WAF connection"""
+  validateAzureWafConnection(input: InputAzureWafConnectionValidationInput!): WafConnectionValidationResponse
+
+  """API for validating WAF cloudflare connection"""
+  validateCloudflareWafConnection(input: InputCloudflareWafValidationInput!): WafConnectionValidationResponse
+
+  """API for validating F5 WAF connection"""
+  validateF5WafConnection(input: InputF5WafValidationInput!): WafConnectionValidationResponse
+
+  """API for validating Fortinet WAF connection"""
+  validateFortinetWafConnection(input: InputFortinetWafConnectionValidationInput!): WafConnectionValidationResponse
+  validateGcpWafConnection(input: InputGcpWafConnectionValidationInput!): WafConnectionValidationResponse
+  validateWafConnection(input: InputWafConnectionValidationInput!): WafConnectionValidationResponse
+
+  """Get genAi config"""
+  genAiConfig(filter: InputGenAiConfigScopeFilter): GenAiConfig!
+
+  """Query to get span ingestion rules"""
+  spanIngestionRules(input: InputSpanIngestionRuleInput!): SpanIngestionConfig!
+  exfiltrationData(between: InputTimeRange!, limit: Int, offset: Int, filterBy: [InputExfiltrationFilterArgument], order: [InputExfiltrationOrderByArgument], groupBy: [InputExfiltrationGroupByArgument]): ExfiltrationResultSet
+  exfiltrationDetectionRules: ExfiltrationDetectionRulesResultSet
+  apiTokenMetadata: ApiTokenMetadataResultSet
+  oidcGroupMappingsMetadata: IdpGroupMappingMetadataResultSet
+  roles: RoleResultSet!
+  samlGroupMappingsMetadata: IdpGroupMappingMetadataResultSet
+
+  """Gets the session configuration for the tenant"""
+  sessionConfiguration: sessionConfiguration!
+  user: UserResponse!
+  events(between: InputTimeRange!, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int): EventResultSet!
+  onboarding: OnboardingResponse!
+
+  """
+  Get anomaly scoring configuration. It will return both configured and default
+  """
+  anomalyScoringConfig: AnomalyScoringConfig! @deprecated(reason: "Deprecated")
+  apiAttributeOverrides: ApiAttributeOverridesResultSet
+  automaticSecretRedaction: AutomaticSecretRedactionResponse! @deprecated(reason: "Deprecated")
+  fullPrivacyMode: FullPrivacyModeResponse! @deprecated(reason: "Deprecated")
+  piiTypes(type: PiiParameterType): PiiTypesResultSet! @deprecated(reason: "Deprecated")
+  redactionRules: RedactionRuleResultSet! @deprecated(reason: "Deprecated")
+  redactionStrategy(type: SensitiveParameterType!): RedactionStrategyResponse! @deprecated(reason: "Deprecated")
+  sessionIdentificationConfigOptions: SessionIdentificationConfigOptions!
+  sessionIdentificationRulesV2(filter: InputSessionIdentificationRulesFilter): SessionIdentificationRuleResultSetV2!
+  allScopedAnomalyAggregationConfigs: ScopedAnomalyAggregationConfigsResultSet!
+  allScopedAnomalyDetectionConfig(configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfigsResultSet!
+  allScopedAnomalyGlobalConfigs: ScopedAnomalyGlobalConfigsResultSet!
+  allScopedTrainingConfigs(configTypes: [TrainingConfigType]): ScopedTrainingConfigsResultSet!
+  allTrainingActionConfigs: TrainingActionsResultSet!
+  allUnresolvedScopedAnomalyDetectionConfigs(configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfigsResultSet!
+  allUnresolvedScopedAnomalyGlobalConfigs: ScopedAnomalyGlobalConfigsChangeResultSet!
+  allUnresolvedScopedTrainingConfigs(configTypes: [TrainingConfigType]): ScopedTrainingConfigsResultSet!
+  anomalyDetectionConfigKeysDescriptor: [AnomalyConfigDescriptor]!
+  anomalyDetectionRuleConfigs(anomalyScope: InputAnomalyScope!): AnomalyDetectionRuleConfigsResultSet!
+  anomalyExclusionApplicableOptions(input: InputAnomalyExclusionApplicableOptionsRequest!): AnomalyExclusionConfigOptions!
+  anomalyGlobalConfigStatus(anomalyScope: InputAnomalyScope!): AnomalyConfigStatus! @deprecated(reason: "Deprecated")
+  scopedAnomalyAggregationConfig(anomalyScope: InputAnomalyScope!): ScopedAnomalyAggregationConfig!
+  scopedAnomalyDetectionConfig(anomalyScope: InputAnomalyScope!, configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfig!
+  scopedAnomalyGlobalConfig(anomalyScope: InputAnomalyScope!): ScopedAnomalyGlobalConfig!
+  scopedTrainingConfig(anomalyScope: InputAnomalyScope!, configTypes: [TrainingConfigType]): ScopedTrainingConfig!
+
+  """Tracked scanner types"""
+  trackedScannerTypes: [String]!
+  trainingActionConfig(anomalyScope: InputAnomalyScope!): ScopedTrainingActionConfig!
+  trainingConfigKeysDescriptor: [AnomalyConfigDescriptor]!
+  unresolvedScopedAnomalyDetectionConfig(anomalyScope: InputAnomalyScope!, configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfig!
+  unresolvedScopedAnomalyGlobalConfig(anomalyScope: InputAnomalyScope!): ScopedAnomalyGlobalConfigChange!
+  countries: RegionResultSet!
+  regionRules(filter: InputRegionRulesFilter): RegionRuleResultSet!
+  summarize(summarizeRequest: InputSummarizeRequest): summarizeResult!
+  excludeSpanRules: ExcludeSpanRuleResultSet!
+  apiSpecConformanceResults(id: String!, queryType: QueryType!, filterBy: [InputApiSpecConformanceFilterArgument], orderBy: [InputApiSpecConformanceOrder], groupBy: [InputApiSpecConformanceGroupByArgument], limit: Int, offset: Int): ApiSpecConformanceResultSet
+  apiSpecConformanceScheduledJob(id: String!): ApiSpecConformanceScheduledJob!
+  astScanSchedules(getAstScanJob: InputGetAstScanJob): AstScanScheduleResultSet!
+  getApiDefinition(id: String!): ApiDefinitionJob!
+  apiInspectorJobResults(filterBy: [InputApiInspectorJobFilterArgument], orderBy: [InputApiInspectorJobOrderArgument], limit: Int, offset: Int): ApiInspectorJobQueryResultSet
+  apiInspectorResults(id: String!, filterBy: [InputApiInspectorFilterArgument], orderBy: [InputApiInspectorOrderArgument], groupBy: [InputApiInspectorGroupByArgument], limit: Int, offset: Int): ApiInspectorResultSet
+  apiInspectorRuleInformation(id: String!): ApiInspectorRuleInformation
+  apiSpecConformanceJobResults(filterBy: [InputApiSpecConformanceJobFilterArgument], orderBy: [InputApiSpecConformanceJobOrder], limit: Int, offset: Int): ApiSpecConformanceJobQueryResultSet
+
+  """List of jobs"""
+  jobResults(jobType: JobType!, filterBy: [InputJobFilterArgument], orderBy: [InputJobOrderArgument], limit: Int, offset: Int): JobQueryResultSet
+
+  """List of schedules"""
+  scheduledJobResults(jobType: JobType!, filterBy: [InputScheduledJobFilterArgument], orderBy: [InputScheduledJobOrderArgument], limit: Int, offset: Int): ScheduledJobQueryResultSet
+  securityEventsInfo(id: String!): SecurityEventsInfoJob!
 
   """Query to fetch the activity logs"""
   activityLogs(
@@ -31187,260 +32058,7 @@ type Query {
     """
     offset: Int
   ): WafActivityLogResultSet!
-  defaultProtectionMode: ProtectionMode!
-  localProcessingRules: LocalProcessingRuleResultSet!
-  entities(type: EntityType, scope: String, between: InputTimeRange!, space: String, filterBy: [InputFilter], orderBy: [InputAggregatableOrder], limit: Int, offset: Int, includeInactive: Boolean): EntityResultSet!
-
-  """Query to get span ingestion rules"""
-  spanIngestionRules(input: InputSpanIngestionRuleInput!): SpanIngestionConfig!
-
-  """Gets a result set of Jwt Extraction Rules"""
-  jwtExtractionRules(filter: InputJwtExtractionRuleFilter): JwtExtractionRuleResultSet!
-
-  """Gets a list of Auth Detection Rules"""
-  authDetectionRules(filter: InputAuthDetectionRuleFilter): AuthDetectionRuleResultSet!
-  exfiltrationData(between: InputTimeRange!, limit: Int, offset: Int, filterBy: [InputExfiltrationFilterArgument], order: [InputExfiltrationOrderByArgument], groupBy: [InputExfiltrationGroupByArgument]): ExfiltrationResultSet
-  exfiltrationDetectionRules: ExfiltrationDetectionRulesResultSet
-  ipRangeRules(filter: InputIpRangeRulesFilter): IpRangeRuleResultSet!
-  apiSpecs(filter: InputApiSpecFilter): ApiSpecResultSet!
-  getWafIntegrations(input: InputGetWafIntegrationsInput!): WafIntegrationsResultSet
-
-  """Validates snyk connection"""
-  snykConnectionValidation(input: InputSnykConnectionValidationInput!): ConfirmationResponse
-
-  """Gets the snyk integration config"""
-  snykIntegration: ConfirmationResponse
-
-  """Gets snyk code issues corresponding to provided input"""
-  snykIssues(input: InputGetSnykIssuesInput!): SnykIssuesResponse
-
-  """Gets snyk code issue summaries"""
-  snykIssuesSummary(input: InputGetSnykIssuesSummaryRequestInput!): SnykIssuesSummaryResponse
-
-  """Gets the snyk organizations corresponding to the tenant's integration"""
-  snykOrganizations: SnykOrganizationsResponse
-
-  """
-  Gets the snyk projects corresponding to tenant's integration and provided input
-  """
-  snykProjects(input: InputGetSnykProjectsInput!): SnykProjectsResponse
-  sonarScans(get: InputGetSonarScansRequest): SonarScansResultSet!
-  allScopedAnomalyAggregationConfigs: ScopedAnomalyAggregationConfigsResultSet!
-  allScopedAnomalyDetectionConfig(configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfigsResultSet!
-  allScopedAnomalyGlobalConfigs: ScopedAnomalyGlobalConfigsResultSet!
-  allScopedTrainingConfigs(configTypes: [TrainingConfigType]): ScopedTrainingConfigsResultSet!
-  allTrainingActionConfigs: TrainingActionsResultSet!
-  allUnresolvedScopedAnomalyDetectionConfigs(configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfigsResultSet!
-  allUnresolvedScopedAnomalyGlobalConfigs: ScopedAnomalyGlobalConfigsChangeResultSet!
-  allUnresolvedScopedTrainingConfigs(configTypes: [TrainingConfigType]): ScopedTrainingConfigsResultSet!
-  anomalyDetectionConfigKeysDescriptor: [AnomalyConfigDescriptor]!
-  anomalyDetectionRuleConfigs(anomalyScope: InputAnomalyScope!): AnomalyDetectionRuleConfigsResultSet!
-  anomalyExclusionApplicableOptions(input: InputAnomalyExclusionApplicableOptionsRequest!): AnomalyExclusionConfigOptions!
-  anomalyExclusionRules: AnomalyExclusionRuleResultSet!
-  anomalyGlobalConfigStatus(anomalyScope: InputAnomalyScope!): AnomalyConfigStatus! @deprecated(reason: "Deprecated")
-  scopedAnomalyAggregationConfig(anomalyScope: InputAnomalyScope!): ScopedAnomalyAggregationConfig!
-  scopedAnomalyDetectionConfig(anomalyScope: InputAnomalyScope!, configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfig!
-  scopedAnomalyGlobalConfig(anomalyScope: InputAnomalyScope!): ScopedAnomalyGlobalConfig!
-  scopedTrainingConfig(anomalyScope: InputAnomalyScope!, configTypes: [TrainingConfigType]): ScopedTrainingConfig!
-
-  """Tracked scanner types"""
-  trackedScannerTypes: [String]!
-  trainingActionConfig(anomalyScope: InputAnomalyScope!): ScopedTrainingActionConfig!
-  trainingConfigKeysDescriptor: [AnomalyConfigDescriptor]!
-  unresolvedScopedAnomalyDetectionConfig(anomalyScope: InputAnomalyScope!, configTypes: [AnomalyDetectionConfigType]): ScopedAnomalyDetectionConfig!
-  unresolvedScopedAnomalyGlobalConfig(anomalyScope: InputAnomalyScope!): ScopedAnomalyGlobalConfigChange!
-
-  """Get all the ast hooks"""
-  allAstHooks: AstHooksResultSet
-
-  """Get all the ast hooks"""
-  allAstHooksV2: AstHooksResultSetV2
-
-  """Get ast hook test by id"""
-  astHookTestResult(id: String!): AuthHookTestResult
-
-  """Get ast hook by id"""
-  astHookV2Status(id: String!): AstHookV2Status
-
-  """Github Integrations"""
-  githubIntegrations: GithubIntegrationsResultSet
-
-  """Details of all Jira projects"""
-  getAllJiraProjects(input: InputGetAllProjectsInput): ProjectsResponse
-
-  """Url of the jira issue associated with the entity"""
-  getJiraIssue(input: InputGetJiraIssueInput!): JiraIssueResponse
-
-  """Templates for creating the description in Jira Issues"""
-  getJiraIssueTemplates(input: InputGetAllDescriptionTemplatesInput!): JiraIssueTemplatesResultSet
-
-  """Urls of the jira issues associated with the entities"""
-  getJiraIssues(input: [InputGetJiraIssueInput]!): [JiraIssueResponse]
-
-  """Query for Jira project issue configurations for bi-directional sync."""
-  getJiraProjectIssueConfiguration(input: InputGetJiraProjectIssueConfigurationInput!): ProjectIssueConfigurationsResponse
-
-  """Fetch all supported statuses for a Jira project"""
-  getJiraProjectStatuses(input: InputGetJiraProjectStatusesInput): JiraProjectStatusesResponse
-
-  """Queries for configured Jira integrations matching provided criteria"""
-  jiraIntegrations(
-    """
-    Filter to integrations that are scoped to at least one of the provided
-    Environment IDs. If omitted or empty, any environment scope is eligible for
-    the returned integrations.
-    """
-    environmentIds: [String]
-  ): JiraIntegrationsResponse!
-
-  """Details of all the assignable users for a project"""
-  jiraIssueAssignableUsers(input: InputGetJiraIssueAssignableUsersInput!): JiraUsersResultSet
-
-  """
-  Validates that the jira connection can be established for the provided params
-  """
-  validateExistingJiraConnection(input: InputJiraExistingConnectionValidationInput): ConfirmationResponse
-
-  """
-  Validates that the jira data center connection can be established for the provided params
-  """
-  validateJiraDataCenterConnection(input: InputJiraDataCenterConnectionValidationInput): ConfirmationResponse
-  config: ConfigResponse!
-
-  """Query to get api naming rules"""
-  apiNamingRules(filter: InputApiNamingRuleFilter): ApiNamingRuleResultSet!
-
-  """Query to get protection span rules"""
-  protectionSpanRules: ProtectionSpanRuleResultSet!
-  samplingConfigs: SamplingConfigsResultSet!
-
-  """Query for Service naming rules"""
-  serviceNamingRules(filter: InputServiceNamingRuleFilter): ServiceNamingRuleResultSet!
   sessionIdentificationRules: SessionIdentificationRuleResultSet!
-  customSignatureRules(filter: InputCustomSignatureRulesFilter): CustomSignatureRuleResultSet!
-  matchCombinations: CustomSignatureRuleExpressionCombinations!
-
-  """Get policies matching the input filters"""
-  policies(filter: InputPolicyRequestFilter!): PoliciesResultSet
-
-  """Get policy schemas by giving schema types"""
-  policySchema(policySchemaTypes: [PolicySchemaType], policyAttributeGroupNames: [String]): PolicySchemasResultSet
-  clusterssnapshots(id: String, between: InputTimeRange!, limit: Int): ClustersSnapshotResultSet!
-
-  """Gets an API spec generated via code analysis"""
-  codeAnalysisApiSpec(sourceCodeApiId: String!): SourceCodeApiSpec!
-
-  """ResultSet of saved queries"""
-  savedQueries(savedQueryCondition: InputSavedQueryFilter!): SavedQueryResultSet!
-
-  """List of authors of saved queries"""
-  savedQueryAuthors: SavedQueryAuthorsResult!
-
-  """Gets all User Attribution rules based on the filter"""
-  userAttributionRulesV2(filter: InputUserAttributionRulesFilter): UserAttributionRuleResultSetV2!
-
-  """Query to fetch all issue configs"""
-  issueConfigs(get: InputGetIssueConfigsRequest!): IssueConfigsResultSet!
-
-  """Query to fetch vulnerability counts for burn down chart"""
-  vulnerabilityBurnDownChart(get: InputVulnerabilityBurnDownChartRequest!): VulnerabilityBurnDownChartResultSet!
-
-  """Query to fetch all vulnerability status change config"""
-  vulnerabilityStatusChangeConfigs: VulnerabilityStatusChangeConfigResultSet!
-  userAttributionRules: UserAttributionRuleResultSet!
-  logEvents(between: InputTimeRange!, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int): LogEventResultSet!
-
-  """Query to get the reputation of a given user"""
-  userReputation(id: String!): UserReputation!
-
-  """Returns decrypted API keys for ids"""
-  apiKeys(ids: [String]!): ApiKeysResultSet!
-
-  """API to fetch malicious sources rules"""
-  maliciousSourcesRules(filter: InputMaliciousSourcesRulesFilter): MaliciousSourcesRuleResultSet!
-  onboarding: OnboardingResponse!
-  getUpcomingInvoice: GetUpcomingInvoiceResponse
-  previewSubscriptionChange(input: InputSubscriptionChangePreview!): PreviewSubscriptionChangeResponse
-  getAllAwsWafRules(input: InputGetAwsWafRulesInput!): GetAwsWafIntegrationResponse
-
-  """API for getting Imperva WAF website domain entries"""
-  getImpervaWafWebsites(input: InputGetImpervaWafWebsitesInput!): GetImpervaWafWebsitesResponse
-  getWafIntegration(input: InputGetWafIntegrationInput!): WafIntegration
-
-  """API for validating Akamai WAF connection"""
-  validateAkamaiWafConnection(input: InputAkamaiWafValidationInput!): WafConnectionValidationResponse
-  validateAwsWafConnection(input: InputAwsWafConnectionValidationInput!): ConfirmationResponse
-
-  """API for validating Azure WAF connection"""
-  validateAzureWafConnection(input: InputAzureWafConnectionValidationInput!): WafConnectionValidationResponse
-
-  """API for validating WAF cloudflare connection"""
-  validateCloudflareWafConnection(input: InputCloudflareWafValidationInput!): WafConnectionValidationResponse
-
-  """API for validating F5 WAF connection"""
-  validateF5WafConnection(input: InputF5WafValidationInput!): WafConnectionValidationResponse
-
-  """API for validating Fortinet WAF connection"""
-  validateFortinetWafConnection(input: InputFortinetWafConnectionValidationInput!): WafConnectionValidationResponse
-  validateGcpWafConnection(input: InputGcpWafConnectionValidationInput!): WafConnectionValidationResponse
-  validateWafConnection(input: InputWafConnectionValidationInput!): WafConnectionValidationResponse
-  rateLimitingRuleKeyValueConditionCombinations: RateLimitingRuleKeyValueConditionCombinationResultSet! @deprecated(reason: "Deprecated")
-  rateLimitingRuleOptions: RateLimitingRuleOptions! @deprecated(reason: "Deprecated")
-  rateLimitingRules(category: [RateLimitingRuleCategory], rateLimitingRulesFilter: InputRateLimitingRulesFilter): RateLimitingRuleResultSet!
-
-  """Retrieves all Data Classification Override Rules"""
-  dataClassificationOverrideRules: DataClassificationOverrideRuleResultSet!
-  dataSets(
-    """Override the system data sets used with a specific version"""
-    version: SystemDataSetsVersion
-  ): DataSetResultSet!
-  dataTypes(
-    """Override the system data sets used with a specific version"""
-    version: SystemDataSetsVersion
-  ): DataTypeResultSet!
-  resolvedScopedDataProtectionConfig(scope: InputDataProtectionScope): DataProtectionConfig!
-
-  """The risk factors and elements"""
-  apiRiskFactorConfigs(filter: InputApiRiskConfigScopeFilter): ApiRiskFactorConfigs!
-
-  """The grid and level values"""
-  apiRiskScoringConfigs(filter: InputApiRiskConfigScopeFilter): ApiRiskScoringConfigs!
-  apiSpecConformanceResults(id: String!, queryType: QueryType!, filterBy: [InputApiSpecConformanceFilterArgument], orderBy: [InputApiSpecConformanceOrder], groupBy: [InputApiSpecConformanceGroupByArgument], limit: Int, offset: Int): ApiSpecConformanceResultSet
-  apiSpecConformanceScheduledJob(id: String!): ApiSpecConformanceScheduledJob!
-  astScanSchedules(getAstScanJob: InputGetAstScanJob): AstScanScheduleResultSet!
-  getApiDefinition(id: String!): ApiDefinitionJob!
-  apiInspectorJobResults(filterBy: [InputApiInspectorJobFilterArgument], orderBy: [InputApiInspectorJobOrderArgument], limit: Int, offset: Int): ApiInspectorJobQueryResultSet
-  apiInspectorResults(id: String!, filterBy: [InputApiInspectorFilterArgument], orderBy: [InputApiInspectorOrderArgument], groupBy: [InputApiInspectorGroupByArgument], limit: Int, offset: Int): ApiInspectorResultSet
-  apiInspectorRuleInformation(id: String!): ApiInspectorRuleInformation
-  apiSpecConformanceJobResults(filterBy: [InputApiSpecConformanceJobFilterArgument], orderBy: [InputApiSpecConformanceJobOrder], limit: Int, offset: Int): ApiSpecConformanceJobQueryResultSet
-
-  """List of jobs"""
-  jobResults(jobType: JobType!, filterBy: [InputJobFilterArgument], orderBy: [InputJobOrderArgument], limit: Int, offset: Int): JobQueryResultSet
-
-  """List of schedules"""
-  scheduledJobResults(jobType: JobType!, filterBy: [InputScheduledJobFilterArgument], orderBy: [InputScheduledJobOrderArgument], limit: Int, offset: Int): ScheduledJobQueryResultSet
-  securityEventsInfo(id: String!): SecurityEventsInfoJob!
-  actor(id: String): Actor
-  actors(foreignFilter: InputActorForeignFilter, filterBy: [InputFilter], orderBy: [InputOrder], limit: Int, offset: Int): ActorResultSet
-  sessionIdentificationConfigOptions: SessionIdentificationConfigOptions!
-  sessionIdentificationRulesV2(filter: InputSessionIdentificationRulesFilter): SessionIdentificationRuleResultSetV2!
-  automaticSecretRedaction: AutomaticSecretRedactionResponse! @deprecated(reason: "Deprecated")
-  fullPrivacyMode: FullPrivacyModeResponse! @deprecated(reason: "Deprecated")
-  piiTypes(type: PiiParameterType): PiiTypesResultSet! @deprecated(reason: "Deprecated")
-  redactionRules: RedactionRuleResultSet! @deprecated(reason: "Deprecated")
-  redactionStrategy(type: SensitiveParameterType!): RedactionStrategyResponse! @deprecated(reason: "Deprecated")
-
-  """Get All Splunk Integrations"""
-  splunkIntegrations: SplunkIntegrationsResultSet
-
-  """Validates splunk connection"""
-  validateSplunkConnection(input: InputValidateSplunkIntegrationInput!): ConfirmationResponse
-
-  """Get All Syslog Server Integrations"""
-  syslogServerIntegrations: SyslogServerIntegrationsResultSet
-
-  """Validates syslog server connection"""
-  validateSyslogServerIntegration(input: InputValidateSyslogServerIntegrationInput!): ConfirmationResponse
   GetScopedThreatScoringConfigs(input: QUERY_traceableThreatScoringConfig___GetScopedThreatScoringConfigsRequest___Input): QUERY_traceableThreatScoringConfig___GetScopedThreatScoringConfigsResponse___
   GetConfigs(input: QUERY_traceableEdgeConfig___GetConfigsRequest___Input): QUERY_traceableEdgeConfig___GetConfigsResponse___
   Get(input: QUERY_traceablePolicyConfig___GetRequest___Input): QUERY_traceablePolicyConfig___GetResponse___
@@ -31573,6 +32191,9 @@ type QUERY_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyDetails
   bot_scopes___JSON: JSON
   categorized_bot_policy_action_config: QUERY_categorizedBotConfigPolicyService___CategorizedBotPolicyActionConfig___
   categorized_bot_policy_action_config___JSON: JSON
+  categorized_bot_policy_target_scope: QUERY_categorizedBotConfigPolicyService___CategorizedBotPolicyTargetScope___
+  categorized_bot_policy_target_scope___JSON: JSON
+  is_default_policy: Boolean
 }
 
 input QUERY_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyEdgeDecisionRulesFilter___Input {
@@ -31583,6 +32204,8 @@ input QUERY_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyEdgeDe
 input QUERY_categorizedBotConfigPolicyService___CategorizedBotConfigPolicyFilter___Input {
   categorized_bot_config_policy_ids: [String]
   categorized_bot_config_policy_ids___JSON: JSON
+  environment_ids: [String]
+  environment_ids___JSON: JSON
 }
 
 type QUERY_categorizedBotConfigPolicyService___CategorizedBotPolicyActionConfig___ {
@@ -31592,6 +32215,11 @@ type QUERY_categorizedBotConfigPolicyService___CategorizedBotPolicyActionConfig_
 type QUERY_categorizedBotConfigPolicyService___CategorizedBotPolicyScope___ {
   environment_scope: QUERY_categorizedBotConfigPolicyService___EnvironmentScope___
   environment_scope___JSON: JSON
+}
+
+type QUERY_categorizedBotConfigPolicyService___CategorizedBotPolicyTargetScope___ {
+  entity_scope: QUERY_categorizedBotConfigPolicyService___EntityScope___
+  entity_scope___JSON: JSON
 }
 
 type QUERY_categorizedBotConfigPolicyService___ConditionalConfig___ {
@@ -31912,6 +32540,18 @@ type QUERY_categorizedBotConfigPolicyService___EntityRuleData___ {
   entity___JSON: JSON
   match_condition: QUERY_categorizedBotConfigPolicyService___MatchCondition___
   match_condition___JSON: JSON
+}
+
+type QUERY_categorizedBotConfigPolicyService___EntityScope___ {
+  entity_type: QUERY_categorizedBotConfigPolicyService___EntityType___
+  entity_ids: [String]
+  entity_ids___JSON: JSON
+}
+
+enum QUERY_categorizedBotConfigPolicyService___EntityType___ {
+  ENTITY_TYPE_UNSPECIFIED
+  ENTITY_TYPE_API
+  ENTITY_TYPE_SERVICE
 }
 
 type QUERY_categorizedBotConfigPolicyService___EnvironmentScope___ {
@@ -32371,6 +33011,8 @@ type QUERY_categorizedBotConfigService___MatchCondition___ {
   ip_metadata_match_condition___JSON: JSON
   logical_match_condition: QUERY_categorizedBotConfigService___LogicalMatchCondition___
   logical_match_condition___JSON: JSON
+  user_agent_match_condition: QUERY_categorizedBotConfigService___UserAgentCondition___
+  user_agent_match_condition___JSON: JSON
 }
 
 enum QUERY_categorizedBotConfigService___MatchOperator___ {
@@ -32406,6 +33048,13 @@ type QUERY_categorizedBotConfigService___RegexConfig___ {
 type QUERY_categorizedBotConfigService___Struct___ {
   fields: [QUERY_categorizedBotConfigService_google_protobuf_Struct_FieldsEntry___fields___MapOutput]
   fields___JSON: JSON
+}
+
+type QUERY_categorizedBotConfigService___UserAgentCondition___ {
+  user_agents: [String]
+  user_agents___JSON: JSON
+  user_agent_regexes: [String]
+  user_agent_regexes___JSON: JSON
 }
 
 type QUERY_categorizedBotConfigService___Value___ {
@@ -33497,6 +34146,7 @@ enum QUERY_edgeDecisionService___Decision___ {
   DECISION_EXCLUDE
   DECISION_PASSTHROUGH
   DECISION_ALERT
+  DECISION_FAIL_OPEN
 }
 
 input QUERY_edgeDecisionService___DerivationRule___Input {
@@ -35386,6 +36036,13 @@ type QUERY_traceablePolicyConfig___BotFingerprintScore___ {
   low_score: Float
 }
 
+enum QUERY_traceablePolicyConfig___CaptchaDifficulty___ {
+  CAPTCHA_DIFFICULTY_UNSPECIFIED
+  CAPTCHA_DIFFICULTY_EASY
+  CAPTCHA_DIFFICULTY_MEDIUM
+  CAPTCHA_DIFFICULTY_HARD
+}
+
 type QUERY_traceablePolicyConfig___ClientBotFingerprintPolicy___ {
   use_default: Boolean
   bot_suspicion_threshold: Float
@@ -35394,6 +36051,11 @@ type QUERY_traceablePolicyConfig___ClientBotFingerprintPolicy___ {
   rules: [QUERY_traceablePolicyConfig___BotFingerprintEvalRule___]
   rules___JSON: JSON
   site_key: String
+}
+
+type QUERY_traceablePolicyConfig___Duration___ {
+  seconds: Int
+  nanos: Int
 }
 
 input QUERY_traceablePolicyConfig___GetAllRequest___Input {
@@ -35415,6 +36077,23 @@ type QUERY_traceablePolicyConfig___GetResponse___ {
   policy___JSON: JSON
 }
 
+type QUERY_traceablePolicyConfig___InvisibleCaptchaPolicy___ {
+  site_key: String
+  difficulty_category: QUERY_traceablePolicyConfig___CaptchaDifficulty___
+  rules: [QUERY_traceablePolicyConfig___InvisibleCaptchaRule___]
+  rules___JSON: JSON
+  custom_fields: QUERY_traceablePolicyConfig___Value___
+  custom_fields___JSON: JSON
+  invisible_captcha_threshold: Float
+}
+
+type QUERY_traceablePolicyConfig___InvisibleCaptchaRule___ {
+  rule_config: QUERY_traceablePolicyConfig___RuleConfig___
+  rule_config___JSON: JSON
+  custom_fields: QUERY_traceablePolicyConfig___Value___
+  custom_fields___JSON: JSON
+}
+
 type QUERY_traceablePolicyConfig___ListValue___ {
   values: [QUERY_traceablePolicyConfig___Value___]
   values___JSON: JSON
@@ -35422,6 +36101,27 @@ type QUERY_traceablePolicyConfig___ListValue___ {
 
 enum QUERY_traceablePolicyConfig___NullValue___ {
   NULL_VALUE
+}
+
+type QUERY_traceablePolicyConfig___RateConfig___ {
+  dimension: QUERY_traceablePolicyConfig___RateDimension___
+  threshold: Float
+  time_window: QUERY_traceablePolicyConfig___Duration___
+  time_window___JSON: JSON
+  complexity: QUERY_traceablePolicyConfig___Value___
+  complexity___JSON: JSON
+}
+
+enum QUERY_traceablePolicyConfig___RateDimension___ {
+  RATE_DIMENSION_UNSPECIFIED
+  RATE_DIMENSION_IP
+  RATE_DIMENSION_UA
+  RATE_DIMENSION_VISITOR
+}
+
+type QUERY_traceablePolicyConfig___RuleConfig___ {
+  rate_config: QUERY_traceablePolicyConfig___RateConfig___
+  rate_config___JSON: JSON
 }
 
 type QUERY_traceablePolicyConfig___Struct___ {
@@ -35438,6 +36138,8 @@ type QUERY_traceablePolicyConfig___TraceablePolicy___ {
   labels___JSON: JSON
   client_bot_fingerprint_policy: QUERY_traceablePolicyConfig___ClientBotFingerprintPolicy___
   client_bot_fingerprint_policy___JSON: JSON
+  invisible_captcha_policy: QUERY_traceablePolicyConfig___InvisibleCaptchaPolicy___
+  invisible_captcha_policy___JSON: JSON
   template_id: String
 }
 
@@ -36177,7 +36879,16 @@ type RateLimitingRuleKeyValueCondition {
   keyCondition: RateLimitingRuleStringCondition
 
   """Key value condition metadata type"""
-  metadataType: RateLimitingRuleKeyValueConditionMetadataType!
+  metadataType: RateLimitingRuleKeyValueConditionMetadataType
+
+  """Type of key value condition - static value or lhs-rhs keys"""
+  keyValueType: RateLimitingRuleKeyValueConditionType
+
+  """LHS-RHS keys' values matching condition"""
+  lhsRhsCondition: RateLimitingRuleLhsRhsKeysCondition
+
+  """Static values matching condition"""
+  staticValueCondition: RateLimitingRuleStaticValueCondition
 
   """Value condition"""
   valueCondition: RateLimitingRuleStringCondition
@@ -36283,6 +36994,14 @@ enum RateLimitingRuleKeyValueConditionMetadataType {
 
   """RESPONSE_COOKIES_COUNT"""
   RESPONSE_COOKIES_COUNT
+}
+
+enum RateLimitingRuleKeyValueConditionType {
+  """STATIC_VALUE"""
+  STATIC_VALUE
+
+  """LHS_RHS_KEYS"""
+  LHS_RHS_KEYS
 }
 
 enum RateLimitingRuleKeyValueConditionValidationType {
@@ -36449,6 +37168,26 @@ enum RateLimitingRuleLeafConditionType {
   REQUEST_SCANNER_TYPE
 }
 
+"""
+Lhs-Rhs keys' values matching condition applicable on a rate limit rule
+"""
+type RateLimitingRuleLhsRhsKeysCondition {
+  """LHS Key condition"""
+  lhsKeyCondition: RateLimitingRuleStringCondition
+
+  """LHS key metadata type"""
+  lhsMetadataType: RateLimitingRuleKeyValueConditionMetadataType!
+
+  """RHS Key condition"""
+  lhsRhsMatchOperator: RateLimitingRuleKeyValueMatchOperator!
+
+  """RHS Key condition"""
+  rhsKeyCondition: RateLimitingRuleStringCondition
+
+  """RHS key metadata type"""
+  rhsMetadataType: RateLimitingRuleKeyValueConditionMetadataType!
+}
+
 """Logical condition for a rate limited rule"""
 type RateLimitingRuleLogicalCondition {
   """Child conditions of rate limit rule logical condition"""
@@ -36554,13 +37293,25 @@ enum RateLimitingRuleSource {
   TRACEABLE
 }
 
+"""Static value matching condition applicable on a rate limit rule"""
+type RateLimitingRuleStaticValueCondition {
+  """Key condition"""
+  keyCondition: RateLimitingRuleStringCondition
+
+  """Key value condition metadata type"""
+  metadataType: RateLimitingRuleKeyValueConditionMetadataType!
+
+  """Value condition"""
+  valueCondition: RateLimitingRuleStringCondition
+}
+
 """Status of rate limit rule"""
 type RateLimitingRuleStatus {
   """Boolean denoting if rule should generate internal events"""
   generateInternalEvents: Boolean @deprecated(reason: "Deprecated")
 
   """Boolean denoting if rule should be hidden"""
-  hidden: Boolean @deprecated(reason: "Deprecated")
+  hidden: Boolean
 
   """
   Boolean denoting if rule should be internal and generate internal events
@@ -36747,6 +37498,7 @@ type RegionRule {
   effects: [RegionRuleEffectWithModification]
   eventSeverity: RegionRuleEventSeverity
   expiration: RegionRuleExpiration
+  hidden: Boolean!
   id: String!
   internal: Boolean!
   name: String!
@@ -37172,6 +37924,11 @@ type RoleMetadata {
   """The ID of the role being described"""
   roleId: String!
 
+  """
+  Scoping compatibility for the this role. Does not support scoping if unset.
+  """
+  scopingCompatibility: RoleScopingCompatibility
+
   """The total count of users who have at least one assignment to this role"""
   userCount: Long!
 }
@@ -37187,6 +37944,18 @@ type RoleResultSet {
 type RoleScope {
   """List of entity scopes"""
   entityScopes: [RoleEntityScope]
+}
+
+"""Entity Scoping compatibility for a role"""
+enum RoleScopingCompatibility {
+  """ENVIRONMENT"""
+  ENVIRONMENT
+
+  """SERVICE"""
+  SERVICE
+
+  """API"""
+  API
 }
 
 """
@@ -37299,7 +38068,7 @@ type S3WebIdentityAuthenticationCredential {
 type SamlAuth {
   enabled: Boolean!
   samlConnectionIds: [String]
-  ssoBasedProvisioningEnabled: Boolean!
+  ssoBasedProvisioningEnabled: Boolean
 }
 
 type SamplingConfigsResultSet {
@@ -37960,6 +38729,11 @@ type ScanOverview {
 
   """Policy Details for a particular scan id"""
   policyDetails: PolicyDetails
+
+  """
+  Scope of the referenced scan. This field will be non-null only if the scan is a referenced scan
+  """
+  referencedScanScope: AstReferencedScanDetails
 
   """Scan Details for a particular scan id"""
   scanDetails: ScanDetails!
@@ -38652,7 +39426,8 @@ enum SecurityConfigurationAction {
 """Security Configuration change details"""
 type SecurityConfigurationChange {
   ruleId: String
-  ruleName: String
+  ruleName: String @deprecated(reason: "Deprecated")
+  ruleNames: [String]
   securityConfigurationAction: SecurityConfigurationAction!
   securityConfigurationType: SecurityConfigurationType
 }
@@ -38714,6 +39489,12 @@ enum SecurityConfigurationType {
 
   """API_PROTECTION_THREAT_TYPE"""
   API_PROTECTION_THREAT_TYPE
+
+  """WEB_APPLICATION_PROTECTION_GLOBAL_CONFIG"""
+  WEB_APPLICATION_PROTECTION_GLOBAL_CONFIG
+
+  """API_PROTECTION_GLOBAL_CONFIG"""
+  API_PROTECTION_GLOBAL_CONFIG
 }
 
 """Security event confidence level"""
@@ -41093,6 +41874,9 @@ type TestMetadata {
   apiId: String
   apiName: String
   originalSpanId: String
+
+  """Original Trace Id"""
+  originalTraceId: String
   serviceId: String!
   serviceName: String!
   spanPath: String
@@ -41959,6 +42743,9 @@ enum ThreatActivityGroupByField {
 
   """ENVIRONMENT"""
   ENVIRONMENT
+
+  """ACTOR_ID_TYPES"""
+  ACTOR_ID_TYPES
 }
 
 type ThreatActivityMetadata {
@@ -43525,6 +44312,12 @@ type UserAttributionTokenRule {
   rootRelativeProjection: UserAttributionTokenRootRelativeProjection
 }
 
+"""Jwt payload claim projection for the attribute value"""
+type UserAttributionTokenUrlDecodeStringProjection {
+  """Set to true to decode quote_plus url encoded string"""
+  quotePlus: Boolean!
+}
+
 """Matching condition for the attribute value"""
 type UserAttributionTokenValueMatchCondition {
   """Matching operator for the value which needs to be matched"""
@@ -43563,6 +44356,9 @@ type UserAttributionTokenValueProjection {
   """Regex capture group projection for the attribute value"""
   regexCaptureGroupProjection: UserAttributionTokenRegexCaptureGroupProjection
 
+  """URL decode string projection for the attribute value"""
+  urlDecodeStringProjection: UserAttributionTokenUrlDecodeStringProjection
+
   """Projection type for the attribute value"""
   valueProjectionType: UserAttributionTokenValueProjectionType!
 }
@@ -43580,6 +44376,9 @@ enum UserAttributionTokenValueProjectionType {
 
   """Projection type base 64 for the attribute value projection"""
   BASE64
+
+  """Projection type URL decode string for the attribute value projection"""
+  URL_DECODE_STRING
 }
 
 """User change details"""
@@ -44473,6 +45272,9 @@ enum VulnerabilityV3Field {
   """CVSS_SCORE"""
   CVSS_SCORE
 
+  """CVSS_VECTOR_STRING"""
+  CVSS_VECTOR_STRING
+
   """CVE"""
   CVE
 
@@ -44565,6 +45367,15 @@ enum VulnerabilityV3Field {
 
   """VULNERABILITY_CHANGE_LOG_DAY"""
   VULNERABILITY_CHANGE_LOG_DAY
+
+  """VULNERABILITY_CHANGE_LOG_MESSAGE"""
+  VULNERABILITY_CHANGE_LOG_MESSAGE
+
+  """AFFECTED_DOMAIN_IDS"""
+  AFFECTED_DOMAIN_IDS
+
+  """AFFECTED_DOMAIN_NAMES"""
+  AFFECTED_DOMAIN_NAMES
 
   """LACK_OF_ENCRYPTION_EVIDENCE_FIELD_SPAN_ID"""
   LACK_OF_ENCRYPTION_EVIDENCE_FIELD_SPAN_ID
@@ -44795,6 +45606,9 @@ enum VulnerabilityV3Field {
   """SONAR_SCAN_ID"""
   SONAR_SCAN_ID
 
+  """SONAR_PARENT_SCAN_ID"""
+  SONAR_PARENT_SCAN_ID
+
   """JIRA_ISSUE_URL_FIELD"""
   JIRA_ISSUE_URL_FIELD
 
@@ -44803,6 +45617,12 @@ enum VulnerabilityV3Field {
 
   """AZURE_DEVOPS_URL_FIELD"""
   AZURE_DEVOPS_URL_FIELD
+
+  """IS_FALSE_POSITIVE"""
+  IS_FALSE_POSITIVE
+
+  """OWNER"""
+  OWNER
 }
 
 """Vulnerability group by fields"""
@@ -44848,6 +45668,15 @@ enum VulnerabilityV3GroupByField {
 
   """SONAR_SCAN_ID"""
   SONAR_SCAN_ID
+
+  """SONAR_PARENT_SCAN_ID"""
+  SONAR_PARENT_SCAN_ID
+
+  """IS_FALSE_POSITIVE"""
+  IS_FALSE_POSITIVE
+
+  """OWNER"""
+  OWNER
 }
 
 type VulnerabilityV3ResultSet {

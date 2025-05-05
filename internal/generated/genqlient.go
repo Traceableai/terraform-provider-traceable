@@ -9,6 +9,50 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+type AttributeScope string
+
+const (
+	// TRACE
+	AttributeScopeTrace AttributeScope = "TRACE"
+	// SPAN
+	AttributeScopeSpan AttributeScope = "SPAN"
+	// API
+	AttributeScopeApi AttributeScope = "API"
+	// API_TRACE
+	AttributeScopeApiTrace AttributeScope = "API_TRACE"
+	// BACKEND
+	AttributeScopeBackend AttributeScope = "BACKEND"
+	// BACKEND_TRACE
+	AttributeScopeBackendTrace AttributeScope = "BACKEND_TRACE"
+	// INTERACTION
+	AttributeScopeInteraction AttributeScope = "INTERACTION"
+	// SERVICE
+	AttributeScopeService AttributeScope = "SERVICE"
+	// ACTOR
+	AttributeScopeActor AttributeScope = "ACTOR"
+	// DOMAIN
+	AttributeScopeDomain AttributeScope = "DOMAIN"
+	// DOMAIN_EVENT
+	AttributeScopeDomainEvent AttributeScope = "DOMAIN_EVENT"
+	// BACKEND_API
+	AttributeScopeBackendApi AttributeScope = "BACKEND_API"
+)
+
+var AllAttributeScope = []AttributeScope{
+	AttributeScopeTrace,
+	AttributeScopeSpan,
+	AttributeScopeApi,
+	AttributeScopeApiTrace,
+	AttributeScopeBackend,
+	AttributeScopeBackendTrace,
+	AttributeScopeInteraction,
+	AttributeScopeService,
+	AttributeScopeActor,
+	AttributeScopeDomain,
+	AttributeScopeDomainEvent,
+	AttributeScopeBackendApi,
+}
+
 // CreateCustomSignatureCreateCustomSignatureRule includes the requested fields of the GraphQL type CustomSignatureRule.
 type CreateCustomSignatureCreateCustomSignatureRule struct {
 	CustomSignatureFields `json:"-"`
@@ -276,6 +320,98 @@ type CreateMaliciousIpRangeRuleResponse struct {
 // GetCreateIpRangeRule returns CreateMaliciousIpRangeRuleResponse.CreateIpRangeRule, and is useful for accessing the field via an interface.
 func (v *CreateMaliciousIpRangeRuleResponse) GetCreateIpRangeRule() CreateMaliciousIpRangeRuleCreateIpRangeRule {
 	return v.CreateIpRangeRule
+}
+
+// CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule struct {
+	MaliciousIpTypeRuleFields `json:"-"`
+}
+
+// GetId returns CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule) GetId() string {
+	return v.MaliciousIpTypeRuleFields.Id
+}
+
+// GetInfo returns CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule) GetInfo() MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.MaliciousIpTypeRuleFields.Info
+}
+
+// GetScope returns CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule.Scope, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule) GetScope() *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.MaliciousIpTypeRuleFields.Scope
+}
+
+// GetStatus returns CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule.Status, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule) GetStatus() MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.MaliciousIpTypeRuleFields.Status
+}
+
+func (v *CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousIpTypeRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCreateMaliciousIpTypeRuleCreateMaliciousSourcesRule struct {
+	Id string `json:"id"`
+
+	Info MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+
+	Scope *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+
+	Status MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+func (v *CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule) __premarshalJSON() (*__premarshalCreateMaliciousIpTypeRuleCreateMaliciousSourcesRule, error) {
+	var retval __premarshalCreateMaliciousIpTypeRuleCreateMaliciousSourcesRule
+
+	retval.Id = v.MaliciousIpTypeRuleFields.Id
+	retval.Info = v.MaliciousIpTypeRuleFields.Info
+	retval.Scope = v.MaliciousIpTypeRuleFields.Scope
+	retval.Status = v.MaliciousIpTypeRuleFields.Status
+	return &retval, nil
+}
+
+// CreateMaliciousIpTypeRuleResponse is returned by CreateMaliciousIpTypeRule on success.
+type CreateMaliciousIpTypeRuleResponse struct {
+	// Mutation API to create Malicious Sources rule
+	CreateMaliciousSourcesRule CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule `json:"createMaliciousSourcesRule"`
+}
+
+// GetCreateMaliciousSourcesRule returns CreateMaliciousIpTypeRuleResponse.CreateMaliciousSourcesRule, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousIpTypeRuleResponse) GetCreateMaliciousSourcesRule() CreateMaliciousIpTypeRuleCreateMaliciousSourcesRule {
+	return v.CreateMaliciousSourcesRule
 }
 
 // CreateMaliciousRegionRuleCreateRegionRule includes the requested fields of the GraphQL type RegionRule.
@@ -1005,6 +1141,8 @@ const (
 	CustomSignatureRuleClauseTypeUserAgentExpression CustomSignatureRuleClauseType = "USER_AGENT_EXPRESSION"
 	// REQUEST_SCANNER_TYPE_EXPRESSION
 	CustomSignatureRuleClauseTypeRequestScannerTypeExpression CustomSignatureRuleClauseType = "REQUEST_SCANNER_TYPE_EXPRESSION"
+	// SCOPE_EXPRESSION
+	CustomSignatureRuleClauseTypeScopeExpression CustomSignatureRuleClauseType = "SCOPE_EXPRESSION"
 )
 
 var AllCustomSignatureRuleClauseType = []CustomSignatureRuleClauseType{
@@ -1024,6 +1162,7 @@ var AllCustomSignatureRuleClauseType = []CustomSignatureRuleClauseType{
 	CustomSignatureRuleClauseTypeEmailDomainExpression,
 	CustomSignatureRuleClauseTypeUserAgentExpression,
 	CustomSignatureRuleClauseTypeRequestScannerTypeExpression,
+	CustomSignatureRuleClauseTypeScopeExpression,
 }
 
 type CustomSignatureRuleEffectModificationType string
@@ -1035,6 +1174,20 @@ const (
 
 var AllCustomSignatureRuleEffectModificationType = []CustomSignatureRuleEffectModificationType{
 	CustomSignatureRuleEffectModificationTypeAgentEffect,
+}
+
+type CustomSignatureRuleEntityType string
+
+const (
+	// API
+	CustomSignatureRuleEntityTypeApi CustomSignatureRuleEntityType = "API"
+	// SERVICE
+	CustomSignatureRuleEntityTypeService CustomSignatureRuleEntityType = "SERVICE"
+)
+
+var AllCustomSignatureRuleEntityType = []CustomSignatureRuleEntityType{
+	CustomSignatureRuleEntityTypeApi,
+	CustomSignatureRuleEntityTypeService,
 }
 
 type CustomSignatureRuleEventSeverity string
@@ -1192,6 +1345,20 @@ var AllCustomSignatureRuleKeyValueTag = []CustomSignatureRuleKeyValueTag{
 	CustomSignatureRuleKeyValueTagHeader,
 	CustomSignatureRuleKeyValueTagParameter,
 	CustomSignatureRuleKeyValueTagCookie,
+}
+
+type CustomSignatureRuleLabelType string
+
+const (
+	// API
+	CustomSignatureRuleLabelTypeApi CustomSignatureRuleLabelType = "API"
+	// SERVICE
+	CustomSignatureRuleLabelTypeService CustomSignatureRuleLabelType = "SERVICE"
+)
+
+var AllCustomSignatureRuleLabelType = []CustomSignatureRuleLabelType{
+	CustomSignatureRuleLabelTypeApi,
+	CustomSignatureRuleLabelTypeService,
 }
 
 type CustomSignatureRuleMatchCategory string
@@ -1448,6 +1615,31 @@ func (v *DeleteMaliciousIpRangeRuleResponse) GetDeleteIpRangeRule() DeleteMalici
 	return v.DeleteIpRangeRule
 }
 
+// DeleteMaliciousIpTypeRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse includes the requested fields of the GraphQL type DeleteMaliciousSourcesRuleResponse.
+// The GraphQL type's documentation follows.
+//
+// Delete response denoting success
+type DeleteMaliciousIpTypeRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse struct {
+	// Flag to check the success of a delete request
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns DeleteMaliciousIpTypeRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse.Success, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousIpTypeRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse) GetSuccess() bool {
+	return v.Success
+}
+
+// DeleteMaliciousIpTypeRuleResponse is returned by DeleteMaliciousIpTypeRule on success.
+type DeleteMaliciousIpTypeRuleResponse struct {
+	// Mutation API to delete Malicious Sources rule
+	DeleteMaliciousSourcesRule DeleteMaliciousIpTypeRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse `json:"deleteMaliciousSourcesRule"`
+}
+
+// GetDeleteMaliciousSourcesRule returns DeleteMaliciousIpTypeRuleResponse.DeleteMaliciousSourcesRule, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousIpTypeRuleResponse) GetDeleteMaliciousSourcesRule() DeleteMaliciousIpTypeRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse {
+	return v.DeleteMaliciousSourcesRule
+}
+
 // DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse includes the requested fields of the GraphQL type DeleteRegionRuleResponse.
 type DeleteMaliciousRegionRuleDeleteRegionRuleDeleteRegionRuleResponse struct {
 	Success bool `json:"success"`
@@ -1486,6 +1678,90 @@ type DeleteRateLimitingRuleResponse struct {
 // GetDeleteRateLimitingRule returns DeleteRateLimitingRuleResponse.DeleteRateLimitingRule, and is useful for accessing the field via an interface.
 func (v *DeleteRateLimitingRuleResponse) GetDeleteRateLimitingRule() DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse {
 	return v.DeleteRateLimitingRule
+}
+
+type EntityType string
+
+const (
+	// API
+	EntityTypeApi EntityType = "API"
+	// SERVICE
+	EntityTypeService EntityType = "SERVICE"
+	// BACKEND
+	EntityTypeBackend EntityType = "BACKEND"
+	// DOMAIN
+	EntityTypeDomain EntityType = "DOMAIN"
+	// ACTOR
+	EntityTypeActor EntityType = "ACTOR"
+)
+
+var AllEntityType = []EntityType{
+	EntityTypeApi,
+	EntityTypeService,
+	EntityTypeBackend,
+	EntityTypeDomain,
+	EntityTypeActor,
+}
+
+type FilterOperatorType string
+
+const (
+	// EQUALS
+	FilterOperatorTypeEquals FilterOperatorType = "EQUALS"
+	// NOT_EQUALS
+	FilterOperatorTypeNotEquals FilterOperatorType = "NOT_EQUALS"
+	// LESS_THAN
+	FilterOperatorTypeLessThan FilterOperatorType = "LESS_THAN"
+	// LESS_THAN_OR_EQUAL_TO
+	FilterOperatorTypeLessThanOrEqualTo FilterOperatorType = "LESS_THAN_OR_EQUAL_TO"
+	// GREATER_THAN
+	FilterOperatorTypeGreaterThan FilterOperatorType = "GREATER_THAN"
+	// GREATER_THAN_OR_EQUAL_TO
+	FilterOperatorTypeGreaterThanOrEqualTo FilterOperatorType = "GREATER_THAN_OR_EQUAL_TO"
+	// LIKE
+	FilterOperatorTypeLike FilterOperatorType = "LIKE"
+	// IN
+	FilterOperatorTypeIn FilterOperatorType = "IN"
+	// NOT_IN
+	FilterOperatorTypeNotIn FilterOperatorType = "NOT_IN"
+	// CONTAINS_KEY
+	FilterOperatorTypeContainsKey FilterOperatorType = "CONTAINS_KEY"
+	// CONTAINS_KEY_VALUE
+	FilterOperatorTypeContainsKeyValue FilterOperatorType = "CONTAINS_KEY_VALUE"
+	// CONTAINS_KEY_LIKE
+	FilterOperatorTypeContainsKeyLike FilterOperatorType = "CONTAINS_KEY_LIKE"
+	// NOT_CONTAINS_KEY
+	FilterOperatorTypeNotContainsKey FilterOperatorType = "NOT_CONTAINS_KEY"
+)
+
+var AllFilterOperatorType = []FilterOperatorType{
+	FilterOperatorTypeEquals,
+	FilterOperatorTypeNotEquals,
+	FilterOperatorTypeLessThan,
+	FilterOperatorTypeLessThanOrEqualTo,
+	FilterOperatorTypeGreaterThan,
+	FilterOperatorTypeGreaterThanOrEqualTo,
+	FilterOperatorTypeLike,
+	FilterOperatorTypeIn,
+	FilterOperatorTypeNotIn,
+	FilterOperatorTypeContainsKey,
+	FilterOperatorTypeContainsKeyValue,
+	FilterOperatorTypeContainsKeyLike,
+	FilterOperatorTypeNotContainsKey,
+}
+
+type FilterType string
+
+const (
+	// ATTRIBUTE
+	FilterTypeAttribute FilterType = "ATTRIBUTE"
+	// ID
+	FilterTypeId FilterType = "ID"
+)
+
+var AllFilterType = []FilterType{
+	FilterTypeAttribute,
+	FilterTypeId,
 }
 
 // GetCountriesCountriesRegionResultSet includes the requested fields of the GraphQL type RegionResultSet.
@@ -1729,6 +2005,154 @@ func (v *GetCustomSignatureResponse) GetCustomSignatureRules() GetCustomSignatur
 	return v.CustomSignatureRules
 }
 
+// GetDataSetsIdDataSetsDataSetResultSet includes the requested fields of the GraphQL type DataSetResultSet.
+type GetDataSetsIdDataSetsDataSetResultSet struct {
+	Results []*GetDataSetsIdDataSetsDataSetResultSetResultsDataSet `json:"results"`
+}
+
+// GetResults returns GetDataSetsIdDataSetsDataSetResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSet) GetResults() []*GetDataSetsIdDataSetsDataSetResultSetResultsDataSet {
+	return v.Results
+}
+
+// GetDataSetsIdDataSetsDataSetResultSetResultsDataSet includes the requested fields of the GraphQL type DataSet.
+type GetDataSetsIdDataSetsDataSetResultSetResultsDataSet struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetId returns GetDataSetsIdDataSetsDataSetResultSetResultsDataSet.Id, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSetResultsDataSet) GetId() string { return v.Id }
+
+// GetName returns GetDataSetsIdDataSetsDataSetResultSetResultsDataSet.Name, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdDataSetsDataSetResultSetResultsDataSet) GetName() string { return v.Name }
+
+// GetDataSetsIdResponse is returned by GetDataSetsId on success.
+type GetDataSetsIdResponse struct {
+	DataSets GetDataSetsIdDataSetsDataSetResultSet `json:"dataSets"`
+}
+
+// GetDataSets returns GetDataSetsIdResponse.DataSets, and is useful for accessing the field via an interface.
+func (v *GetDataSetsIdResponse) GetDataSets() GetDataSetsIdDataSetsDataSetResultSet {
+	return v.DataSets
+}
+
+// GetDataTypesIdDataTypesDataTypeResultSet includes the requested fields of the GraphQL type DataTypeResultSet.
+type GetDataTypesIdDataTypesDataTypeResultSet struct {
+	Results []*GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype `json:"results"`
+}
+
+// GetResults returns GetDataTypesIdDataTypesDataTypeResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSet) GetResults() []*GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype {
+	return v.Results
+}
+
+// GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype includes the requested fields of the GraphQL type ResolvedDatatype.
+type GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype struct {
+	// Unique Identifier for the datatype. This cannot be changed
+	Id string `json:"id"`
+	// The configured name for the datatype
+	Name string `json:"name"`
+}
+
+// GetId returns GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype.Id, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype) GetId() string { return v.Id }
+
+// GetName returns GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype.Name, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdDataTypesDataTypeResultSetResultsResolvedDatatype) GetName() string {
+	return v.Name
+}
+
+// GetDataTypesIdResponse is returned by GetDataTypesId on success.
+type GetDataTypesIdResponse struct {
+	DataTypes GetDataTypesIdDataTypesDataTypeResultSet `json:"dataTypes"`
+}
+
+// GetDataTypes returns GetDataTypesIdResponse.DataTypes, and is useful for accessing the field via an interface.
+func (v *GetDataTypesIdResponse) GetDataTypes() GetDataTypesIdDataTypesDataTypeResultSet {
+	return v.DataTypes
+}
+
+// GetEndpointLabelsIdLabelsLabelResultSet includes the requested fields of the GraphQL type LabelResultSet.
+type GetEndpointLabelsIdLabelsLabelResultSet struct {
+	Count   int64                                                  `json:"count"`
+	Results []*GetEndpointLabelsIdLabelsLabelResultSetResultsLabel `json:"results"`
+	Total   int64                                                  `json:"total"`
+}
+
+// GetCount returns GetEndpointLabelsIdLabelsLabelResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetCount() int64 { return v.Count }
+
+// GetResults returns GetEndpointLabelsIdLabelsLabelResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetResults() []*GetEndpointLabelsIdLabelsLabelResultSetResultsLabel {
+	return v.Results
+}
+
+// GetTotal returns GetEndpointLabelsIdLabelsLabelResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSet) GetTotal() int64 { return v.Total }
+
+// GetEndpointLabelsIdLabelsLabelResultSetResultsLabel includes the requested fields of the GraphQL type Label.
+type GetEndpointLabelsIdLabelsLabelResultSetResultsLabel struct {
+	Id  string `json:"id"`
+	Key string `json:"key"`
+}
+
+// GetId returns GetEndpointLabelsIdLabelsLabelResultSetResultsLabel.Id, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSetResultsLabel) GetId() string { return v.Id }
+
+// GetKey returns GetEndpointLabelsIdLabelsLabelResultSetResultsLabel.Key, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdLabelsLabelResultSetResultsLabel) GetKey() string { return v.Key }
+
+// GetEndpointLabelsIdResponse is returned by GetEndpointLabelsId on success.
+type GetEndpointLabelsIdResponse struct {
+	Labels GetEndpointLabelsIdLabelsLabelResultSet `json:"labels"`
+}
+
+// GetLabels returns GetEndpointLabelsIdResponse.Labels, and is useful for accessing the field via an interface.
+func (v *GetEndpointLabelsIdResponse) GetLabels() GetEndpointLabelsIdLabelsLabelResultSet {
+	return v.Labels
+}
+
+// GetEntitiesIdsEntitiesEntityResultSet includes the requested fields of the GraphQL type EntityResultSet.
+type GetEntitiesIdsEntitiesEntityResultSet struct {
+	Results []*GetEntitiesIdsEntitiesEntityResultSetResultsEntity `json:"results"`
+	Total   int64                                                 `json:"total"`
+}
+
+// GetResults returns GetEntitiesIdsEntitiesEntityResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSet) GetResults() []*GetEntitiesIdsEntitiesEntityResultSetResultsEntity {
+	return v.Results
+}
+
+// GetTotal returns GetEntitiesIdsEntitiesEntityResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSet) GetTotal() int64 { return v.Total }
+
+// GetEntitiesIdsEntitiesEntityResultSetResultsEntity includes the requested fields of the GraphQL type Entity.
+type GetEntitiesIdsEntitiesEntityResultSetResultsEntity struct {
+	EntityId string       `json:"entityId"`
+	Id       *interface{} `json:"id"`
+	Name     *interface{} `json:"name"`
+}
+
+// GetEntityId returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.EntityId, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetEntityId() string { return v.EntityId }
+
+// GetId returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.Id, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetId() *interface{} { return v.Id }
+
+// GetName returns GetEntitiesIdsEntitiesEntityResultSetResultsEntity.Name, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsEntitiesEntityResultSetResultsEntity) GetName() *interface{} { return v.Name }
+
+// GetEntitiesIdsResponse is returned by GetEntitiesIds on success.
+type GetEntitiesIdsResponse struct {
+	Entities GetEntitiesIdsEntitiesEntityResultSet `json:"entities"`
+}
+
+// GetEntities returns GetEntitiesIdsResponse.Entities, and is useful for accessing the field via an interface.
+func (v *GetEntitiesIdsResponse) GetEntities() GetEntitiesIdsEntitiesEntityResultSet {
+	return v.Entities
+}
+
 // GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet includes the requested fields of the GraphQL type IpRangeRuleResultSet.
 type GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet struct {
 	Count   *int64                                                                              `json:"count"`
@@ -1903,6 +2327,196 @@ type GetMaliciousIpRangeRulesNameResponse struct {
 // GetIpRangeRules returns GetMaliciousIpRangeRulesNameResponse.IpRangeRules, and is useful for accessing the field via an interface.
 func (v *GetMaliciousIpRangeRulesNameResponse) GetIpRangeRules() GetMaliciousIpRangeRulesNameIpRangeRulesIpRangeRuleResultSet {
 	return v.IpRangeRules
+}
+
+// GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet includes the requested fields of the GraphQL type MaliciousSourcesRuleResultSet.
+// The GraphQL type's documentation follows.
+//
+// Malicious sources rules results
+type GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet struct {
+	Count *int64 `json:"count"`
+	Total *int64 `json:"total"`
+	// List of Malicious Sources rules
+	Results []*GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetCount() *int64 {
+	return v.Count
+}
+
+// GetTotal returns GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetTotal() *int64 {
+	return v.Total
+}
+
+// GetResults returns GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetResults() []*GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule {
+	return v.Results
+}
+
+// GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule struct {
+	MaliciousIpTypeRuleFields `json:"-"`
+}
+
+// GetId returns GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetId() string {
+	return v.MaliciousIpTypeRuleFields.Id
+}
+
+// GetInfo returns GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetInfo() MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.MaliciousIpTypeRuleFields.Info
+}
+
+// GetScope returns GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Scope, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetScope() *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.MaliciousIpTypeRuleFields.Scope
+}
+
+// GetStatus returns GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Status, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetStatus() MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.MaliciousIpTypeRuleFields.Status
+}
+
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousIpTypeRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalGetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule struct {
+	Id string `json:"id"`
+
+	Info MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+
+	Scope *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+
+	Status MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) __premarshalJSON() (*__premarshalGetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule, error) {
+	var retval __premarshalGetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule
+
+	retval.Id = v.MaliciousIpTypeRuleFields.Id
+	retval.Info = v.MaliciousIpTypeRuleFields.Info
+	retval.Scope = v.MaliciousIpTypeRuleFields.Scope
+	retval.Status = v.MaliciousIpTypeRuleFields.Status
+	return &retval, nil
+}
+
+// GetMaliciousIpTypeRuleDetailsResponse is returned by GetMaliciousIpTypeRuleDetails on success.
+type GetMaliciousIpTypeRuleDetailsResponse struct {
+	// API to fetch malicious sources rules
+	MaliciousSourcesRules GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet `json:"maliciousSourcesRules"`
+}
+
+// GetMaliciousSourcesRules returns GetMaliciousIpTypeRuleDetailsResponse.MaliciousSourcesRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRuleDetailsResponse) GetMaliciousSourcesRules() GetMaliciousIpTypeRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet {
+	return v.MaliciousSourcesRules
+}
+
+// GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet includes the requested fields of the GraphQL type MaliciousSourcesRuleResultSet.
+// The GraphQL type's documentation follows.
+//
+// Malicious sources rules results
+type GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet struct {
+	Count *int64 `json:"count"`
+	Total *int64 `json:"total"`
+	// List of Malicious Sources rules
+	Results []*GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetCount() *int64 {
+	return v.Count
+}
+
+// GetTotal returns GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetTotal() *int64 {
+	return v.Total
+}
+
+// GetResults returns GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetResults() []*GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule {
+	return v.Results
+}
+
+// GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule struct {
+	// Malicious Sources rule information
+	Info GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo `json:"info"`
+	// Rule ID
+	Id string `json:"id"`
+}
+
+// GetInfo returns GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetInfo() GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo {
+	return v.Info
+}
+
+// GetId returns GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetId() string {
+	return v.Id
+}
+
+// GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo includes the requested fields of the GraphQL type MaliciousSourcesRuleInfo.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule information
+type GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo struct {
+	// Rule name
+	Name string `json:"name"`
+}
+
+// GetName returns GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo.Name, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo) GetName() string {
+	return v.Name
+}
+
+// GetMaliciousIpTypeRulesNameResponse is returned by GetMaliciousIpTypeRulesName on success.
+type GetMaliciousIpTypeRulesNameResponse struct {
+	// API to fetch malicious sources rules
+	MaliciousSourcesRules GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet `json:"maliciousSourcesRules"`
+}
+
+// GetMaliciousSourcesRules returns GetMaliciousIpTypeRulesNameResponse.MaliciousSourcesRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousIpTypeRulesNameResponse) GetMaliciousSourcesRules() GetMaliciousIpTypeRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet {
+	return v.MaliciousSourcesRules
 }
 
 // GetMaliciousRegionRuleDetailsRegionRulesRegionRuleResultSet includes the requested fields of the GraphQL type RegionRuleResultSet.
@@ -2337,6 +2951,45 @@ func (v *GetRateLimitingRulesNameResponse) GetRateLimitingRules() GetRateLimitin
 	return v.RateLimitingRules
 }
 
+type InputAggregatableOrder struct {
+	Aggregation   *MetricAggregationType    `json:"aggregation"`
+	Direction     *OrderDirection           `json:"direction"`
+	Key           *string                   `json:"key"`
+	KeyExpression *InputAttributeExpression `json:"keyExpression"`
+	Size          *int64                    `json:"size"`
+	// Time Units used for this orderBy argument
+	Units *TimeUnit `json:"units"`
+}
+
+// GetAggregation returns InputAggregatableOrder.Aggregation, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetAggregation() *MetricAggregationType { return v.Aggregation }
+
+// GetDirection returns InputAggregatableOrder.Direction, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetDirection() *OrderDirection { return v.Direction }
+
+// GetKey returns InputAggregatableOrder.Key, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetKey() *string { return v.Key }
+
+// GetKeyExpression returns InputAggregatableOrder.KeyExpression, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetKeyExpression() *InputAttributeExpression { return v.KeyExpression }
+
+// GetSize returns InputAggregatableOrder.Size, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetSize() *int64 { return v.Size }
+
+// GetUnits returns InputAggregatableOrder.Units, and is useful for accessing the field via an interface.
+func (v *InputAggregatableOrder) GetUnits() *TimeUnit { return v.Units }
+
+type InputAttributeExpression struct {
+	Key     string  `json:"key"`
+	Subpath *string `json:"subpath"`
+}
+
+// GetKey returns InputAttributeExpression.Key, and is useful for accessing the field via an interface.
+func (v *InputAttributeExpression) GetKey() string { return v.Key }
+
+// GetSubpath returns InputAttributeExpression.Subpath, and is useful for accessing the field via an interface.
+func (v *InputAttributeExpression) GetSubpath() *string { return v.Subpath }
+
 type InputCustomSignatureEnvironmentScope struct {
 	EnvironmentIds []*string `json:"environmentIds"`
 }
@@ -2455,6 +3108,8 @@ type InputCustomSignatureRuleClauseRequest struct {
 	RegionExpression *InputCustomSignatureRuleRegionExpression `json:"regionExpression"`
 	// Request scanner type expression applicable on a custom signature rule
 	RequestScannerTypeExpression *InputCustomSignatureRuleRequestScannerTypeExpression `json:"requestScannerTypeExpression"`
+	// Scope expression applicable on a custom signature rule
+	ScopeExpression *InputCustomSignatureRuleScopeExpression `json:"scopeExpression"`
 	// User agent expression applicable on a custom signature rule
 	UserAgentExpression *InputCustomSignatureRuleUserAgentExpression `json:"userAgentExpression"`
 	// User ID expression applicable on a custom signature rule
@@ -2534,6 +3189,11 @@ func (v *InputCustomSignatureRuleClauseRequest) GetRegionExpression() *InputCust
 // GetRequestScannerTypeExpression returns InputCustomSignatureRuleClauseRequest.RequestScannerTypeExpression, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleClauseRequest) GetRequestScannerTypeExpression() *InputCustomSignatureRuleRequestScannerTypeExpression {
 	return v.RequestScannerTypeExpression
+}
+
+// GetScopeExpression returns InputCustomSignatureRuleClauseRequest.ScopeExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetScopeExpression() *InputCustomSignatureRuleScopeExpression {
+	return v.ScopeExpression
 }
 
 // GetUserAgentExpression returns InputCustomSignatureRuleClauseRequest.UserAgentExpression, and is useful for accessing the field via an interface.
@@ -2675,6 +3335,21 @@ func (v *InputCustomSignatureRuleEmailDomainExpression) GetEmailRegexes() []*str
 
 // GetExclude returns InputCustomSignatureRuleEmailDomainExpression.Exclude, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleEmailDomainExpression) GetExclude() *bool { return v.Exclude }
+
+type InputCustomSignatureRuleEntityScopeExpression struct {
+	// Entity ids for entity scope expression type of custom signature rule
+	EntityIds []*string `json:"entityIds"`
+	// Entity type for entity scope expression type of custom signature rule
+	EntityType CustomSignatureRuleEntityType `json:"entityType"`
+}
+
+// GetEntityIds returns InputCustomSignatureRuleEntityScopeExpression.EntityIds, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEntityScopeExpression) GetEntityIds() []*string { return v.EntityIds }
+
+// GetEntityType returns InputCustomSignatureRuleEntityScopeExpression.EntityType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEntityScopeExpression) GetEntityType() CustomSignatureRuleEntityType {
+	return v.EntityType
+}
 
 type InputCustomSignatureRuleHeaderInjection struct {
 	HeaderCategory CustomSignatureRuleMatchCategory `json:"headerCategory"`
@@ -2853,6 +3528,21 @@ func (v *InputCustomSignatureRuleLabel) GetKey() string { return v.Key }
 // GetValue returns InputCustomSignatureRuleLabel.Value, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleLabel) GetValue() string { return v.Value }
 
+type InputCustomSignatureRuleLabelScopeExpression struct {
+	// Label ids for label scope expression type of custom signature rule
+	LabelIds []*string `json:"labelIds"`
+	// Label type for label scope expression type of custom signature rule
+	LabelType CustomSignatureRuleLabelType `json:"labelType"`
+}
+
+// GetLabelIds returns InputCustomSignatureRuleLabelScopeExpression.LabelIds, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLabelScopeExpression) GetLabelIds() []*string { return v.LabelIds }
+
+// GetLabelType returns InputCustomSignatureRuleLabelScopeExpression.LabelType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLabelScopeExpression) GetLabelType() CustomSignatureRuleLabelType {
+	return v.LabelType
+}
+
 type InputCustomSignatureRuleMatchExpression struct {
 	MatchCategory *CustomSignatureRuleMatchCategory `json:"matchCategory"`
 	MatchKey      CustomSignatureRuleMatchKey       `json:"matchKey"`
@@ -2925,6 +3615,35 @@ type InputCustomSignatureRuleScope struct {
 // GetEnvironmentScope returns InputCustomSignatureRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleScope) GetEnvironmentScope() *InputCustomSignatureEnvironmentScope {
 	return v.EnvironmentScope
+}
+
+type InputCustomSignatureRuleScopeExpression struct {
+	// Scope expression of type ENTITY
+	EntityScope *InputCustomSignatureRuleEntityScopeExpression `json:"entityScope"`
+	// Exclude field for scope expression in custom signature rule
+	Exclude *bool `json:"exclude"`
+	// Scope expression of type LABEL
+	LabelScope *InputCustomSignatureRuleLabelScopeExpression `json:"labelScope"`
+	// Scope expression of type URL
+	UrlScope *InputCustomSignatureUrlScopeExpression `json:"urlScope"`
+}
+
+// GetEntityScope returns InputCustomSignatureRuleScopeExpression.EntityScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetEntityScope() *InputCustomSignatureRuleEntityScopeExpression {
+	return v.EntityScope
+}
+
+// GetExclude returns InputCustomSignatureRuleScopeExpression.Exclude, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetExclude() *bool { return v.Exclude }
+
+// GetLabelScope returns InputCustomSignatureRuleScopeExpression.LabelScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetLabelScope() *InputCustomSignatureRuleLabelScopeExpression {
+	return v.LabelScope
+}
+
+// GetUrlScope returns InputCustomSignatureRuleScopeExpression.UrlScope, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleScopeExpression) GetUrlScope() *InputCustomSignatureUrlScopeExpression {
+	return v.UrlScope
 }
 
 type InputCustomSignatureRuleUpdate struct {
@@ -3052,6 +3771,14 @@ func (v *InputCustomSignatureStringMatchCondition) GetOperator() CustomSignature
 // GetValue returns InputCustomSignatureStringMatchCondition.Value, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureStringMatchCondition) GetValue() string { return v.Value }
 
+type InputCustomSignatureUrlScopeExpression struct {
+	// Url regexes for url type scope expression of custom signature rule
+	UrlRegexes []*string `json:"urlRegexes"`
+}
+
+// GetUrlRegexes returns InputCustomSignatureUrlScopeExpression.UrlRegexes, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureUrlScopeExpression) GetUrlRegexes() []*string { return v.UrlRegexes }
+
 type InputDataSetCreate struct {
 	Color           *string          `json:"color"`
 	DataSuppression *DataSuppression `json:"dataSuppression"`
@@ -3158,6 +3885,44 @@ type InputEnvironmentScope struct {
 
 // GetEnvironmentIds returns InputEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
 func (v *InputEnvironmentScope) GetEnvironmentIds() []*string { return v.EnvironmentIds }
+
+type InputFilter struct {
+	IdScope       *string                   `json:"idScope"`
+	IdType        *AttributeScope           `json:"idType"`
+	Key           *string                   `json:"key"`
+	KeyExpression *InputAttributeExpression `json:"keyExpression"`
+	Operator      FilterOperatorType        `json:"operator"`
+	// Transformation function
+	TransformationFunction *InputTransformationFunction `json:"transformationFunction"`
+	Type                   FilterType                   `json:"type"`
+	Value                  interface{}                  `json:"value"`
+}
+
+// GetIdScope returns InputFilter.IdScope, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetIdScope() *string { return v.IdScope }
+
+// GetIdType returns InputFilter.IdType, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetIdType() *AttributeScope { return v.IdType }
+
+// GetKey returns InputFilter.Key, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetKey() *string { return v.Key }
+
+// GetKeyExpression returns InputFilter.KeyExpression, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetKeyExpression() *InputAttributeExpression { return v.KeyExpression }
+
+// GetOperator returns InputFilter.Operator, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetOperator() FilterOperatorType { return v.Operator }
+
+// GetTransformationFunction returns InputFilter.TransformationFunction, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetTransformationFunction() *InputTransformationFunction {
+	return v.TransformationFunction
+}
+
+// GetType returns InputFilter.Type, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetType() FilterType { return v.Type }
+
+// GetValue returns InputFilter.Value, and is useful for accessing the field via an interface.
+func (v *InputFilter) GetValue() interface{} { return v.Value }
 
 type InputIpRangeEnvironmentScope struct {
 	EnvironmentIds []*string `json:"environmentIds"`
@@ -3301,6 +4066,7 @@ func (v *InputIpRangeRuleScope) GetEnvironmentScope() *InputIpRangeEnvironmentSc
 type InputIpRangeRuleUpdate struct {
 	Id          *string                        `json:"id"`
 	Disabled    *bool                          `json:"disabled"`
+	Hidden      *bool                          `json:"hidden"`
 	Internal    *bool                          `json:"internal"`
 	RuleDetails InputIpRangeRuleDetailsRequest `json:"ruleDetails"`
 	RuleScope   *InputIpRangeRuleScope         `json:"ruleScope"`
@@ -3311,6 +4077,9 @@ func (v *InputIpRangeRuleUpdate) GetId() *string { return v.Id }
 
 // GetDisabled returns InputIpRangeRuleUpdate.Disabled, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRuleUpdate) GetDisabled() *bool { return v.Disabled }
+
+// GetHidden returns InputIpRangeRuleUpdate.Hidden, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRuleUpdate) GetHidden() *bool { return v.Hidden }
 
 // GetInternal returns InputIpRangeRuleUpdate.Internal, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRuleUpdate) GetInternal() *bool { return v.Internal }
@@ -3329,6 +4098,468 @@ type InputIpRangeRulesFilter struct {
 
 // GetRuleScope returns InputIpRangeRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRulesFilter) GetRuleScope() InputIpRangeRuleScope { return v.RuleScope }
+
+type InputJsonExtractTransformationFunction struct {
+	// Attribute expression
+	Attribute InputAttributeExpression `json:"attribute"`
+	// Json path
+	JsonPath string `json:"jsonPath"`
+}
+
+// GetAttribute returns InputJsonExtractTransformationFunction.Attribute, and is useful for accessing the field via an interface.
+func (v *InputJsonExtractTransformationFunction) GetAttribute() InputAttributeExpression {
+	return v.Attribute
+}
+
+// GetJsonPath returns InputJsonExtractTransformationFunction.JsonPath, and is useful for accessing the field via an interface.
+func (v *InputJsonExtractTransformationFunction) GetJsonPath() string { return v.JsonPath }
+
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type InputMaliciousSourcesRule struct {
+	// Rule ID
+	Id string `json:"id"`
+	// Malicious Sources rule information
+	Info InputMaliciousSourcesRuleInfo `json:"info"`
+	// Malicious Sources rule scope
+	Scope *InputMaliciousSourcesRuleScope `json:"scope"`
+	// Malicious Sources rule status
+	Status InputMaliciousSourcesRuleStatus `json:"status"`
+}
+
+// GetId returns InputMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRule) GetId() string { return v.Id }
+
+// GetInfo returns InputMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRule) GetInfo() InputMaliciousSourcesRuleInfo { return v.Info }
+
+// GetScope returns InputMaliciousSourcesRule.Scope, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRule) GetScope() *InputMaliciousSourcesRuleScope { return v.Scope }
+
+// GetStatus returns InputMaliciousSourcesRule.Status, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRule) GetStatus() InputMaliciousSourcesRuleStatus { return v.Status }
+
+// Actions associated with the rule
+type InputMaliciousSourcesRuleAction struct {
+	// List of malicious sources rule effect with modification
+	Effects []*InputMaliciousSourcesRuleEffectWithModification `json:"effects"`
+	// Severity of events generated by the rule
+	EventSeverity *MaliciousSourcesRuleEventSeverity `json:"eventSeverity"`
+	// Expiration details of the rule
+	ExpirationDetails *InputMaliciousSourcesRuleExpirationDetails `json:"expirationDetails"`
+	// Rule Action
+	RuleActionType MaliciousSourcesRuleActionType `json:"ruleActionType"`
+}
+
+// GetEffects returns InputMaliciousSourcesRuleAction.Effects, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleAction) GetEffects() []*InputMaliciousSourcesRuleEffectWithModification {
+	return v.Effects
+}
+
+// GetEventSeverity returns InputMaliciousSourcesRuleAction.EventSeverity, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleAction) GetEventSeverity() *MaliciousSourcesRuleEventSeverity {
+	return v.EventSeverity
+}
+
+// GetExpirationDetails returns InputMaliciousSourcesRuleAction.ExpirationDetails, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleAction) GetExpirationDetails() *InputMaliciousSourcesRuleExpirationDetails {
+	return v.ExpirationDetails
+}
+
+// GetRuleActionType returns InputMaliciousSourcesRuleAction.RuleActionType, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleAction) GetRuleActionType() MaliciousSourcesRuleActionType {
+	return v.RuleActionType
+}
+
+// Malicious sources rule agent effect
+type InputMaliciousSourcesRuleAgentEffect struct {
+	// Malicious sources rule agent modification
+	AgentModifications []*InputMaliciousSourcesRuleAgentModification `json:"agentModifications"`
+}
+
+// GetAgentModifications returns InputMaliciousSourcesRuleAgentEffect.AgentModifications, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleAgentEffect) GetAgentModifications() []*InputMaliciousSourcesRuleAgentModification {
+	return v.AgentModifications
+}
+
+// Malicious sources rule agent modification
+type InputMaliciousSourcesRuleAgentModification struct {
+	// Malicious sources rule agent modification type
+	AgentModificationType MaliciousSourcesRuleAgentModificationType `json:"agentModificationType"`
+	// Malicious sources rule header injection
+	HeaderInjection InputMaliciousSourcesRuleHeaderInjection `json:"headerInjection"`
+}
+
+// GetAgentModificationType returns InputMaliciousSourcesRuleAgentModification.AgentModificationType, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleAgentModification) GetAgentModificationType() MaliciousSourcesRuleAgentModificationType {
+	return v.AgentModificationType
+}
+
+// GetHeaderInjection returns InputMaliciousSourcesRuleAgentModification.HeaderInjection, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleAgentModification) GetHeaderInjection() InputMaliciousSourcesRuleHeaderInjection {
+	return v.HeaderInjection
+}
+
+// Condition for the malicious sources rule to be applied
+type InputMaliciousSourcesRuleCondition struct {
+	// Condition Type for a rule
+	ConditionType MaliciousSourcesRuleConditionType `json:"conditionType"`
+	// Email domain conditions for the rule to be applied
+	EmailDomainCondition *InputMaliciousSourcesRuleEmailDomainCondition `json:"emailDomainCondition"`
+	// IP address conditions for the rule to be applied
+	IpAddressCondition *InputMaliciousSourcesRuleIpAddressCondition `json:"ipAddressCondition"`
+	// IP location type conditions for the rule to be applied
+	IpLocationTypeCondition *InputMaliciousSourcesRuleIpLocationTypeCondition `json:"ipLocationTypeCondition"`
+	// IP reputation conditions for the rule to be applied
+	IpReputationCondition *InputMaliciousSourcesRuleIpReputationCondition `json:"ipReputationCondition"`
+	// Region conditions for the rule to be applied
+	RegionCondition *InputMaliciousSourcesRuleRegionCondition `json:"regionCondition"`
+}
+
+// GetConditionType returns InputMaliciousSourcesRuleCondition.ConditionType, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCondition) GetConditionType() MaliciousSourcesRuleConditionType {
+	return v.ConditionType
+}
+
+// GetEmailDomainCondition returns InputMaliciousSourcesRuleCondition.EmailDomainCondition, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCondition) GetEmailDomainCondition() *InputMaliciousSourcesRuleEmailDomainCondition {
+	return v.EmailDomainCondition
+}
+
+// GetIpAddressCondition returns InputMaliciousSourcesRuleCondition.IpAddressCondition, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCondition) GetIpAddressCondition() *InputMaliciousSourcesRuleIpAddressCondition {
+	return v.IpAddressCondition
+}
+
+// GetIpLocationTypeCondition returns InputMaliciousSourcesRuleCondition.IpLocationTypeCondition, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCondition) GetIpLocationTypeCondition() *InputMaliciousSourcesRuleIpLocationTypeCondition {
+	return v.IpLocationTypeCondition
+}
+
+// GetIpReputationCondition returns InputMaliciousSourcesRuleCondition.IpReputationCondition, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCondition) GetIpReputationCondition() *InputMaliciousSourcesRuleIpReputationCondition {
+	return v.IpReputationCondition
+}
+
+// GetRegionCondition returns InputMaliciousSourcesRuleCondition.RegionCondition, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCondition) GetRegionCondition() *InputMaliciousSourcesRuleRegionCondition {
+	return v.RegionCondition
+}
+
+// Input to create malicious source rule
+type InputMaliciousSourcesRuleCreate struct {
+	// Malicious Sources rule information
+	RuleInfo InputMaliciousSourcesRuleInfo `json:"ruleInfo"`
+	// Malicious Sources rule scope
+	RuleScope *InputMaliciousSourcesRuleScope `json:"ruleScope"`
+}
+
+// GetRuleInfo returns InputMaliciousSourcesRuleCreate.RuleInfo, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCreate) GetRuleInfo() InputMaliciousSourcesRuleInfo {
+	return v.RuleInfo
+}
+
+// GetRuleScope returns InputMaliciousSourcesRuleCreate.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleCreate) GetRuleScope() *InputMaliciousSourcesRuleScope {
+	return v.RuleScope
+}
+
+// Input to delete malicious source rule
+type InputMaliciousSourcesRuleDelete struct {
+	// Rule ID to be deleted
+	Id string `json:"id"`
+}
+
+// GetId returns InputMaliciousSourcesRuleDelete.Id, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleDelete) GetId() string { return v.Id }
+
+// Malicious sources rule effect with modification
+type InputMaliciousSourcesRuleEffectWithModification struct {
+	// Effects enforced for agent while inline processing of requests
+	AgentEffect InputMaliciousSourcesRuleAgentEffect `json:"agentEffect"`
+	// Malicious sources rule effect modification type
+	RuleEffectType MaliciousSourcesRuleEffectModificationType `json:"ruleEffectType"`
+}
+
+// GetAgentEffect returns InputMaliciousSourcesRuleEffectWithModification.AgentEffect, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEffectWithModification) GetAgentEffect() InputMaliciousSourcesRuleAgentEffect {
+	return v.AgentEffect
+}
+
+// GetRuleEffectType returns InputMaliciousSourcesRuleEffectWithModification.RuleEffectType, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEffectWithModification) GetRuleEffectType() MaliciousSourcesRuleEffectModificationType {
+	return v.RuleEffectType
+}
+
+// Email domain conditions for the rule to be applied
+type InputMaliciousSourcesRuleEmailDomainCondition struct {
+	// boolean denoting whether the rule should apply to data leaked email
+	DataLeakedEmail *bool `json:"dataLeakedEmail"`
+	// boolean denoting whether the rule should apply to disposable email domains
+	DisposableEmailDomain *bool `json:"disposableEmailDomain"`
+	// list of email domain where rule should apply
+	EmailDomains []*string `json:"emailDomains"`
+	// email fraud score where rule should apply
+	EmailFraudScore *InputMaliciousSourcesRuleEmailFraudScore `json:"emailFraudScore"`
+	// list of email regexes where rule should apply
+	EmailRegexes []*string `json:"emailRegexes"`
+}
+
+// GetDataLeakedEmail returns InputMaliciousSourcesRuleEmailDomainCondition.DataLeakedEmail, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailDomainCondition) GetDataLeakedEmail() *bool {
+	return v.DataLeakedEmail
+}
+
+// GetDisposableEmailDomain returns InputMaliciousSourcesRuleEmailDomainCondition.DisposableEmailDomain, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailDomainCondition) GetDisposableEmailDomain() *bool {
+	return v.DisposableEmailDomain
+}
+
+// GetEmailDomains returns InputMaliciousSourcesRuleEmailDomainCondition.EmailDomains, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailDomainCondition) GetEmailDomains() []*string {
+	return v.EmailDomains
+}
+
+// GetEmailFraudScore returns InputMaliciousSourcesRuleEmailDomainCondition.EmailFraudScore, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailDomainCondition) GetEmailFraudScore() *InputMaliciousSourcesRuleEmailFraudScore {
+	return v.EmailFraudScore
+}
+
+// GetEmailRegexes returns InputMaliciousSourcesRuleEmailDomainCondition.EmailRegexes, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailDomainCondition) GetEmailRegexes() []*string {
+	return v.EmailRegexes
+}
+
+// email fraud score where rule should apply
+type InputMaliciousSourcesRuleEmailFraudScore struct {
+	// Email Fraud Score type for a rule
+	EmailFraudScoreType MaliciousSourcesRuleEmailFraudScoreType `json:"emailFraudScoreType"`
+	// Minimum Email Fraud Score
+	MinEmailFraudScore *int64 `json:"minEmailFraudScore"`
+	// Minimum Email Fraud Score Level
+	MinEmailFraudScoreLevel *MaliciousSourcesRuleEmailFraudScoreLevel `json:"minEmailFraudScoreLevel"`
+}
+
+// GetEmailFraudScoreType returns InputMaliciousSourcesRuleEmailFraudScore.EmailFraudScoreType, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailFraudScore) GetEmailFraudScoreType() MaliciousSourcesRuleEmailFraudScoreType {
+	return v.EmailFraudScoreType
+}
+
+// GetMinEmailFraudScore returns InputMaliciousSourcesRuleEmailFraudScore.MinEmailFraudScore, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailFraudScore) GetMinEmailFraudScore() *int64 {
+	return v.MinEmailFraudScore
+}
+
+// GetMinEmailFraudScoreLevel returns InputMaliciousSourcesRuleEmailFraudScore.MinEmailFraudScoreLevel, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEmailFraudScore) GetMinEmailFraudScoreLevel() *MaliciousSourcesRuleEmailFraudScoreLevel {
+	return v.MinEmailFraudScoreLevel
+}
+
+// Environment Scope on which the rule will apply
+type InputMaliciousSourcesRuleEnvironmentScope struct {
+	// List of environments on which the rule should apply
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns InputMaliciousSourcesRuleEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleEnvironmentScope) GetEnvironmentIds() []*string {
+	return v.EnvironmentIds
+}
+
+// Expiration details of the rule
+type InputMaliciousSourcesRuleExpirationDetails struct {
+	// Requested expiration duration for the rule
+	ExpirationDuration string `json:"expirationDuration"`
+	// Requested expiration timestamp for the rule
+	ExpirationTimestamp *string `json:"expirationTimestamp"`
+}
+
+// GetExpirationDuration returns InputMaliciousSourcesRuleExpirationDetails.ExpirationDuration, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleExpirationDetails) GetExpirationDuration() string {
+	return v.ExpirationDuration
+}
+
+// GetExpirationTimestamp returns InputMaliciousSourcesRuleExpirationDetails.ExpirationTimestamp, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleExpirationDetails) GetExpirationTimestamp() *string {
+	return v.ExpirationTimestamp
+}
+
+// Actions associated with the rule
+type InputMaliciousSourcesRuleHeaderInjection struct {
+	// Header category
+	HeaderCategory MaliciousSourcesRuleHeaderCategory `json:"headerCategory"`
+	// Header key
+	Key string `json:"key"`
+	// Header value
+	Value string `json:"value"`
+}
+
+// GetHeaderCategory returns InputMaliciousSourcesRuleHeaderInjection.HeaderCategory, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleHeaderInjection) GetHeaderCategory() MaliciousSourcesRuleHeaderCategory {
+	return v.HeaderCategory
+}
+
+// GetKey returns InputMaliciousSourcesRuleHeaderInjection.Key, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleHeaderInjection) GetKey() string { return v.Key }
+
+// GetValue returns InputMaliciousSourcesRuleHeaderInjection.Value, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleHeaderInjection) GetValue() string { return v.Value }
+
+// Malicious Sources rule information
+type InputMaliciousSourcesRuleInfo struct {
+	// Actions associated with the rule
+	Action InputMaliciousSourcesRuleAction `json:"action"`
+	// Condition for the malicious sources rule to be applied
+	Conditions []*InputMaliciousSourcesRuleCondition `json:"conditions"`
+	// Rule description
+	Description *string `json:"description"`
+	// Rule name
+	Name string `json:"name"`
+}
+
+// GetAction returns InputMaliciousSourcesRuleInfo.Action, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleInfo) GetAction() InputMaliciousSourcesRuleAction { return v.Action }
+
+// GetConditions returns InputMaliciousSourcesRuleInfo.Conditions, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleInfo) GetConditions() []*InputMaliciousSourcesRuleCondition {
+	return v.Conditions
+}
+
+// GetDescription returns InputMaliciousSourcesRuleInfo.Description, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleInfo) GetDescription() *string { return v.Description }
+
+// GetName returns InputMaliciousSourcesRuleInfo.Name, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleInfo) GetName() string { return v.Name }
+
+// IP address conditions for the rule to be applied
+type InputMaliciousSourcesRuleIpAddressCondition struct {
+	// List of IP ranges following CIDR syntax
+	CidrIpRanges []*string `json:"cidrIpRanges"`
+	// List of IP addresses
+	IpAddresses []*string `json:"ipAddresses"`
+}
+
+// GetCidrIpRanges returns InputMaliciousSourcesRuleIpAddressCondition.CidrIpRanges, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleIpAddressCondition) GetCidrIpRanges() []*string {
+	return v.CidrIpRanges
+}
+
+// GetIpAddresses returns InputMaliciousSourcesRuleIpAddressCondition.IpAddresses, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleIpAddressCondition) GetIpAddresses() []*string {
+	return v.IpAddresses
+}
+
+// IP location type conditions for the rule to be applied
+type InputMaliciousSourcesRuleIpLocationTypeCondition struct {
+	// IP location types where rule should apply
+	IpLocationTypes []*MaliciousSourcesRuleIpLocationType `json:"ipLocationTypes"`
+}
+
+// GetIpLocationTypes returns InputMaliciousSourcesRuleIpLocationTypeCondition.IpLocationTypes, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleIpLocationTypeCondition) GetIpLocationTypes() []*MaliciousSourcesRuleIpLocationType {
+	return v.IpLocationTypes
+}
+
+// IP reputation conditions for the rule to be applied
+type InputMaliciousSourcesRuleIpReputationCondition struct {
+	// IP reputation type for a rule
+	IpReputationConditionType MaliciousSourcesRuleIpReputationConditionType `json:"ipReputationConditionType"`
+	// Minimum IP Reputation Score
+	MinIpReputationScore *int64 `json:"minIpReputationScore"`
+	// Minimum IP Reputation Severity Level
+	MinIpReputationSeverity *MaliciousSourcesRuleIpReputationSeverity `json:"minIpReputationSeverity"`
+}
+
+// GetIpReputationConditionType returns InputMaliciousSourcesRuleIpReputationCondition.IpReputationConditionType, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleIpReputationCondition) GetIpReputationConditionType() MaliciousSourcesRuleIpReputationConditionType {
+	return v.IpReputationConditionType
+}
+
+// GetMinIpReputationScore returns InputMaliciousSourcesRuleIpReputationCondition.MinIpReputationScore, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleIpReputationCondition) GetMinIpReputationScore() *int64 {
+	return v.MinIpReputationScore
+}
+
+// GetMinIpReputationSeverity returns InputMaliciousSourcesRuleIpReputationCondition.MinIpReputationSeverity, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleIpReputationCondition) GetMinIpReputationSeverity() *MaliciousSourcesRuleIpReputationSeverity {
+	return v.MinIpReputationSeverity
+}
+
+// Region on which rule should apply
+type InputMaliciousSourcesRuleRegion struct {
+	// Country ISO code
+	CountryIsoCode *string `json:"countryIsoCode"`
+	// Region Type for a rule
+	RegionType MaliciousSourcesRuleRegionType `json:"regionType"`
+}
+
+// GetCountryIsoCode returns InputMaliciousSourcesRuleRegion.CountryIsoCode, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleRegion) GetCountryIsoCode() *string { return v.CountryIsoCode }
+
+// GetRegionType returns InputMaliciousSourcesRuleRegion.RegionType, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleRegion) GetRegionType() MaliciousSourcesRuleRegionType {
+	return v.RegionType
+}
+
+// Region conditions for the rule to be applied
+type InputMaliciousSourcesRuleRegionCondition struct {
+	// Regions on which rule should apply
+	Regions []*InputMaliciousSourcesRuleRegion `json:"regions"`
+}
+
+// GetRegions returns InputMaliciousSourcesRuleRegionCondition.Regions, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleRegionCondition) GetRegions() []*InputMaliciousSourcesRuleRegion {
+	return v.Regions
+}
+
+// Malicious Sources rule scope
+type InputMaliciousSourcesRuleScope struct {
+	// Environment Scope on which the rule will apply
+	EnvironmentScope *InputMaliciousSourcesRuleEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns InputMaliciousSourcesRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleScope) GetEnvironmentScope() *InputMaliciousSourcesRuleEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// Malicious Sources rule status
+type InputMaliciousSourcesRuleStatus struct {
+	// Disables rule
+	Disabled bool `json:"disabled"`
+	// Boolean denoting if rule should be hidden
+	Hidden *bool `json:"hidden"`
+	// Sets rule as internal, visible only to traceable users. Consumed only if disabled is set to true
+	Internal *bool `json:"internal"`
+}
+
+// GetDisabled returns InputMaliciousSourcesRuleStatus.Disabled, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleStatus) GetDisabled() bool { return v.Disabled }
+
+// GetHidden returns InputMaliciousSourcesRuleStatus.Hidden, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleStatus) GetHidden() *bool { return v.Hidden }
+
+// GetInternal returns InputMaliciousSourcesRuleStatus.Internal, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleStatus) GetInternal() *bool { return v.Internal }
+
+// Input to update malicious source rule
+type InputMaliciousSourcesRuleUpdate struct {
+	// Updated Malicious Sources rule
+	Rule InputMaliciousSourcesRule `json:"rule"`
+}
+
+// GetRule returns InputMaliciousSourcesRuleUpdate.Rule, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRuleUpdate) GetRule() InputMaliciousSourcesRule { return v.Rule }
+
+// Filter to fetch malicious source rule
+type InputMaliciousSourcesRulesFilter struct {
+	// Rule Scope
+	RuleScope InputMaliciousSourcesRuleScope `json:"ruleScope"`
+}
+
+// GetRuleScope returns InputMaliciousSourcesRulesFilter.RuleScope, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRulesFilter) GetRuleScope() InputMaliciousSourcesRuleScope {
+	return v.RuleScope
+}
 
 // Region identifier schema for rate limit region condition
 type InputRateLimitingRegionIdentifier struct {
@@ -3850,7 +5081,13 @@ type InputRateLimitingRuleKeyValueCondition struct {
 	// Key condition
 	KeyCondition *InputRateLimitingRuleStringCondition `json:"keyCondition"`
 	// Key value condition metadata type
-	MetadataType RateLimitingRuleKeyValueConditionMetadataType `json:"metadataType"`
+	MetadataType *RateLimitingRuleKeyValueConditionMetadataType `json:"metadataType"`
+	// Type of key value condition - static value or lhs-rhs keys
+	KeyValueType *RateLimitingRuleKeyValueConditionType `json:"keyValueType"`
+	// LHS-RHS keys' values matching condition
+	LhsRhsCondition *InputRateLimitingRuleLhsRhsKeysCondition `json:"lhsRhsCondition"`
+	// Static values matching condition
+	StaticValueCondition *InputRateLimitingRuleStaticValueCondition `json:"staticValueCondition"`
 	// Value condition
 	ValueCondition *InputRateLimitingRuleStringCondition `json:"valueCondition"`
 }
@@ -3861,8 +5098,23 @@ func (v *InputRateLimitingRuleKeyValueCondition) GetKeyCondition() *InputRateLim
 }
 
 // GetMetadataType returns InputRateLimitingRuleKeyValueCondition.MetadataType, and is useful for accessing the field via an interface.
-func (v *InputRateLimitingRuleKeyValueCondition) GetMetadataType() RateLimitingRuleKeyValueConditionMetadataType {
+func (v *InputRateLimitingRuleKeyValueCondition) GetMetadataType() *RateLimitingRuleKeyValueConditionMetadataType {
 	return v.MetadataType
+}
+
+// GetKeyValueType returns InputRateLimitingRuleKeyValueCondition.KeyValueType, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleKeyValueCondition) GetKeyValueType() *RateLimitingRuleKeyValueConditionType {
+	return v.KeyValueType
+}
+
+// GetLhsRhsCondition returns InputRateLimitingRuleKeyValueCondition.LhsRhsCondition, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleKeyValueCondition) GetLhsRhsCondition() *InputRateLimitingRuleLhsRhsKeysCondition {
+	return v.LhsRhsCondition
+}
+
+// GetStaticValueCondition returns InputRateLimitingRuleKeyValueCondition.StaticValueCondition, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleKeyValueCondition) GetStaticValueCondition() *InputRateLimitingRuleStaticValueCondition {
+	return v.StaticValueCondition
 }
 
 // GetValueCondition returns InputRateLimitingRuleKeyValueCondition.ValueCondition, and is useful for accessing the field via an interface.
@@ -4016,6 +5268,45 @@ func (v *InputRateLimitingRuleLeafCondition) GetUserIdCondition() *InputRateLimi
 	return v.UserIdCondition
 }
 
+// Lhs-Rhs keys' values matching condition applicable on a rate limit rule
+type InputRateLimitingRuleLhsRhsKeysCondition struct {
+	// LHS Key condition
+	LhsKeyCondition *InputRateLimitingRuleStringCondition `json:"lhsKeyCondition"`
+	// LHS key metadata type
+	LhsMetadataType RateLimitingRuleKeyValueConditionMetadataType `json:"lhsMetadataType"`
+	// RHS Key condition
+	LhsRhsMatchOperator RateLimitingRuleKeyValueMatchOperator `json:"lhsRhsMatchOperator"`
+	// RHS Key condition
+	RhsKeyCondition *InputRateLimitingRuleStringCondition `json:"rhsKeyCondition"`
+	// RHS key metadata type
+	RhsMetadataType RateLimitingRuleKeyValueConditionMetadataType `json:"rhsMetadataType"`
+}
+
+// GetLhsKeyCondition returns InputRateLimitingRuleLhsRhsKeysCondition.LhsKeyCondition, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleLhsRhsKeysCondition) GetLhsKeyCondition() *InputRateLimitingRuleStringCondition {
+	return v.LhsKeyCondition
+}
+
+// GetLhsMetadataType returns InputRateLimitingRuleLhsRhsKeysCondition.LhsMetadataType, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleLhsRhsKeysCondition) GetLhsMetadataType() RateLimitingRuleKeyValueConditionMetadataType {
+	return v.LhsMetadataType
+}
+
+// GetLhsRhsMatchOperator returns InputRateLimitingRuleLhsRhsKeysCondition.LhsRhsMatchOperator, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleLhsRhsKeysCondition) GetLhsRhsMatchOperator() RateLimitingRuleKeyValueMatchOperator {
+	return v.LhsRhsMatchOperator
+}
+
+// GetRhsKeyCondition returns InputRateLimitingRuleLhsRhsKeysCondition.RhsKeyCondition, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleLhsRhsKeysCondition) GetRhsKeyCondition() *InputRateLimitingRuleStringCondition {
+	return v.RhsKeyCondition
+}
+
+// GetRhsMetadataType returns InputRateLimitingRuleLhsRhsKeysCondition.RhsMetadataType, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleLhsRhsKeysCondition) GetRhsMetadataType() RateLimitingRuleKeyValueConditionMetadataType {
+	return v.RhsMetadataType
+}
+
 // Logical condition for a rate limited rule
 type InputRateLimitingRuleLogicalCondition struct {
 	// Child conditions of rate limit rule logical condition
@@ -4130,6 +5421,31 @@ func (v *InputRateLimitingRuleScopeCondition) GetScopeType() RateLimitingRuleSco
 // GetUrlScope returns InputRateLimitingRuleScopeCondition.UrlScope, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRuleScopeCondition) GetUrlScope() *InputRateLimitingRuleUrlScope {
 	return v.UrlScope
+}
+
+// Static value matching condition applicable on a rate limit rule
+type InputRateLimitingRuleStaticValueCondition struct {
+	// Key condition
+	KeyCondition *InputRateLimitingRuleStringCondition `json:"keyCondition"`
+	// Key value condition metadata type
+	MetadataType RateLimitingRuleKeyValueConditionMetadataType `json:"metadataType"`
+	// Value condition
+	ValueCondition *InputRateLimitingRuleStringCondition `json:"valueCondition"`
+}
+
+// GetKeyCondition returns InputRateLimitingRuleStaticValueCondition.KeyCondition, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleStaticValueCondition) GetKeyCondition() *InputRateLimitingRuleStringCondition {
+	return v.KeyCondition
+}
+
+// GetMetadataType returns InputRateLimitingRuleStaticValueCondition.MetadataType, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleStaticValueCondition) GetMetadataType() RateLimitingRuleKeyValueConditionMetadataType {
+	return v.MetadataType
+}
+
+// GetValueCondition returns InputRateLimitingRuleStaticValueCondition.ValueCondition, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleStaticValueCondition) GetValueCondition() *InputRateLimitingRuleStringCondition {
+	return v.ValueCondition
 }
 
 // Status of rate limit rule
@@ -4448,6 +5764,7 @@ type InputRegionRuleUpdate struct {
 	Duration      *string                                  `json:"duration"`
 	Effects       []*InputRegionRuleEffectWithModification `json:"effects"`
 	EventSeverity *RegionRuleEventSeverity                 `json:"eventSeverity"`
+	Hidden        *bool                                    `json:"hidden"`
 	Id            string                                   `json:"id"`
 	Internal      *bool                                    `json:"internal"`
 	Name          string                                   `json:"name"`
@@ -4472,6 +5789,9 @@ func (v *InputRegionRuleUpdate) GetEffects() []*InputRegionRuleEffectWithModific
 
 // GetEventSeverity returns InputRegionRuleUpdate.EventSeverity, and is useful for accessing the field via an interface.
 func (v *InputRegionRuleUpdate) GetEventSeverity() *RegionRuleEventSeverity { return v.EventSeverity }
+
+// GetHidden returns InputRegionRuleUpdate.Hidden, and is useful for accessing the field via an interface.
+func (v *InputRegionRuleUpdate) GetHidden() *bool { return v.Hidden }
 
 // GetId returns InputRegionRuleUpdate.Id, and is useful for accessing the field via an interface.
 func (v *InputRegionRuleUpdate) GetId() string { return v.Id }
@@ -4521,6 +5841,27 @@ type InputRuleConfigScope struct {
 // GetEnvironmentScope returns InputRuleConfigScope.EnvironmentScope, and is useful for accessing the field via an interface.
 func (v *InputRuleConfigScope) GetEnvironmentScope() *InputEnvironmentScope {
 	return v.EnvironmentScope
+}
+
+type InputTimeRange struct {
+	EndTime   string `json:"endTime"`
+	StartTime string `json:"startTime"`
+}
+
+// GetEndTime returns InputTimeRange.EndTime, and is useful for accessing the field via an interface.
+func (v *InputTimeRange) GetEndTime() string { return v.EndTime }
+
+// GetStartTime returns InputTimeRange.StartTime, and is useful for accessing the field via an interface.
+func (v *InputTimeRange) GetStartTime() string { return v.StartTime }
+
+type InputTransformationFunction struct {
+	// Json extraction transform function
+	JsonExtract *InputJsonExtractTransformationFunction `json:"jsonExtract"`
+}
+
+// GetJsonExtract returns InputTransformationFunction.JsonExtract, and is useful for accessing the field via an interface.
+func (v *InputTransformationFunction) GetJsonExtract() *InputJsonExtractTransformationFunction {
+	return v.JsonExtract
 }
 
 // Threshold config which specifies unique values allowed over the given time range
@@ -4821,13 +6162,13 @@ func (v *LeafConditionFieldsDatatypeConditionRateLimitingRuleDatatypeConditionDa
 // Key value condition applicable on a rate limit rule
 type LeafConditionFieldsDatatypeConditionRateLimitingRuleDatatypeConditionDatatypeMatchingRateLimitingRuleDatatypeMatchingRegexBasedMatchingRateLimitingRuleRegexBasedMatchingCustomMatchingLocationRateLimitingRuleKeyValueCondition struct {
 	// Key value condition metadata type
-	MetadataType RateLimitingRuleKeyValueConditionMetadataType `json:"metadataType"`
+	MetadataType *RateLimitingRuleKeyValueConditionMetadataType `json:"metadataType"`
 	// Key condition
 	KeyCondition *LeafConditionFieldsDatatypeConditionRateLimitingRuleDatatypeConditionDatatypeMatchingRateLimitingRuleDatatypeMatchingRegexBasedMatchingRateLimitingRuleRegexBasedMatchingCustomMatchingLocationRateLimitingRuleKeyValueConditionKeyConditionRateLimitingRuleStringCondition `json:"keyCondition"`
 }
 
 // GetMetadataType returns LeafConditionFieldsDatatypeConditionRateLimitingRuleDatatypeConditionDatatypeMatchingRateLimitingRuleDatatypeMatchingRegexBasedMatchingRateLimitingRuleRegexBasedMatchingCustomMatchingLocationRateLimitingRuleKeyValueCondition.MetadataType, and is useful for accessing the field via an interface.
-func (v *LeafConditionFieldsDatatypeConditionRateLimitingRuleDatatypeConditionDatatypeMatchingRateLimitingRuleDatatypeMatchingRegexBasedMatchingRateLimitingRuleRegexBasedMatchingCustomMatchingLocationRateLimitingRuleKeyValueCondition) GetMetadataType() RateLimitingRuleKeyValueConditionMetadataType {
+func (v *LeafConditionFieldsDatatypeConditionRateLimitingRuleDatatypeConditionDatatypeMatchingRateLimitingRuleDatatypeMatchingRegexBasedMatchingRateLimitingRuleRegexBasedMatchingCustomMatchingLocationRateLimitingRuleKeyValueCondition) GetMetadataType() *RateLimitingRuleKeyValueConditionMetadataType {
 	return v.MetadataType
 }
 
@@ -5040,7 +6381,7 @@ type LeafConditionFieldsKeyValueConditionRateLimitingRuleKeyValueCondition struc
 	// Key condition
 	KeyCondition *LeafConditionFieldsKeyValueConditionRateLimitingRuleKeyValueConditionKeyConditionRateLimitingRuleStringCondition `json:"keyCondition"`
 	// Key value condition metadata type
-	MetadataType RateLimitingRuleKeyValueConditionMetadataType `json:"metadataType"`
+	MetadataType *RateLimitingRuleKeyValueConditionMetadataType `json:"metadataType"`
 	// Value condition
 	ValueCondition *LeafConditionFieldsKeyValueConditionRateLimitingRuleKeyValueConditionValueConditionRateLimitingRuleStringCondition `json:"valueCondition"`
 }
@@ -5051,7 +6392,7 @@ func (v *LeafConditionFieldsKeyValueConditionRateLimitingRuleKeyValueCondition) 
 }
 
 // GetMetadataType returns LeafConditionFieldsKeyValueConditionRateLimitingRuleKeyValueCondition.MetadataType, and is useful for accessing the field via an interface.
-func (v *LeafConditionFieldsKeyValueConditionRateLimitingRuleKeyValueCondition) GetMetadataType() RateLimitingRuleKeyValueConditionMetadataType {
+func (v *LeafConditionFieldsKeyValueConditionRateLimitingRuleKeyValueCondition) GetMetadataType() *RateLimitingRuleKeyValueConditionMetadataType {
 	return v.MetadataType
 }
 
@@ -5505,6 +6846,198 @@ func (v *MaliciousIpRangeFieldsRuleScopeIpRangeRuleScopeEnvironmentScopeIpRangeE
 	return v.EnvironmentIds
 }
 
+// MaliciousIpTypeRuleFields includes the GraphQL fields of MaliciousSourcesRule requested by the fragment MaliciousIpTypeRuleFields.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type MaliciousIpTypeRuleFields struct {
+	// Rule ID
+	Id string `json:"id"`
+	// Malicious Sources rule information
+	Info MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+	// Malicious Sources rule scope
+	Scope *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+	// Malicious Sources rule status
+	Status MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+// GetId returns MaliciousIpTypeRuleFields.Id, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFields) GetId() string { return v.Id }
+
+// GetInfo returns MaliciousIpTypeRuleFields.Info, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFields) GetInfo() MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.Info
+}
+
+// GetScope returns MaliciousIpTypeRuleFields.Scope, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFields) GetScope() *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.Scope
+}
+
+// GetStatus returns MaliciousIpTypeRuleFields.Status, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFields) GetStatus() MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.Status
+}
+
+// MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo includes the requested fields of the GraphQL type MaliciousSourcesRuleInfo.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule information
+type MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo struct {
+	// Rule name
+	Name string `json:"name"`
+	// Rule description
+	Description *string `json:"description"`
+	// Actions associated with the rule
+	Action MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction `json:"action"`
+	// Condition for the malicious sources rule to be applied
+	Conditions []*MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition `json:"conditions"`
+}
+
+// GetName returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo.Name, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo) GetName() string { return v.Name }
+
+// GetDescription returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo.Description, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo) GetDescription() *string {
+	return v.Description
+}
+
+// GetAction returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo.Action, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo) GetAction() MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction {
+	return v.Action
+}
+
+// GetConditions returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo.Conditions, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo) GetConditions() []*MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition {
+	return v.Conditions
+}
+
+// MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction includes the requested fields of the GraphQL type MaliciousSourcesRuleAction.
+// The GraphQL type's documentation follows.
+//
+// Actions associated with the rule
+type MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction struct {
+	// Severity of events generated by the rule
+	EventSeverity *MaliciousSourcesRuleEventSeverity `json:"eventSeverity"`
+	// Expiration details of the rule
+	ExpirationDetails *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails `json:"expirationDetails"`
+	// Rule Action
+	RuleActionType MaliciousSourcesRuleActionType `json:"ruleActionType"`
+}
+
+// GetEventSeverity returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction.EventSeverity, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction) GetEventSeverity() *MaliciousSourcesRuleEventSeverity {
+	return v.EventSeverity
+}
+
+// GetExpirationDetails returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction.ExpirationDetails, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction) GetExpirationDetails() *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails {
+	return v.ExpirationDetails
+}
+
+// GetRuleActionType returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction.RuleActionType, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction) GetRuleActionType() MaliciousSourcesRuleActionType {
+	return v.RuleActionType
+}
+
+// MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails includes the requested fields of the GraphQL type MaliciousSourcesRuleExpirationDetails.
+// The GraphQL type's documentation follows.
+//
+// Expiration details of the rule
+type MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails struct {
+	// Requested expiration duration for the rule
+	ExpirationDuration string `json:"expirationDuration"`
+}
+
+// GetExpirationDuration returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails.ExpirationDuration, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails) GetExpirationDuration() string {
+	return v.ExpirationDuration
+}
+
+// MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition includes the requested fields of the GraphQL type MaliciousSourcesRuleCondition.
+// The GraphQL type's documentation follows.
+//
+// Condition for the malicious sources rule to be applied
+type MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition struct {
+	// Condition Type for a rule
+	ConditionType MaliciousSourcesRuleConditionType `json:"conditionType"`
+	// IP location type conditions for the rule to be applied
+	IpLocationTypeCondition *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionIpLocationTypeConditionMaliciousSourcesRuleIpLocationTypeCondition `json:"ipLocationTypeCondition"`
+}
+
+// GetConditionType returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition.ConditionType, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition) GetConditionType() MaliciousSourcesRuleConditionType {
+	return v.ConditionType
+}
+
+// GetIpLocationTypeCondition returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition.IpLocationTypeCondition, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition) GetIpLocationTypeCondition() *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionIpLocationTypeConditionMaliciousSourcesRuleIpLocationTypeCondition {
+	return v.IpLocationTypeCondition
+}
+
+// MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionIpLocationTypeConditionMaliciousSourcesRuleIpLocationTypeCondition includes the requested fields of the GraphQL type MaliciousSourcesRuleIpLocationTypeCondition.
+// The GraphQL type's documentation follows.
+//
+// IP location type conditions for the rule to be applied
+type MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionIpLocationTypeConditionMaliciousSourcesRuleIpLocationTypeCondition struct {
+	// IP location types where rule should apply
+	IpLocationTypes []*MaliciousSourcesRuleIpLocationType `json:"ipLocationTypes"`
+}
+
+// GetIpLocationTypes returns MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionIpLocationTypeConditionMaliciousSourcesRuleIpLocationTypeCondition.IpLocationTypes, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionIpLocationTypeConditionMaliciousSourcesRuleIpLocationTypeCondition) GetIpLocationTypes() []*MaliciousSourcesRuleIpLocationType {
+	return v.IpLocationTypes
+}
+
+// MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope includes the requested fields of the GraphQL type MaliciousSourcesRuleScope.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule scope
+type MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope struct {
+	// Environment Scope on which the rule will apply
+	EnvironmentScope *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope) GetEnvironmentScope() *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope includes the requested fields of the GraphQL type MaliciousSourcesRuleEnvironmentScope.
+// The GraphQL type's documentation follows.
+//
+// Environment Scope on which the rule will apply
+type MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope struct {
+	// List of environments on which the rule should apply
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope) GetEnvironmentIds() []*string {
+	return v.EnvironmentIds
+}
+
+// MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus includes the requested fields of the GraphQL type MaliciousSourcesRuleStatus.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule status
+type MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus struct {
+	// Disables rule
+	Disabled bool `json:"disabled"`
+	// Sets rule as internal, visible only to traceable users. Consumed only if disabled is set to true
+	Internal *bool `json:"internal"`
+}
+
+// GetDisabled returns MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus.Disabled, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus) GetDisabled() bool {
+	return v.Disabled
+}
+
+// GetInternal returns MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus.Internal, and is useful for accessing the field via an interface.
+func (v *MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus) GetInternal() *bool {
+	return v.Internal
+}
+
 // MaliciousRegionRuleFields includes the GraphQL fields of RegionRule requested by the fragment MaliciousRegionRuleFields.
 type MaliciousRegionRuleFields struct {
 	Id            string                                                              `json:"id"`
@@ -5696,6 +7229,264 @@ type MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvi
 // GetEnvironmentIds returns MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
 func (v *MaliciousRegionRuleFieldsRuleScopeRegionRuleScopeEnvironmentScopeRegionEnvironmentScope) GetEnvironmentIds() []*string {
 	return v.EnvironmentIds
+}
+
+// Rule action
+type MaliciousSourcesRuleActionType string
+
+const (
+	// Block all the request matching the rule
+	MaliciousSourcesRuleActionTypeBlock MaliciousSourcesRuleActionType = "BLOCK"
+	// Allow all requests
+	MaliciousSourcesRuleActionTypeAllow MaliciousSourcesRuleActionType = "ALLOW"
+	// Block all requests except the ones matching the rule
+	MaliciousSourcesRuleActionTypeBlockAllExcept MaliciousSourcesRuleActionType = "BLOCK_ALL_EXCEPT"
+	// Alert all the request matching the rule
+	MaliciousSourcesRuleActionTypeAlert MaliciousSourcesRuleActionType = "ALERT"
+)
+
+var AllMaliciousSourcesRuleActionType = []MaliciousSourcesRuleActionType{
+	MaliciousSourcesRuleActionTypeBlock,
+	MaliciousSourcesRuleActionTypeAllow,
+	MaliciousSourcesRuleActionTypeBlockAllExcept,
+	MaliciousSourcesRuleActionTypeAlert,
+}
+
+// Malicious sources rule agent modification type
+type MaliciousSourcesRuleAgentModificationType string
+
+const (
+	// Add a header with inline processing of request on matching conditions
+	MaliciousSourcesRuleAgentModificationTypeHeaderInjection MaliciousSourcesRuleAgentModificationType = "HEADER_INJECTION"
+)
+
+var AllMaliciousSourcesRuleAgentModificationType = []MaliciousSourcesRuleAgentModificationType{
+	MaliciousSourcesRuleAgentModificationTypeHeaderInjection,
+}
+
+// Condition Type for a rule
+type MaliciousSourcesRuleConditionType string
+
+const (
+	// IP_ADDRESS
+	MaliciousSourcesRuleConditionTypeIpAddress MaliciousSourcesRuleConditionType = "IP_ADDRESS"
+	// REGION
+	MaliciousSourcesRuleConditionTypeRegion MaliciousSourcesRuleConditionType = "REGION"
+	// IP_LOCATION_TYPE
+	MaliciousSourcesRuleConditionTypeIpLocationType MaliciousSourcesRuleConditionType = "IP_LOCATION_TYPE"
+	// IP_REPUTATION
+	MaliciousSourcesRuleConditionTypeIpReputation MaliciousSourcesRuleConditionType = "IP_REPUTATION"
+	// EMAIL_DOMAIN
+	MaliciousSourcesRuleConditionTypeEmailDomain MaliciousSourcesRuleConditionType = "EMAIL_DOMAIN"
+)
+
+var AllMaliciousSourcesRuleConditionType = []MaliciousSourcesRuleConditionType{
+	MaliciousSourcesRuleConditionTypeIpAddress,
+	MaliciousSourcesRuleConditionTypeRegion,
+	MaliciousSourcesRuleConditionTypeIpLocationType,
+	MaliciousSourcesRuleConditionTypeIpReputation,
+	MaliciousSourcesRuleConditionTypeEmailDomain,
+}
+
+type MaliciousSourcesRuleEffectModificationType string
+
+const (
+	// Modifications to be done on agent
+	MaliciousSourcesRuleEffectModificationTypeAgentEffect MaliciousSourcesRuleEffectModificationType = "AGENT_EFFECT"
+)
+
+var AllMaliciousSourcesRuleEffectModificationType = []MaliciousSourcesRuleEffectModificationType{
+	MaliciousSourcesRuleEffectModificationTypeAgentEffect,
+}
+
+// Email Fraud Score level for a rule
+type MaliciousSourcesRuleEmailFraudScoreLevel string
+
+const (
+	// HIGH
+	MaliciousSourcesRuleEmailFraudScoreLevelHigh MaliciousSourcesRuleEmailFraudScoreLevel = "HIGH"
+	// CRITICAL
+	MaliciousSourcesRuleEmailFraudScoreLevelCritical MaliciousSourcesRuleEmailFraudScoreLevel = "CRITICAL"
+)
+
+var AllMaliciousSourcesRuleEmailFraudScoreLevel = []MaliciousSourcesRuleEmailFraudScoreLevel{
+	MaliciousSourcesRuleEmailFraudScoreLevelHigh,
+	MaliciousSourcesRuleEmailFraudScoreLevelCritical,
+}
+
+// Email Fraud Score type for a rule
+type MaliciousSourcesRuleEmailFraudScoreType string
+
+const (
+	// MIN_SEVERITY
+	MaliciousSourcesRuleEmailFraudScoreTypeMinSeverity MaliciousSourcesRuleEmailFraudScoreType = "MIN_SEVERITY"
+	// MIN_SCORE
+	MaliciousSourcesRuleEmailFraudScoreTypeMinScore MaliciousSourcesRuleEmailFraudScoreType = "MIN_SCORE"
+)
+
+var AllMaliciousSourcesRuleEmailFraudScoreType = []MaliciousSourcesRuleEmailFraudScoreType{
+	MaliciousSourcesRuleEmailFraudScoreTypeMinSeverity,
+	MaliciousSourcesRuleEmailFraudScoreTypeMinScore,
+}
+
+// Severity of events generated by the rule
+type MaliciousSourcesRuleEventSeverity string
+
+const (
+	// LOW
+	MaliciousSourcesRuleEventSeverityLow MaliciousSourcesRuleEventSeverity = "LOW"
+	// MEDIUM
+	MaliciousSourcesRuleEventSeverityMedium MaliciousSourcesRuleEventSeverity = "MEDIUM"
+	// HIGH
+	MaliciousSourcesRuleEventSeverityHigh MaliciousSourcesRuleEventSeverity = "HIGH"
+	// CRITICAL
+	MaliciousSourcesRuleEventSeverityCritical MaliciousSourcesRuleEventSeverity = "CRITICAL"
+)
+
+var AllMaliciousSourcesRuleEventSeverity = []MaliciousSourcesRuleEventSeverity{
+	MaliciousSourcesRuleEventSeverityLow,
+	MaliciousSourcesRuleEventSeverityMedium,
+	MaliciousSourcesRuleEventSeverityHigh,
+	MaliciousSourcesRuleEventSeverityCritical,
+}
+
+// Malicious sources header category
+type MaliciousSourcesRuleHeaderCategory string
+
+const (
+	// Request header category
+	MaliciousSourcesRuleHeaderCategoryRequest MaliciousSourcesRuleHeaderCategory = "REQUEST"
+	// Response header category
+	MaliciousSourcesRuleHeaderCategoryResponse MaliciousSourcesRuleHeaderCategory = "RESPONSE"
+)
+
+var AllMaliciousSourcesRuleHeaderCategory = []MaliciousSourcesRuleHeaderCategory{
+	MaliciousSourcesRuleHeaderCategoryRequest,
+	MaliciousSourcesRuleHeaderCategoryResponse,
+}
+
+// IP location type for a rule
+type MaliciousSourcesRuleIpLocationType string
+
+const (
+	// ANONYMOUS_VPN
+	MaliciousSourcesRuleIpLocationTypeAnonymousVpn MaliciousSourcesRuleIpLocationType = "ANONYMOUS_VPN"
+	// HOSTING_PROVIDER
+	MaliciousSourcesRuleIpLocationTypeHostingProvider MaliciousSourcesRuleIpLocationType = "HOSTING_PROVIDER"
+	// PUBLIC_PROXY
+	MaliciousSourcesRuleIpLocationTypePublicProxy MaliciousSourcesRuleIpLocationType = "PUBLIC_PROXY"
+	// TOR_EXIT_NODE
+	MaliciousSourcesRuleIpLocationTypeTorExitNode MaliciousSourcesRuleIpLocationType = "TOR_EXIT_NODE"
+	// BOT
+	MaliciousSourcesRuleIpLocationTypeBot MaliciousSourcesRuleIpLocationType = "BOT"
+)
+
+var AllMaliciousSourcesRuleIpLocationType = []MaliciousSourcesRuleIpLocationType{
+	MaliciousSourcesRuleIpLocationTypeAnonymousVpn,
+	MaliciousSourcesRuleIpLocationTypeHostingProvider,
+	MaliciousSourcesRuleIpLocationTypePublicProxy,
+	MaliciousSourcesRuleIpLocationTypeTorExitNode,
+	MaliciousSourcesRuleIpLocationTypeBot,
+}
+
+// IP reputation type for a rule
+type MaliciousSourcesRuleIpReputationConditionType string
+
+const (
+	// MIN_SEVERITY
+	MaliciousSourcesRuleIpReputationConditionTypeMinSeverity MaliciousSourcesRuleIpReputationConditionType = "MIN_SEVERITY"
+	// MIN_SCORE
+	MaliciousSourcesRuleIpReputationConditionTypeMinScore MaliciousSourcesRuleIpReputationConditionType = "MIN_SCORE"
+)
+
+var AllMaliciousSourcesRuleIpReputationConditionType = []MaliciousSourcesRuleIpReputationConditionType{
+	MaliciousSourcesRuleIpReputationConditionTypeMinSeverity,
+	MaliciousSourcesRuleIpReputationConditionTypeMinScore,
+}
+
+// Severity of event generated by the rule
+type MaliciousSourcesRuleIpReputationSeverity string
+
+const (
+	// LOW
+	MaliciousSourcesRuleIpReputationSeverityLow MaliciousSourcesRuleIpReputationSeverity = "LOW"
+	// MEDIUM
+	MaliciousSourcesRuleIpReputationSeverityMedium MaliciousSourcesRuleIpReputationSeverity = "MEDIUM"
+	// HIGH
+	MaliciousSourcesRuleIpReputationSeverityHigh MaliciousSourcesRuleIpReputationSeverity = "HIGH"
+	// CRITICAL
+	MaliciousSourcesRuleIpReputationSeverityCritical MaliciousSourcesRuleIpReputationSeverity = "CRITICAL"
+)
+
+var AllMaliciousSourcesRuleIpReputationSeverity = []MaliciousSourcesRuleIpReputationSeverity{
+	MaliciousSourcesRuleIpReputationSeverityLow,
+	MaliciousSourcesRuleIpReputationSeverityMedium,
+	MaliciousSourcesRuleIpReputationSeverityHigh,
+	MaliciousSourcesRuleIpReputationSeverityCritical,
+}
+
+// Region Type for a rule
+type MaliciousSourcesRuleRegionType string
+
+const (
+	// COUNTRY_ISO_CODE
+	MaliciousSourcesRuleRegionTypeCountryIsoCode MaliciousSourcesRuleRegionType = "COUNTRY_ISO_CODE"
+)
+
+var AllMaliciousSourcesRuleRegionType = []MaliciousSourcesRuleRegionType{
+	MaliciousSourcesRuleRegionTypeCountryIsoCode,
+}
+
+type MetricAggregationType string
+
+const (
+	// COUNT
+	MetricAggregationTypeCount MetricAggregationType = "COUNT"
+	// AVG
+	MetricAggregationTypeAvg MetricAggregationType = "AVG"
+	// SUM
+	MetricAggregationTypeSum MetricAggregationType = "SUM"
+	// MIN
+	MetricAggregationTypeMin MetricAggregationType = "MIN"
+	// MAX
+	MetricAggregationTypeMax MetricAggregationType = "MAX"
+	// AVGRATE
+	MetricAggregationTypeAvgrate MetricAggregationType = "AVGRATE"
+	// PERCENTILE
+	MetricAggregationTypePercentile MetricAggregationType = "PERCENTILE"
+	// DISTINCTCOUNT
+	MetricAggregationTypeDistinctcount MetricAggregationType = "DISTINCTCOUNT"
+	// DISTINCT_ARRAY
+	MetricAggregationTypeDistinctArray MetricAggregationType = "DISTINCT_ARRAY"
+	// ANY_VALUE
+	MetricAggregationTypeAnyValue MetricAggregationType = "ANY_VALUE"
+)
+
+var AllMetricAggregationType = []MetricAggregationType{
+	MetricAggregationTypeCount,
+	MetricAggregationTypeAvg,
+	MetricAggregationTypeSum,
+	MetricAggregationTypeMin,
+	MetricAggregationTypeMax,
+	MetricAggregationTypeAvgrate,
+	MetricAggregationTypePercentile,
+	MetricAggregationTypeDistinctcount,
+	MetricAggregationTypeDistinctArray,
+	MetricAggregationTypeAnyValue,
+}
+
+type OrderDirection string
+
+const (
+	// ASC
+	OrderDirectionAsc OrderDirection = "ASC"
+	// DESC
+	OrderDirectionDesc OrderDirection = "DESC"
+)
+
+var AllOrderDirection = []OrderDirection{
+	OrderDirectionAsc,
+	OrderDirectionDesc,
 }
 
 type RateLimitingRuleActionType string
@@ -6572,6 +8363,20 @@ var AllRateLimitingRuleKeyValueConditionMetadataType = []RateLimitingRuleKeyValu
 	RateLimitingRuleKeyValueConditionMetadataTypeResponseCookiesCount,
 }
 
+type RateLimitingRuleKeyValueConditionType string
+
+const (
+	// STATIC_VALUE
+	RateLimitingRuleKeyValueConditionTypeStaticValue RateLimitingRuleKeyValueConditionType = "STATIC_VALUE"
+	// LHS_RHS_KEYS
+	RateLimitingRuleKeyValueConditionTypeLhsRhsKeys RateLimitingRuleKeyValueConditionType = "LHS_RHS_KEYS"
+)
+
+var AllRateLimitingRuleKeyValueConditionType = []RateLimitingRuleKeyValueConditionType{
+	RateLimitingRuleKeyValueConditionTypeStaticValue,
+	RateLimitingRuleKeyValueConditionTypeLhsRhsKeys,
+}
+
 type RateLimitingRuleKeyValueMatchOperator string
 
 const (
@@ -7262,6 +9067,29 @@ func (v *ThresholdActionConfigFieldsThresholdConfigsRateLimitingRuleThresholdCon
 	return v.SensitiveParamsEvaluationType
 }
 
+type TimeUnit string
+
+const (
+	// MILLISECONDS
+	TimeUnitMilliseconds TimeUnit = "MILLISECONDS"
+	// SECONDS
+	TimeUnitSeconds TimeUnit = "SECONDS"
+	// MINUTES
+	TimeUnitMinutes TimeUnit = "MINUTES"
+	// HOURS
+	TimeUnitHours TimeUnit = "HOURS"
+	// DAYS
+	TimeUnitDays TimeUnit = "DAYS"
+)
+
+var AllTimeUnit = []TimeUnit{
+	TimeUnitMilliseconds,
+	TimeUnitSeconds,
+	TimeUnitMinutes,
+	TimeUnitHours,
+	TimeUnitDays,
+}
+
 // Fragment for transactionActionConfigs
 type TransactionActionConfigFields struct {
 	// Rate limit rule action
@@ -7633,6 +9461,98 @@ func (v *UpdateMaliciousIpRangeRuleUpdateIpRangeRule) __premarshalJSON() (*__pre
 	return &retval, nil
 }
 
+// UpdateMaliciousIpTypeRuleResponse is returned by UpdateMaliciousIpTypeRule on success.
+type UpdateMaliciousIpTypeRuleResponse struct {
+	// Mutation API to update Malicious Sources rule
+	UpdateMaliciousSourcesRule UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule `json:"updateMaliciousSourcesRule"`
+}
+
+// GetUpdateMaliciousSourcesRule returns UpdateMaliciousIpTypeRuleResponse.UpdateMaliciousSourcesRule, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpTypeRuleResponse) GetUpdateMaliciousSourcesRule() UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule {
+	return v.UpdateMaliciousSourcesRule
+}
+
+// UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule struct {
+	MaliciousIpTypeRuleFields `json:"-"`
+}
+
+// GetId returns UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule) GetId() string {
+	return v.MaliciousIpTypeRuleFields.Id
+}
+
+// GetInfo returns UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule) GetInfo() MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.MaliciousIpTypeRuleFields.Info
+}
+
+// GetScope returns UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule.Scope, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule) GetScope() *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.MaliciousIpTypeRuleFields.Scope
+}
+
+// GetStatus returns UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule.Status, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule) GetStatus() MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.MaliciousIpTypeRuleFields.Status
+}
+
+func (v *UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousIpTypeRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalUpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule struct {
+	Id string `json:"id"`
+
+	Info MaliciousIpTypeRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+
+	Scope *MaliciousIpTypeRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+
+	Status MaliciousIpTypeRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+func (v *UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule) __premarshalJSON() (*__premarshalUpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule, error) {
+	var retval __premarshalUpdateMaliciousIpTypeRuleUpdateMaliciousSourcesRule
+
+	retval.Id = v.MaliciousIpTypeRuleFields.Id
+	retval.Info = v.MaliciousIpTypeRuleFields.Info
+	retval.Scope = v.MaliciousIpTypeRuleFields.Scope
+	retval.Status = v.MaliciousIpTypeRuleFields.Status
+	return &retval, nil
+}
+
 // UpdateMaliciousRegionRuleResponse is returned by UpdateMaliciousRegionRule on success.
 type UpdateMaliciousRegionRuleResponse struct {
 	UpdateRegionRule UpdateMaliciousRegionRuleUpdateRegionRule `json:"updateRegionRule"`
@@ -7966,6 +9886,14 @@ type __CreateMaliciousIpRangeRuleInput struct {
 // GetInput returns __CreateMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__CreateMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleCreate { return v.Input }
 
+// __CreateMaliciousIpTypeRuleInput is used internally by genqlient
+type __CreateMaliciousIpTypeRuleInput struct {
+	Input InputMaliciousSourcesRuleCreate `json:"input"`
+}
+
+// GetInput returns __CreateMaliciousIpTypeRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__CreateMaliciousIpTypeRuleInput) GetInput() InputMaliciousSourcesRuleCreate { return v.Input }
+
 // __CreateMaliciousRegionRuleInput is used internally by genqlient
 type __CreateMaliciousRegionRuleInput struct {
 	Input InputRegionRuleCreate `json:"input"`
@@ -8006,6 +9934,14 @@ type __DeleteMaliciousIpRangeRuleInput struct {
 // GetInput returns __DeleteMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__DeleteMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleDelete { return v.Input }
 
+// __DeleteMaliciousIpTypeRuleInput is used internally by genqlient
+type __DeleteMaliciousIpTypeRuleInput struct {
+	Input InputMaliciousSourcesRuleDelete `json:"input"`
+}
+
+// GetInput returns __DeleteMaliciousIpTypeRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__DeleteMaliciousIpTypeRuleInput) GetInput() InputMaliciousSourcesRuleDelete { return v.Input }
+
 // __DeleteMaliciousRegionRuleInput is used internally by genqlient
 type __DeleteMaliciousRegionRuleInput struct {
 	Input InputRegionRuleDelete `json:"input"`
@@ -8038,6 +9974,46 @@ type __GetCustomSignatureInput struct {
 // GetInput returns __GetCustomSignatureInput.Input, and is useful for accessing the field via an interface.
 func (v *__GetCustomSignatureInput) GetInput() InputCustomSignatureRulesFilter { return v.Input }
 
+// __GetEntitiesIdsInput is used internally by genqlient
+type __GetEntitiesIdsInput struct {
+	EntityType      *EntityType               `json:"entityType"`
+	Scope           *string                   `json:"scope"`
+	Between         InputTimeRange            `json:"between"`
+	Space           *string                   `json:"space"`
+	FilterBy        []*InputFilter            `json:"filterBy"`
+	OrderBy         []*InputAggregatableOrder `json:"orderBy"`
+	Limit           *int64                    `json:"limit"`
+	Offset          *int64                    `json:"offset"`
+	IncludeInactive *bool                     `json:"includeInactive"`
+}
+
+// GetEntityType returns __GetEntitiesIdsInput.EntityType, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetEntityType() *EntityType { return v.EntityType }
+
+// GetScope returns __GetEntitiesIdsInput.Scope, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetScope() *string { return v.Scope }
+
+// GetBetween returns __GetEntitiesIdsInput.Between, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetBetween() InputTimeRange { return v.Between }
+
+// GetSpace returns __GetEntitiesIdsInput.Space, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetSpace() *string { return v.Space }
+
+// GetFilterBy returns __GetEntitiesIdsInput.FilterBy, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetFilterBy() []*InputFilter { return v.FilterBy }
+
+// GetOrderBy returns __GetEntitiesIdsInput.OrderBy, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetOrderBy() []*InputAggregatableOrder { return v.OrderBy }
+
+// GetLimit returns __GetEntitiesIdsInput.Limit, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetLimit() *int64 { return v.Limit }
+
+// GetOffset returns __GetEntitiesIdsInput.Offset, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetOffset() *int64 { return v.Offset }
+
+// GetIncludeInactive returns __GetEntitiesIdsInput.IncludeInactive, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetIncludeInactive() *bool { return v.IncludeInactive }
+
 // __GetMaliciousIpRangeRuleDetailsInput is used internally by genqlient
 type __GetMaliciousIpRangeRuleDetailsInput struct {
 	Input *InputIpRangeRulesFilter `json:"input"`
@@ -8053,6 +10029,26 @@ type __GetMaliciousIpRangeRulesNameInput struct {
 
 // GetInput returns __GetMaliciousIpRangeRulesNameInput.Input, and is useful for accessing the field via an interface.
 func (v *__GetMaliciousIpRangeRulesNameInput) GetInput() *InputIpRangeRulesFilter { return v.Input }
+
+// __GetMaliciousIpTypeRuleDetailsInput is used internally by genqlient
+type __GetMaliciousIpTypeRuleDetailsInput struct {
+	Input *InputMaliciousSourcesRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousIpTypeRuleDetailsInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousIpTypeRuleDetailsInput) GetInput() *InputMaliciousSourcesRulesFilter {
+	return v.Input
+}
+
+// __GetMaliciousIpTypeRulesNameInput is used internally by genqlient
+type __GetMaliciousIpTypeRulesNameInput struct {
+	Input *InputMaliciousSourcesRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousIpTypeRulesNameInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousIpTypeRulesNameInput) GetInput() *InputMaliciousSourcesRulesFilter {
+	return v.Input
+}
 
 // __GetMaliciousRegionRuleDetailsInput is used internally by genqlient
 type __GetMaliciousRegionRuleDetailsInput struct {
@@ -8123,6 +10119,14 @@ type __UpdateMaliciousIpRangeRuleInput struct {
 
 // GetInput returns __UpdateMaliciousIpRangeRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__UpdateMaliciousIpRangeRuleInput) GetInput() InputIpRangeRuleUpdate { return v.Input }
+
+// __UpdateMaliciousIpTypeRuleInput is used internally by genqlient
+type __UpdateMaliciousIpTypeRuleInput struct {
+	Input InputMaliciousSourcesRuleUpdate `json:"input"`
+}
+
+// GetInput returns __UpdateMaliciousIpTypeRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__UpdateMaliciousIpTypeRuleInput) GetInput() InputMaliciousSourcesRuleUpdate { return v.Input }
 
 // __UpdateMaliciousRegionRuleInput is used internally by genqlient
 type __UpdateMaliciousRegionRuleInput struct {
@@ -8339,6 +10343,69 @@ func CreateMaliciousIpRangeRule(
 	}
 
 	data_ = &CreateMaliciousIpRangeRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by CreateMaliciousIpTypeRule.
+const CreateMaliciousIpTypeRule_Operation = `
+mutation CreateMaliciousIpTypeRule ($input: InputMaliciousSourcesRuleCreate!) {
+	createMaliciousSourcesRule(create: $input) {
+		... MaliciousIpTypeRuleFields
+	}
+}
+fragment MaliciousIpTypeRuleFields on MaliciousSourcesRule {
+	id
+	info {
+		name
+		description
+		action {
+			eventSeverity
+			expirationDetails {
+				expirationDuration
+			}
+			ruleActionType
+		}
+		conditions {
+			conditionType
+			ipLocationTypeCondition {
+				ipLocationTypes
+			}
+		}
+	}
+	scope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	status {
+		disabled
+		internal
+	}
+}
+`
+
+func CreateMaliciousIpTypeRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputMaliciousSourcesRuleCreate,
+) (data_ *CreateMaliciousIpTypeRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CreateMaliciousIpTypeRule",
+		Query:  CreateMaliciousIpTypeRule_Operation,
+		Variables: &__CreateMaliciousIpTypeRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CreateMaliciousIpTypeRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -8800,6 +10867,40 @@ func DeleteMaliciousIpRangeRule(
 	return data_, err_
 }
 
+// The mutation executed by DeleteMaliciousIpTypeRule.
+const DeleteMaliciousIpTypeRule_Operation = `
+mutation DeleteMaliciousIpTypeRule ($input: InputMaliciousSourcesRuleDelete!) {
+	deleteMaliciousSourcesRule(delete: $input) {
+		success
+	}
+}
+`
+
+func DeleteMaliciousIpTypeRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputMaliciousSourcesRuleDelete,
+) (data_ *DeleteMaliciousIpTypeRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteMaliciousIpTypeRule",
+		Query:  DeleteMaliciousIpTypeRule_Operation,
+		Variables: &__DeleteMaliciousIpTypeRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &DeleteMaliciousIpTypeRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteMaliciousRegionRule.
 const DeleteMaliciousRegionRule_Operation = `
 mutation DeleteMaliciousRegionRule ($input: InputRegionRuleDelete!) {
@@ -9048,6 +11149,162 @@ func GetCustomSignatureId(
 	return data_, err_
 }
 
+// The query executed by GetDataSetsId.
+const GetDataSetsId_Operation = `
+query GetDataSetsId {
+	dataSets {
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetDataSetsId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetDataSetsIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetDataSetsId",
+		Query:  GetDataSetsId_Operation,
+	}
+
+	data_ = &GetDataSetsIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetDataTypesId.
+const GetDataTypesId_Operation = `
+query GetDataTypesId {
+	dataTypes {
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetDataTypesId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetDataTypesIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetDataTypesId",
+		Query:  GetDataTypesId_Operation,
+	}
+
+	data_ = &GetDataTypesIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetEndpointLabelsId.
+const GetEndpointLabelsId_Operation = `
+query GetEndpointLabelsId {
+	labels {
+		count
+		results {
+			id
+			key
+		}
+		total
+	}
+}
+`
+
+func GetEndpointLabelsId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetEndpointLabelsIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetEndpointLabelsId",
+		Query:  GetEndpointLabelsId_Operation,
+	}
+
+	data_ = &GetEndpointLabelsIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetEntitiesIds.
+const GetEntitiesIds_Operation = `
+query GetEntitiesIds ($entityType: EntityType, $scope: String, $between: InputTimeRange!, $space: String, $filterBy: [InputFilter], $orderBy: [InputAggregatableOrder], $limit: Int, $offset: Int, $includeInactive: Boolean) {
+	entities(type: $entityType, scope: $scope, between: $between, space: $space, filterBy: $filterBy, orderBy: $orderBy, limit: $limit, offset: $offset, includeInactive: $includeInactive) {
+		results {
+			entityId: id
+			id: attribute(expression: {key:"id"})
+			name: attribute(expression: {key:"name"})
+		}
+		total
+	}
+}
+`
+
+func GetEntitiesIds(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	entityType *EntityType,
+	scope *string,
+	between InputTimeRange,
+	space *string,
+	filterBy []*InputFilter,
+	orderBy []*InputAggregatableOrder,
+	limit *int64,
+	offset *int64,
+	includeInactive *bool,
+) (data_ *GetEntitiesIdsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetEntitiesIds",
+		Query:  GetEntitiesIds_Operation,
+		Variables: &__GetEntitiesIdsInput{
+			EntityType:      entityType,
+			Scope:           scope,
+			Between:         between,
+			Space:           space,
+			FilterBy:        filterBy,
+			OrderBy:         orderBy,
+			Limit:           limit,
+			Offset:          offset,
+			IncludeInactive: includeInactive,
+		},
+	}
+
+	data_ = &GetEntitiesIdsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The query executed by GetMaliciousIpRangeRuleDetails.
 const GetMaliciousIpRangeRuleDetails_Operation = `
 query GetMaliciousIpRangeRuleDetails ($input: InputIpRangeRulesFilter) {
@@ -9150,6 +11407,114 @@ func GetMaliciousIpRangeRulesName(
 	}
 
 	data_ = &GetMaliciousIpRangeRulesNameResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousIpTypeRuleDetails.
+const GetMaliciousIpTypeRuleDetails_Operation = `
+query GetMaliciousIpTypeRuleDetails ($input: InputMaliciousSourcesRulesFilter) {
+	maliciousSourcesRules(filter: $input) {
+		count
+		total
+		results {
+			... MaliciousIpTypeRuleFields
+		}
+	}
+}
+fragment MaliciousIpTypeRuleFields on MaliciousSourcesRule {
+	id
+	info {
+		name
+		description
+		action {
+			eventSeverity
+			expirationDetails {
+				expirationDuration
+			}
+			ruleActionType
+		}
+		conditions {
+			conditionType
+			ipLocationTypeCondition {
+				ipLocationTypes
+			}
+		}
+	}
+	scope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	status {
+		disabled
+		internal
+	}
+}
+`
+
+func GetMaliciousIpTypeRuleDetails(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputMaliciousSourcesRulesFilter,
+) (data_ *GetMaliciousIpTypeRuleDetailsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousIpTypeRuleDetails",
+		Query:  GetMaliciousIpTypeRuleDetails_Operation,
+		Variables: &__GetMaliciousIpTypeRuleDetailsInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousIpTypeRuleDetailsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousIpTypeRulesName.
+const GetMaliciousIpTypeRulesName_Operation = `
+query GetMaliciousIpTypeRulesName ($input: InputMaliciousSourcesRulesFilter) {
+	maliciousSourcesRules(filter: $input) {
+		count
+		total
+		results {
+			info {
+				name
+			}
+			id
+		}
+	}
+}
+`
+
+func GetMaliciousIpTypeRulesName(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputMaliciousSourcesRulesFilter,
+) (data_ *GetMaliciousIpTypeRulesNameResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousIpTypeRulesName",
+		Query:  GetMaliciousIpTypeRulesName_Operation,
+		Variables: &__GetMaliciousIpTypeRulesNameInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousIpTypeRulesNameResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -9763,6 +12128,69 @@ func UpdateMaliciousIpRangeRule(
 	}
 
 	data_ = &UpdateMaliciousIpRangeRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateMaliciousIpTypeRule.
+const UpdateMaliciousIpTypeRule_Operation = `
+mutation UpdateMaliciousIpTypeRule ($input: InputMaliciousSourcesRuleUpdate!) {
+	updateMaliciousSourcesRule(update: $input) {
+		... MaliciousIpTypeRuleFields
+	}
+}
+fragment MaliciousIpTypeRuleFields on MaliciousSourcesRule {
+	id
+	info {
+		name
+		description
+		action {
+			eventSeverity
+			expirationDetails {
+				expirationDuration
+			}
+			ruleActionType
+		}
+		conditions {
+			conditionType
+			ipLocationTypeCondition {
+				ipLocationTypes
+			}
+		}
+	}
+	scope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	status {
+		disabled
+		internal
+	}
+}
+`
+
+func UpdateMaliciousIpTypeRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputMaliciousSourcesRuleUpdate,
+) (data_ *UpdateMaliciousIpTypeRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateMaliciousIpTypeRule",
+		Query:  UpdateMaliciousIpTypeRule_Operation,
+		Variables: &__UpdateMaliciousIpTypeRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &UpdateMaliciousIpTypeRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

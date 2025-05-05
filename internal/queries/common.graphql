@@ -9,3 +9,94 @@ query GetCountries {
          }
     }
 }
+#   labels: LabelResultSet!
+
+
+query GetEndpointLabelsId{
+    labels{
+            count
+            results{
+                id
+                key
+            }
+            total
+        }
+}
+
+
+query GetDataSetsId{
+    dataSets{
+        results{
+            id
+            name
+        }
+
+    }
+}
+
+query GetDataTypesId{
+    dataTypes{
+        results{
+            id
+            name
+        }
+    }
+}
+#   entities(type: EntityType, scope: String, between: InputTimeRange!, space: String, filterBy: [InputFilter], orderBy: [InputAggregatableOrder], limit: Int, offset: Int, includeInactive: Boolean): EntityResultSet!
+
+
+query GetEntitiesIds(
+  $entityType: EntityType, 
+  $scope: String, 
+  $between: InputTimeRange!, 
+  $space: String, 
+  $filterBy: [InputFilter], 
+  $orderBy: [InputAggregatableOrder], 
+  $limit: Int, 
+  $offset: Int, 
+  $includeInactive: Boolean
+) {
+  entities(
+    type: $entityType, 
+    scope: $scope, 
+    between: $between, 
+    space: $space, 
+    filterBy: $filterBy, 
+    orderBy: $orderBy, 
+    limit: $limit, 
+    offset: $offset, 
+    includeInactive: $includeInactive
+  ) {
+    results {
+      entityId: id
+      id: attribute(expression: { key: "id" })
+      name: attribute(expression: { key: "name" })
+    }
+    total
+  }
+}
+
+
+
+
+
+
+
+
+# query GetUserId($context: ExplorerContext, $scope: String, $between: InputTimeRange, $space: String, $filterBy: [InputFilter], $orderBy: [InputAggregatableOrder], $limit: Int, $offset: Int, $includeInactive: Boolean, $groupBy: InputGroupByArgument, $interval: InputIntervalArgument, $entityContextOptions: InputEntityContextOptions){
+#     explore(context: $context, scope: $scope, between: $between, space: $space, limit: $limit, offset: $offset, filterBy: $filterBy, orderBy: $orderBy, groupBy: $groupBy, interval: $interval, entityContextOptions: $entityContextOptions){
+#         results{
+#             userIdentifier{
+#                 value
+#             }
+#         }
+#     }
+# }
+
+# query GetEndpointEntities{
+#     entities{
+
+#     }
+# }
+
+
