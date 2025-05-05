@@ -88,6 +88,64 @@ func (r *CustomSignatureResource) Create(ctx context.Context, req resource.Creat
 	tflog.Info(ctx, "Exiting Create Block")
 }
 
+func (r *CustomSignatureResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *models.CustomSignatureModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	response, err := getCustomSignatureRule(data.Id.ValueString(), ctx, *r.client)
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+
+	updatedData, err := convertCustomSignatureFieldsToModel(ctx, &response)
+
+	if err != nil {
+		utils.AddError(ctx, &resp.Diagnostics, err)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &updatedData)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *CustomSignatureResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data *models.CustomSignatureModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	var dataState *models.CustomSignatureModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &dataState)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	input, err := convertCustomSignatureModelToUpdateInput(ctx, data, dataState.Id.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError("Error in Updating custom signature rule", err.Error())
+		return
+
+	}
+
+	resp1, err2 := generated.UpdateCustomSignature(ctx, *r.client, *input)
+	if err2 != nil {
+		resp.Diagnostics.AddError("Error in Updating custom signature rule", err.Error())
+		return
+	}
+	data.Id = types.StringValue(resp1.UpdateCustomSignatureRule.Id)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
 func (r *CustomSignatureResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var data *models.CustomSignatureModel
 
@@ -258,33 +316,6 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 	return &customSignatureModel, nil
 }
 
-func (r *CustomSignatureResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *models.CustomSignatureModel
-
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	response, err := getCustomSignatureRule(data.Id.ValueString(), ctx, *r.client)
-	if err != nil {
-		utils.AddError(ctx, &resp.Diagnostics, err)
-		return
-	}
-
-	updatedData, err := convertCustomSignatureFieldsToModel(ctx, &response)
-
-	if err != nil {
-		utils.AddError(ctx, &resp.Diagnostics, err)
-		return
-	}
-
-	resp.Diagnostics.Append(resp.State.Set(ctx, &updatedData)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-}
-
 func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.CustomSignatureModel, id string) (*generated.InputCustomSignatureRuleUpdate, error) {
 	input := generated.InputCustomSignatureRuleUpdate{}
 	if id != "" {
@@ -334,37 +365,6 @@ func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.
 		return nil, utils.NewInvalidError("action_type", "action_type ALLOW is not valid with payload_criteria attributes")
 	}
 	return &input, nil
-}
-
-func (r *CustomSignatureResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *models.CustomSignatureModel
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	var dataState *models.CustomSignatureModel
-	resp.Diagnostics.Append(req.State.Get(ctx, &dataState)...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
-	input, err := convertCustomSignatureModelToUpdateInput(ctx, data, dataState.Id.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Error in Updating custom signature rule", err.Error())
-		return
-
-	}
-
-	resp1, err2 := generated.UpdateCustomSignature(ctx, *r.client, *input)
-	if err2 != nil {
-		resp.Diagnostics.AddError("Error in Updating custom signature rule", err.Error())
-		return
-	}
-	data.Id = types.StringValue(resp1.UpdateCustomSignatureRule.Id)
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
 func getCustomSignatureId(ruleName string, ctx context.Context, r graphql.Client) (string, error) {

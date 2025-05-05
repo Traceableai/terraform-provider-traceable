@@ -2,22 +2,17 @@ resource "traceable_custom_signature" "example" {
   name         = "example_signature"         
   disabled     = false                       
   description  = "Sample custom signature"   
-  environments = ["dlp-test-aditya"]            
+  environments = ["1260"]            
 
   payload_criteria = {
-
     request_response = [
       {
-        key_value_tag        = "REQUEST_HEADER"  
-        match_category       = "EQUALS"          
-        key_match_operator   = "EQUALS"          
-        match_key            = "X-Custom-Key"    
+        match_category       = "REQUEST"         
+        match_key            = "URL"    
         value_match_operator = "EQUALS"          
         match_value          = "secret"          
       }
     ]
-
-
     attributes = [
       {
         key_condition_operator   = "EQUALS"      
@@ -25,14 +20,11 @@ resource "traceable_custom_signature" "example" {
         value_condition_operator = "EQUALS"      
         value_condition_value    = "500"         
       }
-    ]
-
-
-  
+    ]  
   }
 
   action = {
-    action_type    = "ALERT" 
+    action_type    = "NORMAL_DETECTION" 
     duration       = "PT1M"  
     event_severity = "LOW"   
   }
