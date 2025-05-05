@@ -1,0 +1,77 @@
+fragment MaliciousEmailDomainRuleFields on MaliciousSourcesRule {
+    id
+    info {
+      name
+      description
+      action {
+        eventSeverity
+        expirationDetails {
+          expirationDuration
+        }
+        ruleActionType
+      }
+      conditions {
+        conditionType
+        emailDomainCondition {
+          dataLeakedEmail
+          disposableEmailDomain
+          emailDomains
+          emailFraudScore {
+            minEmailFraudScoreLevel
+            emailFraudScoreType
+          }
+          emailRegexes
+        }
+      }
+    }
+    scope {
+      environmentScope {
+        environmentIds
+      }
+    }
+    status {
+      disabled
+      internal
+    }
+  }
+
+  query GetMaliciousEmailDomainRulesName($input: InputMaliciousSourcesRulesFilter) {
+    maliciousSourcesRules(filter: $input) {
+      count
+      total
+      results {
+        info {
+          name
+        }
+        id
+      }
+    }
+  }
+
+  query GetMaliciousEmailDomainRuleDetails($input: InputMaliciousSourcesRulesFilter) {
+    maliciousSourcesRules(filter: $input) {
+      count
+      total
+      results {
+        ...MaliciousEmailDomainRuleFields
+      }
+    }
+  }
+
+  mutation CreateMaliciousEmailDomainRule($input: InputMaliciousSourcesRuleCreate!) {
+    createMaliciousSourcesRule(create: $input) {
+      ...MaliciousEmailDomainRuleFields
+    }
+  }
+
+  mutation UpdateMaliciousEmailDomainRule($input: InputMaliciousSourcesRuleUpdate!) {
+    updateMaliciousSourcesRule(update: $input) {
+      ...MaliciousEmailDomainRuleFields
+    }
+  }
+
+  mutation DeleteMaliciousEmailDomainRule($input: InputMaliciousSourcesRuleDelete!) {
+    deleteMaliciousSourcesRule(delete: $input) {
+      success
+    }
+  }

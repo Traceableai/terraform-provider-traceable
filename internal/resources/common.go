@@ -181,6 +181,23 @@ var MaliciousIpTypeMap = map[string]generated.MaliciousSourcesRuleIpLocationType
 	"BOT":              generated.MaliciousSourcesRuleIpLocationTypeBot,
 }
 
+var MaliciousEmailDomainEventSeverityMap = map[string]generated.MaliciousSourcesRuleEventSeverity{
+	"LOW":      generated.MaliciousSourcesRuleEventSeverityLow,
+	"MEDIUM":   generated.MaliciousSourcesRuleEventSeverityMedium,
+	"HIGH":     generated.MaliciousSourcesRuleEventSeverityHigh,
+	"CRITICAL": generated.MaliciousSourcesRuleEventSeverityCritical,
+}
+
+var MaliciousEmailDomainActionMap = map[string]generated.MaliciousSourcesRuleActionType{
+	"BLOCK": generated.MaliciousSourcesRuleActionTypeBlock,
+	"ALERT": generated.MaliciousSourcesRuleActionTypeAlert,
+}
+
+var MaliciousEmailDomainMinEmailFraudScoreLevel = map[string]generated.MaliciousSourcesRuleEmailFraudScoreLevel{
+	"HIGH":     generated.MaliciousSourcesRuleEmailFraudScoreLevelHigh,
+	"CRITICAL": generated.MaliciousSourcesRuleEmailFraudScoreLevelCritical,
+}
+
 // var RateLimitingRequestResponseMultipleMap = map[string]bool{
 // 	"QUERY_PARAMETER":         true,
 // 	"REQUEST_BODY_PARAMETER":  true,
