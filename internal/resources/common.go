@@ -232,6 +232,11 @@ var RateLimitingSensitiveParamsEvaluationTypeMap = map[string]generated.Sensitiv
 	"SELECTED_DATA_TYPES": generated.SensitiveParamsEvaluationTypeSelectedDataTypes,
 }
 
+var MaliciousEmailDomainMinEmailFraudScoreLevel = map[string]generated.MaliciousSourcesRuleEmailFraudScoreLevel{
+	"HIGH":     generated.MaliciousSourcesRuleEmailFraudScoreLevelHigh,
+	"CRITICAL": generated.MaliciousSourcesRuleEmailFraudScoreLevelCritical,
+}
+
 // var RateLimitingRequestResponseMultipleMap = map[string]bool{
 // 	"QUERY_PARAMETER":         true,
 // 	"REQUEST_BODY_PARAMETER":  true,

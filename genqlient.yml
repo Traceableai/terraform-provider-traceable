@@ -1,13 +1,14 @@
 schema: helper/schema.graphql
 operations:
   - internal/queries/rate_limiting.graphql
-  - internal/queries/data_set.graphql  
+  - internal/queries/data_set.graphql
   - internal/queries/malicious_ip_range.graphql
   - internal/queries/malicious_region.graphql
   - internal/queries/common.graphql
   - internal/queries/custom_signature.graphql
   - internal/queries/malicious_ip_type.graphql
-  
+  - internal/queries/malicious_email_domain.graphql
+
 generated: internal/generated/genqlient.go
 package: generated
 bindings:
