@@ -68,7 +68,7 @@ func (r *MaliciousEmailDomainResource) Create(ctx context.Context, req resource.
 		return
 	}
 	if id != "" {
-		resp.Diagnostics.AddError("Resource already Exist ", fmt.Sprintf("%s malicious email domain rule already please try with different name or import it", input.RuleInfo.Name))
+		resp.Diagnostics.AddError("Resource already Exist ", fmt.Sprintf("%s malicious email domain rule already exists please try with different name or import it", input.RuleInfo.Name))
 		return
 	}
 	response, err := generated.CreateMaliciousEmailDomainRule(ctx, *r.client, *input)
@@ -261,14 +261,14 @@ func convertMaliciousEmailDomainModelToCreateInput(ctx context.Context, data *mo
 	}
 
 	if HasValue(data.EventSeverity) {
-		eventSeverity, exist := MaliciousEmailDomainEventSeverityMap[data.EventSeverity.ValueString()]
+		eventSeverity, exist := MaliciousIpTypeEventSeverityMap[data.EventSeverity.ValueString()]
 		if !exist {
 			return nil, utils.NewInvalidError("event_severity", "Invalid EventSeverity")
 		}
 		ruleAction.EventSeverity = &eventSeverity
 	}
 	if HasValue(data.Action) {
-		action, exist := MaliciousEmailDomainActionMap[data.Action.ValueString()]
+		action, exist := MaliciousIpTypeActionMap[data.Action.ValueString()]
 		if !exist {
 			return nil, utils.NewInvalidError("action", "Invalid action")
 		}

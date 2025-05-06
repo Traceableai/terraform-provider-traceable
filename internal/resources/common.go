@@ -232,18 +232,6 @@ var RateLimitingSensitiveParamsEvaluationTypeMap = map[string]generated.Sensitiv
 	"SELECTED_DATA_TYPES": generated.SensitiveParamsEvaluationTypeSelectedDataTypes,
 }
 
-var MaliciousEmailDomainEventSeverityMap = map[string]generated.MaliciousSourcesRuleEventSeverity{
-	"LOW":      generated.MaliciousSourcesRuleEventSeverityLow,
-	"MEDIUM":   generated.MaliciousSourcesRuleEventSeverityMedium,
-	"HIGH":     generated.MaliciousSourcesRuleEventSeverityHigh,
-	"CRITICAL": generated.MaliciousSourcesRuleEventSeverityCritical,
-}
-
-var MaliciousEmailDomainActionMap = map[string]generated.MaliciousSourcesRuleActionType{
-	"BLOCK": generated.MaliciousSourcesRuleActionTypeBlock,
-	"ALERT": generated.MaliciousSourcesRuleActionTypeAlert,
-}
-
 var MaliciousEmailDomainMinEmailFraudScoreLevel = map[string]generated.MaliciousSourcesRuleEmailFraudScoreLevel{
 	"HIGH":     generated.MaliciousSourcesRuleEmailFraudScoreLevelHigh,
 	"CRITICAL": generated.MaliciousSourcesRuleEmailFraudScoreLevelCritical,

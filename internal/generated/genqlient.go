@@ -10618,6 +10618,82 @@ type __DeleteRateLimitingRuleInput struct {
 // GetId returns __DeleteRateLimitingRuleInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteRateLimitingRuleInput) GetId() string { return v.Id }
 
+// __GetCustomSignatureIdInput is used internally by genqlient
+type __GetCustomSignatureIdInput struct {
+	Input InputCustomSignatureRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetCustomSignatureIdInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetCustomSignatureIdInput) GetInput() InputCustomSignatureRulesFilter { return v.Input }
+
+// __GetCustomSignatureInput is used internally by genqlient
+type __GetCustomSignatureInput struct {
+	Input InputCustomSignatureRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetCustomSignatureInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetCustomSignatureInput) GetInput() InputCustomSignatureRulesFilter { return v.Input }
+
+// __GetEntitiesIdsInput is used internally by genqlient
+type __GetEntitiesIdsInput struct {
+	EntityType      *EntityType               `json:"entityType"`
+	Scope           *string                   `json:"scope"`
+	Between         InputTimeRange            `json:"between"`
+	Space           *string                   `json:"space"`
+	FilterBy        []*InputFilter            `json:"filterBy"`
+	OrderBy         []*InputAggregatableOrder `json:"orderBy"`
+	Limit           *int64                    `json:"limit"`
+	Offset          *int64                    `json:"offset"`
+	IncludeInactive *bool                     `json:"includeInactive"`
+}
+
+// GetEntityType returns __GetEntitiesIdsInput.EntityType, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetEntityType() *EntityType { return v.EntityType }
+
+// GetScope returns __GetEntitiesIdsInput.Scope, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetScope() *string { return v.Scope }
+
+// GetBetween returns __GetEntitiesIdsInput.Between, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetBetween() InputTimeRange { return v.Between }
+
+// GetSpace returns __GetEntitiesIdsInput.Space, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetSpace() *string { return v.Space }
+
+// GetFilterBy returns __GetEntitiesIdsInput.FilterBy, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetFilterBy() []*InputFilter { return v.FilterBy }
+
+// GetOrderBy returns __GetEntitiesIdsInput.OrderBy, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetOrderBy() []*InputAggregatableOrder { return v.OrderBy }
+
+// GetLimit returns __GetEntitiesIdsInput.Limit, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetLimit() *int64 { return v.Limit }
+
+// GetOffset returns __GetEntitiesIdsInput.Offset, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetOffset() *int64 { return v.Offset }
+
+// GetIncludeInactive returns __GetEntitiesIdsInput.IncludeInactive, and is useful for accessing the field via an interface.
+func (v *__GetEntitiesIdsInput) GetIncludeInactive() *bool { return v.IncludeInactive }
+
+// __GetMaliciousEmailDomainRuleDetailsInput is used internally by genqlient
+type __GetMaliciousEmailDomainRuleDetailsInput struct {
+	Input *InputMaliciousSourcesRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousEmailDomainRuleDetailsInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousEmailDomainRuleDetailsInput) GetInput() *InputMaliciousSourcesRulesFilter {
+	return v.Input
+}
+
+// __GetMaliciousEmailDomainRulesNameInput is used internally by genqlient
+type __GetMaliciousEmailDomainRulesNameInput struct {
+	Input *InputMaliciousSourcesRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousEmailDomainRulesNameInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousEmailDomainRulesNameInput) GetInput() *InputMaliciousSourcesRulesFilter {
+	return v.Input
+}
+
 // __GetMaliciousIpRangeRuleDetailsInput is used internally by genqlient
 type __GetMaliciousIpRangeRuleDetailsInput struct {
 	Input *InputIpRangeRulesFilter `json:"input"`
@@ -11712,6 +11788,421 @@ func GetCountries(
 	}
 
 	data_ = &GetCountriesResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetCustomSignature.
+const GetCustomSignature_Operation = `
+query GetCustomSignature ($input: InputCustomSignatureRulesFilter!) {
+	customSignatureRules(filter: $input) {
+		results {
+			... CustomSignatureFields
+		}
+	}
+}
+fragment CustomSignatureFields on CustomSignatureRule {
+	id
+	name
+	description
+	disabled
+	internal
+	blockingExpirationDuration
+	blockingExpirationTime
+	ruleSource
+	ruleEffect {
+		eventType
+		eventSeverity
+		effects {
+			ruleEffectType
+			agentEffect {
+				agentModifications {
+					agentModificationType
+					headerInjection {
+						key
+						value
+						headerCategory
+					}
+				}
+			}
+		}
+	}
+	ruleDefinition {
+		labels {
+			key
+			value
+		}
+		clauseGroup {
+			clauseOperator
+			clauses {
+				clauseType
+				matchExpression {
+					matchKey
+					matchOperator
+					matchValue
+					matchCategory
+				}
+				keyValueExpression {
+					keyValueTag
+					matchKey
+					matchValue
+					keyMatchOperator
+					valueMatchOperator
+					matchCategory
+				}
+				attributeKeyValueExpression {
+					keyCondition {
+						operator
+						value
+					}
+					valueCondition {
+						operator
+						value
+					}
+				}
+				customSecRule {
+					inputSecRuleString
+				}
+			}
+		}
+	}
+	ruleScope {
+		environmentScope {
+			environmentIds
+		}
+	}
+}
+`
+
+func GetCustomSignature(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputCustomSignatureRulesFilter,
+) (data_ *GetCustomSignatureResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetCustomSignature",
+		Query:  GetCustomSignature_Operation,
+		Variables: &__GetCustomSignatureInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetCustomSignatureResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetCustomSignatureId.
+const GetCustomSignatureId_Operation = `
+query GetCustomSignatureId ($input: InputCustomSignatureRulesFilter!) {
+	customSignatureRules(filter: $input) {
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetCustomSignatureId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputCustomSignatureRulesFilter,
+) (data_ *GetCustomSignatureIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetCustomSignatureId",
+		Query:  GetCustomSignatureId_Operation,
+		Variables: &__GetCustomSignatureIdInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetCustomSignatureIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetDataSetsId.
+const GetDataSetsId_Operation = `
+query GetDataSetsId {
+	dataSets {
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetDataSetsId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetDataSetsIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetDataSetsId",
+		Query:  GetDataSetsId_Operation,
+	}
+
+	data_ = &GetDataSetsIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetDataTypesId.
+const GetDataTypesId_Operation = `
+query GetDataTypesId {
+	dataTypes {
+		results {
+			id
+			name
+		}
+	}
+}
+`
+
+func GetDataTypesId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetDataTypesIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetDataTypesId",
+		Query:  GetDataTypesId_Operation,
+	}
+
+	data_ = &GetDataTypesIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetEndpointLabelsId.
+const GetEndpointLabelsId_Operation = `
+query GetEndpointLabelsId {
+	labels {
+		count
+		results {
+			id
+			key
+		}
+		total
+	}
+}
+`
+
+func GetEndpointLabelsId(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetEndpointLabelsIdResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetEndpointLabelsId",
+		Query:  GetEndpointLabelsId_Operation,
+	}
+
+	data_ = &GetEndpointLabelsIdResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetEntitiesIds.
+const GetEntitiesIds_Operation = `
+query GetEntitiesIds ($entityType: EntityType, $scope: String, $between: InputTimeRange!, $space: String, $filterBy: [InputFilter], $orderBy: [InputAggregatableOrder], $limit: Int, $offset: Int, $includeInactive: Boolean) {
+	entities(type: $entityType, scope: $scope, between: $between, space: $space, filterBy: $filterBy, orderBy: $orderBy, limit: $limit, offset: $offset, includeInactive: $includeInactive) {
+		results {
+			entityId: id
+			id: attribute(expression: {key:"id"})
+			name: attribute(expression: {key:"name"})
+		}
+		total
+	}
+}
+`
+
+func GetEntitiesIds(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	entityType *EntityType,
+	scope *string,
+	between InputTimeRange,
+	space *string,
+	filterBy []*InputFilter,
+	orderBy []*InputAggregatableOrder,
+	limit *int64,
+	offset *int64,
+	includeInactive *bool,
+) (data_ *GetEntitiesIdsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetEntitiesIds",
+		Query:  GetEntitiesIds_Operation,
+		Variables: &__GetEntitiesIdsInput{
+			EntityType:      entityType,
+			Scope:           scope,
+			Between:         between,
+			Space:           space,
+			FilterBy:        filterBy,
+			OrderBy:         orderBy,
+			Limit:           limit,
+			Offset:          offset,
+			IncludeInactive: includeInactive,
+		},
+	}
+
+	data_ = &GetEntitiesIdsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousEmailDomainRuleDetails.
+const GetMaliciousEmailDomainRuleDetails_Operation = `
+query GetMaliciousEmailDomainRuleDetails ($input: InputMaliciousSourcesRulesFilter) {
+	maliciousSourcesRules(filter: $input) {
+		count
+		total
+		results {
+			... MaliciousEmailDomainRuleFields
+		}
+	}
+}
+fragment MaliciousEmailDomainRuleFields on MaliciousSourcesRule {
+	id
+	info {
+		name
+		description
+		action {
+			eventSeverity
+			expirationDetails {
+				expirationDuration
+			}
+			ruleActionType
+		}
+		conditions {
+			conditionType
+			emailDomainCondition {
+				dataLeakedEmail
+				disposableEmailDomain
+				emailDomains
+				emailFraudScore {
+					minEmailFraudScoreLevel
+					emailFraudScoreType
+				}
+				emailRegexes
+			}
+		}
+	}
+	scope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	status {
+		disabled
+		internal
+	}
+}
+`
+
+func GetMaliciousEmailDomainRuleDetails(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputMaliciousSourcesRulesFilter,
+) (data_ *GetMaliciousEmailDomainRuleDetailsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousEmailDomainRuleDetails",
+		Query:  GetMaliciousEmailDomainRuleDetails_Operation,
+		Variables: &__GetMaliciousEmailDomainRuleDetailsInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousEmailDomainRuleDetailsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousEmailDomainRulesName.
+const GetMaliciousEmailDomainRulesName_Operation = `
+query GetMaliciousEmailDomainRulesName ($input: InputMaliciousSourcesRulesFilter) {
+	maliciousSourcesRules(filter: $input) {
+		count
+		total
+		results {
+			info {
+				name
+			}
+			id
+		}
+	}
+}
+`
+
+func GetMaliciousEmailDomainRulesName(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputMaliciousSourcesRulesFilter,
+) (data_ *GetMaliciousEmailDomainRulesNameResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousEmailDomainRulesName",
+		Query:  GetMaliciousEmailDomainRulesName_Operation,
+		Variables: &__GetMaliciousEmailDomainRulesNameInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousEmailDomainRulesNameResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
