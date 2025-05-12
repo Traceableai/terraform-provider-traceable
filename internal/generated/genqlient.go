@@ -9,6 +9,823 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+type AnomalyDetectionConfigType string
+
+const (
+	// MODSECURITY
+	AnomalyDetectionConfigTypeModsecurity AnomalyDetectionConfigType = "MODSECURITY"
+	// API_DEFINITION_METADATA
+	AnomalyDetectionConfigTypeApiDefinitionMetadata AnomalyDetectionConfigType = "API_DEFINITION_METADATA"
+	// API_STATE_BASED
+	AnomalyDetectionConfigTypeApiStateBased AnomalyDetectionConfigType = "API_STATE_BASED"
+	// CREDENTIAL_STUFFING
+	AnomalyDetectionConfigTypeCredentialStuffing AnomalyDetectionConfigType = "CREDENTIAL_STUFFING"
+	// ACCOUNT_TAKEOVER
+	AnomalyDetectionConfigTypeAccountTakeover AnomalyDetectionConfigType = "ACCOUNT_TAKEOVER"
+	// SESSION_DEFINITION_METADATA
+	AnomalyDetectionConfigTypeSessionDefinitionMetadata AnomalyDetectionConfigType = "SESSION_DEFINITION_METADATA"
+	// BLOCKING_METADATA
+	AnomalyDetectionConfigTypeBlockingMetadata AnomalyDetectionConfigType = "BLOCKING_METADATA"
+	// CUSTOM_RULES
+	AnomalyDetectionConfigTypeCustomRules AnomalyDetectionConfigType = "CUSTOM_RULES"
+	// VOLUMETRIC
+	AnomalyDetectionConfigTypeVolumetric AnomalyDetectionConfigType = "VOLUMETRIC"
+)
+
+var AllAnomalyDetectionConfigType = []AnomalyDetectionConfigType{
+	AnomalyDetectionConfigTypeModsecurity,
+	AnomalyDetectionConfigTypeApiDefinitionMetadata,
+	AnomalyDetectionConfigTypeApiStateBased,
+	AnomalyDetectionConfigTypeCredentialStuffing,
+	AnomalyDetectionConfigTypeAccountTakeover,
+	AnomalyDetectionConfigTypeSessionDefinitionMetadata,
+	AnomalyDetectionConfigTypeBlockingMetadata,
+	AnomalyDetectionConfigTypeCustomRules,
+	AnomalyDetectionConfigTypeVolumetric,
+}
+
+// AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSet includes the requested fields of the GraphQL type AnomalyDetectionRuleConfigsResultSet.
+type AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSet struct {
+	Results []*AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig `json:"results"`
+}
+
+// GetResults returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSet.Results, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSet) GetResults() []*AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig {
+	return v.Results
+}
+
+// AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig includes the requested fields of the GraphQL type AnomalyRuleConfig.
+type AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig struct {
+	AnomalyRuleConfigFields `json:"-"`
+}
+
+// GetConfigStatus returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.ConfigStatus, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetConfigStatus() AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus {
+	return v.AnomalyRuleConfigFields.ConfigStatus
+}
+
+// GetHidden returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.Hidden, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetHidden() bool {
+	return v.AnomalyRuleConfigFields.Hidden
+}
+
+// GetEventFamily returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.EventFamily, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetEventFamily() AnomalyEventFamily {
+	return v.AnomalyRuleConfigFields.EventFamily
+}
+
+// GetConfigType returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.ConfigType, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetConfigType() AnomalyDetectionConfigType {
+	return v.AnomalyRuleConfigFields.ConfigType
+}
+
+// GetRuleCategory returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.RuleCategory, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetRuleCategory() string {
+	return v.AnomalyRuleConfigFields.RuleCategory
+}
+
+// GetRuleId returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetRuleId() string {
+	return v.AnomalyRuleConfigFields.RuleId
+}
+
+// GetRuleName returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.RuleName, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetRuleName() string {
+	return v.AnomalyRuleConfigFields.RuleName
+}
+
+// GetEventLabels returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.EventLabels, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetEventLabels() []*AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel {
+	return v.AnomalyRuleConfigFields.EventLabels
+}
+
+// GetEventDetails returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.EventDetails, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetEventDetails() *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails {
+	return v.AnomalyRuleConfigFields.EventDetails
+}
+
+// GetSubRuleConfigs returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.SubRuleConfigs, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetSubRuleConfigs() []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig {
+	return v.AnomalyRuleConfigFields.SubRuleConfigs
+}
+
+// GetAnomalyRuleSeverity returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.AnomalyRuleSeverity, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetAnomalyRuleSeverity() *AnomalyRuleSeverity {
+	return v.AnomalyRuleConfigFields.AnomalyRuleSeverity
+}
+
+// GetOverriddenParentScopes returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.OverriddenParentScopes, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetOverriddenParentScopes() []*AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope {
+	return v.AnomalyRuleConfigFields.OverriddenParentScopes
+}
+
+// GetOverridingChildrenScopes returns AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig.OverridingChildrenScopes, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) GetOverridingChildrenScopes() []*AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope {
+	return v.AnomalyRuleConfigFields.OverridingChildrenScopes
+}
+
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AnomalyRuleConfigFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig struct {
+	ConfigStatus AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus `json:"configStatus"`
+
+	Hidden bool `json:"hidden"`
+
+	EventFamily AnomalyEventFamily `json:"eventFamily"`
+
+	ConfigType AnomalyDetectionConfigType `json:"configType"`
+
+	RuleCategory string `json:"ruleCategory"`
+
+	RuleId string `json:"ruleId"`
+
+	RuleName string `json:"ruleName"`
+
+	EventLabels []*AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel `json:"eventLabels"`
+
+	EventDetails *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails `json:"eventDetails"`
+
+	SubRuleConfigs []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig `json:"subRuleConfigs"`
+
+	AnomalyRuleSeverity *AnomalyRuleSeverity `json:"anomalyRuleSeverity"`
+
+	OverriddenParentScopes []*AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope `json:"overriddenParentScopes"`
+
+	OverridingChildrenScopes []*AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope `json:"overridingChildrenScopes"`
+}
+
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) __premarshalJSON() (*__premarshalAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig, error) {
+	var retval __premarshalAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig
+
+	retval.ConfigStatus = v.AnomalyRuleConfigFields.ConfigStatus
+	retval.Hidden = v.AnomalyRuleConfigFields.Hidden
+	retval.EventFamily = v.AnomalyRuleConfigFields.EventFamily
+	retval.ConfigType = v.AnomalyRuleConfigFields.ConfigType
+	retval.RuleCategory = v.AnomalyRuleConfigFields.RuleCategory
+	retval.RuleId = v.AnomalyRuleConfigFields.RuleId
+	retval.RuleName = v.AnomalyRuleConfigFields.RuleName
+	retval.EventLabels = v.AnomalyRuleConfigFields.EventLabels
+	retval.EventDetails = v.AnomalyRuleConfigFields.EventDetails
+	retval.SubRuleConfigs = v.AnomalyRuleConfigFields.SubRuleConfigs
+	retval.AnomalyRuleSeverity = v.AnomalyRuleConfigFields.AnomalyRuleSeverity
+	retval.OverriddenParentScopes = v.AnomalyRuleConfigFields.OverriddenParentScopes
+	retval.OverridingChildrenScopes = v.AnomalyRuleConfigFields.OverridingChildrenScopes
+	return &retval, nil
+}
+
+// AnomalyDetectionRuleConfigsResponse is returned by AnomalyDetectionRuleConfigs on success.
+type AnomalyDetectionRuleConfigsResponse struct {
+	AnomalyDetectionRuleConfigs AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSet `json:"anomalyDetectionRuleConfigs"`
+}
+
+// GetAnomalyDetectionRuleConfigs returns AnomalyDetectionRuleConfigsResponse.AnomalyDetectionRuleConfigs, and is useful for accessing the field via an interface.
+func (v *AnomalyDetectionRuleConfigsResponse) GetAnomalyDetectionRuleConfigs() AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSet {
+	return v.AnomalyDetectionRuleConfigs
+}
+
+type AnomalyEventFamily string
+
+const (
+	// UNKNOWN
+	AnomalyEventFamilyUnknown AnomalyEventFamily = "UNKNOWN"
+	// API_DEF
+	AnomalyEventFamilyApiDef AnomalyEventFamily = "API_DEF"
+	// MODSEC
+	AnomalyEventFamilyModsec AnomalyEventFamily = "MODSEC"
+	// SESSION
+	AnomalyEventFamilySession AnomalyEventFamily = "SESSION"
+	// CRED_STUFF
+	AnomalyEventFamilyCredStuff AnomalyEventFamily = "CRED_STUFF"
+	// VOLUMETRIC
+	AnomalyEventFamilyVolumetric AnomalyEventFamily = "VOLUMETRIC"
+	// RATE_LIMITING
+	AnomalyEventFamilyRateLimiting AnomalyEventFamily = "RATE_LIMITING"
+	// RATE_LIMIT
+	AnomalyEventFamilyRateLimit AnomalyEventFamily = "RATE_LIMIT"
+	// CUSTOM_SIGNATURE
+	AnomalyEventFamilyCustomSignature AnomalyEventFamily = "CUSTOM_SIGNATURE"
+	// MALICIOUS_SOURCES
+	AnomalyEventFamilyMaliciousSources AnomalyEventFamily = "MALICIOUS_SOURCES"
+)
+
+var AllAnomalyEventFamily = []AnomalyEventFamily{
+	AnomalyEventFamilyUnknown,
+	AnomalyEventFamilyApiDef,
+	AnomalyEventFamilyModsec,
+	AnomalyEventFamilySession,
+	AnomalyEventFamilyCredStuff,
+	AnomalyEventFamilyVolumetric,
+	AnomalyEventFamilyRateLimiting,
+	AnomalyEventFamilyRateLimit,
+	AnomalyEventFamilyCustomSignature,
+	AnomalyEventFamilyMaliciousSources,
+}
+
+type AnomalyParamInfoType string
+
+const (
+	// PARAM_NAME
+	AnomalyParamInfoTypeParamName AnomalyParamInfoType = "PARAM_NAME"
+	// PARAM_REGEX
+	AnomalyParamInfoTypeParamRegex AnomalyParamInfoType = "PARAM_REGEX"
+)
+
+var AllAnomalyParamInfoType = []AnomalyParamInfoType{
+	AnomalyParamInfoTypeParamName,
+	AnomalyParamInfoTypeParamRegex,
+}
+
+type AnomalyProtectionType string
+
+const (
+	// Recommended for Blocking
+	AnomalyProtectionTypeRecommended AnomalyProtectionType = "RECOMMENDED"
+	// Cautious while Blocking
+	AnomalyProtectionTypeCautious AnomalyProtectionType = "CAUTIOUS"
+	// Aggressive Alerting
+	AnomalyProtectionTypeAggressive AnomalyProtectionType = "AGGRESSIVE"
+	// Standard Protection Type
+	AnomalyProtectionTypeStandard AnomalyProtectionType = "STANDARD"
+	// Api Protection Type
+	AnomalyProtectionTypeApiProtection AnomalyProtectionType = "API_PROTECTION"
+	// Anomaly
+	AnomalyProtectionTypeAnomaly AnomalyProtectionType = "ANOMALY"
+)
+
+var AllAnomalyProtectionType = []AnomalyProtectionType{
+	AnomalyProtectionTypeRecommended,
+	AnomalyProtectionTypeCautious,
+	AnomalyProtectionTypeAggressive,
+	AnomalyProtectionTypeStandard,
+	AnomalyProtectionTypeApiProtection,
+	AnomalyProtectionTypeAnomaly,
+}
+
+// AnomalyRuleConfigFields includes the GraphQL fields of AnomalyRuleConfig requested by the fragment AnomalyRuleConfigFields.
+type AnomalyRuleConfigFields struct {
+	// Config status of the anomaly sub rule
+	ConfigStatus AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus `json:"configStatus"`
+	// Boolean for whether the anomaly rule is hidden from customers
+	Hidden bool `json:"hidden"`
+	// Associated event family like MODSEC, API_DEF, etc for the anomaly rule
+	EventFamily AnomalyEventFamily `json:"eventFamily"`
+	// Anomaly Detection Config type like MODSEC, API_DEF, API_STATE_BASED, etc
+	ConfigType AnomalyDetectionConfigType `json:"configType"`
+	// Anomaly Rule category
+	RuleCategory string `json:"ruleCategory"`
+	// Anomaly Rule ID
+	RuleId string `json:"ruleId"`
+	// Anomaly Rule name
+	RuleName string `json:"ruleName"`
+	// Associated Event Labels for the anomaly sub rule
+	EventLabels []*AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel `json:"eventLabels"`
+	// Associated Event Details like description, mitigation, etc for the anomaly sub rule
+	EventDetails *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails `json:"eventDetails"`
+	// Anomaly Sub Rule Configs
+	SubRuleConfigs []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig `json:"subRuleConfigs"`
+	// Severity of the anomaly sub rule config
+	AnomalyRuleSeverity *AnomalyRuleSeverity `json:"anomalyRuleSeverity"`
+	// List of scopes whose config is overriding this scope config
+	OverriddenParentScopes []*AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope `json:"overriddenParentScopes"`
+	// List of scopes whose config is getting overridden by this scope config
+	OverridingChildrenScopes []*AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope `json:"overridingChildrenScopes"`
+}
+
+// GetConfigStatus returns AnomalyRuleConfigFields.ConfigStatus, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetConfigStatus() AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus {
+	return v.ConfigStatus
+}
+
+// GetHidden returns AnomalyRuleConfigFields.Hidden, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetHidden() bool { return v.Hidden }
+
+// GetEventFamily returns AnomalyRuleConfigFields.EventFamily, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetEventFamily() AnomalyEventFamily { return v.EventFamily }
+
+// GetConfigType returns AnomalyRuleConfigFields.ConfigType, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetConfigType() AnomalyDetectionConfigType { return v.ConfigType }
+
+// GetRuleCategory returns AnomalyRuleConfigFields.RuleCategory, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetRuleCategory() string { return v.RuleCategory }
+
+// GetRuleId returns AnomalyRuleConfigFields.RuleId, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetRuleId() string { return v.RuleId }
+
+// GetRuleName returns AnomalyRuleConfigFields.RuleName, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetRuleName() string { return v.RuleName }
+
+// GetEventLabels returns AnomalyRuleConfigFields.EventLabels, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetEventLabels() []*AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel {
+	return v.EventLabels
+}
+
+// GetEventDetails returns AnomalyRuleConfigFields.EventDetails, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetEventDetails() *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails {
+	return v.EventDetails
+}
+
+// GetSubRuleConfigs returns AnomalyRuleConfigFields.SubRuleConfigs, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetSubRuleConfigs() []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig {
+	return v.SubRuleConfigs
+}
+
+// GetAnomalyRuleSeverity returns AnomalyRuleConfigFields.AnomalyRuleSeverity, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetAnomalyRuleSeverity() *AnomalyRuleSeverity {
+	return v.AnomalyRuleSeverity
+}
+
+// GetOverriddenParentScopes returns AnomalyRuleConfigFields.OverriddenParentScopes, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetOverriddenParentScopes() []*AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope {
+	return v.OverriddenParentScopes
+}
+
+// GetOverridingChildrenScopes returns AnomalyRuleConfigFields.OverridingChildrenScopes, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFields) GetOverridingChildrenScopes() []*AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope {
+	return v.OverridingChildrenScopes
+}
+
+// AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus includes the requested fields of the GraphQL type AnomalyConfigStatus.
+type AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus struct {
+	Disabled bool `json:"disabled"`
+	Internal bool `json:"internal"`
+}
+
+// GetDisabled returns AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus.Disabled, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus) GetDisabled() bool {
+	return v.Disabled
+}
+
+// GetInternal returns AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus.Internal, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsConfigStatusAnomalyConfigStatus) GetInternal() bool {
+	return v.Internal
+}
+
+// AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails includes the requested fields of the GraphQL type AnomalyRuleEventDetails.
+type AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails struct {
+	// Event Description
+	Description string `json:"description"`
+	// Event Impact
+	Impact string `json:"impact"`
+	// Event Mitigation
+	Mitigation string `json:"mitigation"`
+	// Event References
+	References string `json:"references"`
+}
+
+// GetDescription returns AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails.Description, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails) GetDescription() string {
+	return v.Description
+}
+
+// GetImpact returns AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails.Impact, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails) GetImpact() string {
+	return v.Impact
+}
+
+// GetMitigation returns AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails.Mitigation, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails) GetMitigation() string {
+	return v.Mitigation
+}
+
+// GetReferences returns AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails.References, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsEventDetailsAnomalyRuleEventDetails) GetReferences() string {
+	return v.References
+}
+
+// AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel includes the requested fields of the GraphQL type AnomalyRuleEventLabel.
+type AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel struct {
+	LabelKey   string `json:"labelKey"`
+	LabelValue string `json:"labelValue"`
+}
+
+// GetLabelKey returns AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel.LabelKey, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel) GetLabelKey() string {
+	return v.LabelKey
+}
+
+// GetLabelValue returns AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel.LabelValue, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsEventLabelsAnomalyRuleEventLabel) GetLabelValue() string {
+	return v.LabelValue
+}
+
+// AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope includes the requested fields of the GraphQL type AnomalyScope.
+// The GraphQL type's documentation follows.
+//
+// Scope for anomaly configs
+type AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope struct {
+	// Scope Type
+	ScopeType AnomalyScopeType `json:"scopeType"`
+	// Environment Scope populated when scopeType = AnomalyScopeType.ENVIRONMENT
+	EnvironmentScope *AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope `json:"environmentScope"`
+}
+
+// GetScopeType returns AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope.ScopeType, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope) GetScopeType() AnomalyScopeType {
+	return v.ScopeType
+}
+
+// GetEnvironmentScope returns AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScope) GetEnvironmentScope() *AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope includes the requested fields of the GraphQL type AnomalyEnvironmentScope.
+// The GraphQL type's documentation follows.
+//
+// Environment scope for anomaly configs
+type AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope struct {
+	// Environment Identifier
+	Id string `json:"id"`
+}
+
+// GetId returns AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope.Id, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope) GetId() string {
+	return v.Id
+}
+
+// AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope includes the requested fields of the GraphQL type AnomalyScope.
+// The GraphQL type's documentation follows.
+//
+// Scope for anomaly configs
+type AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope struct {
+	// Scope Type
+	ScopeType AnomalyScopeType `json:"scopeType"`
+	// Environment Scope populated when scopeType = AnomalyScopeType.ENVIRONMENT
+	EnvironmentScope *AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope `json:"environmentScope"`
+}
+
+// GetScopeType returns AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope.ScopeType, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope) GetScopeType() AnomalyScopeType {
+	return v.ScopeType
+}
+
+// GetEnvironmentScope returns AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScope) GetEnvironmentScope() *AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope includes the requested fields of the GraphQL type AnomalyEnvironmentScope.
+// The GraphQL type's documentation follows.
+//
+// Environment scope for anomaly configs
+type AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope struct {
+	// Environment Identifier
+	Id string `json:"id"`
+}
+
+// GetId returns AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope.Id, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope) GetId() string {
+	return v.Id
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig includes the requested fields of the GraphQL type AnomalySubRuleConfig.
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig struct {
+	// Boolean for whether blocking is enabled for the anomaly sub rule
+	BlockingEnabled bool `json:"blockingEnabled"`
+	// Config status of the anomaly sub rule
+	ConfigStatus AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus `json:"configStatus"`
+	// Anomaly Sub Rule ID
+	SubRuleId string `json:"subRuleId"`
+	// Anomaly Sub Rule name
+	SubRuleName string `json:"subRuleName"`
+	// Anomaly Sub Rule Types like BLOCKED, SAFE, etc
+	SubRuleTypes []*AnomalySubRuleType `json:"subRuleTypes"`
+	// Associated Event Labels for the anomaly sub rule
+	EventLabels []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel `json:"eventLabels"`
+	// Associated Event Details like description, mitigation, etc for the anomaly sub rule
+	EventDetails *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails `json:"eventDetails"`
+	// Anomaly protection type like aggressive, cautious, etc
+	AnomalyProtectionType AnomalyProtectionType `json:"anomalyProtectionType"`
+	// Severity of the anomaly sub rule config
+	AnomalyRuleSeverity *AnomalyRuleSeverity `json:"anomalyRuleSeverity"`
+	// Action for the anomaly sub rule
+	AnomalySubRuleAction AnomalySubRuleAction `json:"anomalySubRuleAction"`
+	// Boolean for whether the anomaly rule is hidden from customers
+	Hidden bool `json:"hidden"`
+	// List of scopes whose config is overriding this scope config
+	OverriddenParentScopes []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope `json:"overriddenParentScopes"`
+	// List of scopes whose config is getting overridden by this scope config
+	OverridingChildrenScopes []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope `json:"overridingChildrenScopes"`
+}
+
+// GetBlockingEnabled returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.BlockingEnabled, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetBlockingEnabled() bool {
+	return v.BlockingEnabled
+}
+
+// GetConfigStatus returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.ConfigStatus, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetConfigStatus() AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus {
+	return v.ConfigStatus
+}
+
+// GetSubRuleId returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.SubRuleId, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetSubRuleId() string {
+	return v.SubRuleId
+}
+
+// GetSubRuleName returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.SubRuleName, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetSubRuleName() string {
+	return v.SubRuleName
+}
+
+// GetSubRuleTypes returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.SubRuleTypes, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetSubRuleTypes() []*AnomalySubRuleType {
+	return v.SubRuleTypes
+}
+
+// GetEventLabels returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.EventLabels, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetEventLabels() []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel {
+	return v.EventLabels
+}
+
+// GetEventDetails returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.EventDetails, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetEventDetails() *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails {
+	return v.EventDetails
+}
+
+// GetAnomalyProtectionType returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.AnomalyProtectionType, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetAnomalyProtectionType() AnomalyProtectionType {
+	return v.AnomalyProtectionType
+}
+
+// GetAnomalyRuleSeverity returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.AnomalyRuleSeverity, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetAnomalyRuleSeverity() *AnomalyRuleSeverity {
+	return v.AnomalyRuleSeverity
+}
+
+// GetAnomalySubRuleAction returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.AnomalySubRuleAction, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetAnomalySubRuleAction() AnomalySubRuleAction {
+	return v.AnomalySubRuleAction
+}
+
+// GetHidden returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.Hidden, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetHidden() bool { return v.Hidden }
+
+// GetOverriddenParentScopes returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.OverriddenParentScopes, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetOverriddenParentScopes() []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope {
+	return v.OverriddenParentScopes
+}
+
+// GetOverridingChildrenScopes returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig.OverridingChildrenScopes, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) GetOverridingChildrenScopes() []*AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope {
+	return v.OverridingChildrenScopes
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus includes the requested fields of the GraphQL type AnomalyConfigStatus.
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus struct {
+	Disabled bool `json:"disabled"`
+	Internal bool `json:"internal"`
+}
+
+// GetDisabled returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus.Disabled, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus) GetDisabled() bool {
+	return v.Disabled
+}
+
+// GetInternal returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus.Internal, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigConfigStatusAnomalyConfigStatus) GetInternal() bool {
+	return v.Internal
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails includes the requested fields of the GraphQL type AnomalyRuleEventDetails.
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails struct {
+	// Event Description
+	Description string `json:"description"`
+	// Event Impact
+	Impact string `json:"impact"`
+	// Event Mitigation
+	Mitigation string `json:"mitigation"`
+	// Event References
+	References string `json:"references"`
+}
+
+// GetDescription returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails.Description, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails) GetDescription() string {
+	return v.Description
+}
+
+// GetImpact returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails.Impact, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails) GetImpact() string {
+	return v.Impact
+}
+
+// GetMitigation returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails.Mitigation, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails) GetMitigation() string {
+	return v.Mitigation
+}
+
+// GetReferences returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails.References, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventDetailsAnomalyRuleEventDetails) GetReferences() string {
+	return v.References
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel includes the requested fields of the GraphQL type AnomalyRuleEventLabel.
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel struct {
+	LabelKey   string `json:"labelKey"`
+	LabelValue string `json:"labelValue"`
+}
+
+// GetLabelKey returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel.LabelKey, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel) GetLabelKey() string {
+	return v.LabelKey
+}
+
+// GetLabelValue returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel.LabelValue, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigEventLabelsAnomalyRuleEventLabel) GetLabelValue() string {
+	return v.LabelValue
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope includes the requested fields of the GraphQL type AnomalyScope.
+// The GraphQL type's documentation follows.
+//
+// Scope for anomaly configs
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope struct {
+	// Scope Type
+	ScopeType AnomalyScopeType `json:"scopeType"`
+	// Environment Scope populated when scopeType = AnomalyScopeType.ENVIRONMENT
+	EnvironmentScope *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope `json:"environmentScope"`
+}
+
+// GetScopeType returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope.ScopeType, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope) GetScopeType() AnomalyScopeType {
+	return v.ScopeType
+}
+
+// GetEnvironmentScope returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScope) GetEnvironmentScope() *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope includes the requested fields of the GraphQL type AnomalyEnvironmentScope.
+// The GraphQL type's documentation follows.
+//
+// Environment scope for anomaly configs
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope struct {
+	// Environment Identifier
+	Id string `json:"id"`
+}
+
+// GetId returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope.Id, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverriddenParentScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope) GetId() string {
+	return v.Id
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope includes the requested fields of the GraphQL type AnomalyScope.
+// The GraphQL type's documentation follows.
+//
+// Scope for anomaly configs
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope struct {
+	// Scope Type
+	ScopeType AnomalyScopeType `json:"scopeType"`
+	// Environment Scope populated when scopeType = AnomalyScopeType.ENVIRONMENT
+	EnvironmentScope *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope `json:"environmentScope"`
+}
+
+// GetScopeType returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope.ScopeType, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope) GetScopeType() AnomalyScopeType {
+	return v.ScopeType
+}
+
+// GetEnvironmentScope returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScope) GetEnvironmentScope() *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope includes the requested fields of the GraphQL type AnomalyEnvironmentScope.
+// The GraphQL type's documentation follows.
+//
+// Environment scope for anomaly configs
+type AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope struct {
+	// Environment Identifier
+	Id string `json:"id"`
+}
+
+// GetId returns AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope.Id, and is useful for accessing the field via an interface.
+func (v *AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfigOverridingChildrenScopesAnomalyScopeEnvironmentScopeAnomalyEnvironmentScope) GetId() string {
+	return v.Id
+}
+
+type AnomalyRuleSeverity string
+
+const (
+	// LOW
+	AnomalyRuleSeverityLow AnomalyRuleSeverity = "LOW"
+	// MEDIUM
+	AnomalyRuleSeverityMedium AnomalyRuleSeverity = "MEDIUM"
+	// HIGH
+	AnomalyRuleSeverityHigh AnomalyRuleSeverity = "HIGH"
+	// CRITICAL
+	AnomalyRuleSeverityCritical AnomalyRuleSeverity = "CRITICAL"
+)
+
+var AllAnomalyRuleSeverity = []AnomalyRuleSeverity{
+	AnomalyRuleSeverityLow,
+	AnomalyRuleSeverityMedium,
+	AnomalyRuleSeverityHigh,
+	AnomalyRuleSeverityCritical,
+}
+
+// Scope type for anomaly configs
+type AnomalyScopeType string
+
+const (
+	// CUSTOMER
+	AnomalyScopeTypeCustomer AnomalyScopeType = "CUSTOMER"
+	// ENVIRONMENT
+	AnomalyScopeTypeEnvironment AnomalyScopeType = "ENVIRONMENT"
+	// SERVICE
+	AnomalyScopeTypeService AnomalyScopeType = "SERVICE"
+	// API
+	AnomalyScopeTypeApi AnomalyScopeType = "API"
+	// BACKEND
+	AnomalyScopeTypeBackend AnomalyScopeType = "BACKEND"
+	// BACKEND_API
+	AnomalyScopeTypeBackendApi AnomalyScopeType = "BACKEND_API"
+	// PARAM
+	AnomalyScopeTypeParam AnomalyScopeType = "PARAM"
+	// DEFAULT
+	AnomalyScopeTypeDefault AnomalyScopeType = "DEFAULT"
+)
+
+var AllAnomalyScopeType = []AnomalyScopeType{
+	AnomalyScopeTypeCustomer,
+	AnomalyScopeTypeEnvironment,
+	AnomalyScopeTypeService,
+	AnomalyScopeTypeApi,
+	AnomalyScopeTypeBackend,
+	AnomalyScopeTypeBackendApi,
+	AnomalyScopeTypeParam,
+	AnomalyScopeTypeDefault,
+}
+
+type AnomalySubRuleAction string
+
+const (
+	// IGNORE
+	AnomalySubRuleActionIgnore AnomalySubRuleAction = "IGNORE"
+	// DISABLE
+	AnomalySubRuleActionDisable AnomalySubRuleAction = "DISABLE"
+	// MONITOR
+	AnomalySubRuleActionMonitor AnomalySubRuleAction = "MONITOR"
+	// BLOCK
+	AnomalySubRuleActionBlock AnomalySubRuleAction = "BLOCK"
+)
+
+var AllAnomalySubRuleAction = []AnomalySubRuleAction{
+	AnomalySubRuleActionIgnore,
+	AnomalySubRuleActionDisable,
+	AnomalySubRuleActionMonitor,
+	AnomalySubRuleActionBlock,
+}
+
+type AnomalySubRuleType string
+
+const (
+	// REGULAR
+	AnomalySubRuleTypeRegular AnomalySubRuleType = "REGULAR"
+	// SAFE
+	AnomalySubRuleTypeSafe AnomalySubRuleType = "SAFE"
+	// BLOCK
+	AnomalySubRuleTypeBlock AnomalySubRuleType = "BLOCK"
+)
+
+var AllAnomalySubRuleType = []AnomalySubRuleType{
+	AnomalySubRuleTypeRegular,
+	AnomalySubRuleTypeSafe,
+	AnomalySubRuleTypeBlock,
+}
+
 type AttributeScope string
 
 const (
@@ -2979,6 +3796,236 @@ func (v *InputAggregatableOrder) GetSize() *int64 { return v.Size }
 // GetUnits returns InputAggregatableOrder.Units, and is useful for accessing the field via an interface.
 func (v *InputAggregatableOrder) GetUnits() *TimeUnit { return v.Units }
 
+// API Param scope for anomaly configs
+type InputAnomalyApiParamScope struct {
+	// API Scope
+	ApiScope *InputAnomalyApiScope `json:"apiScope"`
+	// Param Info
+	ParamInfo *InputAnomalyParamInfo `json:"paramInfo"`
+	// Parameter Name
+	ParamName *string `json:"paramName"`
+	// Param Info Scope
+	Scope *InputAnomalyParamInfoScope `json:"scope"`
+}
+
+// GetApiScope returns InputAnomalyApiParamScope.ApiScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyApiParamScope) GetApiScope() *InputAnomalyApiScope { return v.ApiScope }
+
+// GetParamInfo returns InputAnomalyApiParamScope.ParamInfo, and is useful for accessing the field via an interface.
+func (v *InputAnomalyApiParamScope) GetParamInfo() *InputAnomalyParamInfo { return v.ParamInfo }
+
+// GetParamName returns InputAnomalyApiParamScope.ParamName, and is useful for accessing the field via an interface.
+func (v *InputAnomalyApiParamScope) GetParamName() *string { return v.ParamName }
+
+// GetScope returns InputAnomalyApiParamScope.Scope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyApiParamScope) GetScope() *InputAnomalyParamInfoScope { return v.Scope }
+
+// API scope for anomaly configs
+type InputAnomalyApiScope struct {
+	// API Identifier
+	Id string `json:"id"`
+	// Service Scope
+	ServiceScope InputAnomalyServiceScope `json:"serviceScope"`
+}
+
+// GetId returns InputAnomalyApiScope.Id, and is useful for accessing the field via an interface.
+func (v *InputAnomalyApiScope) GetId() string { return v.Id }
+
+// GetServiceScope returns InputAnomalyApiScope.ServiceScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyApiScope) GetServiceScope() InputAnomalyServiceScope { return v.ServiceScope }
+
+// Backend API scope for anomaly configs
+type InputAnomalyBackendApiScope struct {
+	// Backend Scope
+	BackendScope InputAnomalyBackendScope `json:"backendScope"`
+	// Backend API Identifier
+	Id string `json:"id"`
+}
+
+// GetBackendScope returns InputAnomalyBackendApiScope.BackendScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyBackendApiScope) GetBackendScope() InputAnomalyBackendScope {
+	return v.BackendScope
+}
+
+// GetId returns InputAnomalyBackendApiScope.Id, and is useful for accessing the field via an interface.
+func (v *InputAnomalyBackendApiScope) GetId() string { return v.Id }
+
+// Backend scope for anomaly configs
+type InputAnomalyBackendScope struct {
+	// Environment Scope
+	EnvironmentScope *InputAnomalyEnvironmentScope `json:"environmentScope"`
+	// Backend Identifier
+	Id string `json:"id"`
+}
+
+// GetEnvironmentScope returns InputAnomalyBackendScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyBackendScope) GetEnvironmentScope() *InputAnomalyEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// GetId returns InputAnomalyBackendScope.Id, and is useful for accessing the field via an interface.
+func (v *InputAnomalyBackendScope) GetId() string { return v.Id }
+
+type InputAnomalyConfigStatusChange struct {
+	Disabled *bool `json:"disabled"`
+	Internal *bool `json:"internal"`
+}
+
+// GetDisabled returns InputAnomalyConfigStatusChange.Disabled, and is useful for accessing the field via an interface.
+func (v *InputAnomalyConfigStatusChange) GetDisabled() *bool { return v.Disabled }
+
+// GetInternal returns InputAnomalyConfigStatusChange.Internal, and is useful for accessing the field via an interface.
+func (v *InputAnomalyConfigStatusChange) GetInternal() *bool { return v.Internal }
+
+// Environment scope for anomaly configs
+type InputAnomalyEnvironmentScope struct {
+	// Environment Identifier
+	Id string `json:"id"`
+}
+
+// GetId returns InputAnomalyEnvironmentScope.Id, and is useful for accessing the field via an interface.
+func (v *InputAnomalyEnvironmentScope) GetId() string { return v.Id }
+
+type InputAnomalyParamInfo struct {
+	ParamInfoType AnomalyParamInfoType `json:"paramInfoType"`
+	ParamName     *string              `json:"paramName"`
+	ParamRegex    *string              `json:"paramRegex"`
+}
+
+// GetParamInfoType returns InputAnomalyParamInfo.ParamInfoType, and is useful for accessing the field via an interface.
+func (v *InputAnomalyParamInfo) GetParamInfoType() AnomalyParamInfoType { return v.ParamInfoType }
+
+// GetParamName returns InputAnomalyParamInfo.ParamName, and is useful for accessing the field via an interface.
+func (v *InputAnomalyParamInfo) GetParamName() *string { return v.ParamName }
+
+// GetParamRegex returns InputAnomalyParamInfo.ParamRegex, and is useful for accessing the field via an interface.
+func (v *InputAnomalyParamInfo) GetParamRegex() *string { return v.ParamRegex }
+
+type InputAnomalyParamInfoScope struct {
+	ApiScope     *InputAnomalyApiScope     `json:"apiScope"`
+	ScopeType    AnomalyScopeType          `json:"scopeType"`
+	ServiceScope *InputAnomalyServiceScope `json:"serviceScope"`
+}
+
+// GetApiScope returns InputAnomalyParamInfoScope.ApiScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyParamInfoScope) GetApiScope() *InputAnomalyApiScope { return v.ApiScope }
+
+// GetScopeType returns InputAnomalyParamInfoScope.ScopeType, and is useful for accessing the field via an interface.
+func (v *InputAnomalyParamInfoScope) GetScopeType() AnomalyScopeType { return v.ScopeType }
+
+// GetServiceScope returns InputAnomalyParamInfoScope.ServiceScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyParamInfoScope) GetServiceScope() *InputAnomalyServiceScope {
+	return v.ServiceScope
+}
+
+type InputAnomalyRuleConfigUpdate struct {
+	ConfigStatus   *InputAnomalyConfigStatusChange    `json:"configStatus"`
+	ConfigType     AnomalyDetectionConfigType         `json:"configType"`
+	RuleId         string                             `json:"ruleId"`
+	SubRuleConfigs []*InputAnomalySubRuleConfigUpdate `json:"subRuleConfigs"`
+}
+
+// GetConfigStatus returns InputAnomalyRuleConfigUpdate.ConfigStatus, and is useful for accessing the field via an interface.
+func (v *InputAnomalyRuleConfigUpdate) GetConfigStatus() *InputAnomalyConfigStatusChange {
+	return v.ConfigStatus
+}
+
+// GetConfigType returns InputAnomalyRuleConfigUpdate.ConfigType, and is useful for accessing the field via an interface.
+func (v *InputAnomalyRuleConfigUpdate) GetConfigType() AnomalyDetectionConfigType {
+	return v.ConfigType
+}
+
+// GetRuleId returns InputAnomalyRuleConfigUpdate.RuleId, and is useful for accessing the field via an interface.
+func (v *InputAnomalyRuleConfigUpdate) GetRuleId() string { return v.RuleId }
+
+// GetSubRuleConfigs returns InputAnomalyRuleConfigUpdate.SubRuleConfigs, and is useful for accessing the field via an interface.
+func (v *InputAnomalyRuleConfigUpdate) GetSubRuleConfigs() []*InputAnomalySubRuleConfigUpdate {
+	return v.SubRuleConfigs
+}
+
+// Scope for anomaly configs
+type InputAnomalyScope struct {
+	// API Param Scope populated when scopeType = AnomalyScopeType.API_PARAM
+	ApiParamScope *InputAnomalyApiParamScope `json:"apiParamScope"`
+	// API Scope populated when scopeType = AnomalyScopeType.API
+	ApiScope *InputAnomalyApiScope `json:"apiScope"`
+	// Backend API Scope populated when scopeType = AnomalyScopeType.BACKEND_API
+	BackendApiScope *InputAnomalyBackendApiScope `json:"backendApiScope"`
+	// Backend Scope populated when scopeType = AnomalyScopeType.BACKEND
+	BackendScope *InputAnomalyBackendScope `json:"backendScope"`
+	// Environment Scope populated when scopeType = AnomalyScopeType.ENVIRONMENT
+	EnvironmentScope *InputAnomalyEnvironmentScope `json:"environmentScope"`
+	// Scope Type
+	ScopeType AnomalyScopeType `json:"scopeType"`
+	// Service Scope populated when scopeType = AnomalyScopeType.SERVICE
+	ServiceScope *InputAnomalyServiceScope `json:"serviceScope"`
+}
+
+// GetApiParamScope returns InputAnomalyScope.ApiParamScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyScope) GetApiParamScope() *InputAnomalyApiParamScope { return v.ApiParamScope }
+
+// GetApiScope returns InputAnomalyScope.ApiScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyScope) GetApiScope() *InputAnomalyApiScope { return v.ApiScope }
+
+// GetBackendApiScope returns InputAnomalyScope.BackendApiScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyScope) GetBackendApiScope() *InputAnomalyBackendApiScope {
+	return v.BackendApiScope
+}
+
+// GetBackendScope returns InputAnomalyScope.BackendScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyScope) GetBackendScope() *InputAnomalyBackendScope { return v.BackendScope }
+
+// GetEnvironmentScope returns InputAnomalyScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyScope) GetEnvironmentScope() *InputAnomalyEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// GetScopeType returns InputAnomalyScope.ScopeType, and is useful for accessing the field via an interface.
+func (v *InputAnomalyScope) GetScopeType() AnomalyScopeType { return v.ScopeType }
+
+// GetServiceScope returns InputAnomalyScope.ServiceScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyScope) GetServiceScope() *InputAnomalyServiceScope { return v.ServiceScope }
+
+// Service scope for anomaly configs
+type InputAnomalyServiceScope struct {
+	// Environment Scope
+	EnvironmentScope *InputAnomalyEnvironmentScope `json:"environmentScope"`
+	// Service Identifier
+	Id string `json:"id"`
+}
+
+// GetEnvironmentScope returns InputAnomalyServiceScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyServiceScope) GetEnvironmentScope() *InputAnomalyEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// GetId returns InputAnomalyServiceScope.Id, and is useful for accessing the field via an interface.
+func (v *InputAnomalyServiceScope) GetId() string { return v.Id }
+
+type InputAnomalySubRuleConfigUpdate struct {
+	// Action for the anomaly sub rule
+	AnomalySubRuleAction *AnomalySubRuleAction           `json:"anomalySubRuleAction"`
+	BlockingEnabled      *bool                           `json:"blockingEnabled"`
+	ConfigStatus         *InputAnomalyConfigStatusChange `json:"configStatus"`
+	SubRuleId            string                          `json:"subRuleId"`
+}
+
+// GetAnomalySubRuleAction returns InputAnomalySubRuleConfigUpdate.AnomalySubRuleAction, and is useful for accessing the field via an interface.
+func (v *InputAnomalySubRuleConfigUpdate) GetAnomalySubRuleAction() *AnomalySubRuleAction {
+	return v.AnomalySubRuleAction
+}
+
+// GetBlockingEnabled returns InputAnomalySubRuleConfigUpdate.BlockingEnabled, and is useful for accessing the field via an interface.
+func (v *InputAnomalySubRuleConfigUpdate) GetBlockingEnabled() *bool { return v.BlockingEnabled }
+
+// GetConfigStatus returns InputAnomalySubRuleConfigUpdate.ConfigStatus, and is useful for accessing the field via an interface.
+func (v *InputAnomalySubRuleConfigUpdate) GetConfigStatus() *InputAnomalyConfigStatusChange {
+	return v.ConfigStatus
+}
+
+// GetSubRuleId returns InputAnomalySubRuleConfigUpdate.SubRuleId, and is useful for accessing the field via an interface.
+func (v *InputAnomalySubRuleConfigUpdate) GetSubRuleId() string { return v.SubRuleId }
+
 type InputAttributeExpression struct {
 	Key     string  `json:"key"`
 	Subpath *string `json:"subpath"`
@@ -5841,6 +6888,21 @@ type InputRuleConfigScope struct {
 // GetEnvironmentScope returns InputRuleConfigScope.EnvironmentScope, and is useful for accessing the field via an interface.
 func (v *InputRuleConfigScope) GetEnvironmentScope() *InputEnvironmentScope {
 	return v.EnvironmentScope
+}
+
+type InputScopedAnomalyRuleConfigUpdate struct {
+	AnomalyScope InputAnomalyScope            `json:"anomalyScope"`
+	RuleConfig   InputAnomalyRuleConfigUpdate `json:"ruleConfig"`
+}
+
+// GetAnomalyScope returns InputScopedAnomalyRuleConfigUpdate.AnomalyScope, and is useful for accessing the field via an interface.
+func (v *InputScopedAnomalyRuleConfigUpdate) GetAnomalyScope() InputAnomalyScope {
+	return v.AnomalyScope
+}
+
+// GetRuleConfig returns InputScopedAnomalyRuleConfigUpdate.RuleConfig, and is useful for accessing the field via an interface.
+func (v *InputScopedAnomalyRuleConfigUpdate) GetRuleConfig() InputAnomalyRuleConfigUpdate {
+	return v.RuleConfig
 }
 
 type InputTimeRange struct {
@@ -9192,6 +10254,26 @@ func (v *TransactionActionConfigFieldsActionRateLimitingRuleActionBlockRateLimit
 	return v.EventSeverity
 }
 
+// UpdateAnomalyRuleConfigResponse is returned by UpdateAnomalyRuleConfig on success.
+type UpdateAnomalyRuleConfigResponse struct {
+	UpdateAnomalyRuleConfig UpdateAnomalyRuleConfigUpdateAnomalyRuleConfigAnomalyRuleConfigUpdate `json:"updateAnomalyRuleConfig"`
+}
+
+// GetUpdateAnomalyRuleConfig returns UpdateAnomalyRuleConfigResponse.UpdateAnomalyRuleConfig, and is useful for accessing the field via an interface.
+func (v *UpdateAnomalyRuleConfigResponse) GetUpdateAnomalyRuleConfig() UpdateAnomalyRuleConfigUpdateAnomalyRuleConfigAnomalyRuleConfigUpdate {
+	return v.UpdateAnomalyRuleConfig
+}
+
+// UpdateAnomalyRuleConfigUpdateAnomalyRuleConfigAnomalyRuleConfigUpdate includes the requested fields of the GraphQL type AnomalyRuleConfigUpdate.
+type UpdateAnomalyRuleConfigUpdateAnomalyRuleConfigAnomalyRuleConfigUpdate struct {
+	RuleId string `json:"ruleId"`
+}
+
+// GetRuleId returns UpdateAnomalyRuleConfigUpdateAnomalyRuleConfigAnomalyRuleConfigUpdate.RuleId, and is useful for accessing the field via an interface.
+func (v *UpdateAnomalyRuleConfigUpdateAnomalyRuleConfigAnomalyRuleConfigUpdate) GetRuleId() string {
+	return v.RuleId
+}
+
 // UpdateCustomSignatureResponse is returned by UpdateCustomSignature on success.
 type UpdateCustomSignatureResponse struct {
 	UpdateCustomSignatureRule UpdateCustomSignatureUpdateCustomSignatureRule `json:"updateCustomSignatureRule"`
@@ -9862,6 +10944,14 @@ var AllValueBasedThresholdConfigType = []ValueBasedThresholdConfigType{
 	ValueBasedThresholdConfigTypePathParams,
 }
 
+// __AnomalyDetectionRuleConfigsInput is used internally by genqlient
+type __AnomalyDetectionRuleConfigsInput struct {
+	Input InputAnomalyScope `json:"input"`
+}
+
+// GetInput returns __AnomalyDetectionRuleConfigsInput.Input, and is useful for accessing the field via an interface.
+func (v *__AnomalyDetectionRuleConfigsInput) GetInput() InputAnomalyScope { return v.Input }
+
 // __CreateCustomSignatureInput is used internally by genqlient
 type __CreateCustomSignatureInput struct {
 	Input InputCustomSignatureRuleDescriptor `json:"input"`
@@ -10096,6 +11186,16 @@ func (v *__GetRateLimitingRulesNameInput) GetRateLimitingRulesFilter() *InputRat
 	return v.RateLimitingRulesFilter
 }
 
+// __UpdateAnomalyRuleConfigInput is used internally by genqlient
+type __UpdateAnomalyRuleConfigInput struct {
+	Input InputScopedAnomalyRuleConfigUpdate `json:"input"`
+}
+
+// GetInput returns __UpdateAnomalyRuleConfigInput.Input, and is useful for accessing the field via an interface.
+func (v *__UpdateAnomalyRuleConfigInput) GetInput() InputScopedAnomalyRuleConfigUpdate {
+	return v.Input
+}
+
 // __UpdateCustomSignatureInput is used internally by genqlient
 type __UpdateCustomSignatureInput struct {
 	Input InputCustomSignatureRuleUpdate `json:"input"`
@@ -10143,6 +11243,113 @@ type __UpdateRateLimitingRuleInput struct {
 
 // GetInput returns __UpdateRateLimitingRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__UpdateRateLimitingRuleInput) GetInput() InputRateLimitingRule { return v.Input }
+
+// The query executed by AnomalyDetectionRuleConfigs.
+const AnomalyDetectionRuleConfigs_Operation = `
+query AnomalyDetectionRuleConfigs ($input: InputAnomalyScope!) {
+	anomalyDetectionRuleConfigs(anomalyScope: $input) {
+		results {
+			... AnomalyRuleConfigFields
+		}
+	}
+}
+fragment AnomalyRuleConfigFields on AnomalyRuleConfig {
+	configStatus {
+		disabled
+		internal
+	}
+	hidden
+	eventFamily
+	configType
+	ruleCategory
+	ruleId
+	ruleName
+	eventLabels {
+		labelKey
+		labelValue
+	}
+	eventDetails {
+		description
+		impact
+		mitigation
+		references
+	}
+	subRuleConfigs {
+		blockingEnabled
+		configStatus {
+			disabled
+			internal
+		}
+		subRuleId
+		subRuleName
+		subRuleTypes
+		eventLabels {
+			labelKey
+			labelValue
+		}
+		eventDetails {
+			description
+			impact
+			mitigation
+			references
+		}
+		anomalyProtectionType
+		anomalyRuleSeverity
+		anomalySubRuleAction
+		hidden
+		overriddenParentScopes {
+			scopeType
+			environmentScope {
+				id
+			}
+		}
+		overridingChildrenScopes {
+			scopeType
+			environmentScope {
+				id
+			}
+		}
+	}
+	anomalyRuleSeverity
+	overriddenParentScopes {
+		scopeType
+		environmentScope {
+			id
+		}
+	}
+	overridingChildrenScopes {
+		scopeType
+		environmentScope {
+			id
+		}
+	}
+}
+`
+
+func AnomalyDetectionRuleConfigs(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputAnomalyScope,
+) (data_ *AnomalyDetectionRuleConfigsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "AnomalyDetectionRuleConfigs",
+		Query:  AnomalyDetectionRuleConfigs_Operation,
+		Variables: &__AnomalyDetectionRuleConfigsInput{
+			Input: input,
+		},
+	}
+
+	data_ = &AnomalyDetectionRuleConfigsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
 
 // The mutation executed by CreateCustomSignature.
 const CreateCustomSignature_Operation = `
@@ -11918,6 +13125,40 @@ func GetRateLimitingRulesName(
 	}
 
 	data_ = &GetRateLimitingRulesNameResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateAnomalyRuleConfig.
+const UpdateAnomalyRuleConfig_Operation = `
+mutation UpdateAnomalyRuleConfig ($input: InputScopedAnomalyRuleConfigUpdate!) {
+	updateAnomalyRuleConfig(update: $input) {
+		ruleId
+	}
+}
+`
+
+func UpdateAnomalyRuleConfig(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputScopedAnomalyRuleConfigUpdate,
+) (data_ *UpdateAnomalyRuleConfigResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateAnomalyRuleConfig",
+		Query:  UpdateAnomalyRuleConfig_Operation,
+		Variables: &__UpdateAnomalyRuleConfigInput{
+			Input: input,
+		},
+	}
+
+	data_ = &UpdateAnomalyRuleConfigResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

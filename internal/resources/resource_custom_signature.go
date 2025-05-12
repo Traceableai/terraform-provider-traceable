@@ -341,7 +341,7 @@ func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.
 		disabled := data.Disabled.ValueBool()
 		input.Disabled = &disabled
 	}
-	internal:=false
+	internal := false
 	input.Internal = &internal
 	scope, err := convertToCustomSignatureRuleConfigScope(data.Environments)
 	if err != nil {
@@ -405,7 +405,7 @@ func convertCustomSignatureModelToCreateInput(ctx context.Context, data *models.
 		disabled := data.Disabled.ValueBool()
 		input.Disabled = &disabled
 	}
-	internal:=false
+	internal := false
 	input.Internal = &internal
 	scope, err := convertToCustomSignatureRuleConfigScope(data.Environments)
 	if err != nil {
