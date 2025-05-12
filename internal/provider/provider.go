@@ -40,7 +40,7 @@ func (p *traceableProvider) Schema(ctx context.Context, req provider.SchemaReque
 	fmt.Println("schema intializattion")
 	resp.Schema = schema.Schema{
 		MarkdownDescription: `
-The  provider allows you to interact with Traceable Platform, managing resources on it. 
+The  provider allows you to interact with Traceable Platform, managing resources on it.
 It supports creating and
 
 Refer to the official [Traceable Documentation](https://traceable.ai) for more details.
@@ -125,6 +125,7 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 		resources.NewEnumerationResource,
 		resources.NewDataLossPreventionUserBasedResource,
 		resources.NewWaapConfigResource,
+		resources.NewMaliciousEmailDomainResource,
 	}
 }
 

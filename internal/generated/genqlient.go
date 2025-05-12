@@ -1043,6 +1043,98 @@ type CreateDataSetResponse struct {
 // GetCreateDataSet returns CreateDataSetResponse.CreateDataSet, and is useful for accessing the field via an interface.
 func (v *CreateDataSetResponse) GetCreateDataSet() CreateDataSetCreateDataSet { return v.CreateDataSet }
 
+// CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule struct {
+	MaliciousEmailDomainRuleFields `json:"-"`
+}
+
+// GetId returns CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule) GetId() string {
+	return v.MaliciousEmailDomainRuleFields.Id
+}
+
+// GetInfo returns CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule) GetInfo() MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.MaliciousEmailDomainRuleFields.Info
+}
+
+// GetScope returns CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule.Scope, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule) GetScope() *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.MaliciousEmailDomainRuleFields.Scope
+}
+
+// GetStatus returns CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule.Status, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule) GetStatus() MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.MaliciousEmailDomainRuleFields.Status
+}
+
+func (v *CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousEmailDomainRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule struct {
+	Id string `json:"id"`
+
+	Info MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+
+	Scope *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+
+	Status MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+func (v *CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule) __premarshalJSON() (*__premarshalCreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule, error) {
+	var retval __premarshalCreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule
+
+	retval.Id = v.MaliciousEmailDomainRuleFields.Id
+	retval.Info = v.MaliciousEmailDomainRuleFields.Info
+	retval.Scope = v.MaliciousEmailDomainRuleFields.Scope
+	retval.Status = v.MaliciousEmailDomainRuleFields.Status
+	return &retval, nil
+}
+
+// CreateMaliciousEmailDomainRuleResponse is returned by CreateMaliciousEmailDomainRule on success.
+type CreateMaliciousEmailDomainRuleResponse struct {
+	// Mutation API to create Malicious Sources rule
+	CreateMaliciousSourcesRule CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule `json:"createMaliciousSourcesRule"`
+}
+
+// GetCreateMaliciousSourcesRule returns CreateMaliciousEmailDomainRuleResponse.CreateMaliciousSourcesRule, and is useful for accessing the field via an interface.
+func (v *CreateMaliciousEmailDomainRuleResponse) GetCreateMaliciousSourcesRule() CreateMaliciousEmailDomainRuleCreateMaliciousSourcesRule {
+	return v.CreateMaliciousSourcesRule
+}
+
 // CreateMaliciousIpRangeRuleCreateIpRangeRule includes the requested fields of the GraphQL type IpRangeRule.
 type CreateMaliciousIpRangeRuleCreateIpRangeRule struct {
 	MaliciousIpRangeFields `json:"-"`
@@ -2412,6 +2504,31 @@ type DeleteDataSetResponse struct {
 // GetDeleteDataSet returns DeleteDataSetResponse.DeleteDataSet, and is useful for accessing the field via an interface.
 func (v *DeleteDataSetResponse) GetDeleteDataSet() bool { return v.DeleteDataSet }
 
+// DeleteMaliciousEmailDomainRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse includes the requested fields of the GraphQL type DeleteMaliciousSourcesRuleResponse.
+// The GraphQL type's documentation follows.
+//
+// Delete response denoting success
+type DeleteMaliciousEmailDomainRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse struct {
+	// Flag to check the success of a delete request
+	Success bool `json:"success"`
+}
+
+// GetSuccess returns DeleteMaliciousEmailDomainRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse.Success, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousEmailDomainRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse) GetSuccess() bool {
+	return v.Success
+}
+
+// DeleteMaliciousEmailDomainRuleResponse is returned by DeleteMaliciousEmailDomainRule on success.
+type DeleteMaliciousEmailDomainRuleResponse struct {
+	// Mutation API to delete Malicious Sources rule
+	DeleteMaliciousSourcesRule DeleteMaliciousEmailDomainRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse `json:"deleteMaliciousSourcesRule"`
+}
+
+// GetDeleteMaliciousSourcesRule returns DeleteMaliciousEmailDomainRuleResponse.DeleteMaliciousSourcesRule, and is useful for accessing the field via an interface.
+func (v *DeleteMaliciousEmailDomainRuleResponse) GetDeleteMaliciousSourcesRule() DeleteMaliciousEmailDomainRuleDeleteMaliciousSourcesRuleDeleteMaliciousSourcesRuleResponse {
+	return v.DeleteMaliciousSourcesRule
+}
+
 // DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse includes the requested fields of the GraphQL type DeleteIpRangeRuleResponse.
 type DeleteMaliciousIpRangeRuleDeleteIpRangeRuleDeleteIpRangeRuleResponse struct {
 	Success bool `json:"success"`
@@ -2968,6 +3085,196 @@ type GetEntitiesIdsResponse struct {
 // GetEntities returns GetEntitiesIdsResponse.Entities, and is useful for accessing the field via an interface.
 func (v *GetEntitiesIdsResponse) GetEntities() GetEntitiesIdsEntitiesEntityResultSet {
 	return v.Entities
+}
+
+// GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet includes the requested fields of the GraphQL type MaliciousSourcesRuleResultSet.
+// The GraphQL type's documentation follows.
+//
+// Malicious sources rules results
+type GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet struct {
+	Count *int64 `json:"count"`
+	Total *int64 `json:"total"`
+	// List of Malicious Sources rules
+	Results []*GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetCount() *int64 {
+	return v.Count
+}
+
+// GetTotal returns GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetTotal() *int64 {
+	return v.Total
+}
+
+// GetResults returns GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetResults() []*GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule {
+	return v.Results
+}
+
+// GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule struct {
+	MaliciousEmailDomainRuleFields `json:"-"`
+}
+
+// GetId returns GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetId() string {
+	return v.MaliciousEmailDomainRuleFields.Id
+}
+
+// GetInfo returns GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetInfo() MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.MaliciousEmailDomainRuleFields.Info
+}
+
+// GetScope returns GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Scope, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetScope() *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.MaliciousEmailDomainRuleFields.Scope
+}
+
+// GetStatus returns GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Status, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetStatus() MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.MaliciousEmailDomainRuleFields.Status
+}
+
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousEmailDomainRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalGetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule struct {
+	Id string `json:"id"`
+
+	Info MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+
+	Scope *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+
+	Status MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) __premarshalJSON() (*__premarshalGetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule, error) {
+	var retval __premarshalGetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule
+
+	retval.Id = v.MaliciousEmailDomainRuleFields.Id
+	retval.Info = v.MaliciousEmailDomainRuleFields.Info
+	retval.Scope = v.MaliciousEmailDomainRuleFields.Scope
+	retval.Status = v.MaliciousEmailDomainRuleFields.Status
+	return &retval, nil
+}
+
+// GetMaliciousEmailDomainRuleDetailsResponse is returned by GetMaliciousEmailDomainRuleDetails on success.
+type GetMaliciousEmailDomainRuleDetailsResponse struct {
+	// API to fetch malicious sources rules
+	MaliciousSourcesRules GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet `json:"maliciousSourcesRules"`
+}
+
+// GetMaliciousSourcesRules returns GetMaliciousEmailDomainRuleDetailsResponse.MaliciousSourcesRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRuleDetailsResponse) GetMaliciousSourcesRules() GetMaliciousEmailDomainRuleDetailsMaliciousSourcesRulesMaliciousSourcesRuleResultSet {
+	return v.MaliciousSourcesRules
+}
+
+// GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet includes the requested fields of the GraphQL type MaliciousSourcesRuleResultSet.
+// The GraphQL type's documentation follows.
+//
+// Malicious sources rules results
+type GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet struct {
+	Count *int64 `json:"count"`
+	Total *int64 `json:"total"`
+	// List of Malicious Sources rules
+	Results []*GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule `json:"results"`
+}
+
+// GetCount returns GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Count, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetCount() *int64 {
+	return v.Count
+}
+
+// GetTotal returns GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetTotal() *int64 {
+	return v.Total
+}
+
+// GetResults returns GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet) GetResults() []*GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule {
+	return v.Results
+}
+
+// GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule struct {
+	// Malicious Sources rule information
+	Info GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo `json:"info"`
+	// Rule ID
+	Id string `json:"id"`
+}
+
+// GetInfo returns GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetInfo() GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo {
+	return v.Info
+}
+
+// GetId returns GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRule) GetId() string {
+	return v.Id
+}
+
+// GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo includes the requested fields of the GraphQL type MaliciousSourcesRuleInfo.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule information
+type GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo struct {
+	// Rule name
+	Name string `json:"name"`
+}
+
+// GetName returns GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo.Name, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSetResultsMaliciousSourcesRuleInfo) GetName() string {
+	return v.Name
+}
+
+// GetMaliciousEmailDomainRulesNameResponse is returned by GetMaliciousEmailDomainRulesName on success.
+type GetMaliciousEmailDomainRulesNameResponse struct {
+	// API to fetch malicious sources rules
+	MaliciousSourcesRules GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet `json:"maliciousSourcesRules"`
+}
+
+// GetMaliciousSourcesRules returns GetMaliciousEmailDomainRulesNameResponse.MaliciousSourcesRules, and is useful for accessing the field via an interface.
+func (v *GetMaliciousEmailDomainRulesNameResponse) GetMaliciousSourcesRules() GetMaliciousEmailDomainRulesNameMaliciousSourcesRulesMaliciousSourcesRuleResultSet {
+	return v.MaliciousSourcesRules
 }
 
 // GetMaliciousIpRangeRuleDetailsIpRangeRulesIpRangeRuleResultSet includes the requested fields of the GraphQL type IpRangeRuleResultSet.
@@ -7716,6 +8023,247 @@ var AllLogicalOperator = []LogicalOperator{
 	LogicalOperatorOr,
 }
 
+// MaliciousEmailDomainRuleFields includes the GraphQL fields of MaliciousSourcesRule requested by the fragment MaliciousEmailDomainRuleFields.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type MaliciousEmailDomainRuleFields struct {
+	// Rule ID
+	Id string `json:"id"`
+	// Malicious Sources rule information
+	Info MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+	// Malicious Sources rule scope
+	Scope *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+	// Malicious Sources rule status
+	Status MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+// GetId returns MaliciousEmailDomainRuleFields.Id, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFields) GetId() string { return v.Id }
+
+// GetInfo returns MaliciousEmailDomainRuleFields.Info, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFields) GetInfo() MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.Info
+}
+
+// GetScope returns MaliciousEmailDomainRuleFields.Scope, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFields) GetScope() *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.Scope
+}
+
+// GetStatus returns MaliciousEmailDomainRuleFields.Status, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFields) GetStatus() MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.Status
+}
+
+// MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo includes the requested fields of the GraphQL type MaliciousSourcesRuleInfo.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule information
+type MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo struct {
+	// Rule name
+	Name string `json:"name"`
+	// Rule description
+	Description *string `json:"description"`
+	// Actions associated with the rule
+	Action MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction `json:"action"`
+	// Condition for the malicious sources rule to be applied
+	Conditions []*MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition `json:"conditions"`
+}
+
+// GetName returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo.Name, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo) GetName() string { return v.Name }
+
+// GetDescription returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo.Description, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo) GetDescription() *string {
+	return v.Description
+}
+
+// GetAction returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo.Action, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo) GetAction() MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction {
+	return v.Action
+}
+
+// GetConditions returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo.Conditions, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo) GetConditions() []*MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition {
+	return v.Conditions
+}
+
+// MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction includes the requested fields of the GraphQL type MaliciousSourcesRuleAction.
+// The GraphQL type's documentation follows.
+//
+// Actions associated with the rule
+type MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction struct {
+	// Severity of events generated by the rule
+	EventSeverity *MaliciousSourcesRuleEventSeverity `json:"eventSeverity"`
+	// Expiration details of the rule
+	ExpirationDetails *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails `json:"expirationDetails"`
+	// Rule Action
+	RuleActionType MaliciousSourcesRuleActionType `json:"ruleActionType"`
+}
+
+// GetEventSeverity returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction.EventSeverity, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction) GetEventSeverity() *MaliciousSourcesRuleEventSeverity {
+	return v.EventSeverity
+}
+
+// GetExpirationDetails returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction.ExpirationDetails, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction) GetExpirationDetails() *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails {
+	return v.ExpirationDetails
+}
+
+// GetRuleActionType returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction.RuleActionType, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleAction) GetRuleActionType() MaliciousSourcesRuleActionType {
+	return v.RuleActionType
+}
+
+// MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails includes the requested fields of the GraphQL type MaliciousSourcesRuleExpirationDetails.
+// The GraphQL type's documentation follows.
+//
+// Expiration details of the rule
+type MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails struct {
+	// Requested expiration duration for the rule
+	ExpirationDuration string `json:"expirationDuration"`
+}
+
+// GetExpirationDuration returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails.ExpirationDuration, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoActionMaliciousSourcesRuleActionExpirationDetailsMaliciousSourcesRuleExpirationDetails) GetExpirationDuration() string {
+	return v.ExpirationDuration
+}
+
+// MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition includes the requested fields of the GraphQL type MaliciousSourcesRuleCondition.
+// The GraphQL type's documentation follows.
+//
+// Condition for the malicious sources rule to be applied
+type MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition struct {
+	// Condition Type for a rule
+	ConditionType MaliciousSourcesRuleConditionType `json:"conditionType"`
+	// Email domain conditions for the rule to be applied
+	EmailDomainCondition *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition `json:"emailDomainCondition"`
+}
+
+// GetConditionType returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition.ConditionType, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition) GetConditionType() MaliciousSourcesRuleConditionType {
+	return v.ConditionType
+}
+
+// GetEmailDomainCondition returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition.EmailDomainCondition, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleCondition) GetEmailDomainCondition() *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition {
+	return v.EmailDomainCondition
+}
+
+// MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition includes the requested fields of the GraphQL type MaliciousSourcesRuleEmailDomainCondition.
+// The GraphQL type's documentation follows.
+//
+// Email domain conditions for the rule to be applied
+type MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition struct {
+	// boolean denoting whether the rule should apply to data leaked email
+	DataLeakedEmail *bool `json:"dataLeakedEmail"`
+	// boolean denoting whether the rule should apply to disposable email domains
+	DisposableEmailDomain *bool `json:"disposableEmailDomain"`
+	// list of email domain where rule should apply
+	EmailDomains []*string `json:"emailDomains"`
+	// email fraud score where rule should apply
+	EmailFraudScore *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore `json:"emailFraudScore"`
+	// list of email regexes where rule should apply
+	EmailRegexes []*string `json:"emailRegexes"`
+}
+
+// GetDataLeakedEmail returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition.DataLeakedEmail, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition) GetDataLeakedEmail() *bool {
+	return v.DataLeakedEmail
+}
+
+// GetDisposableEmailDomain returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition.DisposableEmailDomain, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition) GetDisposableEmailDomain() *bool {
+	return v.DisposableEmailDomain
+}
+
+// GetEmailDomains returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition.EmailDomains, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition) GetEmailDomains() []*string {
+	return v.EmailDomains
+}
+
+// GetEmailFraudScore returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition.EmailFraudScore, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition) GetEmailFraudScore() *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore {
+	return v.EmailFraudScore
+}
+
+// GetEmailRegexes returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition.EmailRegexes, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainCondition) GetEmailRegexes() []*string {
+	return v.EmailRegexes
+}
+
+// MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore includes the requested fields of the GraphQL type MaliciousSourcesRuleEmailFraudScore.
+// The GraphQL type's documentation follows.
+//
+// email fraud score where rule should apply
+type MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore struct {
+	// Minimum Email Fraud Score Level
+	MinEmailFraudScoreLevel *MaliciousSourcesRuleEmailFraudScoreLevel `json:"minEmailFraudScoreLevel"`
+	// Email Fraud Score type for a rule
+	EmailFraudScoreType MaliciousSourcesRuleEmailFraudScoreType `json:"emailFraudScoreType"`
+}
+
+// GetMinEmailFraudScoreLevel returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore.MinEmailFraudScoreLevel, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore) GetMinEmailFraudScoreLevel() *MaliciousSourcesRuleEmailFraudScoreLevel {
+	return v.MinEmailFraudScoreLevel
+}
+
+// GetEmailFraudScoreType returns MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore.EmailFraudScoreType, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfoConditionsMaliciousSourcesRuleConditionEmailDomainConditionMaliciousSourcesRuleEmailDomainConditionEmailFraudScoreMaliciousSourcesRuleEmailFraudScore) GetEmailFraudScoreType() MaliciousSourcesRuleEmailFraudScoreType {
+	return v.EmailFraudScoreType
+}
+
+// MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope includes the requested fields of the GraphQL type MaliciousSourcesRuleScope.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule scope
+type MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope struct {
+	// Environment Scope on which the rule will apply
+	EnvironmentScope *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope `json:"environmentScope"`
+}
+
+// GetEnvironmentScope returns MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope.EnvironmentScope, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope) GetEnvironmentScope() *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope {
+	return v.EnvironmentScope
+}
+
+// MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope includes the requested fields of the GraphQL type MaliciousSourcesRuleEnvironmentScope.
+// The GraphQL type's documentation follows.
+//
+// Environment Scope on which the rule will apply
+type MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope struct {
+	// List of environments on which the rule should apply
+	EnvironmentIds []*string `json:"environmentIds"`
+}
+
+// GetEnvironmentIds returns MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope.EnvironmentIds, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScopeEnvironmentScopeMaliciousSourcesRuleEnvironmentScope) GetEnvironmentIds() []*string {
+	return v.EnvironmentIds
+}
+
+// MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus includes the requested fields of the GraphQL type MaliciousSourcesRuleStatus.
+// The GraphQL type's documentation follows.
+//
+// Malicious Sources rule status
+type MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus struct {
+	// Disables rule
+	Disabled bool `json:"disabled"`
+	// Sets rule as internal, visible only to traceable users. Consumed only if disabled is set to true
+	Internal *bool `json:"internal"`
+}
+
+// GetDisabled returns MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus.Disabled, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus) GetDisabled() bool {
+	return v.Disabled
+}
+
+// GetInternal returns MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus.Internal, and is useful for accessing the field via an interface.
+func (v *MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus) GetInternal() *bool {
+	return v.Internal
+}
+
 // MaliciousIpRangeFields includes the GraphQL fields of IpRangeRule requested by the fragment MaliciousIpRangeFields.
 type MaliciousIpRangeFields struct {
 	Id          *string                                             `json:"id"`
@@ -10447,6 +10995,98 @@ func (v *UpdateDataSetUpdateDataSet) GetDescription() *string { return v.Descrip
 // GetIconType returns UpdateDataSetUpdateDataSet.IconType, and is useful for accessing the field via an interface.
 func (v *UpdateDataSetUpdateDataSet) GetIconType() *string { return v.IconType }
 
+// UpdateMaliciousEmailDomainRuleResponse is returned by UpdateMaliciousEmailDomainRule on success.
+type UpdateMaliciousEmailDomainRuleResponse struct {
+	// Mutation API to update Malicious Sources rule
+	UpdateMaliciousSourcesRule UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule `json:"updateMaliciousSourcesRule"`
+}
+
+// GetUpdateMaliciousSourcesRule returns UpdateMaliciousEmailDomainRuleResponse.UpdateMaliciousSourcesRule, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousEmailDomainRuleResponse) GetUpdateMaliciousSourcesRule() UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule {
+	return v.UpdateMaliciousSourcesRule
+}
+
+// UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule includes the requested fields of the GraphQL type MaliciousSourcesRule.
+// The GraphQL type's documentation follows.
+//
+// Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
+type UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule struct {
+	MaliciousEmailDomainRuleFields `json:"-"`
+}
+
+// GetId returns UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule) GetId() string {
+	return v.MaliciousEmailDomainRuleFields.Id
+}
+
+// GetInfo returns UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule) GetInfo() MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo {
+	return v.MaliciousEmailDomainRuleFields.Info
+}
+
+// GetScope returns UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule.Scope, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule) GetScope() *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope {
+	return v.MaliciousEmailDomainRuleFields.Scope
+}
+
+// GetStatus returns UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule.Status, and is useful for accessing the field via an interface.
+func (v *UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule) GetStatus() MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus {
+	return v.MaliciousEmailDomainRuleFields.Status
+}
+
+func (v *UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.MaliciousEmailDomainRuleFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalUpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule struct {
+	Id string `json:"id"`
+
+	Info MaliciousEmailDomainRuleFieldsInfoMaliciousSourcesRuleInfo `json:"info"`
+
+	Scope *MaliciousEmailDomainRuleFieldsScopeMaliciousSourcesRuleScope `json:"scope"`
+
+	Status MaliciousEmailDomainRuleFieldsStatusMaliciousSourcesRuleStatus `json:"status"`
+}
+
+func (v *UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule) __premarshalJSON() (*__premarshalUpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule, error) {
+	var retval __premarshalUpdateMaliciousEmailDomainRuleUpdateMaliciousSourcesRule
+
+	retval.Id = v.MaliciousEmailDomainRuleFields.Id
+	retval.Info = v.MaliciousEmailDomainRuleFields.Info
+	retval.Scope = v.MaliciousEmailDomainRuleFields.Scope
+	retval.Status = v.MaliciousEmailDomainRuleFields.Status
+	return &retval, nil
+}
+
 // UpdateMaliciousIpRangeRuleResponse is returned by UpdateMaliciousIpRangeRule on success.
 type UpdateMaliciousIpRangeRuleResponse struct {
 	UpdateIpRangeRule UpdateMaliciousIpRangeRuleUpdateIpRangeRule `json:"updateIpRangeRule"`
@@ -10968,6 +11608,16 @@ type __CreateDataSetInput struct {
 // GetDataSetCreate returns __CreateDataSetInput.DataSetCreate, and is useful for accessing the field via an interface.
 func (v *__CreateDataSetInput) GetDataSetCreate() InputDataSetCreate { return v.DataSetCreate }
 
+// __CreateMaliciousEmailDomainRuleInput is used internally by genqlient
+type __CreateMaliciousEmailDomainRuleInput struct {
+	Input InputMaliciousSourcesRuleCreate `json:"input"`
+}
+
+// GetInput returns __CreateMaliciousEmailDomainRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__CreateMaliciousEmailDomainRuleInput) GetInput() InputMaliciousSourcesRuleCreate {
+	return v.Input
+}
+
 // __CreateMaliciousIpRangeRuleInput is used internally by genqlient
 type __CreateMaliciousIpRangeRuleInput struct {
 	Input InputIpRangeRuleCreate `json:"input"`
@@ -11015,6 +11665,16 @@ type __DeleteDataSetInput struct {
 
 // GetId returns __DeleteDataSetInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteDataSetInput) GetId() string { return v.Id }
+
+// __DeleteMaliciousEmailDomainRuleInput is used internally by genqlient
+type __DeleteMaliciousEmailDomainRuleInput struct {
+	Input InputMaliciousSourcesRuleDelete `json:"input"`
+}
+
+// GetInput returns __DeleteMaliciousEmailDomainRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__DeleteMaliciousEmailDomainRuleInput) GetInput() InputMaliciousSourcesRuleDelete {
+	return v.Input
+}
 
 // __DeleteMaliciousIpRangeRuleInput is used internally by genqlient
 type __DeleteMaliciousIpRangeRuleInput struct {
@@ -11103,6 +11763,26 @@ func (v *__GetEntitiesIdsInput) GetOffset() *int64 { return v.Offset }
 
 // GetIncludeInactive returns __GetEntitiesIdsInput.IncludeInactive, and is useful for accessing the field via an interface.
 func (v *__GetEntitiesIdsInput) GetIncludeInactive() *bool { return v.IncludeInactive }
+
+// __GetMaliciousEmailDomainRuleDetailsInput is used internally by genqlient
+type __GetMaliciousEmailDomainRuleDetailsInput struct {
+	Input *InputMaliciousSourcesRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousEmailDomainRuleDetailsInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousEmailDomainRuleDetailsInput) GetInput() *InputMaliciousSourcesRulesFilter {
+	return v.Input
+}
+
+// __GetMaliciousEmailDomainRulesNameInput is used internally by genqlient
+type __GetMaliciousEmailDomainRulesNameInput struct {
+	Input *InputMaliciousSourcesRulesFilter `json:"input"`
+}
+
+// GetInput returns __GetMaliciousEmailDomainRulesNameInput.Input, and is useful for accessing the field via an interface.
+func (v *__GetMaliciousEmailDomainRulesNameInput) GetInput() *InputMaliciousSourcesRulesFilter {
+	return v.Input
+}
 
 // __GetMaliciousIpRangeRuleDetailsInput is used internally by genqlient
 type __GetMaliciousIpRangeRuleDetailsInput struct {
@@ -11211,6 +11891,16 @@ type __UpdateDataSetInput struct {
 
 // GetDataSetUpdate returns __UpdateDataSetInput.DataSetUpdate, and is useful for accessing the field via an interface.
 func (v *__UpdateDataSetInput) GetDataSetUpdate() InputDataSetUpdate { return v.DataSetUpdate }
+
+// __UpdateMaliciousEmailDomainRuleInput is used internally by genqlient
+type __UpdateMaliciousEmailDomainRuleInput struct {
+	Input InputMaliciousSourcesRuleUpdate `json:"input"`
+}
+
+// GetInput returns __UpdateMaliciousEmailDomainRuleInput.Input, and is useful for accessing the field via an interface.
+func (v *__UpdateMaliciousEmailDomainRuleInput) GetInput() InputMaliciousSourcesRuleUpdate {
+	return v.Input
+}
 
 // __UpdateMaliciousIpRangeRuleInput is used internally by genqlient
 type __UpdateMaliciousIpRangeRuleInput struct {
@@ -11482,6 +12172,76 @@ func CreateDataSet(
 	}
 
 	data_ = &CreateDataSetResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by CreateMaliciousEmailDomainRule.
+const CreateMaliciousEmailDomainRule_Operation = `
+mutation CreateMaliciousEmailDomainRule ($input: InputMaliciousSourcesRuleCreate!) {
+	createMaliciousSourcesRule(create: $input) {
+		... MaliciousEmailDomainRuleFields
+	}
+}
+fragment MaliciousEmailDomainRuleFields on MaliciousSourcesRule {
+	id
+	info {
+		name
+		description
+		action {
+			eventSeverity
+			expirationDetails {
+				expirationDuration
+			}
+			ruleActionType
+		}
+		conditions {
+			conditionType
+			emailDomainCondition {
+				dataLeakedEmail
+				disposableEmailDomain
+				emailDomains
+				emailFraudScore {
+					minEmailFraudScoreLevel
+					emailFraudScoreType
+				}
+				emailRegexes
+			}
+		}
+	}
+	scope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	status {
+		disabled
+		internal
+	}
+}
+`
+
+func CreateMaliciousEmailDomainRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputMaliciousSourcesRuleCreate,
+) (data_ *CreateMaliciousEmailDomainRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CreateMaliciousEmailDomainRule",
+		Query:  CreateMaliciousEmailDomainRule_Operation,
+		Variables: &__CreateMaliciousEmailDomainRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CreateMaliciousEmailDomainRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -12040,6 +12800,40 @@ func DeleteDataSet(
 	return data_, err_
 }
 
+// The mutation executed by DeleteMaliciousEmailDomainRule.
+const DeleteMaliciousEmailDomainRule_Operation = `
+mutation DeleteMaliciousEmailDomainRule ($input: InputMaliciousSourcesRuleDelete!) {
+	deleteMaliciousSourcesRule(delete: $input) {
+		success
+	}
+}
+`
+
+func DeleteMaliciousEmailDomainRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputMaliciousSourcesRuleDelete,
+) (data_ *DeleteMaliciousEmailDomainRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteMaliciousEmailDomainRule",
+		Query:  DeleteMaliciousEmailDomainRule_Operation,
+		Variables: &__DeleteMaliciousEmailDomainRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &DeleteMaliciousEmailDomainRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteMaliciousIpRangeRule.
 const DeleteMaliciousIpRangeRule_Operation = `
 mutation DeleteMaliciousIpRangeRule ($input: InputIpRangeRuleDelete!) {
@@ -12501,6 +13295,121 @@ func GetEntitiesIds(
 	}
 
 	data_ = &GetEntitiesIdsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousEmailDomainRuleDetails.
+const GetMaliciousEmailDomainRuleDetails_Operation = `
+query GetMaliciousEmailDomainRuleDetails ($input: InputMaliciousSourcesRulesFilter) {
+	maliciousSourcesRules(filter: $input) {
+		count
+		total
+		results {
+			... MaliciousEmailDomainRuleFields
+		}
+	}
+}
+fragment MaliciousEmailDomainRuleFields on MaliciousSourcesRule {
+	id
+	info {
+		name
+		description
+		action {
+			eventSeverity
+			expirationDetails {
+				expirationDuration
+			}
+			ruleActionType
+		}
+		conditions {
+			conditionType
+			emailDomainCondition {
+				dataLeakedEmail
+				disposableEmailDomain
+				emailDomains
+				emailFraudScore {
+					minEmailFraudScoreLevel
+					emailFraudScoreType
+				}
+				emailRegexes
+			}
+		}
+	}
+	scope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	status {
+		disabled
+		internal
+	}
+}
+`
+
+func GetMaliciousEmailDomainRuleDetails(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputMaliciousSourcesRulesFilter,
+) (data_ *GetMaliciousEmailDomainRuleDetailsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousEmailDomainRuleDetails",
+		Query:  GetMaliciousEmailDomainRuleDetails_Operation,
+		Variables: &__GetMaliciousEmailDomainRuleDetailsInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousEmailDomainRuleDetailsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetMaliciousEmailDomainRulesName.
+const GetMaliciousEmailDomainRulesName_Operation = `
+query GetMaliciousEmailDomainRulesName ($input: InputMaliciousSourcesRulesFilter) {
+	maliciousSourcesRules(filter: $input) {
+		count
+		total
+		results {
+			info {
+				name
+			}
+			id
+		}
+	}
+}
+`
+
+func GetMaliciousEmailDomainRulesName(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input *InputMaliciousSourcesRulesFilter,
+) (data_ *GetMaliciousEmailDomainRulesNameResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetMaliciousEmailDomainRulesName",
+		Query:  GetMaliciousEmailDomainRulesName_Operation,
+		Variables: &__GetMaliciousEmailDomainRulesNameInput{
+			Input: input,
+		},
+	}
+
+	data_ = &GetMaliciousEmailDomainRulesNameResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -13301,6 +14210,76 @@ func UpdateDataSet(
 	}
 
 	data_ = &UpdateDataSetResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateMaliciousEmailDomainRule.
+const UpdateMaliciousEmailDomainRule_Operation = `
+mutation UpdateMaliciousEmailDomainRule ($input: InputMaliciousSourcesRuleUpdate!) {
+	updateMaliciousSourcesRule(update: $input) {
+		... MaliciousEmailDomainRuleFields
+	}
+}
+fragment MaliciousEmailDomainRuleFields on MaliciousSourcesRule {
+	id
+	info {
+		name
+		description
+		action {
+			eventSeverity
+			expirationDetails {
+				expirationDuration
+			}
+			ruleActionType
+		}
+		conditions {
+			conditionType
+			emailDomainCondition {
+				dataLeakedEmail
+				disposableEmailDomain
+				emailDomains
+				emailFraudScore {
+					minEmailFraudScoreLevel
+					emailFraudScoreType
+				}
+				emailRegexes
+			}
+		}
+	}
+	scope {
+		environmentScope {
+			environmentIds
+		}
+	}
+	status {
+		disabled
+		internal
+	}
+}
+`
+
+func UpdateMaliciousEmailDomainRule(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputMaliciousSourcesRuleUpdate,
+) (data_ *UpdateMaliciousEmailDomainRuleResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateMaliciousEmailDomainRule",
+		Query:  UpdateMaliciousEmailDomainRule_Operation,
+		Variables: &__UpdateMaliciousEmailDomainRuleInput{
+			Input: input,
+		},
+	}
+
+	data_ = &UpdateMaliciousEmailDomainRuleResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
