@@ -309,8 +309,8 @@ func convertMaliciousEmailDomainModelToCreateInput(ctx context.Context, data *mo
 	if HasValue(data.EmailDomainsList) ||
 		HasValue(data.EmailRegexesList) ||
 		HasValue(data.MinEmailFraudScoreLevel) ||
-		HasValue(data.ApplyRuleToDataLeakedEmail) ||
-		HasValue(data.ApplyRuleToDisposableEmailDomains) {
+		(HasValue(data.ApplyRuleToDataLeakedEmail) && data.ApplyRuleToDataLeakedEmail.ValueBool()) ||
+		(HasValue(data.ApplyRuleToDisposableEmailDomains) && data.ApplyRuleToDisposableEmailDomains.ValueBool()) {
 
 		ruleCondition := generated.InputMaliciousSourcesRuleCondition{}
 		emailDomainCondition := generated.InputMaliciousSourcesRuleEmailDomainCondition{}
@@ -352,7 +352,7 @@ func convertMaliciousEmailDomainModelToCreateInput(ctx context.Context, data *mo
 		ruleCondition.EmailDomainCondition = &emailDomainCondition
 		ruleInfo.Conditions = append(ruleInfo.Conditions, &ruleCondition)
 	} else {
-		return nil, utils.NewInvalidError("email_domains_list, email_regexes_list, min_email_fraud_score_level, apply_rule_to_data_leaked_email, apply_rule_to_disposable_email_domains", "All these fields cannot be empty, at least one of them must be present")
+		return nil, utils.NewInvalidError("email_domains_list, email_regexes_list, min_email_fraud_score_level, apply_rule_to_data_leaked_email, apply_rule_to_disposable_email_domains", "All fields cannot be empty, at least one of them must be present and cannot contain only default value. For eg: ONLY having apply_rule_to_data_leaked_email = false and apply_rule_to_disposable_email_domains = false is not allowed")
 	}
 
 	ruleInfo.Action = ruleAction
@@ -431,8 +431,8 @@ func convertMaliciousEmailDomainModelToUpdateInput(ctx context.Context, data *mo
 	if HasValue(data.EmailDomainsList) ||
 		HasValue(data.EmailRegexesList) ||
 		HasValue(data.MinEmailFraudScoreLevel) ||
-		HasValue(data.ApplyRuleToDataLeakedEmail) ||
-		HasValue(data.ApplyRuleToDisposableEmailDomains) {
+		(HasValue(data.ApplyRuleToDataLeakedEmail) && data.ApplyRuleToDataLeakedEmail.ValueBool()) ||
+		(HasValue(data.ApplyRuleToDisposableEmailDomains) && data.ApplyRuleToDisposableEmailDomains.ValueBool()) {
 
 		ruleCondition := generated.InputMaliciousSourcesRuleCondition{}
 		emailDomainCondition := generated.InputMaliciousSourcesRuleEmailDomainCondition{}
@@ -474,7 +474,7 @@ func convertMaliciousEmailDomainModelToUpdateInput(ctx context.Context, data *mo
 		ruleCondition.EmailDomainCondition = &emailDomainCondition
 		ruleInfo.Conditions = append(ruleInfo.Conditions, &ruleCondition)
 	} else {
-		return nil, utils.NewInvalidError("email_domains_list, email_regexes_list, min_email_fraud_score_level, apply_rule_to_data_leaked_email, apply_rule_to_disposable_email_domains", "All fields cannot be empty, at least one of them must be present")
+		return nil, utils.NewInvalidError("email_domains_list, email_regexes_list, min_email_fraud_score_level, apply_rule_to_data_leaked_email, apply_rule_to_disposable_email_domains", "All fields cannot be empty, at least one of them must be present and cannot contain only default value. For eg: ONLY having apply_rule_to_data_leaked_email = false and apply_rule_to_disposable_email_domains = false is not allowed")
 	}
 
 	ruleInfo.Action = ruleAction
