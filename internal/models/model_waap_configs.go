@@ -8,12 +8,12 @@ type WaapConfigModel struct {
 }
 
 type WaapRuleConfigModel struct {
-	RuleName   types.String `tfsdk:"rule_name"`
-	Disabled types.Bool   `tfsdk:"disabled"`
+	RuleName types.String `tfsdk:"rule_name"`
+	Enabled  types.Bool   `tfsdk:"enabled"`
 	Subrules types.Set    `tfsdk:"subrules"`
 }
 
 type WaapSubRuleConfigModel struct {
-	SubRuleName types.String `tfsdk:"sub_rule_name"`
-	SubRuleAction types.String `tfsdk:"sub_rule_action"`
+	SubRuleName   types.String `tfsdk:"name"`
+	SubRuleAction types.String `tfsdk:"action"`
 }

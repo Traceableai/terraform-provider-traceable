@@ -77,13 +77,13 @@ func (r *WaapConfigResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	response, err := getRuleConfigAnomalyState(data,ctx, *r.client)
+	response, err := getRuleConfigAnomalyState(data, ctx, *r.client)
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
-	
-	updatedData, err := convertWaapConfigsFieldsToModel(data,ctx, response)
+
+	updatedData, err := convertWaapConfigsFieldsToModel(data, ctx, response)
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
@@ -127,23 +127,23 @@ func (r *WaapConfigResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 }
 
-func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel,ctx context.Context, data []*generated.AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) (*models.WaapConfigModel, error) {
+func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel, ctx context.Context, data []*generated.AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) (*models.WaapConfigModel, error) {
 	var waapConfigRuleConfigs []models.WaapRuleConfigModel
 	var ruleConfigs []models.WaapRuleConfigModel
-	
+
 	conversionError := utils.ConvertElementsSet(currState.RuleConfigs, &ruleConfigs)
 	if conversionError != nil {
 		return nil, conversionError
 	}
 
-	for _,ruleConfig := range ruleConfigs{
+	for _, ruleConfig := range ruleConfigs {
 		ruleName := ruleConfig.RuleName
-		fetchedRuleConfig,err := findRuleConfigsWithRuleName(ruleName.ValueString(),data)
+		fetchedRuleConfig, err := findRuleConfigsWithRuleName(ruleName.ValueString(), data)
 		if err != nil {
 			return nil, err
 		}
 		disabled := fetchedRuleConfig.ConfigStatus.Disabled
-		
+
 		var subRules []models.WaapSubRuleConfigModel
 		diags := ruleConfig.Subrules.ElementsAs(ctx, &subRules, false)
 		if diags.HasError() {
@@ -155,14 +155,14 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel,ctx conte
 			if err != nil {
 				return nil, err
 			}
-			finalSubRuleModel=append(finalSubRuleModel, models.WaapSubRuleConfigModel{
-				SubRuleName: types.StringValue(subRule.SubRuleName.ValueString()),
+			finalSubRuleModel = append(finalSubRuleModel, models.WaapSubRuleConfigModel{
+				SubRuleName:   types.StringValue(subRule.SubRuleName.ValueString()),
 				SubRuleAction: types.StringValue(string(fetchedSubruleConfig.AnomalySubRuleAction)),
 			})
 		}
 		waapConfigSubRuleConfigsObjectType := types.ObjectType{
 			AttrTypes: map[string]attr.Type{
-				"sub_rule_name": types.StringType,
+				"sub_rule_name":   types.StringType,
 				"sub_rule_action": types.StringType,
 			},
 		}
@@ -177,18 +177,18 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel,ctx conte
 			}
 			waapConfigRuleConfigs = append(waapConfigRuleConfigs, models.WaapRuleConfigModel{
 				RuleName: ruleName,
-				Disabled: types.BoolValue(disabled),
+				Enabled:  types.BoolValue(!disabled),
 				Subrules: subruleConfigsModel,
 			})
 		} else {
 			waapConfigRuleConfigs = append(waapConfigRuleConfigs, models.WaapRuleConfigModel{
 				RuleName: ruleName,
-				Disabled: types.BoolValue(disabled),
+				Enabled:  types.BoolValue(!disabled),
 				Subrules: types.SetNull(waapConfigSubRuleConfigsObjectType),
 			})
 		}
 	}
-	
+
 	waapConfigModel := models.WaapConfigModel{}
 	waapConfigRuleConfigsObjectType := types.ObjectType{
 		AttrTypes: map[string]attr.Type{
@@ -196,7 +196,7 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel,ctx conte
 			"disabled":  types.BoolType,
 			"subrules": types.SetType{ElemType: types.ObjectType{
 				AttrTypes: map[string]attr.Type{
-					"sub_rule_name": types.StringType,
+					"sub_rule_name":   types.StringType,
 					"sub_rule_action": types.StringType,
 				},
 			}},
@@ -216,45 +216,45 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel,ctx conte
 		waapConfigModel.RuleConfigs = types.SetNull(waapConfigRuleConfigsObjectType)
 	}
 	env := currState.Environment
-	if HasValue(env){
-		waapConfigModel.Environment=env
+	if HasValue(env) {
+		waapConfigModel.Environment = env
 	}
-	return &waapConfigModel,nil
+	return &waapConfigModel, nil
 }
 
-func findSubRuleConfigsWithSubRuleName(subRuleName string,subRuleConfigs []*generated.AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) (generated.AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig,error){
-	for _,subRuleConfig := range subRuleConfigs{
-		if subRuleConfig.SubRuleName == subRuleName{
+func findSubRuleConfigsWithSubRuleName(subRuleName string, subRuleConfigs []*generated.AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig) (generated.AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig, error) {
+	for _, subRuleConfig := range subRuleConfigs {
+		if subRuleConfig.SubRuleName == subRuleName {
 			return *subRuleConfig, nil
 		}
 	}
-	return generated.AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig{}, utils.NewInvalidError("subrules sub_rule_name",fmt.Sprintf("sub_rule_name %s not found", subRuleName))
+	return generated.AnomalyRuleConfigFieldsSubRuleConfigsAnomalySubRuleConfig{}, utils.NewInvalidError("subrules sub_rule_name", fmt.Sprintf("sub_rule_name %s not found", subRuleName))
 }
 
-func findRuleConfigsWithRuleName(ruleName string,data []*generated.AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) (*generated.AnomalyRuleConfigFields, error) {
-	ruleId,err := GetRuleId(ruleName)
-	if err!=nil{
-		return nil,err
+func findRuleConfigsWithRuleName(ruleName string, data []*generated.AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig) (*generated.AnomalyRuleConfigFields, error) {
+	ruleId, err := GetRuleId(ruleName)
+	if err != nil {
+		return nil, err
 
 	}
-	for _,ruleConfig := range data{
-		if ruleConfig.RuleId == ruleId{
+	for _, ruleConfig := range data {
+		if ruleConfig.RuleId == ruleId {
 			return &ruleConfig.AnomalyRuleConfigFields, nil
 		}
 	}
 	return nil, fmt.Errorf("rule config not found")
 }
 
-func getRuleConfigAnomalyState(data *models.WaapConfigModel,ctx context.Context, r graphql.Client) ([]*generated.AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig, error) {
+func getRuleConfigAnomalyState(data *models.WaapConfigModel, ctx context.Context, r graphql.Client) ([]*generated.AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSetResultsAnomalyRuleConfig, error) {
 	inputFilter := generated.InputAnomalyScope{}
-	inputFilter.ScopeType=generated.AnomalyScopeTypeEnvironment
-	if HasValue(data.Environment){
-		environment:=data.Environment.ValueString()
-		inputFilter.EnvironmentScope=&generated.InputAnomalyEnvironmentScope{
+	inputFilter.ScopeType = generated.AnomalyScopeTypeEnvironment
+	if HasValue(data.Environment) {
+		environment := data.Environment.ValueString()
+		inputFilter.EnvironmentScope = &generated.InputAnomalyEnvironmentScope{
 			Id: environment,
 		}
-	}else{
-		inputFilter.ScopeType=generated.AnomalyScopeTypeCustomer
+	} else {
+		inputFilter.ScopeType = generated.AnomalyScopeTypeCustomer
 	}
 	response, err := generated.AnomalyDetectionRuleConfigs(ctx, r, inputFilter)
 	if err != nil {
@@ -278,29 +278,29 @@ func getUpdateRules(ctx context.Context, data *models.WaapConfigModel, r *graphq
 		if diags.HasError() {
 			return fmt.Errorf("conversion error")
 		}
-		if ruleConfig.Disabled.ValueBool() && len(subruleConfigs) > 0 {
+		if !ruleConfig.Enabled.ValueBool() && len(subruleConfigs) > 0 {
 			return fmt.Errorf("rule must be set to enabled to modify subrules. either remove subrules block to disable the rule")
 		}
 		if len(subruleConfigs) > 0 {
 			for _, subruleConfig := range subruleConfigs {
-				if !HasValue(subruleConfig.SubRuleAction) || !HasValue(subruleConfig.SubRuleName){
+				if !HasValue(subruleConfig.SubRuleAction) || !HasValue(subruleConfig.SubRuleName) {
 					return utils.NewInvalidError("subrules", "field must be present and must not be empty")
 				}
-				input, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig,subruleConfig.SubRuleName.ValueString(),subruleConfig.SubRuleAction.ValueString())
+				input, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig, subruleConfig.SubRuleName.ValueString(), subruleConfig.SubRuleAction.ValueString())
 				if err != nil {
 					return err
 				}
 				inputArr = append(inputArr, *input)
 			}
 		} else {
-			input, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig,"","")
+			input, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig, "", "")
 			if err != nil {
 				return err
 			}
 			inputArr = append(inputArr, *input)
 		}
-		if len(subruleConfigs)>0{
-			firstInput, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig,"","")
+		if len(subruleConfigs) > 0 {
+			firstInput, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig, "", "")
 			if err != nil {
 				return err
 			}
@@ -327,13 +327,13 @@ func buildInputAnomalyScope(data *models.WaapConfigModel) (generated.InputAnomal
 		}
 		return inputAnomalyScope, nil
 	}
-	inputAnomalyScope.ScopeType=generated.AnomalyScopeTypeCustomer
+	inputAnomalyScope.ScopeType = generated.AnomalyScopeTypeCustomer
 	return inputAnomalyScope, nil
 }
 
-func buildInputAnomalyRuleConfig(ruleConfig *models.WaapRuleConfigModel,subRuleName string,subruleAction string) (generated.InputAnomalyRuleConfigUpdate, error) {
+func buildInputAnomalyRuleConfig(ruleConfig *models.WaapRuleConfigModel, subRuleName string, subruleAction string) (generated.InputAnomalyRuleConfigUpdate, error) {
 	inputAnomalyRuleConfigUpdate := generated.InputAnomalyRuleConfigUpdate{}
-	disabled := ruleConfig.Disabled.ValueBool()
+	enabled := !ruleConfig.Enabled.ValueBool()
 	internal := false
 	configType, err := GetConfigType(ruleConfig.RuleName.ValueString())
 	if err != nil {
@@ -345,26 +345,25 @@ func buildInputAnomalyRuleConfig(ruleConfig *models.WaapRuleConfigModel,subRuleN
 	if errInGettingMainRuleId != nil {
 		return generated.InputAnomalyRuleConfigUpdate{}, errInGettingMainRuleId
 	}
-	inputAnomalyRuleConfigUpdate.RuleId=mainRuleId
-	if subRuleName=="" && subruleAction=="" {
+	inputAnomalyRuleConfigUpdate.RuleId = mainRuleId
+	if subRuleName == "" && subruleAction == "" {
 		inputAnomalyRuleConfigUpdate.ConfigStatus = &generated.InputAnomalyConfigStatusChange{
-			Disabled: &disabled,
+			Disabled: &enabled,
 			Internal: &internal,
 		}
-	}else{
+	} else {
 		if _, ok := WaapConfigSubRuleActionMap[subruleAction]; !ok {
-			return generated.InputAnomalyRuleConfigUpdate{}, utils.NewInvalidError("rule_configs subrules",fmt.Sprintf("%s is not a valid subrule action", subruleAction))
+			return generated.InputAnomalyRuleConfigUpdate{}, utils.NewInvalidError("rule_configs subrules", fmt.Sprintf("%s is not a valid subrule action", subruleAction))
 		}
 		anomalySubruleAction := generated.AnomalySubRuleAction(subruleAction)
-		
-		
-		subruleId, errInGettingSubRuleId := GetSubRuleId(mainRuleName,subRuleName)
+
+		subruleId, errInGettingSubRuleId := GetSubRuleId(mainRuleName, subRuleName)
 		if errInGettingSubRuleId != nil {
 			return generated.InputAnomalyRuleConfigUpdate{}, errInGettingSubRuleId
 		}
 		inputAnomalyRuleConfigUpdate.SubRuleConfigs = []*generated.InputAnomalySubRuleConfigUpdate{
 			{
-				SubRuleId: subruleId,
+				SubRuleId:            subruleId,
 				AnomalySubRuleAction: &anomalySubruleAction,
 			},
 		}
@@ -372,14 +371,14 @@ func buildInputAnomalyRuleConfig(ruleConfig *models.WaapRuleConfigModel,subRuleN
 	return inputAnomalyRuleConfigUpdate, nil
 }
 
-func convertWaapConfigModelToUpdateInput(ctx context.Context, data *models.WaapConfigModel, ruleConfig *models.WaapRuleConfigModel,subRuleName string,subruleAction string) (*generated.InputScopedAnomalyRuleConfigUpdate, error) {
+func convertWaapConfigModelToUpdateInput(ctx context.Context, data *models.WaapConfigModel, ruleConfig *models.WaapRuleConfigModel, subRuleName string, subruleAction string) (*generated.InputScopedAnomalyRuleConfigUpdate, error) {
 	input := generated.InputScopedAnomalyRuleConfigUpdate{}
 	inputAnomalyScope, anomalyScopeBuildErr := buildInputAnomalyScope(data)
 	if anomalyScopeBuildErr != nil {
 		return nil, anomalyScopeBuildErr
 	}
 	input.AnomalyScope = inputAnomalyScope
-	inputRuleConfig, ruleConfigBuildError := buildInputAnomalyRuleConfig(ruleConfig,subRuleName,subruleAction)
+	inputRuleConfig, ruleConfigBuildError := buildInputAnomalyRuleConfig(ruleConfig, subRuleName, subruleAction)
 	if ruleConfigBuildError != nil {
 		return nil, ruleConfigBuildError
 	}

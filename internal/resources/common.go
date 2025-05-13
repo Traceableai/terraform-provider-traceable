@@ -14,35 +14,35 @@ import (
 )
 
 var attackRules = map[string]map[string]string{
-	"contentSize":  {},       
+	"contentSize": {},
 
-	"contentType":  {},       
+	"contentType": {},
 
-	"httpStatus":  {},         
+	"httpStatus": {},
 
-	"contentExplosion":  {},        
+	"contentExplosion": {},
 
-	"unexpectedUserAgent":  {},     
+	"unexpectedUserAgent": {},
 
-	"invalidEnumerations":  {},
+	"invalidEnumerations": {},
 
-	"unknownParam":  {},           
+	"unknownParam": {},
 
-	"missingParam":  {},         
+	"missingParam": {},
 
-	"specialCharacter":  {},     
+	"specialCharacter": {},
 
-	"typeAnomaly":  {},         
-	    
-	"valueOutofRange":  {}, 
+	"typeAnomaly": {},
 
-	"ssrf":  {},
+	"valueOutofRange": {},
 
-	"bola":  {},
+	"ssrf": {},
 
-	"userIdBola":  {},
+	"bola": {},
 
-	"bfla":  {},
+	"userIdBola": {},
+
+	"bfla": {},
 
 	"volumetric": {
 		"Spike in API Call Count": "volumetric_apiCallSpike",
@@ -117,7 +117,7 @@ var attackRules = map[string]map[string]string{
 	},
 
 	"LFI": {
-		"Restricted File Access Attempt":                       "crs_930130",
+		"Restricted File Access Attempt":                        "crs_930130",
 		"OS File Access Attempt (120)":                          "crs_930120",
 		"Path Traversal Attack (/../) (110)":                    "crs_930110",
 		"Path Traversal Attack (/../) (100)":                    "crs_930100",
@@ -176,14 +176,14 @@ var attackRules = map[string]map[string]string{
 		"Java Deserialization: Magic Bytes Base64 Encoded":                "crs_9440210",
 		"Apache Commons Text: String Interpolation RCE: (CVE-2022-42889)": "crs_94400910",
 	},
-	
+
 	"RCE": {
-		"Restricted File Upload Attempt":                                                      "crs_932180",
-		"Remote Command Execution: Shellshock (CVE-2014-6271) (171)":                          "crs_932171",
-		"Remote Command Execution: Shellshock (CVE-2014-6271) (170)":                          "crs_932170",
-		"Remote Command Execution: Unix Shell Code":                                           "crs_932160",
-		"Remote Command Execution: Windows FOR/IF Command":                                    "crs_932140",
-		"Remote Command Execution: Windows PowerShell Command":                                "crs_932120",
+		"Restricted File Upload Attempt":                                                     "crs_932180",
+		"Remote Command Execution: Shellshock (CVE-2014-6271) (171)":                         "crs_932171",
+		"Remote Command Execution: Shellshock (CVE-2014-6271) (170)":                         "crs_932170",
+		"Remote Command Execution: Unix Shell Code":                                          "crs_932160",
+		"Remote Command Execution: Windows FOR/IF Command":                                   "crs_932140",
+		"Remote Command Execution: Windows PowerShell Command":                               "crs_932120",
 		"Remote Command Execution: Windows Command Injection (115)":                          "crs_932115",
 		"Remote Command Execution: Windows Command Injection (110)":                          "crs_932110",
 		"Remote Command Execution: Unix Command Injection (105)":                             "crs_932105",
@@ -206,13 +206,13 @@ var attackRules = map[string]map[string]string{
 		"Apache Struts RCE: multipart/form-data: (CVE-2017-5638)":                            "crs_9320020",
 		"Drupal Core: RCE SA-CORE-2019-003: (CVE-2019-6340)":                                 "crs_93200120",
 		"Microsoft Exchange Server: RCE: (CVE-2021-26855)":                                   "crs_93200110",
-		"Atlassian Crowd: RCE: (CVE-2019-11580)":                                              "crs_93200100",
-		"Spring Cloud Function RCE: malicious Spring Expression: (CVE-2022-22963)":            "crs_9320010",
-		"Zoho ManageEngine ServiceDesk Plus: Arbitrary File Upload: (CVE-2019-8394)":          "crs_93200090",
-		"Oracle WebLogic Server: RCE: (CVE-2019-2725)":                                        "crs_93200080",
+		"Atlassian Crowd: RCE: (CVE-2019-11580)":                                             "crs_93200100",
+		"Spring Cloud Function RCE: malicious Spring Expression: (CVE-2022-22963)":           "crs_9320010",
+		"Zoho ManageEngine ServiceDesk Plus: Arbitrary File Upload: (CVE-2019-8394)":         "crs_93200090",
+		"Oracle WebLogic Server: RCE: (CVE-2019-2725)":                                       "crs_93200080",
 		"Blueimp jQuery-File-Upload: Unauthenticated arbitrary file upload: (CVE-2018-9206)": "crs_93200070",
-		"Remote Command Execution:: Common Evasions for Shell Injection":                      "crs_9320510",
-		"Remote Command Execution: Windows Command Injection (T110)":                          "crs_9320110",
+		"Remote Command Execution:: Common Evasions for Shell Injection":                     "crs_9320510",
+		"Remote Command Execution: Windows Command Injection (T110)":                         "crs_9320110",
 	},
 
 	"SessionFixation": {
@@ -227,7 +227,7 @@ var attackRules = map[string]map[string]string{
 	},
 
 	"BasicAuthenticationViolation": {
-		"Basic Authentication: Missing Password":    "crs_1030100",
+		"Basic Authentication: Missing Password":     "crs_1030100",
 		"Possible Joomla Unauthenticated Acces":      "crs_1030110",
 		"Authorization Bypass in Next.js Middleware": "crs_1030120",
 	},
@@ -235,7 +235,7 @@ var attackRules = map[string]map[string]string{
 	"ScannerDetection": {
 		"Request filename/argument associated with security scanner": "crs_913120",
 		"Request header associated with security scanner":            "crs_913110",
-		"User-Agent associated with security scanner":             "crs_913100",
+		"User-Agent associated with security scanner":                "crs_913100",
 	},
 
 	"GraphQLAttacks": {
@@ -249,10 +249,10 @@ var CustomSignatureKeyValuesExpressionMap = map[string]generated.CustomSignature
 	"COOKIE":    generated.CustomSignatureRuleKeyValueTagCookie,
 }
 var WaapConfigSubRuleActionMap = map[string]generated.AnomalySubRuleAction{
-	"IGNORE":    generated.AnomalySubRuleActionIgnore,
-	"DISABLE":   generated.AnomalySubRuleActionDisable,
-	"MONITOR":   generated.AnomalySubRuleActionMonitor,
-	"BLOCK":     generated.AnomalySubRuleActionBlock,
+	"IGNORE":  generated.AnomalySubRuleActionIgnore,
+	"DISABLE": generated.AnomalySubRuleActionDisable,
+	"MONITOR": generated.AnomalySubRuleActionMonitor,
+	"BLOCK":   generated.AnomalySubRuleActionBlock,
 }
 
 var CustomSignatureRuleMatchCategoryMap = map[string]generated.CustomSignatureRuleMatchCategory{
@@ -613,10 +613,10 @@ func GetConfigType(ruleName string) (string, error) {
 func GetRuleId(ruleName string) (string, error) {
 	subrules, exists := attackRules[ruleName]
 	if !exists {
-		return "", utils.NewInvalidError("rule_configs rule_name",fmt.Sprintf("policy %s does not exist", ruleName))
+		return "", utils.NewInvalidError("rule_configs rule_name", fmt.Sprintf("policy %s does not exist", ruleName))
 	}
-	if len(subrules) == 0{
-		return ruleName,nil
+	if len(subrules) == 0 {
+		return ruleName, nil
 	}
 	for _, crsID := range subrules {
 		parts := strings.Split(crsID, "_")
@@ -627,18 +627,18 @@ func GetRuleId(ruleName string) (string, error) {
 	return ruleName, nil
 }
 
-func GetSubRuleId(mainRuleName string,subRuleName string) (string, error) {
-	fmt.Printf("This is the input %s %s",mainRuleName,subRuleName)
+func GetSubRuleId(mainRuleName string, subRuleName string) (string, error) {
+	fmt.Printf("This is the input %s %s", mainRuleName, subRuleName)
 	subrules, exists := attackRules[mainRuleName]
 	if !exists {
-		return "", utils.NewInvalidError("rule_configs rule_name",fmt.Sprintf("policy %s does not exist", mainRuleName))
+		return "", utils.NewInvalidError("rule_configs rule_name", fmt.Sprintf("policy %s does not exist", mainRuleName))
 	}
-	if len(subrules) > 0{
+	if len(subrules) > 0 {
 		for expectedSubRuleName, subRuleCrsID := range subrules {
 			if expectedSubRuleName == subRuleName {
-				return subRuleCrsID,nil
+				return subRuleCrsID, nil
 			}
 		}
 	}
-	return "", utils.NewInvalidError("rule_configs subrules",fmt.Sprintf("subrule %s does not exist for rule_name %s", subRuleName, mainRuleName))
+	return "", utils.NewInvalidError("rule_configs subrules", fmt.Sprintf("subrule %s does not exist for rule_name %s", subRuleName, mainRuleName))
 }

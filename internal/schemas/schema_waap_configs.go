@@ -21,7 +21,7 @@ func WaapConfigResourceSchema() schema.Schema {
 							MarkdownDescription: "Identifier of the underlying WAAF rule.",
 							Required:            true,
 						},
-						"disabled": schema.BoolAttribute{
+						"enabled": schema.BoolAttribute{
 							MarkdownDescription: "Whether the rule is enabled (true) or disabled (false).",
 							Required:            true,
 						},
@@ -30,11 +30,11 @@ func WaapConfigResourceSchema() schema.Schema {
 							Optional:            true,
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
-									"sub_rule_name": schema.StringAttribute{
+									"name": schema.StringAttribute{
 										MarkdownDescription: "Identifier of the underlying sub rule.",
 										Required:            true,
 									},
-									"sub_rule_action": schema.StringAttribute{
+									"action": schema.StringAttribute{
 										MarkdownDescription: "Whether the sub rule is enabled/disabled/monitor.",
 										Required:            true,
 									},
