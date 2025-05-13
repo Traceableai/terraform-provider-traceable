@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -119,6 +120,28 @@ func (r *CustomSignatureResource) Read(ctx context.Context, req resource.ReadReq
 	}
 }
 
+func checkInputCondition(data *models.CustomSignatureModel) (error) {
+	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && HasValue(data.Action.Duration) {
+		return utils.NewInvalidError("duration not required with action_type", fmt.Sprintf("duration not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.Duration) {
+		return utils.NewInvalidError("duration not required with action_type", fmt.Sprintf("duration not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "ALLOW" && HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "BLOCK" && !HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && !HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	return nil
+}
+
 func (r *CustomSignatureResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *models.CustomSignatureModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -131,16 +154,17 @@ func (r *CustomSignatureResource) Update(ctx context.Context, req resource.Updat
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	
+	
 	input, err := convertCustomSignatureModelToUpdateInput(ctx, data, dataState.Id.ValueString())
 	if err != nil {
-		resp.Diagnostics.AddError("Error in Updating custom signature rule", err.Error())
+		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
-
 	}
 
 	resp1, err2 := generated.UpdateCustomSignature(ctx, *r.client, *input)
 	if err2 != nil {
-		resp.Diagnostics.AddError("Error in Updating custom signature rule", err.Error())
+		resp.Diagnostics.AddError("Error in Updating custom signature rule", err2.Error())
 		return
 	}
 	data.Id = types.StringValue(resp1.UpdateCustomSignatureRule.Id)
@@ -311,17 +335,29 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 		customSignatureModel.PayloadCriteria.Attributes = types.SetNull(attributesObjectType)
 	}
 	ruleEffect := data.RuleEffect
-	eventSev := types.StringValue(string(*ruleEffect.GetEventSeverity()))
+	if ruleEffect.GetEventSeverity() != nil {
+		eventSev := types.StringValue(string(*ruleEffect.GetEventSeverity()))
+		customSignatureModel.Action.EventSeverity = eventSev
+	} else {
+		customSignatureModel.Action.EventSeverity = types.StringNull()
+	}
 	eventType := types.StringValue(string(ruleEffect.GetEventType()))
-	customSignatureModel.Action.EventSeverity = eventSev
 	customSignatureModel.Action.ActionType = eventType
-	duration := types.StringValue(string(*data.GetBlockingExpirationDuration()))
-	customSignatureModel.Action.Duration = duration
+	if data.GetBlockingExpirationDuration() != nil {
+		duration := types.StringValue(string(*data.GetBlockingExpirationDuration()))
+		customSignatureModel.Action.Duration = duration
+	} else {
+		customSignatureModel.Action.Duration = types.StringNull()
+	}
 	return &customSignatureModel, nil
 }
 
 func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.CustomSignatureModel, id string) (*generated.InputCustomSignatureRuleUpdate, error) {
 	input := generated.InputCustomSignatureRuleUpdate{}
+	err := checkInputCondition(data)
+	if err != nil {
+		return nil, err
+	}
 	if id != "" {
 		input.Id = id
 	} else {
@@ -341,7 +377,7 @@ func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.
 		disabled := data.Disabled.ValueBool()
 		input.Disabled = &disabled
 	}
-	internal:=false
+	internal := false
 	input.Internal = &internal
 	scope, err := convertToCustomSignatureRuleConfigScope(data.Environments)
 	if err != nil {
@@ -387,6 +423,10 @@ func getCustomSignatureId(ruleName string, ctx context.Context, r graphql.Client
 }
 
 func convertCustomSignatureModelToCreateInput(ctx context.Context, data *models.CustomSignatureModel) (*generated.InputCustomSignatureRuleDescriptor, error) {
+	errInInput := checkInputCondition(data)
+	if errInInput != nil {
+		return nil, errInInput
+	}
 	if data == nil {
 		return nil, fmt.Errorf("data model is nil")
 	}
@@ -405,7 +445,7 @@ func convertCustomSignatureModelToCreateInput(ctx context.Context, data *models.
 		disabled := data.Disabled.ValueBool()
 		input.Disabled = &disabled
 	}
-	internal:=false
+	internal := false
 	input.Internal = &internal
 	scope, err := convertToCustomSignatureRuleConfigScope(data.Environments)
 	if err != nil {
@@ -439,24 +479,30 @@ func convertToCustomSignatureRuleEffect(data *models.CustomSignatureModel) (*gen
 	if !HasValue(data) {
 		return nil, nil
 	}
-	eventSeverity := data.Action.EventSeverity.ValueString()
-	_, isValidEventSev := RateLimitingRuleEventSeverityMap[eventSeverity]
-	if !isValidEventSev {
-		return nil, utils.NewInvalidError("sources action_type event_severity", fmt.Sprintf(" %s Inavlid event_severity", eventSeverity))
-	}
-	ruleEventSeverity := generated.CustomSignatureRuleEventSeverity(eventSeverity)
-
+	var ruleEffect *generated.InputCustomSignatureRuleEffect
 	eventType := data.Action.ActionType.ValueString()
 	_, isValidEventType := CustomSignatureRuleEventTypeMap[eventType]
 	if !isValidEventType {
-		return nil, utils.NewInvalidError("sources action_type action_type", fmt.Sprintf(" %s Inavlid action_type", eventType))
+		return nil, utils.NewInvalidError("sources action_type", fmt.Sprintf(" %s Invalid action_type", eventType))
 	}
 	ruleEventType := generated.CustomSignatureRuleEventType(eventType)
-
-	ruleEffect := &generated.InputCustomSignatureRuleEffect{
-		Effects:       []*generated.InputCustomSignatureRuleEffectWithModification{},
-		EventSeverity: &ruleEventSeverity,
-		EventType:     ruleEventType,
+	if HasValue(data.Action.EventSeverity) {
+		eventSeverity := data.Action.EventSeverity.ValueString()
+		_, isValidEventSev := RateLimitingRuleEventSeverityMap[eventSeverity]
+		if !isValidEventSev {
+			return nil, utils.NewInvalidError("sources action_type event_severity", fmt.Sprintf(" %s Invalid event_severity", eventSeverity))
+		}
+		ruleEventSeverity := generated.CustomSignatureRuleEventSeverity(eventSeverity)
+		ruleEffect = &generated.InputCustomSignatureRuleEffect{
+			Effects:       []*generated.InputCustomSignatureRuleEffectWithModification{},
+			EventSeverity: &ruleEventSeverity,
+			EventType:     ruleEventType,
+		}
+	}else{
+		ruleEffect = &generated.InputCustomSignatureRuleEffect{
+			Effects:       []*generated.InputCustomSignatureRuleEffectWithModification{},
+			EventType:     ruleEventType,
+		}
 	}
 	return ruleEffect, nil
 }
@@ -478,17 +524,17 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 			for _, reqResp := range customSigReqRes {
 				_, isValidMatchCat := CustomSignatureRuleMatchCategoryMap[reqResp.MatchCategory.ValueString()]
 				if !isValidMatchCat {
-					return nil, utils.NewInvalidError("sources request_response match_category", fmt.Sprintf(" %s Inavlid match_category", reqResp.MatchCategory.ValueString()))
+					return nil, utils.NewInvalidError("sources request_response match_category", fmt.Sprintf(" %s Invalid match_category", reqResp.MatchCategory.ValueString()))
 				}
 
 				_, isValidMatchKey := CustomSignatureRuleMatchKeyMap[reqResp.MatchKey.ValueString()]
 				if !isValidMatchKey {
-					return nil, utils.NewInvalidError("sources request_response match_key", fmt.Sprintf(" %s Inavlid match_key", reqResp.MatchKey.ValueString()))
+					return nil, utils.NewInvalidError("sources request_response match_key", fmt.Sprintf(" %s Invalid match_key", reqResp.MatchKey.ValueString()))
 				}
 
 				_, isValidValueMatchOp := RateLimitingKeyValueMatchOperatorMap[reqResp.ValueMatchOperator.ValueString()]
 				if !isValidValueMatchOp {
-					return nil, utils.NewInvalidError("sources request_response value_match_operator", fmt.Sprintf(" %s Inavlid value_match_operator", reqResp.ValueMatchOperator.ValueString()))
+					return nil, utils.NewInvalidError("sources request_response value_match_operator", fmt.Sprintf(" %s Invalid value_match_operator", reqResp.ValueMatchOperator.ValueString()))
 				}
 
 				var clause *generated.InputCustomSignatureRuleClauseRequest
@@ -497,7 +543,7 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 					if isValidKeyValTag {
 						_, KeyMatchOperator := RateLimitingKeyValueMatchOperatorMap[reqResp.KeyMatchOperator.ValueString()]
 						if !KeyMatchOperator {
-							return nil, utils.NewInvalidError("sources request_response key_match_operator", fmt.Sprintf(" %s Inavlid key_match_operator", reqResp.KeyMatchOperator.ValueString()))
+							return nil, utils.NewInvalidError("sources request_response key_match_operator", fmt.Sprintf(" %s Invalid key_match_operator", reqResp.KeyMatchOperator.ValueString()))
 						}
 
 						matchKey := reqResp.MatchKey.ValueString()
@@ -550,12 +596,12 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 				_, keyCondtionOperatorExist := RateLimitingKeyValueMatchOperatorMap[attr.KeyConditionOperator.ValueString()]
 
 				if !keyCondtionOperatorExist {
-					return nil, utils.NewInvalidError("sources attributes key_condition_operator", fmt.Sprintf(" %s Inavlid keyOperator", attr.KeyConditionOperator.ValueString()))
+					return nil, utils.NewInvalidError("sources attributes key_condition_operator", fmt.Sprintf(" %s Invalid keyOperator", attr.KeyConditionOperator.ValueString()))
 				}
 				_, valCondtionOperatorExist := RateLimitingKeyValueMatchOperatorMap[attr.ValueConditionOperator.ValueString()]
 
 				if !valCondtionOperatorExist {
-					return nil, utils.NewInvalidError("sources attributes value_condition_operator", fmt.Sprintf(" %s Inavlid valueOperator", attr.ValueConditionOperator.ValueString()))
+					return nil, utils.NewInvalidError("sources attributes value_condition_operator", fmt.Sprintf(" %s Invalid valueOperator", attr.ValueConditionOperator.ValueString()))
 				}
 
 				keyCondition := &generated.InputCustomSignatureStringMatchCondition{

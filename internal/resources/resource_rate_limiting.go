@@ -1599,7 +1599,7 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 				}
 				metadataType, exists := RateLimitingRuleKeyValueConditionMetadataTypeMap[requestResponse.MetadataType.ValueString()]
 				if !exists {
-					return nil, utils.NewInvalidError("sources request_response metadata_type", fmt.Sprintf(" %s Inavlid MetadataType", requestResponse.MetadataType.ValueString()))
+					return nil, utils.NewInvalidError("sources request_response metadata_type", fmt.Sprintf(" %s Invalid MetadataType", requestResponse.MetadataType.ValueString()))
 				}
 				keyValueCondition.MetadataType = &metadataType
 
@@ -1608,7 +1608,7 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 					keyConditionOperator, exist := RateLimitingKeyValueMatchOperatorMap[requestResponse.KeyOperator.ValueString()]
 
 					if !exist {
-						return nil, utils.NewInvalidError("sources request_response key_operator", fmt.Sprintf(" %s Inavlid keyOperator", requestResponse.KeyOperator.ValueString()))
+						return nil, utils.NewInvalidError("sources request_response key_operator", fmt.Sprintf(" %s Invalid keyOperator", requestResponse.KeyOperator.ValueString()))
 					}
 
 					keyValueCondition.KeyCondition = &generated.InputRateLimitingRuleStringCondition{
@@ -1623,7 +1623,7 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 					valueConditionOperator, exist := RateLimitingKeyValueMatchOperatorMap[requestResponse.ValueOperator.ValueString()]
 
 					if !exist {
-						return nil, utils.NewInvalidError("sources request_response value_operator", fmt.Sprintf(" %s Inavlid keyOperator", requestResponse.KeyOperator.ValueString()))
+						return nil, utils.NewInvalidError("sources request_response value_operator", fmt.Sprintf(" %s Invalid keyOperator", requestResponse.KeyOperator.ValueString()))
 					}
 
 					keyValueCondition.ValueCondition = &generated.InputRateLimitingRuleStringCondition{
@@ -1667,7 +1667,7 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 				} else {
 					dataLocationPtr, exists := RateLimitingDataLocationMap[dataSet.DataLocation.ValueString()]
 					if !exists {
-						return nil, utils.NewInvalidError("data_location", fmt.Sprintf(" %s Inavlid dataLocation", dataSet.DataLocation.ValueString()))
+						return nil, utils.NewInvalidError("data_location", fmt.Sprintf(" %s Invalid dataLocation", dataSet.DataLocation.ValueString()))
 					}
 					dataLocation = &dataLocationPtr
 				}
@@ -1709,7 +1709,7 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 				} else {
 					dataLocationPtr, exists := RateLimitingDataLocationMap[dataType.DataLocation.ValueString()]
 					if !exists {
-						return nil, utils.NewInvalidError("data_location", fmt.Sprintf(" %s Inavlid dataLocation", dataType.DataLocation.ValueString()))
+						return nil, utils.NewInvalidError("data_location", fmt.Sprintf(" %s Invalid dataLocation", dataType.DataLocation.ValueString()))
 					}
 					dataLocation = &dataLocationPtr
 				}
