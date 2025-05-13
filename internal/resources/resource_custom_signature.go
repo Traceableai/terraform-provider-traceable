@@ -120,28 +120,6 @@ func (r *CustomSignatureResource) Read(ctx context.Context, req resource.ReadReq
 	}
 }
 
-func checkInputCondition(data *models.CustomSignatureModel) (error) {
-	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && HasValue(data.Action.Duration) {
-		return utils.NewInvalidError("duration not required with action_type", fmt.Sprintf("duration not required with action_type %s", data.Action.ActionType.ValueString()))
-	}
-	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.Duration) {
-		return utils.NewInvalidError("duration not required with action_type", fmt.Sprintf("duration not required with action_type %s", data.Action.ActionType.ValueString()))
-	}
-	if data.Action.ActionType.ValueString() == "ALLOW" && HasValue(data.Action.EventSeverity) {
-		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
-	}
-	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.EventSeverity) {
-		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
-	}
-	if data.Action.ActionType.ValueString() == "BLOCK" && !HasValue(data.Action.EventSeverity) {
-		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
-	}
-	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && !HasValue(data.Action.EventSeverity) {
-		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
-	}
-	return nil
-}
-
 func (r *CustomSignatureResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *models.CustomSignatureModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -692,4 +670,26 @@ func (r *CustomSignatureResource) ImportState(ctx context.Context, req resource.
 	if resp.Diagnostics.HasError() {
 		return
 	}
+}
+
+func checkInputCondition(data *models.CustomSignatureModel) (error) {
+	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && HasValue(data.Action.Duration) {
+		return utils.NewInvalidError("duration not required with action_type", fmt.Sprintf("duration not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.Duration) {
+		return utils.NewInvalidError("duration not required with action_type", fmt.Sprintf("duration not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "ALLOW" && HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "BLOCK" && !HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && !HasValue(data.Action.EventSeverity) {
+		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	return nil
 }
