@@ -7,6 +7,7 @@ operations:
   - internal/queries/common.graphql
   - internal/queries/custom_signature.graphql
   - internal/queries/malicious_ip_type.graphql
+  - internal/queries/waap_configs.graphql
   - internal/queries/malicious_email_domain.graphql
 
 generated: internal/generated/genqlient.go

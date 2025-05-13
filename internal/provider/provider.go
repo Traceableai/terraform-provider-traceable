@@ -124,6 +124,7 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 		resources.NewMaliciousIpTypeResource,
 		resources.NewEnumerationResource,
 		resources.NewDataLossPreventionUserBasedResource,
+		resources.NewWaapConfigResource,
 		resources.NewMaliciousEmailDomainResource,
 	}
 }
