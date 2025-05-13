@@ -142,7 +142,7 @@ func (r *CustomSignatureResource) Update(ctx context.Context, req resource.Updat
 
 	resp1, err2 := generated.UpdateCustomSignature(ctx, *r.client, *input)
 	if err2 != nil {
-		resp.Diagnostics.AddError("Error in Updating custom signature rule", err2.Error())
+		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
 	data.Id = types.StringValue(resp1.UpdateCustomSignatureRule.Id)
