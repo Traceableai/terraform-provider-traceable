@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     traceable = {
-      source  = "terraform.local/local/traceable"
+      source  = "traceableai/traceable"
       version = "0.0.1"
     }
   }

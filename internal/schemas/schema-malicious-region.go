@@ -4,7 +4,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/traceableai/terraform-provider-traceable/internal/modifiers"
+	"github.com/traceableai/terraform-provider-traceable/internal/validators"
 )
 
 func MaliciousRegionResourceSchema() schema.Schema {
@@ -44,6 +47,12 @@ func MaliciousRegionResourceSchema() schema.Schema {
 			"duration": schema.StringAttribute{
 				MarkdownDescription: "Duration of the rule",
 				Optional:            true,
+				Validators: []validator.String{
+					validators.ValidDurationFormat(),
+				},
+				PlanModifiers: []planmodifier.String{
+					modifiers.MatchStateIfDurationEqual(),
+				},
 			},
 			"regions": schema.SetAttribute{
 				MarkdownDescription: "Regions to apply the rule to(Please check documentation for the valid regions)",
