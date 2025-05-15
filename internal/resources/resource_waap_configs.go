@@ -161,8 +161,8 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel, ctx cont
 		}
 		waapConfigSubRuleConfigsObjectType := types.ObjectType{
 			AttrTypes: map[string]attr.Type{
-				"sub_rule_name":   types.StringType,
-				"sub_rule_action": types.StringType,
+				"name":   types.StringType,
+				"action": types.StringType,
 			},
 		}
 		if len(finalSubRuleModel) > 0 {
@@ -195,8 +195,8 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel, ctx cont
 			"disabled":  types.BoolType,
 			"subrules": types.SetType{ElemType: types.ObjectType{
 				AttrTypes: map[string]attr.Type{
-					"sub_rule_name":   types.StringType,
-					"sub_rule_action": types.StringType,
+					"name":   types.StringType,
+					"action": types.StringType,
 				},
 			}},
 		},
