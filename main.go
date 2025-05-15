@@ -1,11 +1,33 @@
 package main
 
+import "fmt"
+
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/traceableai/terraform-provider-traceable/provider"
+	"context"
+	"log"
+
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
+
+	"github.com/traceableai/terraform-provider-traceable/internal/provider"
+)
+
+var (
+	//comes from goreleaser
+	version string = "dev"
 )
 
 func main() {
-	opts := &plugin.ServeOpts{ProviderFunc: provider.Provider}
-	plugin.Serve(opts)
+
+	var debug bool
+	opts := providerserver.ServeOpts{
+		Address: "registry.terraform.io/traceableai/traceable",
+		Debug:   debug,
+	}
+	err := providerserver.Serve(context.Background(), provider.New(version), opts)
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	fmt.Println(version)
+
 }

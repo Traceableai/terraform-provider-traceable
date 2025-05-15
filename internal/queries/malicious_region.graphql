@@ -1,0 +1,82 @@
+
+fragment MaliciousRegionRuleFields on RegionRule {
+  id
+  name
+  type
+  description
+  disabled
+  internal
+  eventSeverity
+  expiration {
+    duration
+    timestamp
+  }
+  regions {
+    id
+    name
+    country {
+      isoCode
+      name
+    }
+  }
+  ruleScope {
+    environmentScope {
+      environmentIds
+    }
+  }
+  effects {
+    ruleEffectType
+    agentEffect {
+      agentModifications {
+        agentModificationType
+        headerInjection {
+          key
+          value
+          headerCategory
+        }
+      }
+    }
+  }
+}
+
+
+query GetMaliciousRegionRulesName($input: InputRegionRulesFilter) {
+  regionRules(filter: $input) {
+    count
+    total
+    results {
+      id
+      name
+    }
+  }
+}
+
+query GetMaliciousRegionRuleDetails($input: InputRegionRulesFilter) {
+  regionRules(filter: $input) {
+    count
+    total
+    results {
+      ...MaliciousRegionRuleFields
+    }
+  }
+}
+
+mutation CreateMaliciousRegionRule($input: InputRegionRuleCreate!) {
+  createRegionRule(input: $input) {
+    ...MaliciousRegionRuleFields
+  }
+}
+
+mutation UpdateMaliciousRegionRule($input: InputRegionRuleUpdate!) {
+  updateRegionRule(input: $input) {
+    ...MaliciousRegionRuleFields
+  }
+}
+
+mutation DeleteMaliciousRegionRule($input: InputRegionRuleDelete!) {
+  deleteRegionRule(input: $input) {
+    success
+  }
+}
+    
+

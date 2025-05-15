@@ -1,0 +1,75 @@
+
+fragment MaliciousIpTypeRuleFields on MaliciousSourcesRule {
+    id
+    info {
+      name
+      description
+      action {
+        eventSeverity
+        expirationDetails {
+          expirationDuration
+        }
+        ruleActionType
+      }
+      conditions {
+        conditionType
+        ipLocationTypeCondition {
+          ipLocationTypes
+        }
+      }
+    }
+    scope {
+      environmentScope {
+        environmentIds
+      }
+    }
+    status {
+      disabled
+      internal
+    }
+  }
+
+  query GetMaliciousIpTypeRulesName($input: InputMaliciousSourcesRulesFilter) {
+    maliciousSourcesRules(filter: $input) {
+      count
+      total
+      results {
+        info {
+          name
+        }
+        id
+      }
+    }
+  }
+
+  query GetMaliciousIpTypeRuleDetails($input: InputMaliciousSourcesRulesFilter) {
+    maliciousSourcesRules(filter: $input) {
+      count
+      total
+      results {
+        ...MaliciousIpTypeRuleFields
+      }
+    }
+  }
+
+  mutation CreateMaliciousIpTypeRule($input: InputMaliciousSourcesRuleCreate!) {
+    createMaliciousSourcesRule(create: $input) {
+      ...MaliciousIpTypeRuleFields
+    }
+  }
+
+  mutation UpdateMaliciousIpTypeRule($input: InputMaliciousSourcesRuleUpdate!) {
+    updateMaliciousSourcesRule(update: $input) {
+      ...MaliciousIpTypeRuleFields
+    }
+  }
+
+  mutation DeleteMaliciousIpTypeRule($input: InputMaliciousSourcesRuleDelete!) {
+    deleteMaliciousSourcesRule(delete: $input) {
+      success
+    }
+  }
+
+  
+
+

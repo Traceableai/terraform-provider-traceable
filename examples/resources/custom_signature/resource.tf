@@ -1,25 +1,8 @@
-terraform {
-  required_providers {
-    traceable = {
-      source  = "traceableai/traceable"
-      version = "0.0.1"
-    }
-  }
-}
-
-variable "API_TOKEN" {
-  type = string
-}
-
-provider "traceable" {
-  platform_url = "https://api-dev.traceable.ai"
-  api_token    = var.API_TOKEN
-}
-
 resource "traceable_custom_signature" "example" {
-  name         = "example_signature_test_aditya_tf_1"         
+  name         = "example_signature"         
   disabled     = false                       
   description  = "Sample custom signature"   
+  environments = ["1260"]            
 
   payload_criteria = {
     request_response = [
@@ -41,6 +24,8 @@ resource "traceable_custom_signature" "example" {
   }
 
   action = {
-    action_type    = "TESTING_DETECTION" 
+    action_type    = "NORMAL_DETECTION" 
+    duration       = "PT1M"  
+    event_severity = "LOW"   
   }
 }
