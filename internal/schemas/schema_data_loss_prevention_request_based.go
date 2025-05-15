@@ -4,7 +4,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/traceableai/terraform-provider-traceable/internal/modifiers"
+	"github.com/traceableai/terraform-provider-traceable/internal/validators"
 )
 
 func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
@@ -55,6 +58,12 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 						"rolling_window_duration": schema.StringAttribute{
 							MarkdownDescription: "Rolling window duration",
 							Optional:            true,
+							Validators: []validator.String{
+								validators.ValidDurationFormat(),
+							},
+							PlanModifiers: []planmodifier.String{
+								modifiers.MatchStateIfDurationEqual(),
+							},
 						},
 						"threshold_config_type": schema.StringAttribute{
 							MarkdownDescription: "Threshold config type",
@@ -63,10 +72,22 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 						"dynamic_mean_calculation_duration": schema.StringAttribute{
 							MarkdownDescription: "Dynamic mean calculation duration",
 							Optional:            true,
+							Validators: []validator.String{
+								validators.ValidDurationFormat(),
+							},
+							PlanModifiers: []planmodifier.String{
+								modifiers.MatchStateIfDurationEqual(),
+							},
 						},
 						"dynamic_duration": schema.StringAttribute{
 							MarkdownDescription: "Dynamic duration",
 							Optional:            true,
+							Validators: []validator.String{
+								validators.ValidDurationFormat(),
+							},
+							PlanModifiers: []planmodifier.String{
+								modifiers.MatchStateIfDurationEqual(),
+							},
 						},
 						"dynamic_percentage_exceding_mean_allowed": schema.Int64Attribute{
 							MarkdownDescription: "Dynamic percentage exceeding mean allowed",
@@ -87,6 +108,12 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 						"duration": schema.StringAttribute{
 							MarkdownDescription: "Duration",
 							Optional:            true,
+							Validators: []validator.String{
+								validators.ValidDurationFormat(),
+							},
+							PlanModifiers: []planmodifier.String{
+								modifiers.MatchStateIfDurationEqual(),
+							},
 						},
 					},
 				},
