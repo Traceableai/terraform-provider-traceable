@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"regexp"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -146,4 +148,29 @@ func ConvertSetToStrPointer(data types.Set) ([]*string, error) {
 		}
 	}
 	return values, nil
+}
+func ConvertDurationToSeconds(duration string) (string, error) {
+	re := regexp.MustCompile(`P(T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?`)
+	matches := re.FindStringSubmatch(duration)
+	if len(matches) == 0 {
+		return "", fmt.Errorf("Invalid duration format")
+	}
+
+	totalSeconds := 0
+
+	// Parse hours, minutes, and seconds if present
+	if matches[2] != "" { // Hours
+		hours, _ := strconv.Atoi(matches[2])
+		totalSeconds += hours * 3600
+	}
+	if matches[3] != "" { // Minutes
+		minutes, _ := strconv.Atoi(matches[3])
+		totalSeconds += minutes * 60
+	}
+	if matches[4] != "" { // Seconds
+		seconds, _ := strconv.Atoi(matches[4])
+		totalSeconds += seconds
+	}
+
+	return fmt.Sprintf("PT%dS", totalSeconds), nil
 }
