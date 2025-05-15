@@ -71,7 +71,6 @@ func (r *WaapConfigResource) Create(ctx context.Context, req resource.CreateRequ
 
 func (r *WaapConfigResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data *models.WaapConfigModel
-
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return

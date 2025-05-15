@@ -52,7 +52,6 @@ func ConvertCustomStringPtrsToTerraformSet[T any](input []*T) (types.Set, error)
 
 func ConvertStringPtrToTerraformSet(input []*string) (types.Set, error) {
 	fmt.Println("entering the utils functions")
-	fmt.Println("Shreyanshguptabest", input)
 
 	if input == nil {
 		return types.SetNull(types.StringType), nil
