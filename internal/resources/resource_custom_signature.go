@@ -685,7 +685,7 @@ func checkInputCondition(data *models.CustomSignatureModel) (error) {
 	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.EventSeverity) {
 		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
 	}
-	if data.Action.ActionType.ValueString() == "BLOCK" && !HasValue(data.Action.EventSeverity) {
+	if data.Action.ActionType.ValueString() == "DETECTION_AND_BLOCKING" && !HasValue(data.Action.EventSeverity) {
 		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
 	}
 	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && !HasValue(data.Action.EventSeverity) {
