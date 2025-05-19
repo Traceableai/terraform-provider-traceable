@@ -281,6 +281,10 @@ func convertEnumerationRateLimitingModelToCreateInput(ctx context.Context, data 
 	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
 		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
 	}
+	err = checkEnumerationInputCondition(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	return &input, nil
 }
@@ -337,7 +341,43 @@ func convertEnumerationRateLimitingModelToUpdateInput(ctx context.Context, data 
 	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
 		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
 	}
-
+	err = checkEnumerationInputCondition(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 	return &input, nil
 
+}
+
+func checkEnumerationInputCondition(ctx context.Context, data *models.RateLimitingRuleModel) error {
+
+	if HasValue(data.ThresholdConfigs) {
+		var thresholdConfigsModel []models.RateLimitingThresholdConfig
+		err := utils.ConvertElementsSet(data.ThresholdConfigs, &thresholdConfigsModel)
+		if err != nil {
+			return fmt.Errorf("failed to convert threshold configs: %v", err)
+		}
+
+		for _, config := range thresholdConfigsModel {
+			if config.ThresholdConfigType.ValueString() != "VALUE_BASED" {
+				return utils.NewInvalidError("threshold_configs threshold_config_type", fmt.Sprintf("%s is not a suported threshold_config_type", config.ThresholdConfigType.ValueString()))
+			}
+			if HasValue(config.RollingWindowCountAllowed) {
+				return utils.NewInvalidError("threshold_configs rolling_window_count_allowed", "RollingWindowCountAllowed must be present")
+			}
+			if HasValue(config.RollingWindowDuration) {
+				return utils.NewInvalidError("threshold_configs rolling_window_duration", "RollingWindowDuration must be present")
+			}
+			if HasValue(config.DynamicMeanCalculationDuration) {
+				return utils.NewInvalidError("threshold_configs dynamic_mean_calculation_duration", "DynamicMeanCalculationDuration must be present")
+			}
+			if HasValue(config.DynamicDuration) {
+				return utils.NewInvalidError("threshold_configs dynamic_duration", "DynamicDuration must be present")
+			}
+			if HasValue(config.DynamicPercentageExcedingMeanAllowed) {
+				return utils.NewInvalidError("threshold_configs dynamic_percentage_exceding_mean_allowed", "DynamicPercentageExcedingMeanAllowed must be present")
+			}
+		}
+	}
+	return nil
 }

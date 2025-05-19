@@ -185,12 +185,25 @@ output "traceable_endpoint_sample" {
 #         threshold_config_type = "VALUE_BASED"
 #         user_aggregate_type = "PER_USER"
 #     },
+#     #  {
+#     #     api_aggregate_type = "PER_ENDPOINT"
+#     #     user_aggregate_type = "PER_USER"
+#     #     rolling_window_count_allowed = 10
+#     #     rolling_window_duration = "PT1M"
+#     #     threshold_config_type = "ROLLING_WINDOW"
+#     # },
+#     # {
+       
+#     #    dynamic_duration = "PT1M"
+#     #    dynamic_percentage_exceding_mean_allowed = 10
+#     #    dynamic_mean_calculation_duration ="PT24H"
+#     #     threshold_config_type = "DYNAMIC"
+#     # }
    
 
 #     ]
 #     action = {
 #        action_type = "ALERT"
-#         duration = "PT1M"
 #         event_severity = "LOW"    
 #     }
 #     sources = {
@@ -206,7 +219,7 @@ output "traceable_endpoint_sample" {
 #             user_ids = ["123"]
 #             exclude = true  
 #         }
-#         endpoint_labels = data.traceable_endpoint_labels.sample1.label_ids
+#         # endpoint_labels = data.traceable_endpoint_labels.sample1.label_ids
 #         # endpoints = data.traceable_endpoints.sample3.endpoint_ids 
        
 #         ip_reputation = "LOW"
@@ -259,37 +272,37 @@ output "traceable_endpoint_sample" {
 #             }
 
 #         ]
-#         data_set = [
-#           {
-#             data_sets_ids=data.traceable_datasets.sample2.data_set_ids
-#             data_location = "REQUEST"
+#         # data_set = [
+#         #   {
+#         #     data_sets_ids=data.traceable_datasets.sample2.data_set_ids
+#         #     data_location = "REQUEST"
 
-#           },
-#             {
-#             data_sets_ids=data.traceable_datasets.sample2.data_set_ids
-#             data_location = "RESPONSE"
-#           },
-#            {
-#             data_sets_ids=data.traceable_datasets.sample2.data_set_ids
-#            }
-#         ] 
+#         #   },
+#         #     {
+#         #     data_sets_ids=data.traceable_datasets.sample2.data_set_ids
+#         #     data_location = "RESPONSE"
+#         #   },
+#         #    {
+#         #     data_sets_ids=data.traceable_datasets.sample2.data_set_ids
+#         #    }
+#         # ] 
 
-#         data_type = [
-#           {
-#             data_types_ids=data.traceable_data_types.sample.data_type_ids
-#             data_location = "REQUEST"
+#         # data_type = [
+#         #   {
+#         #     data_types_ids=data.traceable_data_types.sample.data_type_ids
+#         #     data_location = "REQUEST"
 
-#           },
-#            {
-#             data_types_ids=data.traceable_data_types.sample.data_type_ids
-#             data_location = "RESPONSE"
-#           },
-#           {
-#             data_types_ids=data.traceable_data_types.sample.data_type_ids
-#           }
-#         ]
+#         #   },
+#         #    {
+#         #     data_types_ids=data.traceable_data_types.sample.data_type_ids
+#         #     data_location = "RESPONSE"
+#         #   },
+#         #   {
+#         #     data_types_ids=data.traceable_data_types.sample.data_type_ids
+#         #   }
+#         # ]
 #     }
-#     depends_on = ["data.traceable_endpoint_labels.sample1","data.traceable_endpoints.sample3","data.traceable_datasets.sample2","data.traceable_data_types.sample"]
+#     # depends_on = ["data.traceable_endpoint_labels.sample","data.traceable_endpoints.sample","data.traceable_datasets.sample","data.traceable_data_types.sample"]
 # }
 
 
@@ -515,12 +528,16 @@ resource "traceable_rate_limiting" "test"{
        dynamic_percentage_exceding_mean_allowed = 10
        dynamic_mean_calculation_duration ="PT60S"
         threshold_config_type = "DYNAMIC"
-    }
+        
+    },
+ 
+
 
     ]
     action = {
         action_type = "ALERT"
         event_severity = "LOW"
+     
     }
     sources = {
         ip_asn = {
