@@ -469,6 +469,11 @@ var RateLimitingSensitiveParamsEvaluationTypeMap = map[string]generated.Sensitiv
 	"SELECTED_DATA_TYPES": generated.SensitiveParamsEvaluationTypeSelectedDataTypes,
 }
 
+var RateLimitingIpAddressConditionTypeMap = map[string]generated.RateLimitingRuleIpAddressConditionType{
+	"ALL_INTERNAL": generated.RateLimitingRuleIpAddressConditionTypeAllInternal,
+	"ALL_EXTERNAL": generated.RateLimitingRuleIpAddressConditionTypeAllExternal,
+}
+
 var MaliciousEmailDomainMinEmailFraudScoreLevel = map[string]generated.MaliciousSourcesRuleEmailFraudScoreLevel{
 	"HIGH":     generated.MaliciousSourcesRuleEmailFraudScoreLevelHigh,
 	"CRITICAL": generated.MaliciousSourcesRuleEmailFraudScoreLevelCritical,

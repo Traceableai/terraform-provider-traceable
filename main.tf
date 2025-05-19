@@ -10,7 +10,7 @@ terraform {
 //object empty ka case check karna hai 
 provider "traceable" {
   platform_url = "https://api-staging.traceable.ai"
-  api_token    = "ODQ3MWU5NDMtODgwYS00MDgyLWFkYTItNjlkOWM3MDU2ZTdj"
+  api_token    = ""
 }
 
 # data "traceable_endpoint_labels" "sample1"{
@@ -548,8 +548,9 @@ resource "traceable_rate_limiting" "test"{
         }
         ip_abuse_velocity = "LOW"
         ip_address= {
-            ip_address_list = ["192.168.1.1"]
-            exclude = true  
+            ip_address_type = "ALL_EXTERNAL"
+            # ip_address_list = ["192.168.1.1"]
+            # exclude = true  
         }
         email_domain = {
             email_domain_regexes = ["abc*.*gmail.com"]

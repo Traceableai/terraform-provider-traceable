@@ -274,10 +274,10 @@ func RateLimitingResourceSchema() schema.Schema {
 							},
 							"exclude": schema.BoolAttribute{
 								MarkdownDescription: "Set it to true to exclude given ip addresses",
-								Required:            true,
+								Optional:            true,
 							},
 							"ip_address_type": schema.StringAttribute{
-								MarkdownDescription: "Accepts ALL_EXTERNAL",
+								MarkdownDescription: "Accepts ALL_EXTERNAL,ALL_INTERNAL",
 								Optional:            true,
 							},
 						},

@@ -448,13 +448,21 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				}
 
 			case "IP_ADDRESS":
-				ipAddressList, err := utils.ConvertStringPtrToTerraformSet(leafCondition.IpAddressCondition.GetIpAddresses())
-				if err != nil {
-					return nil, err
-				}
-				sources.IpAddress = &models.RateLimitingIpAddressSource{
-					IpAddressList: ipAddressList,
-					Exclude:       types.BoolValue(*leafCondition.IpAddressCondition.GetExclude()),
+				if leafCondition.IpAddressCondition.GetIpAddressConditionType() != nil {
+					sources.IpAddress = &models.RateLimitingIpAddressSource{
+						IpAddressType: types.StringValue(string(*leafCondition.IpAddressCondition.GetIpAddressConditionType())),
+						IpAddressList: types.SetNull(types.StringType),
+					}
+
+				} else {
+					ipAddressList, err := utils.ConvertStringPtrToTerraformSet(leafCondition.IpAddressCondition.GetIpAddresses())
+					if err != nil {
+						return nil, err
+					}
+					sources.IpAddress = &models.RateLimitingIpAddressSource{
+						IpAddressList: ipAddressList,
+						Exclude:       types.BoolValue(*leafCondition.IpAddressCondition.GetExclude()),
+					}
 				}
 
 			case "IP_LOCATION_TYPE":
@@ -1438,31 +1446,61 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 
 		if HasValue(data.Sources.IpAddress) {
 
-			if !HasValue(data.Sources.IpAddress.IpAddressList) {
-				return nil, utils.NewInvalidError("sources ip_address ip_address_list", " Must be present and not empty")
-			}
-
-			if !HasValue(data.Sources.IpAddress.Exclude) {
-				return nil, utils.NewInvalidError("sources ip_address exclude", " Must be present and not empty")
-			}
-			ipAddresses := []*string{}
-			for _, ipAddress := range data.Sources.IpAddress.IpAddressList.Elements() {
-				if ip, ok := ipAddress.(types.String); ok {
-					ipAddr := ip.ValueString()
-					ipAddresses = append(ipAddresses, &ipAddr)
+			if HasValue(data.Sources.IpAddress.IpAddressType) {
+				if HasValue(data.Sources.IpAddress.IpAddressList) {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_list ip_address_type", " Must not be present both")
 				}
-			}
-			exclude := data.Sources.IpAddress.Exclude.ValueBool()
-			var input = generated.InputRateLimitingRuleCondition{
-				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
-					ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
-					IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
-						RawInputIpData: ipAddresses,
-						Exclude:        &exclude,
+
+				if HasValue(data.Sources.IpAddress.Exclude) {
+					return nil, utils.NewInvalidError("sources ip_address exclude", "exclude can not be present when ip_address_type is prese")
+				}
+				conditionType, exist := RateLimitingIpAddressConditionTypeMap[data.Sources.IpAddress.IpAddressType.ValueString()]
+				if !exist {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_type", fmt.Sprintf(" %s Invalid Ip Address Type", data.Sources.IpAddress.IpAddressType.ValueString()))
+				}
+
+				var input = generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
+						IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
+							IpAddressConditionType: &conditionType,
+						},
 					},
-				},
+				}
+				conditions = append(conditions, &input)
+
+			} else {
+
+				if !HasValue(data.Sources.IpAddress.IpAddressList) {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_list", " Must be present and not empty")
+				}
+
+				if !HasValue(data.Sources.IpAddress.Exclude) {
+					return nil, utils.NewInvalidError("sources ip_address exclude", " Must be present and not empty")
+				}
+				if HasValue(data.Sources.IpAddress.IpAddressType) {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_type", " Must not be present when ip_address_list is present")
+				}
+				ipAddresses := []*string{}
+				for _, ipAddress := range data.Sources.IpAddress.IpAddressList.Elements() {
+					if ip, ok := ipAddress.(types.String); ok {
+						ipAddr := ip.ValueString()
+						ipAddresses = append(ipAddresses, &ipAddr)
+					}
+				}
+				exclude := data.Sources.IpAddress.Exclude.ValueBool()
+				var input = generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
+						IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
+							RawInputIpData: ipAddresses,
+							Exclude:        &exclude,
+						},
+					},
+				}
+				conditions = append(conditions, &input)
+
 			}
-			conditions = append(conditions, &input)
 
 		}
 
