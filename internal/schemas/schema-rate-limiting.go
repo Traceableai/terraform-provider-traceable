@@ -18,6 +18,9 @@ func RateLimitingResourceSchema() schema.Schema {
 			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the Rate Limiting Rule",
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the Rate Limiting Rule.",
