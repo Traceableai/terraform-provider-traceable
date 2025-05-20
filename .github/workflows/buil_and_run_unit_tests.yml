@@ -4,7 +4,7 @@ on:
     paths-ignore:
       - 'README.md'
       - 'examples'
-      
+
 concurrency:
   group: test-${{ github.ref }}
 permissions:
@@ -67,7 +67,9 @@ jobs:
 
       - name: Upload test report
         if: always()
-        uses: actions/upload-artifact@v3
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: unit-test-report
           path: unit-test-report.xml
+          retention-days: 7
