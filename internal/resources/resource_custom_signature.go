@@ -3,7 +3,6 @@ package resources
 import (
 	"context"
 	"fmt"
-
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -205,7 +204,7 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 			return nil, err
 		}
 		customSignatureModel.Environments = environments
-		tflog.Trace(ctx, "Shreyansh Gupta 123", map[string]interface{}{
+		tflog.Trace(ctx, "custom sig test", map[string]interface{}{
 			"environments": environments,
 		})
 
@@ -265,7 +264,8 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 				ValueConditionValue:    valConditionValue,
 			})
 		} else if clauseType == "CUSTOM_SEC_RULE" {
-			customSignatureModel.PayloadCriteria.CustomSecRule = types.StringValue(*clause.GetCustomSecRule().GetInputSecRuleString())
+			cusSecRule := *clause.GetCustomSecRule().GetInputSecRuleString()
+			customSignatureModel.PayloadCriteria.CustomSecRule = types.StringValue(cusSecRule)
 		}
 	}
 	requestResponseObjectType := types.ObjectType{

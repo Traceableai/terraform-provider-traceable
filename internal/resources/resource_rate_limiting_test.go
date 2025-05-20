@@ -3,9 +3,9 @@ package resources_test
 import (
 	"fmt"
 	"testing"
-
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/traceableai/terraform-provider-traceable/internal/acctest"
+	"github.com/traceableai/terraform-provider-traceable/internal/utils"
 )
 
 func TestAccRateLimitiningResourceDefault(t *testing.T) {
@@ -44,6 +44,6 @@ func TestAccRateLimitiningResourceDefault(t *testing.T) {
 }
 
 func testAccRateLimitiningResourceConfigDefault(name string, action string) string {
-
+	name = name + utils.GenerateRandomString(8)
 	return fmt.Sprintf(acctest.RATE_LIMIT_CREATE, name, action)
 }

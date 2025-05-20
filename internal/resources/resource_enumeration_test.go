@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/traceableai/terraform-provider-traceable/internal/acctest"
+	// "github.com/traceableai/terraform-provider-traceable/internal/resources"
 )
 
 func TestAccEnumerationResourceDefault(t *testing.T) {
@@ -44,6 +45,6 @@ func TestAccEnumerationResourceDefault(t *testing.T) {
 }
 
 func testAccEnumerationResourceConfigDefault(name string, action string) string {
-
+	// name = name + resources.GenerateRandomString(8)
 	return fmt.Sprintf(acctest.ENUMERATION_RESOURCE, name, action)
 }

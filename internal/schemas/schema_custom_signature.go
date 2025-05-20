@@ -77,6 +77,9 @@ func CustomSignatureResourceSchema() schema.Schema {
 					"custom_sec_rule": schema.StringAttribute{
 						MarkdownDescription: "custom sec rule string",
 						Optional:            true,
+						PlanModifiers: []planmodifier.String{
+							modifiers.SuppressDiffIfSanitizedEqual(),
+						},
 					},
 					"attributes": schema.SetNestedAttribute{
 						MarkdownDescription: "Attributes conditions as payload match criteria",
