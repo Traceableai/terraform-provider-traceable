@@ -3,8 +3,8 @@ on:
   pull_request:
     paths-ignore:
       - 'README.md'
-      - 'examples'
-      - '.github'
+      - 'examples/**'
+      - '.github/**'
 
 concurrency:
   group: test-${{ github.ref }}
