@@ -19,7 +19,7 @@ func TestAccDataSetDefault(t *testing.T) {
 			{
 				Config: testAccDataSetConfigDefault(rule_name, "terraform data set"), // initalize the resource
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("traceable_data_set.test", "name", rule_name),
+					resource.TestCheckResourceAttr("internal/resources/resource_rate_limiting_test.go.test", "name", rule_name),
 				), //checking with state
 			},
 			{
