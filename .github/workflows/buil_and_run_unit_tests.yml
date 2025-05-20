@@ -4,6 +4,7 @@ on:
     paths-ignore:
       - 'README.md'
       - 'examples'
+      - '.github'
 
 concurrency:
   group: test-${{ github.ref }}
@@ -32,7 +33,7 @@ jobs:
 
   test:
     name: Terraform Provider Acceptance Test
-    # needs: build
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
