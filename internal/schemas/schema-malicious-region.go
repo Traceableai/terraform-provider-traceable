@@ -17,6 +17,9 @@ func MaliciousRegionResourceSchema() schema.Schema {
 			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the Malicious Region Rule",
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the Malicious Region Rule.",

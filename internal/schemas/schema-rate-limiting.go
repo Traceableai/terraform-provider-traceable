@@ -18,6 +18,9 @@ func RateLimitingResourceSchema() schema.Schema {
 			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the Rate Limiting Rule",
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the Rate Limiting Rule.",
@@ -45,11 +48,11 @@ func RateLimitingResourceSchema() schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"api_aggregate_type": schema.StringAttribute{
-							MarkdownDescription: "API aggregate type",
+							MarkdownDescription: "API aggregate type(PER_ENDPOINT,ACROSS_ENDPOINT)",
 							Optional:            true,
 						},
 						"user_aggregate_type": schema.StringAttribute{
-							MarkdownDescription: "User aggregate type",
+							MarkdownDescription: "User aggregate type(PER_USER,ACROSS_USER)",
 							Optional:            true,
 						},
 						"rolling_window_count_allowed": schema.Int64Attribute{
@@ -67,7 +70,7 @@ func RateLimitingResourceSchema() schema.Schema {
 							},
 						},
 						"threshold_config_type": schema.StringAttribute{
-							MarkdownDescription: "Threshold config type",
+							MarkdownDescription: "Threshold config type(ROLLING_WINDOW,VALUE_BASED,DYNAMIC)",
 							Required:            true,
 						},
 						"dynamic_mean_calculation_duration": schema.StringAttribute{
@@ -123,7 +126,7 @@ func RateLimitingResourceSchema() schema.Schema {
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"action_type": schema.StringAttribute{
-						MarkdownDescription: "ALERT , BLOCK , ALLOW ,MARK FOR TESTING",
+						MarkdownDescription: "ALERT,BLOCK,MARK FOR TESTING",
 						Required:            true,
 					},
 					"duration": schema.StringAttribute{
@@ -137,7 +140,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						},
 					},
 					"event_severity": schema.StringAttribute{
-						MarkdownDescription: "LOW,MEDIUM,HIGH",
+						MarkdownDescription: "LOW,MEDIUM,HIGH,CRITICAL",
 						Optional:            true,
 					},
 					"header_injections": schema.SetNestedAttribute{
@@ -167,7 +170,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
 							"scanner_types_list": schema.SetAttribute{
-								MarkdownDescription: "It will be a list of scanner types",
+								MarkdownDescription: "It will be a list of scanner types(Traceable AST,Qualys,Rapid7 InsightAppSec,Invicti,Tenable)",
 								Required:            true,
 								ElementType:         types.StringType,
 							},
@@ -196,7 +199,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
 							"ip_connection_type_list": schema.SetAttribute{
-								MarkdownDescription: "It will be a list of IP connection types",
+								MarkdownDescription: "It will be a list of IP connection types(RESIDENTIAL,MOBILE,CORPORATE,DATA_CENTER,EDUCATION)",
 								Required:            true,
 								ElementType:         types.StringType,
 							},
@@ -242,11 +245,11 @@ func RateLimitingResourceSchema() schema.Schema {
 						Optional:            true,
 					},
 					"ip_location_type": schema.SingleNestedAttribute{
-						MarkdownDescription: "Ip location type as source ([BOT, TOR_EXIT_NODE, PUBLIC_PROXY])",
+						MarkdownDescription: "Ip location type as source",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
 							"ip_location_types": schema.SetAttribute{
-								MarkdownDescription: "Ip location type as source ([BOT, TOR_EXIT_NODE, PUBLIC_PROXY])",
+								MarkdownDescription: "Ip location type as source ([BOT,ANONYMOUS_VPN,HOSTING_PROVIDER,TOR_EXIT_NODE, PUBLIC_PROXY,SCANNER])",
 								Required:            true,
 								ElementType:         types.StringType,
 							},
@@ -257,7 +260,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						},
 					},
 					"ip_abuse_velocity": schema.StringAttribute{
-						MarkdownDescription: "Ip abuse velocity as source (LOW/MEDIUM/HIGH/CRITICAL)",
+						MarkdownDescription: "Ip abuse velocity as source (LOW/MEDIUM/HIGH)",
 						Optional:            true,
 					},
 					"ip_address": schema.SingleNestedAttribute{
@@ -271,10 +274,10 @@ func RateLimitingResourceSchema() schema.Schema {
 							},
 							"exclude": schema.BoolAttribute{
 								MarkdownDescription: "Set it to true to exclude given ip addresses",
-								Required:            true,
+								Optional:            true,
 							},
 							"ip_address_type": schema.StringAttribute{
-								MarkdownDescription: "Accepts ALL_EXTERNAL",
+								MarkdownDescription: "Accepts ALL_EXTERNAL,ALL_INTERNAL",
 								Optional:            true,
 							},
 						},
@@ -373,7 +376,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"data_location": schema.StringAttribute{
-									MarkdownDescription: "Which Metadatype to include",
+									MarkdownDescription: "Specifies which metadata type to include (`REQUEST`, `RESPONSE`). If not defined, applies on both",
 									Optional:            true,
 								},
 								"data_sets_ids": schema.SetAttribute{

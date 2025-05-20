@@ -17,6 +17,9 @@ func MaliciousIPTypeResourceSchema() schema.Schema {
 			"id": schema.StringAttribute{
 				MarkdownDescription: "Identifier of the Malicious IP Type Rule",
 				Computed:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the Malicious IP Range Rule.",
