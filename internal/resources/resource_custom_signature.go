@@ -3,6 +3,8 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -602,7 +604,7 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 			}
 		}
 		if HasValue(data.PayloadCriteria.CustomSecRule) {
-			customSecRuleString := data.PayloadCriteria.CustomSecRule.ValueString()
+			customSecRuleString := strings.TrimSpace(data.PayloadCriteria.CustomSecRule.ValueString())
 			clause := &generated.InputCustomSignatureRuleClauseRequest{
 				ClauseType: generated.CustomSignatureRuleClauseTypeCustomSecRule,
 				CustomSecRule: &generated.InputCustomSignatureSecRule{

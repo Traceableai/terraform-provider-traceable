@@ -6,20 +6,20 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/traceableai/terraform-provider-traceable/internal/acctest"
-	// "github.com/traceableai/terraform-provider-traceable/internal/resources"
+	"github.com/traceableai/terraform-provider-traceable/internal/utils"
 )
 
 func TestAccEnumerationResourceDefault(t *testing.T) {
-
+	var rule_name="terraform_enumeration_T1" + utils.GenerateRandomString(8)
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccEnumerationResourceConfigDefault("enumeration_T1", "ALERT"), // initalize the resource
+				Config: testAccEnumerationResourceConfigDefault(rule_name, "PT60S","LOW"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("traceable_enumeration.test", "name", "enumeration_T1"),
-					resource.TestCheckResourceAttr("traceable_enumeration.test", "action.action_type", "ALERT"),
+					resource.TestCheckResourceAttr("traceable_enumeration.test", "name", rule_name),
+					resource.TestCheckResourceAttr("traceable_enumeration.test", "action.duration", "PT60S"),
 					resource.TestCheckTypeSetElemAttr("traceable_enumeration.test", "sources.regions.regions_ids.*", "AF"),
 					resource.TestCheckTypeSetElemAttr("traceable_enumeration.test", "sources.regions.regions_ids.*", "AW"),
 				), //checking with state
@@ -27,14 +27,14 @@ func TestAccEnumerationResourceDefault(t *testing.T) {
 			{
 				ResourceName:      "traceable_enumeration.test",
 				ImportState:       true,
-				ImportStateId:     "enumeration_T1",
-				ImportStateVerify: true,
+				ImportStateId:     rule_name,
 			},
 			{
-				Config: testAccEnumerationResourceConfigDefault("enumeration_T1", "ALERT"),  // change this to BLOCK when shreyeansh fixes it
+				Config: testAccEnumerationResourceConfigDefault(rule_name, "PT5M","HIGH"),  
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("traceable_enumeration.test", "name", "enumeration_T1"),
-					resource.TestCheckResourceAttr("traceable_enumeration.test", "action.action_type", "ALERT"),
+					resource.TestCheckResourceAttr("traceable_enumeration.test", "name", rule_name),
+					resource.TestCheckResourceAttr("traceable_enumeration.test", "action.duration", "PT5M"),
+					resource.TestCheckResourceAttr("traceable_enumeration.test", "action.event_severity", "HIGH"),
 					resource.TestCheckTypeSetElemAttr("traceable_enumeration.test", "sources.regions.regions_ids.*", "AF"),
 					resource.TestCheckTypeSetElemAttr("traceable_enumeration.test", "sources.regions.regions_ids.*", "AW"),
 				),
@@ -44,7 +44,6 @@ func TestAccEnumerationResourceDefault(t *testing.T) {
 	})
 }
 
-func testAccEnumerationResourceConfigDefault(name string, action string) string {
-	// name = name + resources.GenerateRandomString(8)
-	return fmt.Sprintf(acctest.ENUMERATION_RESOURCE, name, action)
+func testAccEnumerationResourceConfigDefault(name string, duration string,severity string) string {
+	return fmt.Sprintf(acctest.ENUMERATION_RESOURCE, name, duration,severity)
 }

@@ -23,8 +23,9 @@ const RATE_LIMIT_CREATE = `resource "traceable_rate_limiting" "test"{
 
     ]
     action = {
-        action_type = "%s"
-        event_severity = "LOW"
+        action_type = "BLOCK"
+        event_severity = "%s"
+        duration="%s"
     }
     sources = {
         ip_asn = {
@@ -128,9 +129,9 @@ const ENUMERATION_RESOURCE=`resource "traceable_enumeration" "test"{
     }
     ]
     action = {
-        action_type = "%s"
-        duration="PT1M"
-        event_severity = "LOW"    
+        action_type = "BLOCK"
+        duration="%s"
+        event_severity = "%s"    
     }
 
     sources = {
@@ -197,35 +198,6 @@ const ENUMERATION_RESOURCE=`resource "traceable_enumeration" "test"{
               value = "value"
             }
         ]
-        data_set = [
-          {
-            data_sets_ids=["0aa32d26-90b9-dbd3-d2a6-6ec3bd1717c3"]
-            data_location = "REQUEST"
-
-          },
-            {
-            data_sets_ids=["0aa32d26-90b9-dbd3-d2a6-6ec3bd1717c3"]
-            data_location = "RESPONSE"
-          },
-           {
-            data_sets_ids=["0aa32d26-90b9-dbd3-d2a6-6ec3bd1717c3"]
-           }
-        ] 
-
-        data_type = [
-          {
-            data_types_ids=["bba8b92b-6e1f-627e-ed1f-e38b87585159"]
-            data_location = "REQUEST"
-
-          },
-           {
-            data_types_ids=["bba8b92b-6e1f-627e-ed1f-e38b87585159"]
-            data_location = "RESPONSE"
-          },
-          {
-            data_types_ids=["bba8b92b-6e1f-627e-ed1f-e38b87585159"]
-          }
-        ]
     }
 }`
 
@@ -244,19 +216,56 @@ const CUSTOM_SIGNATURE_RESOURCE = `resource "traceable_custom_signature" "test" 
         match_value          = "secret"          
       }
     ]
-    attributes = [
-      {
-        key_condition_operator   = "EQUALS"      
-        key_condition_value      = "http.status" 
-        value_condition_operator = "EQUALS"      
-        value_condition_value    = "500"         
-      }
-    ]  
+    custom_sec_rule = <<EOF
+    SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
+    "id:92100120,\
+    phase:2,\
+    block,\
+    msg:'Test sec Rule',\
+    tag:'attack-protocol',\
+    tag:'traceable/labels/OWASP_2021:A4,CWE:444,OWASP_API_2019:API8',\
+    tag:'traceable/severity/HIGH',\
+    tag:'traceable/type/safe,block',\
+    severity:'CRITICAL',\
+    setvar:'tx.anomaly_score_pl1=+tx.critical_anomaly_score'"
+    EOF
   }
 
   action = {
-    action_type    = "NORMAL_DETECTION" 
-    duration       = "PT1M"  
-    event_severity = "LOW"   
+    action_type    = "DETECTION_AND_BLOCKING" 
+    duration       = "%s"  
+    event_severity = "%s"   
   }
+}`
+
+const IP_TYPE_RESOURCE=`resource "traceable_malicious_ip_type" "test"{
+    name = "%s"
+    description = "terraform unit test"
+    enabled = true
+    event_severity = "%s"
+    duration = "%s"
+    action = "BLOCK"
+    environments = ["1260"]
+    ip_type = ["ANONYMOUS_VPN","BOT"]
+}`
+
+const EMAIL_DOMAIN=`resource "traceable_malicious_email_domain" "test" {
+    name = "%s"
+    description = "example rule"
+    enabled = true
+    event_severity = "%s"
+    duration = "%s"
+    action = "BLOCK"
+    environments = ["1260"]
+    email_domains_list = ["traceable.ai", "harness.io"]
+    apply_rule_to_data_leaked_email = true
+    min_email_fraud_score_level = "CRITICAL"
+    email_regexes_list = ["traceable.ai", "harness.io"]
+    apply_rule_to_disposable_email_domains = true
+}`
+
+const DATA_SET=`resource "traceable_data_set" "test" {
+    name = "%s"
+    description = "%s"
+    icon_type = "Protect"
 }`

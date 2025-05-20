@@ -9,31 +9,30 @@ import (
 )
 
 func TestAccRateLimitiningResourceDefault(t *testing.T) {
-
+	var rule_name="rate_limit_T1_" + utils.GenerateRandomString(8)
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRateLimitiningResourceConfigDefault("rate_limit_T1", "ALERT"), // initalize the resource
+				Config: testAccRateLimitiningResourceConfigDefault(rule_name, "LOW","PT60S"), 
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "name", "rate_limit_T1"),
-					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "action.action_type", "ALERT"),
+					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "action.duration", "PT60S"),
+					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "action.event_severity", "LOW"),
 					resource.TestCheckTypeSetElemAttr("traceable_rate_limiting.test", "sources.regions.regions_ids.*", "NU"),
 					resource.TestCheckTypeSetElemAttr("traceable_rate_limiting.test", "sources.regions.regions_ids.*", "NF"),
-				), //checking with state
+				),
 			},
 			{
 				ResourceName:      "traceable_rate_limiting.test",
 				ImportState:       true,
-				ImportStateId:     "rate_limit_T1",
-				ImportStateVerify: true,
+				ImportStateId:     rule_name,
 			},
 			{
-				Config: testAccRateLimitiningResourceConfigDefault("rate_limit_T1", "ALERT"), //change this to block when shreyansh fix it
+				Config: testAccRateLimitiningResourceConfigDefault(rule_name, "HIGH","PT5M"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "name", "rate_limit_T1"),
-					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "action.action_type", "ALERT"),
+					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "action.duration", "PT5M"),
+					resource.TestCheckResourceAttr("traceable_rate_limiting.test", "action.event_severity", "HIGH"),
 					resource.TestCheckTypeSetElemAttr("traceable_rate_limiting.test", "sources.regions.regions_ids.*", "NU"),
 					resource.TestCheckTypeSetElemAttr("traceable_rate_limiting.test", "sources.regions.regions_ids.*", "NF"),
 				),
@@ -43,7 +42,6 @@ func TestAccRateLimitiningResourceDefault(t *testing.T) {
 	})
 }
 
-func testAccRateLimitiningResourceConfigDefault(name string, action string) string {
-	name = name + utils.GenerateRandomString(8)
-	return fmt.Sprintf(acctest.RATE_LIMIT_CREATE, name, action)
+func testAccRateLimitiningResourceConfigDefault(name string, severity string,duration string) string {
+	return fmt.Sprintf(acctest.RATE_LIMIT_CREATE, name, severity,duration)
 }
