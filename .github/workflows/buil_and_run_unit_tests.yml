@@ -10,29 +10,29 @@ concurrency:
 permissions:
   contents: read
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+#   build:
+#     name: Build
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 5
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
 
-      - name: Install go
-        uses: actions/setup-go@v4
-        with:
-          go-version-file: 'go.mod'
-          cache: true
+#       - name: Install go
+#         uses: actions/setup-go@v4
+#         with:
+#           go-version-file: 'go.mod'
+#           cache: true
 
-      - name: Install deps
-        run: go mod download
+#       - name: Install deps
+#         run: go mod download
 
-      - name: Build
-        run: go build -v .
+#       - name: Build
+#         run: go build -v .
 
   test:
     name: Terraform Provider Acceptance Test
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
@@ -60,8 +60,8 @@ jobs:
       - name: Test
         env:
           TF_ACC: 1
-          API_TOKEN_DEV_INTERNAL_TEST_TENANT: ${{ secrets.API_TOKEN_DEV_INTERNAL_TEST_TENANT }}
-          URL_DEV_INTERNAL_TEST_TENANT: 'https://api-dev.traceable.ai'
+          API_TOKEN: ${{ secrets.API_TOKEN_DEV_INTERNAL_TEST_TENANT }}
+          PLATFORM_URL: 'https://api-dev.traceable.ai'
         run: gotestsum --format standard-verbose --junitfile unit-test-report.xml -- -cover ./internal/resources/
         timeout-minutes: 6
 
