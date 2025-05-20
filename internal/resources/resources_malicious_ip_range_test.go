@@ -8,7 +8,7 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/internal/acctest"
 )
 
-func TestAccVariantResourceDefault(t *testing.T) {
+func TestAccMaliciousIpRangeResourceDefault(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.TestAccPreCheck(t) },
