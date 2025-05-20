@@ -18,6 +18,9 @@ func CustomSignatureResourceSchema() schema.Schema {
 				Description:         "Unique identifier for the custom signature",
 				Computed:            true,
 				MarkdownDescription: "Identifier of the Custom Signature Rule",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the custom signature",

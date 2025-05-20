@@ -283,6 +283,10 @@ func convertRateLimitingModelToCreateInput(ctx context.Context, data *models.Rat
 	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
 		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
 	}
+	err = checkRateLimitingInputCondition(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	return &input, nil
 }
@@ -343,6 +347,10 @@ func convertRateLimitingModelToUpdateInput(ctx context.Context, data *models.Rat
 	}
 	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
 		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
+	}
+	err = checkRateLimitingInputCondition(ctx, data)
+	if err != nil {
+		return nil, err
 	}
 
 	return &input, nil
@@ -448,13 +456,21 @@ func convertRateLimitingRuleFieldsToModel(ctx context.Context, data *generated.R
 				}
 
 			case "IP_ADDRESS":
-				ipAddressList, err := utils.ConvertStringPtrToTerraformSet(leafCondition.IpAddressCondition.GetIpAddresses())
-				if err != nil {
-					return nil, err
-				}
-				sources.IpAddress = &models.RateLimitingIpAddressSource{
-					IpAddressList: ipAddressList,
-					Exclude:       types.BoolValue(*leafCondition.IpAddressCondition.GetExclude()),
+				if leafCondition.IpAddressCondition.GetIpAddressConditionType() != nil {
+					sources.IpAddress = &models.RateLimitingIpAddressSource{
+						IpAddressType: types.StringValue(string(*leafCondition.IpAddressCondition.GetIpAddressConditionType())),
+						IpAddressList: types.SetNull(types.StringType),
+					}
+
+				} else {
+					ipAddressList, err := utils.ConvertStringPtrToTerraformSet(leafCondition.IpAddressCondition.GetIpAddresses())
+					if err != nil {
+						return nil, err
+					}
+					sources.IpAddress = &models.RateLimitingIpAddressSource{
+						IpAddressList: ipAddressList,
+						Exclude:       types.BoolValue(*leafCondition.IpAddressCondition.GetExclude()),
+					}
 				}
 
 			case "IP_LOCATION_TYPE":
@@ -852,8 +868,12 @@ func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitin
 		if HasValue(data.Action.ActionType) {
 			switch data.Action.ActionType.ValueString() {
 			case "ALERT":
+				if HasValue(data.Action.Duration) {
+					return nil, utils.NewInvalidError("action duration", "duration not required with action_type alert")
+				}
+
 				if !HasValue(data.Action.EventSeverity) {
-					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity must present and must not be empty")
+					return nil, utils.NewInvalidError("action event_severity", "event_severity must present and must not be empty")
 				}
 				agentEffect, err := convertToRateLimitingRuleAgentEffect(data)
 				if err != nil {
@@ -861,7 +881,7 @@ func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitin
 				}
 				eventSeverity, ok := RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()]
 				if !ok {
-					return nil, utils.NewInvalidError("Action EventSeverity", fmt.Sprintf("%s, is not a valid type of Event Severity", data.Action.EventSeverity.ValueString()))
+					return nil, utils.NewInvalidError("action event_severity", fmt.Sprintf("%s, is not a valid type of event_severity", data.Action.EventSeverity.ValueString()))
 
 				}
 				action := &generated.InputRateLimitingRuleAction{
@@ -960,6 +980,12 @@ func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitin
 				if !HasValue(config.RollingWindowDuration) {
 					return nil, utils.NewInvalidError("threshold_configs rolling_window_duration", "RollingWindowDuration must be present")
 				}
+				if HasValue(config.DynamicDuration) || HasValue(config.DynamicMeanCalculationDuration) || HasValue(config.DynamicPercentageExcedingMeanAllowed) {
+					return nil, utils.NewInvalidError("threshold_configs ", " No dynamic fields required when threshold config type is ROLLING_WINDOW")
+				}
+				if (HasValue(config.ValueType) || HasValue(config.UniqueValuesAllowed) || HasValue(config.SensitiveParamsEvaluationType)) || HasValue(config.Duration) {
+					return nil, utils.NewInvalidError("threshold_configs ", " No value type fields required when threshold config type is ROLLING_WINDOW")
+				}
 
 				apiAggregateType := RateLimitingApiAggregateMap[config.ApiAggregateType.ValueString()]
 				userAggregateType := RateLimitingUserAggregateMap[config.UserAggregateType.ValueString()]
@@ -987,6 +1013,13 @@ func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitin
 				if !HasValue(config.DynamicPercentageExcedingMeanAllowed) {
 					return nil, utils.NewInvalidError("threshold_configs dynamic_percentage_exceding_mean_allowed", "DynamicPercentageExcedingMeanAllowed must be present and not empty")
 				}
+				if (HasValue(config.ValueType) || HasValue(config.UniqueValuesAllowed) || HasValue(config.SensitiveParamsEvaluationType)) || HasValue(config.Duration) {
+					return nil, utils.NewInvalidError("threshold_configs ", " No value type fields required when threshold config type is DYNAMIC")
+				}
+				if HasValue(config.RollingWindowCountAllowed) || HasValue(config.RollingWindowDuration) {
+					return nil, utils.NewInvalidError("threshold_configs ", " No rolling window fields required when threshold config type is DYNAMIC")
+				}
+
 				percentageExceedingMeanAllowed := config.DynamicPercentageExcedingMeanAllowed.ValueInt64()
 				meanCalculationDuration := config.DynamicMeanCalculationDuration.ValueString()
 				duration := config.DynamicDuration.ValueString()
@@ -1014,6 +1047,12 @@ func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitin
 				}
 				if !HasValue(config.UserAggregateType) {
 					return nil, utils.NewInvalidError("threshold_configs user_aggregate_type", "UserAggregateType must be present and not empty")
+				}
+				if HasValue(config.RollingWindowCountAllowed) || HasValue(config.RollingWindowDuration) {
+					return nil, utils.NewInvalidError("threshold_configs ", " No rolling window fields required when threshold config type is VALUE_BASED")
+				}
+				if HasValue(config.DynamicDuration) || HasValue(config.DynamicMeanCalculationDuration) || HasValue(config.DynamicPercentageExcedingMeanAllowed) {
+					return nil, utils.NewInvalidError("threshold_configs ", " No dynamic fields required when threshold config type is VALUE_BASED")
 				}
 				apiAggregateType, exists := RateLimitingApiAggregateMap[config.ApiAggregateType.ValueString()]
 				if !exists {
@@ -1273,7 +1312,7 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 		if HasValue(data.Sources.UserId) {
 
 			if HasValue(data.Sources.UserId.UserIdRegexes) && HasValue(data.Sources.UserId.UserIds) {
-				return nil, utils.NewInvalidError("sources user_id user_id_regexes", " Must be present and not empty")
+				return nil, utils.NewInvalidError("sources user_id user_id_regexes", " Both must not be present")
 			}
 			if !HasValue(data.Sources.UserId.Exclude) {
 				return nil, utils.NewInvalidError("sources user_id exclude", " Must be present and not empty")
@@ -1438,31 +1477,61 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 
 		if HasValue(data.Sources.IpAddress) {
 
-			if !HasValue(data.Sources.IpAddress.IpAddressList) {
-				return nil, utils.NewInvalidError("sources ip_address ip_address_list", " Must be present and not empty")
-			}
-
-			if !HasValue(data.Sources.IpAddress.Exclude) {
-				return nil, utils.NewInvalidError("sources ip_address exclude", " Must be present and not empty")
-			}
-			ipAddresses := []*string{}
-			for _, ipAddress := range data.Sources.IpAddress.IpAddressList.Elements() {
-				if ip, ok := ipAddress.(types.String); ok {
-					ipAddr := ip.ValueString()
-					ipAddresses = append(ipAddresses, &ipAddr)
+			if HasValue(data.Sources.IpAddress.IpAddressType) {
+				if HasValue(data.Sources.IpAddress.IpAddressList) {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_list ip_address_type", " Must not be present both")
 				}
-			}
-			exclude := data.Sources.IpAddress.Exclude.ValueBool()
-			var input = generated.InputRateLimitingRuleCondition{
-				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
-					ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
-					IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
-						RawInputIpData: ipAddresses,
-						Exclude:        &exclude,
+
+				if HasValue(data.Sources.IpAddress.Exclude) {
+					return nil, utils.NewInvalidError("sources ip_address exclude", "exclude can not be present when ip_address_type is prese")
+				}
+				conditionType, exist := RateLimitingIpAddressConditionTypeMap[data.Sources.IpAddress.IpAddressType.ValueString()]
+				if !exist {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_type", fmt.Sprintf(" %s Invalid Ip Address Type", data.Sources.IpAddress.IpAddressType.ValueString()))
+				}
+
+				var input = generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
+						IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
+							IpAddressConditionType: &conditionType,
+						},
 					},
-				},
+				}
+				conditions = append(conditions, &input)
+
+			} else {
+
+				if !HasValue(data.Sources.IpAddress.IpAddressList) {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_list", " Must be present and not empty")
+				}
+
+				if !HasValue(data.Sources.IpAddress.Exclude) {
+					return nil, utils.NewInvalidError("sources ip_address exclude", " Must be present and not empty")
+				}
+				if HasValue(data.Sources.IpAddress.IpAddressType) {
+					return nil, utils.NewInvalidError("sources ip_address ip_address_type", " Must not be present when ip_address_list is present")
+				}
+				ipAddresses := []*string{}
+				for _, ipAddress := range data.Sources.IpAddress.IpAddressList.Elements() {
+					if ip, ok := ipAddress.(types.String); ok {
+						ipAddr := ip.ValueString()
+						ipAddresses = append(ipAddresses, &ipAddr)
+					}
+				}
+				exclude := data.Sources.IpAddress.Exclude.ValueBool()
+				var input = generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
+						IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
+							RawInputIpData: ipAddresses,
+							Exclude:        &exclude,
+						},
+					},
+				}
+				conditions = append(conditions, &input)
+
 			}
-			conditions = append(conditions, &input)
 
 		}
 
@@ -1729,4 +1798,32 @@ func convertToRateLimitingRuleCondition(ctx context.Context, data *models.RateLi
 	}
 	return conditions, nil
 
+}
+
+func checkRateLimitingInputCondition(ctx context.Context, data *models.RateLimitingRuleModel) error {
+
+	if HasValue(data.ThresholdConfigs) {
+		var thresholdConfigsModel []models.RateLimitingThresholdConfig
+		err := utils.ConvertElementsSet(data.ThresholdConfigs, &thresholdConfigsModel)
+		if err != nil {
+			return fmt.Errorf("failed to convert threshold configs: %v", err)
+		}
+
+		for _, config := range thresholdConfigsModel {
+			if config.ThresholdConfigType.ValueString() == "VALUE_BASED" {
+				return utils.NewInvalidError("threshold_configs threshold_config_type", fmt.Sprintf("%s is not a suported threshold_config_type", config.ThresholdConfigType.ValueString()))
+			}
+
+			if HasValue(config.ValueType) {
+				return utils.NewInvalidError("threshold_configs value_type", "ValueType must be present")
+			}
+			if HasValue(config.UniqueValuesAllowed) {
+				return utils.NewInvalidError("threshold_configs unique_values_allowed", "UniqueValuesAllowed must be present")
+			}
+			if HasValue(config.SensitiveParamsEvaluationType) {
+				return utils.NewInvalidError("threshold_configs sensitive_params_evaluation_type", "SensitiveParamsEvaluationType must be present")
+			}
+		}
+	}
+	return nil
 }
