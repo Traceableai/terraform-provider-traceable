@@ -2,9 +2,9 @@ name: Build and run unit tests
 on:
   pull_request:
     paths-ignore:
-      - 'README.md'
-      - 'examples/**'
-      - '.github/**'
+      - README.md
+      - examples/**
+      - .github/**
 
 concurrency:
   group: test-${{ github.ref }}
