@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"

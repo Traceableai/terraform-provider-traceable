@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -205,7 +206,7 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 			return nil, err
 		}
 		customSignatureModel.Environments = environments
-		tflog.Trace(ctx, "Shreyansh Gupta 123", map[string]interface{}{
+		tflog.Trace(ctx, "custom sig test", map[string]interface{}{
 			"environments": environments,
 		})
 
@@ -265,7 +266,8 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 				ValueConditionValue:    valConditionValue,
 			})
 		} else if clauseType == "CUSTOM_SEC_RULE" {
-			customSignatureModel.PayloadCriteria.CustomSecRule = types.StringValue(*clause.GetCustomSecRule().GetInputSecRuleString())
+			cusSecRule := *clause.GetCustomSecRule().GetInputSecRuleString()
+			customSignatureModel.PayloadCriteria.CustomSecRule = types.StringValue(cusSecRule)
 		}
 	}
 	requestResponseObjectType := types.ObjectType{
@@ -602,7 +604,7 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 			}
 		}
 		if HasValue(data.PayloadCriteria.CustomSecRule) {
-			customSecRuleString := data.PayloadCriteria.CustomSecRule.ValueString()
+			customSecRuleString := strings.TrimSpace(data.PayloadCriteria.CustomSecRule.ValueString())
 			clause := &generated.InputCustomSignatureRuleClauseRequest{
 				ClauseType: generated.CustomSignatureRuleClauseTypeCustomSecRule,
 				CustomSecRule: &generated.InputCustomSignatureSecRule{
@@ -685,7 +687,7 @@ func checkInputCondition(data *models.CustomSignatureModel) (error) {
 	if data.Action.ActionType.ValueString() == "TESTING_DETECTION" && HasValue(data.Action.EventSeverity) {
 		return utils.NewInvalidError("event_severity not required with action_type", fmt.Sprintf("event_severity not required with action_type %s", data.Action.ActionType.ValueString()))
 	}
-	if data.Action.ActionType.ValueString() == "BLOCK" && !HasValue(data.Action.EventSeverity) {
+	if data.Action.ActionType.ValueString() == "DETECTION_AND_BLOCKING" && !HasValue(data.Action.EventSeverity) {
 		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
 	}
 	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && !HasValue(data.Action.EventSeverity) {
