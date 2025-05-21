@@ -9,21 +9,21 @@ import (
 	"github.com/traceableai/terraform-provider-traceable/internal/utils"
 )
 
-func SuppressDiffIfSanitizedEqual() planmodifier.String {
-	return suppressDiffIfSanitizedEqual{}
+func SuppressDiffIfCustomSecRuleEqual() planmodifier.String {
+	return suppressDiffIfCustomSecRuleEqual{}
 }
 
-type suppressDiffIfSanitizedEqual struct{}
+type suppressDiffIfCustomSecRuleEqual struct{}
 
-func (m suppressDiffIfSanitizedEqual) Description(_ context.Context) string {
+func (m suppressDiffIfCustomSecRuleEqual) Description(_ context.Context) string {
 	return "Suppress diff if sanitized plan and state values are equal."
 }
 
-func (m suppressDiffIfSanitizedEqual) MarkdownDescription(_ context.Context) string {
+func (m suppressDiffIfCustomSecRuleEqual) MarkdownDescription(_ context.Context) string {
 	return m.Description(context.Background())
 }
 
-func (m suppressDiffIfSanitizedEqual) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+func (m suppressDiffIfCustomSecRuleEqual) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
 	if req.PlanValue.IsNull() || req.StateValue.IsNull() {
 		return
 	}

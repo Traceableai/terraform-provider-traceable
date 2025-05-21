@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccRateLimitiningResourceDefault(t *testing.T) {
-	var rule_name="rate_limit_T1_" + utils.GenerateRandomString(8)
+	var rule_name="terraform_rate_limit_T1_" + utils.GenerateRandomString(8)
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,

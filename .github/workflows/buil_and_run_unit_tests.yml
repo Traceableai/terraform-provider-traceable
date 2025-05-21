@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted-x64-small
     timeout-minutes: 5
     steps:
       - name: Checkout
@@ -34,7 +34,7 @@ jobs:
   test:
     name: Terraform Provider Acceptance Test
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted-x64-small
     timeout-minutes: 6
     steps:
       - name: Checkout

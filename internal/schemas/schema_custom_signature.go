@@ -81,7 +81,7 @@ func CustomSignatureResourceSchema() schema.Schema {
 						MarkdownDescription: "custom sec rule string",
 						Optional:            true,
 						PlanModifiers: []planmodifier.String{
-							modifiers.SuppressDiffIfSanitizedEqual(),
+							modifiers.SuppressDiffIfCustomSecRuleEqual(),
 						},
 					},
 					"attributes": schema.SetNestedAttribute{
