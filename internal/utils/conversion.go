@@ -2,10 +2,13 @@ package utils
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -54,7 +57,6 @@ func ConvertCustomStringPtrsToTerraformSet[T any](input []*T) (types.Set, error)
 
 func ConvertStringPtrToTerraformSet(input []*string) (types.Set, error) {
 	fmt.Println("entering the utils functions")
-	fmt.Println("Shreyanshguptabest", input)
 
 	if input == nil {
 		return types.SetNull(types.StringType), nil
@@ -174,4 +176,22 @@ func ConvertDurationToSeconds(duration string) (string, error) {
 	}
 
 	return fmt.Sprintf("PT%dS", totalSeconds), nil
+}
+
+func GenerateRandomString(n int) string {
+	bytes := make([]byte, n/2)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(bytes)
+}
+
+func EscapeString(input string) string {
+	lines := strings.Split(input, "\n")
+	for i, line := range lines {
+		line = strings.ReplaceAll(line, `\`, `\\`)
+		line = strings.ReplaceAll(line, `"`, `\"`)
+		lines[i] = line
+	}
+	return strings.Join(lines, ` `)
 }
