@@ -1,0 +1,106 @@
+
+fragment CustomSignatureFields on CustomSignatureRule{
+  id
+  name
+  description
+  disabled
+  internal
+  blockingExpirationDuration
+  blockingExpirationTime
+  ruleSource
+  ruleEffect {
+    eventType
+    eventSeverity
+    effects {
+      ruleEffectType
+      agentEffect {
+        agentModifications {
+          agentModificationType
+          headerInjection {
+            key
+            value
+            headerCategory
+          }
+        }
+      }
+    }
+  }
+  ruleDefinition {
+    labels {
+      key
+      value
+    }
+    clauseGroup {
+      clauseOperator
+      clauses {
+        clauseType
+        matchExpression {
+          matchKey
+          matchOperator
+          matchValue
+          matchCategory
+        }
+        keyValueExpression {
+          keyValueTag
+          matchKey
+          matchValue
+          keyMatchOperator
+          valueMatchOperator
+          matchCategory
+        }
+        attributeKeyValueExpression {
+          keyCondition {
+            operator
+            value
+          }
+          valueCondition {
+            operator
+            value
+          }
+        }
+        customSecRule {
+          inputSecRuleString
+        }
+      }
+    }
+  }
+  ruleScope {
+    environmentScope {
+      environmentIds
+    }
+  }
+}
+
+query GetCustomSignatureId($input: InputCustomSignatureRulesFilter!) {
+  customSignatureRules(filter: $input) {
+    results{
+      id
+      name
+    }
+  }
+}
+
+query GetCustomSignature($input: InputCustomSignatureRulesFilter!) {
+  customSignatureRules(filter: $input) {
+    results{
+      ...CustomSignatureFields
+    }
+  }
+}
+
+mutation CreateCustomSignature($input: InputCustomSignatureRuleDescriptor!) {
+  createCustomSignatureRule(create: $input) {
+    ...CustomSignatureFields
+  }
+}
+mutation UpdateCustomSignature($input: InputCustomSignatureRuleUpdate!) {
+  updateCustomSignatureRule(update: $input) {
+    ...CustomSignatureFields
+  }
+}
+
+mutation DeleteCustomSignature($input: InputCustomSignatureRuleDelete!) {
+  deleteCustomSignatureRule(delete: $input) {
+    success
+  }
+}

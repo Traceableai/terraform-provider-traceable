@@ -1,0 +1,86 @@
+
+fragment AnomalyRuleConfigFields on AnomalyRuleConfig{
+  configStatus {
+        disabled
+        internal
+      }
+      hidden
+      eventFamily
+      configType
+      ruleCategory
+      ruleId
+      ruleName
+      eventLabels {
+        labelKey
+        labelValue
+      }
+      eventDetails {
+        description
+        impact
+        mitigation
+        references
+      }
+      subRuleConfigs {
+        blockingEnabled
+        configStatus {
+          disabled
+          internal
+        }
+        subRuleId
+        subRuleName
+        subRuleTypes
+        eventLabels {
+          labelKey
+          labelValue
+        }
+        eventDetails {
+          description
+          impact
+          mitigation
+          references
+        }
+        anomalyProtectionType
+        anomalyRuleSeverity
+        anomalySubRuleAction
+        hidden
+        overriddenParentScopes {
+          scopeType
+          environmentScope {
+            id
+          }
+        }
+        overridingChildrenScopes {
+          scopeType
+          environmentScope {
+            id
+          }
+        }
+      }
+      anomalyRuleSeverity
+      overriddenParentScopes {
+        scopeType
+        environmentScope {
+          id 
+        }
+      }
+      overridingChildrenScopes {
+        scopeType
+        environmentScope {
+          id 
+        }
+      }
+}
+
+query AnomalyDetectionRuleConfigs($input: InputAnomalyScope!) {
+  anomalyDetectionRuleConfigs(anomalyScope: $input) {
+    results{
+      ...AnomalyRuleConfigFields
+    }
+  }
+}
+
+mutation UpdateAnomalyRuleConfig($input: InputScopedAnomalyRuleConfigUpdate!) {
+  updateAnomalyRuleConfig(update: $input) {
+    ruleId
+  }
+}

@@ -1,0 +1,91 @@
+fragment MaliciousIpRangeFields on IpRangeRule {
+  id
+  internal
+  disabled
+  ruleDetails {
+    name
+    description
+    rawIpRangeData
+    ruleAction
+    eventSeverity
+    expirationDetails {
+      expirationDuration
+      expirationTimestamp
+    }
+    effects {
+      ruleEffectType
+      agentEffect {
+        agentModifications {
+          agentModificationType
+          headerInjection {
+            key
+            value
+            headerCategory
+          }
+        }
+      }
+    }
+  }
+  ruleScope {
+    environmentScope {
+      environmentIds
+    }
+  }
+}
+
+
+
+
+query GetMaliciousIpRangeRulesName($input: InputIpRangeRulesFilter) {
+  ipRangeRules(filter: $input) {
+    count
+    total
+    results {
+      ruleDetails {
+        name
+      }
+      id
+    }
+  }
+}
+
+query GetMaliciousIpRangeRuleDetails($input: InputIpRangeRulesFilter) {
+  ipRangeRules(filter: $input) {
+    count
+    total
+    results {
+      ...MaliciousIpRangeFields
+    }
+  }
+}
+
+  
+
+mutation CreateMaliciousIpRangeRule($input: InputIpRangeRuleCreate!) {
+  createIpRangeRule(create: $input) {
+    ...MaliciousIpRangeFields
+  }
+}
+
+mutation UpdateMaliciousIpRangeRule($input: InputIpRangeRuleUpdate!) {
+  updateIpRangeRule(update: $input) {
+    ...MaliciousIpRangeFields
+  }
+}
+
+
+mutation DeleteMaliciousIpRangeRule($input: InputIpRangeRuleDelete!) {
+  deleteIpRangeRule(delete: $input) {
+    success
+  }
+}
+
+
+
+
+
+
+
+
+
+  
