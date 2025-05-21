@@ -377,6 +377,35 @@ var RateLimitingRuleIpAbuseVelocityMap = map[string]generated.RateLimitingRuleIp
 	"MEDIUM": generated.RateLimitingRuleIpAbuseVelocityMedium,
 	"HIGH":   generated.RateLimitingRuleIpAbuseVelocityHigh,
 }
+
+var DlpRequestBasedDatatypeMatchingMetadataTypeMap = map[string]generated.RateLimitingRuleKeyValueConditionMetadataType{
+	"QUERY_PARAMETER":         generated.RateLimitingRuleKeyValueConditionMetadataTypeQueryParameter,
+	"REQUEST_HEADER":          generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestHeader,
+	"REQUEST_COOKIE":          generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestCookie,
+	"REQUEST_BODY_PARAMETER":  generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestBodyParameter,
+	"REQUEST_BODY":            generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestBody,
+}
+
+var DlpRequestBasedRequestPayloadMetadataTypeMap = map[string]generated.RateLimitingRuleKeyValueConditionMetadataType{
+	"QUERY_PARAMETER":         generated.RateLimitingRuleKeyValueConditionMetadataTypeQueryParameter,
+	"REQUEST_HEADER":          generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestHeader,
+	"REQUEST_COOKIE":          generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestCookie,
+	"REQUEST_BODY_PARAMETER":  generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestBodyParameter,
+	"REQUEST_BODY":            generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestBody,
+	"HTTP_METHOD":             generated.RateLimitingRuleKeyValueConditionMetadataTypeHttpMethod,
+	"USER_AGENT":              generated.RateLimitingRuleKeyValueConditionMetadataTypeUserAgent,
+	"HOST":                    generated.RateLimitingRuleKeyValueConditionMetadataTypeHost,
+	"REQUEST_BODY_SIZE":       generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestBodySize,
+	"QUERY_PARAMS_COUNT":      generated.RateLimitingRuleKeyValueConditionMetadataTypeQueryParamsCount,
+	"REQUEST_COOKIES_COUNT":   generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestCookiesCount,
+	"REQUEST_HEADERS_COUNT":   generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestHeadersCount,
+}
+
+var DlpRequestBasedDatatypeMatchingKeyOperatorMap = map[string]generated.RateLimitingRuleKeyValueMatchOperator{
+	"EQUALS":          generated.RateLimitingRuleKeyValueMatchOperatorEquals,
+	"MATCHES_REGEX":   generated.RateLimitingRuleKeyValueMatchOperatorMatchesRegex,
+}
+
 var RateLimitingRuleKeyValueConditionMetadataTypeMap = map[string]generated.RateLimitingRuleKeyValueConditionMetadataType{
 	"URL":                     generated.RateLimitingRuleKeyValueConditionMetadataTypeUrl,
 	"HOST":                    generated.RateLimitingRuleKeyValueConditionMetadataTypeHost,
