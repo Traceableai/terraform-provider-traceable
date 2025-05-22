@@ -186,7 +186,7 @@ func (r *DataLossPreventionRequestBasedResource) ImportState(ctx context.Context
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
 	}
-	data, err := convertRateLimitingRuleFieldsToModel(ctx, response)
+	data, err := convertDLPRequestBasedRuleFieldsToModel(ctx, response)
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
@@ -198,6 +198,7 @@ func (r *DataLossPreventionRequestBasedResource) ImportState(ctx context.Context
 	}
 
 }
+
 func convertDLPRequestBasedRuleFieldsToModel(ctx context.Context, data *generated.RateLimitingRuleFields) (*models.DataLossPreventionRequestBasedRuleModel, error){
 	model := models.DataLossPreventionRequestBasedRuleModel{}
 
