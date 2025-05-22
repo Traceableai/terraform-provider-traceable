@@ -179,12 +179,12 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 										Required:            true,
 									},
 									"operator": schema.StringAttribute{
-										MarkdownDescription: "It Can be (EQUALS/MATCHES_REGEX)",
-										Required:            true,
+										MarkdownDescription: "It Can be (EQUALS/MATCHES_REGEX) this is not required when metadata_type is REQUEST_BODY",
+										Optional:            true,
 									},
 									"value": schema.StringAttribute{
 										MarkdownDescription: "Value to match",
-										Required:            true,
+										Optional:            true,
 									},
 								},
 							},

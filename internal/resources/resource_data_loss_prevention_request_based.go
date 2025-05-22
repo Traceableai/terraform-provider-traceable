@@ -3,7 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
-
+	"log"
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -273,6 +273,8 @@ func convertDLPRequestBasedRuleFieldsToModel(ctx context.Context, data *generate
 						return nil, err
 					}
 					dataSetDataTypeIds.DataSetsIds = dataSetsIds
+				}else{
+					dataSetDataTypeIds.DataSetsIds = types.SetNull(types.StringType)
 				}
 				if len(leafCondition.DatatypeCondition.GetDatatypeIds()) > 0 {
 					dataTypeIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.DatatypeCondition.GetDatatypeIds())
@@ -280,15 +282,19 @@ func convertDLPRequestBasedRuleFieldsToModel(ctx context.Context, data *generate
 						return nil, err
 					}
 					dataSetDataTypeIds.DataTypesIds = dataTypeIds
+				}else{
+					dataSetDataTypeIds.DataTypesIds = types.SetNull(types.StringType)
 				}
 
 				if leafCondition.DatatypeCondition.GetDatatypeMatching() != nil {
 					metaDataType := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.GetMetadataType()
-					operator := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.KeyCondition.GetOperator()
-					value := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.KeyCondition.GetValue()
 					dataTypeMatching.MetadataType=types.StringValue(string(*metaDataType))
-					dataTypeMatching.Operator=types.StringValue(string(operator))
-					dataTypeMatching.Value=types.StringValue(string(value))
+					if HasValue(leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.GetKeyCondition()) {
+						operator := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.KeyCondition.GetOperator()
+						value := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.KeyCondition.GetValue()
+						dataTypeMatching.Operator=types.StringValue(string(operator))
+						dataTypeMatching.Value=types.StringValue(string(value))
+					}
 				}
 				sources.DataSetDataType = models.DlpRequestBasedDataSetDataTypeFilterSource{
 					DataSetDataTypeIds: dataSetDataTypeIds,
@@ -390,10 +396,9 @@ func convertDLPRequestBasedRuleFieldsToModel(ctx context.Context, data *generate
 }
 
 
-func convertToDlpRequestBasedRuleStatus(data *models.DataLossPreventionRequestBasedRuleModel) (*generated.InputRateLimitingRuleStatus, error) {
+func convertToDlpRequestBasedRuleStatus() (*generated.InputRateLimitingRuleStatus, error) {
 	var internal = false
-	var status *generated.InputRateLimitingRuleStatus
-	status = &generated.InputRateLimitingRuleStatus{
+	status := &generated.InputRateLimitingRuleStatus{
 		Internal: &internal,
 	}
 	return status, nil
@@ -428,7 +433,7 @@ func convertToDlpRequestBasedTransactionActionConfigType(data *models.DataLossPr
 					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity must present and must not be empty")
 				}
 				duration := data.Action.Duration.ValueString()
-				if HasValue(duration){
+				if duration!=""{
 					actions = generated.InputRateLimitingRuleAction{
 						ActionType: generated.RateLimitingRuleActionTypeBlock,
 						Block: &generated.InputRateLimitingRuleBlockAction{
@@ -449,7 +454,7 @@ func convertToDlpRequestBasedTransactionActionConfigType(data *models.DataLossPr
 					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity not required with action_type ALLOW")
 				}
 				duration := data.Action.Duration.ValueString()
-				if HasValue(duration){
+				if duration!=""{
 					actions = generated.InputRateLimitingRuleAction{
 						ActionType: generated.RateLimitingRuleActionTypeAllow,
 						Allow: &generated.InputRateLimitingRuleAllowAction{
@@ -504,7 +509,7 @@ func convertDLPRequestBasedModelToCreateInput(ctx context.Context, data *models.
 	} else {
 		input.RuleConfigScope = scope
 	}
-	status, err := convertToDlpRequestBasedRuleStatus(data)
+	status, err := convertToDlpRequestBasedRuleStatus()
 	if err != nil {
 		return nil, err
 	} else {
@@ -577,7 +582,6 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 				ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
 				IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
 					RawInputIpData: ipAddresses,
-					IpAddresses:    ipAddresses,
 					Exclude:        &exclude,
 				},
 			},
@@ -631,10 +635,12 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 				serviceIds = append(serviceIds, &serviceIdStr)
 			}
 		}
+		scopeType := generated.RateLimitingRuleScopeConditionTypeEntity
 		var input = generated.InputRateLimitingRuleCondition{
 			LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
 				ConditionType: generated.RateLimitingRuleLeafConditionTypeScope,
 				ScopeCondition: &generated.InputRateLimitingRuleScopeCondition{
+					ScopeType: scopeType,
 					EntityScope: &generated.InputRateLimitingRuleEntityScope{
 						EntityIds: serviceIds,
 						EntityType: generated.RateLimitingRuleEntityTypeService,
@@ -656,10 +662,12 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 				urlRegexes = append(urlRegexes, &urlRegexStr)
 			}
 		}
+		scopeType := generated.RateLimitingRuleScopeConditionTypeUrl
 		var input = generated.InputRateLimitingRuleCondition{
 			LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
 				ConditionType: generated.RateLimitingRuleLeafConditionTypeScope,
 				ScopeCondition: &generated.InputRateLimitingRuleScopeCondition{
+					ScopeType: scopeType,
 					UrlScope: &generated.InputRateLimitingRuleUrlScope{
 						UrlRegexes: urlRegexes,
 					},
@@ -727,7 +735,7 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 	if HasValue(data.Sources.DataSetDataType) {
 		var input = generated.InputRateLimitingRuleCondition{}
 		dataSetIds := []*string{}
-		if !HasValue(data.Sources.DataSetDataType.DataSetDataTypeIds.DataSetsIds) {
+		if HasValue(data.Sources.DataSetDataType.DataSetDataTypeIds.DataSetsIds) {
 			for _, dataSetId := range data.Sources.DataSetDataType.DataSetDataTypeIds.DataSetsIds.Elements() {
 				if dataSetId, ok := dataSetId.(types.String); ok {
 					dataSetIdStr := dataSetId.ValueString()
@@ -736,7 +744,7 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 			}
 		}
 		dataTypeIds := []*string{}
-		if !HasValue(data.Sources.DataSetDataType.DataSetDataTypeIds.DataTypesIds) {
+		if HasValue(data.Sources.DataSetDataType.DataSetDataTypeIds.DataTypesIds) {
 			for _, dataTypeId := range data.Sources.DataSetDataType.DataSetDataTypeIds.DataTypesIds.Elements() {
 				if dataTypeId, ok := dataTypeId.(types.String); ok {
 					dataTypeIdStr := dataTypeId.ValueString()
@@ -744,42 +752,71 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 				}
 			}
 		}
-		if len(dataSetIds)==0 && len(dataTypeIds)==0{
+		// log.Printf("datasets %s,datatypes %s",dataSetIds,dataTypeIds)
+		if (len(dataSetIds)==0 && len(dataTypeIds)==0) || (len(dataSetIds)>0 && len(dataTypeIds)>0){
 			return nil,utils.NewInvalidError("data_sets_ids or data_types_ids", " Must be present and not empty")
 		}
 		dataLocation := generated.RateLimitingRuleDataLocationRequest
 		if HasValue(data.Sources.DataSetDataType.DataTypeMatching) {
-			metadataType,ok := DlpRequestBasedDatatypeMatchingMetadataTypeMap[data.Sources.DataSetDataType.DataTypeMatching.MetadataType.String()]
+			metadataType,ok := DlpRequestBasedDatatypeMatchingMetadataTypeMap[data.Sources.DataSetDataType.DataTypeMatching.MetadataType.ValueString()]
 			if !ok {
-				return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching metadata_type",fmt.Sprintf("Invalid metadata_type %s", data.Sources.DataSetDataType.DataTypeMatching.MetadataType.String()))
+				return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching metadata_type",fmt.Sprintf("Invalid metadata_type %s", data.Sources.DataSetDataType.DataTypeMatching.MetadataType.ValueString()))
 			}
 			datatypeMatchingType := generated.RateLimitingRuleDatatypeMatchingTypeRegexBasedMatching
-			operator,ok := DlpRequestBasedDatatypeMatchingKeyOperatorMap[data.Sources.DataSetDataType.DataTypeMatching.Operator.String()]
-			if !ok {
-				return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching operator",fmt.Sprintf("Invalid operator %s", data.Sources.DataSetDataType.DataTypeMatching.Operator.String()))
+			log.Printf("oppp %s val %s",data.Sources.DataSetDataType.DataTypeMatching.Operator.ValueString(),data.Sources.DataSetDataType.DataTypeMatching.Value.ValueString())
+			if metadataType == generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestBody && (data.Sources.DataSetDataType.DataTypeMatching.Operator.ValueString()!="" || data.Sources.DataSetDataType.DataTypeMatching.Value.ValueString()!=""){
+				return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching operator value","Operator and Value not required for metadata_type REQUEST_BODY")
 			}
-			value := data.Sources.DataSetDataType.DataTypeMatching.Value.String()
-			input = generated.InputRateLimitingRuleCondition{
-				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
-					ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
-					DatatypeCondition: &generated.InputRateLimitingRuleDatatypeCondition{
-						DataLocation: &dataLocation,
-						DatasetIds: dataSetIds,
-						DatatypeIds: dataTypeIds,
-						DatatypeMatching: &generated.InputRateLimitingRuleDatatypeMatching{
-							DatatypeMatchingType : &datatypeMatchingType,
-							RegexBasedMatching : &generated.InputRateLimitingRuleRegexBasedMatching{
-								CustomMatchingLocation : &generated.InputRateLimitingRuleKeyValueCondition{
-									MetadataType : &metadataType,
-									KeyCondition: &generated.InputRateLimitingRuleStringCondition{
-										Operator: operator,
-										Value: value,
+			if metadataType != generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestBody && (data.Sources.DataSetDataType.DataTypeMatching.Operator.ValueString()=="" || data.Sources.DataSetDataType.DataTypeMatching.Value.ValueString()==""){
+				return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching operator value",fmt.Sprintf("Operator and Value required for metadata_type %s", data.Sources.DataSetDataType.DataTypeMatching.MetadataType.ValueString()))
+			}
+			if HasValue(data.Sources.DataSetDataType.DataTypeMatching.Operator) && HasValue(data.Sources.DataSetDataType.DataTypeMatching.Value) {
+				operator,ok := DlpRequestBasedDatatypeMatchingKeyOperatorMap[data.Sources.DataSetDataType.DataTypeMatching.Operator.ValueString()]
+				if !ok {
+					return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching operator",fmt.Sprintf("Invalid operator %s", data.Sources.DataSetDataType.DataTypeMatching.Operator.ValueString()))
+				}
+				value := data.Sources.DataSetDataType.DataTypeMatching.Value.ValueString()
+				input = generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
+						DatatypeCondition: &generated.InputRateLimitingRuleDatatypeCondition{
+							DataLocation: &dataLocation,
+							DatasetIds: dataSetIds,
+							DatatypeIds: dataTypeIds,
+							DatatypeMatching: &generated.InputRateLimitingRuleDatatypeMatching{
+								DatatypeMatchingType : &datatypeMatchingType,
+								RegexBasedMatching : &generated.InputRateLimitingRuleRegexBasedMatching{
+									CustomMatchingLocation : &generated.InputRateLimitingRuleKeyValueCondition{
+										MetadataType : &metadataType,
+										KeyCondition: &generated.InputRateLimitingRuleStringCondition{
+											Operator: operator,
+											Value: value,
+										},
 									},
 								},
 							},
 						},
 					},
-				},
+				}
+			}else{
+				input = generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
+						DatatypeCondition: &generated.InputRateLimitingRuleDatatypeCondition{
+							DataLocation: &dataLocation,
+							DatasetIds: dataSetIds,
+							DatatypeIds: dataTypeIds,
+							DatatypeMatching: &generated.InputRateLimitingRuleDatatypeMatching{
+								DatatypeMatchingType : &datatypeMatchingType,
+								RegexBasedMatching : &generated.InputRateLimitingRuleRegexBasedMatching{
+									CustomMatchingLocation : &generated.InputRateLimitingRuleKeyValueCondition{
+										MetadataType : &metadataType,
+									},
+								},
+							},
+						},
+					},
+				}
 			}
 		}else{
 			input = generated.InputRateLimitingRuleCondition{
@@ -828,7 +865,7 @@ func convertDLPRequestBasedModelToUpdateInput(ctx context.Context, data *models.
 	} else {
 		input.RuleConfigScope = scope
 	}
-	status, err := convertToDlpRequestBasedRuleStatus(data)
+	status, err := convertToDlpRequestBasedRuleStatus()
 	if err != nil {
 		return nil, err
 	} else {
