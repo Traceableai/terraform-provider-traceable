@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Khan/genqlient/graphql"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -45,17 +46,17 @@ func (r *DataLossPreventionRequestBasedResource) Metadata(ctx context.Context, r
 }
 
 func (r *DataLossPreventionRequestBasedResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schemas.RateLimitingResourceSchema()
+	resp.Schema = schemas.DataLossPreventionRequestBasedResourceSchema()
 }
 
 func (r *DataLossPreventionRequestBasedResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Entering in Create Block")
-	var data *models.RateLimitingRuleModel
+	var data *models.DataLossPreventionRequestBasedRuleModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	ruleInput, err := convertDataLossPreventionRateLimitingModelToCreateInput(ctx, data, r.client)
+	ruleInput, err := convertDLPRequestBasedModelToCreateInput(ctx, data, r.client)
 	if ruleInput == nil || err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
 		return
@@ -68,7 +69,7 @@ func (r *DataLossPreventionRequestBasedResource) Create(ctx context.Context, req
 	}
 
 	if id != "" {
-		resp.Diagnostics.AddError("Resource already Exist", fmt.Sprintf("%s rate limiting rule already please try with different name or import it", ruleInput.Name))
+		resp.Diagnostics.AddError("Resource already Exist", fmt.Sprintf("%s Dlp request based rule already please try with different name or import it", ruleInput.Name))
 		return
 	}
 
@@ -88,7 +89,7 @@ func (r *DataLossPreventionRequestBasedResource) Create(ctx context.Context, req
 }
 
 func (r *DataLossPreventionRequestBasedResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *models.RateLimitingRuleModel
+	var data *models.DataLossPreventionRequestBasedRuleModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -105,7 +106,7 @@ func (r *DataLossPreventionRequestBasedResource) Read(ctx context.Context, req r
 		return
 	}
 
-	updatedData, err := convertRateLimitingRuleFieldsToModel(ctx, response)
+	updatedData, err := convertDLPRequestBasedRuleFieldsToModel(ctx, response)
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
@@ -120,19 +121,19 @@ func (r *DataLossPreventionRequestBasedResource) Read(ctx context.Context, req r
 }
 
 func (r *DataLossPreventionRequestBasedResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data *models.RateLimitingRuleModel
+	var data *models.DataLossPreventionRequestBasedRuleModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	var dataState *models.RateLimitingRuleModel
+	var dataState *models.DataLossPreventionRequestBasedRuleModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &dataState)...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	input, err := convertDataLossPreventionRateLimitingModelToUpdateInput(ctx, data, dataState.Id.ValueString(), r.client)
+	input, err := convertDLPRequestBasedModelToUpdateInput(ctx, data, dataState.Id.ValueString(), r.client)
 	if err != nil {
 		resp.Diagnostics.AddError("Error in Updating rate limiting rule", err.Error())
 		return
@@ -152,7 +153,7 @@ func (r *DataLossPreventionRequestBasedResource) Update(ctx context.Context, req
 }
 
 func (r *DataLossPreventionRequestBasedResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *models.RateLimitingRuleModel
+	var data *models.DataLossPreventionRequestBasedRuleModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
@@ -197,45 +198,289 @@ func (r *DataLossPreventionRequestBasedResource) ImportState(ctx context.Context
 	}
 
 }
+func convertDLPRequestBasedRuleFieldsToModel(ctx context.Context, data *generated.RateLimitingRuleFields) (*models.DataLossPreventionRequestBasedRuleModel, error){
+	model := models.DataLossPreventionRequestBasedRuleModel{}
 
-func getDataLossPreventionRequestBasedRateLimitingRule(id string, ctx context.Context, r graphql.Client) (*generated.RateLimitingRuleFields, error) {
-	rateLimitingfields := generated.RateLimitingRuleFields{}
-	category := []*generated.RateLimitingRuleCategory{}
-	enumeration := generated.RateLimitingRuleCategoryDataExfiltration
-	category = append(category, &enumeration)
-	response, err := generated.GetRateLimitingDetails(ctx, r, category, nil)
-	if err != nil {
-		return nil, err
+	if data.Id != "" {
+		model.Id = types.StringValue(data.Id)
 	}
-
-	for _, rule := range response.RateLimitingRules.Results {
-		if rule.Id == id {
-			rateLimitingfields = rule.RateLimitingRuleFields
-			return &rateLimitingfields, nil
+	if data.Name != "" {
+		model.Name = types.StringValue(data.Name)
+	}
+	if data.Description != nil {
+		model.Description = types.StringValue(*data.Description)
+	}
+	if data.RuleConfigScope != nil && data.RuleConfigScope.EnvironmentScope != nil {
+		environments, err := utils.ConvertStringPtrToTerraformSet(data.RuleConfigScope.EnvironmentScope.EnvironmentIds)
+		if err != nil {
+			return nil, err
 		}
+		model.Environments = environments
+
+	} else {
+		model.Environments = types.SetNull(types.StringType)
+	}
+	model.Enabled = types.BoolValue(data.Enabled)
+
+	if data.Conditions != nil {
+		sources := models.DlpRequestBasedSources{}
+		requestPayloadArr := []models.DlpRequestBasedRequestPayloadScope{}
+		for _, condition := range data.GetConditions() {
+			leafCondition := condition.LeafCondition.LeafConditionFields
+			switch string(leafCondition.ConditionType) {
+			case "KEY_VALUE":
+				reqres := models.DlpRequestBasedRequestPayloadScope{}
+				if leafCondition.KeyValueCondition.GetMetadataType() != nil {
+					reqres.MetadataType = types.StringValue(string(*leafCondition.KeyValueCondition.GetMetadataType()))
+				}
+				if leafCondition.KeyValueCondition.GetValueCondition() != nil {
+					reqres.Value = types.StringValue(leafCondition.KeyValueCondition.GetValueCondition().GetValue())
+					reqres.ValueOperator = types.StringValue(string(leafCondition.KeyValueCondition.GetValueCondition().GetOperator()))
+				}
+				if leafCondition.KeyValueCondition.GetKeyCondition() != nil {
+					reqres.KeyOperator = types.StringValue(string(leafCondition.KeyValueCondition.GetKeyCondition().GetOperator()))
+					reqres.KeyValue = types.StringValue(leafCondition.KeyValueCondition.GetKeyCondition().GetValue())
+				}
+				requestPayloadArr = append(requestPayloadArr, reqres)
+
+			case "SCOPE":
+				if leafCondition.ScopeCondition.GetEntityScope() != nil {
+					serviceIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.ScopeCondition.EntityScope.GetEntityIds())
+					if err != nil {
+						return nil, err
+					}
+
+					sources.ServiceScope = models.DlpRequestBasedServiceScope{
+						ServiceIds: serviceIds,
+					}
+				}
+				if leafCondition.ScopeCondition.GetUrlScope() != nil{
+					urlRegexes, err := utils.ConvertStringPtrToTerraformSet(leafCondition.ScopeCondition.UrlScope.GetUrlRegexes())
+					if err != nil {
+						return nil, err
+					}
+					sources.UrlScope = models.DlpRequestBasedUrlScope{
+						UrlRegexes: urlRegexes,
+					}
+				}
+
+			case "DATATYPE":
+				dataSetDataTypeIds := models.DataSetDataTypeIds{}
+				dataTypeMatching := models.DlpReqBasedDataTypeMatching{}
+				if len(leafCondition.DatatypeCondition.GetDatasetIds()) > 0 {
+					dataSetsIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.DatatypeCondition.GetDatasetIds())
+					if err != nil {
+						return nil, err
+					}
+					dataSetDataTypeIds.DataSetsIds = dataSetsIds
+				}
+				if len(leafCondition.DatatypeCondition.GetDatatypeIds()) > 0 {
+					dataTypeIds, err := utils.ConvertStringPtrToTerraformSet(leafCondition.DatatypeCondition.GetDatatypeIds())
+					if err != nil {
+						return nil, err
+					}
+					dataSetDataTypeIds.DataTypesIds = dataTypeIds
+				}
+
+				if leafCondition.DatatypeCondition.GetDatatypeMatching() != nil {
+					metaDataType := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.GetMetadataType()
+					operator := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.KeyCondition.GetOperator()
+					value := leafCondition.DatatypeCondition.DatatypeMatching.RegexBasedMatching.CustomMatchingLocation.KeyCondition.GetValue()
+					dataTypeMatching.MetadataType=types.StringValue(string(*metaDataType))
+					dataTypeMatching.Operator=types.StringValue(string(operator))
+					dataTypeMatching.Value=types.StringValue(string(value))
+				}
+				sources.DataSetDataType = models.DlpRequestBasedDataSetDataTypeFilterSource{
+					DataSetDataTypeIds: dataSetDataTypeIds,
+					DataTypeMatching:   dataTypeMatching,
+				}
+
+			case "IP_ADDRESS":
+				ipAddressList, err := utils.ConvertStringPtrToTerraformSet(leafCondition.IpAddressCondition.GetIpAddresses())
+				if err != nil {
+					return nil, err
+				}
+				sources.IpAddress = models.DlpRequestBasedIpAddressSource{
+					IpAddressList: ipAddressList,
+				}
+
+			case "IP_LOCATION_TYPE":
+				iplocationtypes, err := utils.ConvertCustomStringPtrsToTerraformSet(leafCondition.IpLocationTypeCondition.GetIpLocationTypes())
+				if err != nil {
+
+					return nil, fmt.Errorf("error converting ip location types to terraform list: %v", err)
+				}
+				sources.IpLocationType = models.DlpRequestBasedIpLocationTypeSource{
+					IpLocationTypes: iplocationtypes,
+				}
+
+			case "REGION":
+				regionIdsPointer := []*string{}
+				for _, region := range leafCondition.RegionCondition.GetRegionIdentifiers() {
+					regionIdsPointer = append(regionIdsPointer, &region.CountryIsoCode)
+				}
+				regionIds, err := utils.ConvertStringPtrToTerraformSet(regionIdsPointer)
+				if err != nil {
+					return nil, err
+				}
+				sources.Regions = models.DlpRequestBasedRegionsSource{
+					RegionIds: regionIds,
+				}
+
+			}
+
+		}
+	
+		requestPayloadObjType := types.ObjectType{
+			AttrTypes: map[string]attr.Type{
+				"metadata_type":  types.StringType,
+				"key_operator":   types.StringType,
+				"key_value":      types.StringType,
+				"value_operator": types.StringType,
+				"value":          types.StringType,
+			},
+		}
+		if len(requestPayloadArr) > 0 {
+			reqresset, diags := types.SetValueFrom(
+				ctx,
+				requestPayloadObjType,
+				requestPayloadArr,
+			)
+			if diags.HasError() {
+				return nil, fmt.Errorf("request response conversion failed")
+			}
+			sources.RequestPayload = reqresset
+		} else {
+			sources.RequestPayload = types.SetNull(requestPayloadObjType)
+		}
+		
+		model.Sources = sources
 	}
 
-	return nil, nil
+	if data.GetTransactionActionConfigs() != nil {
+		config := data.GetTransactionActionConfigs()
+		actions := models.DlpAction{}
+
+		switch string(config.Action.GetActionType()) {
+		case "ALLOW":
+			actions.ActionType = types.StringValue("ALLOW")
+			if config.Action.Allow.GetDuration() != nil {
+				actions.Duration = types.StringValue(*config.Action.Allow.GetDuration())
+			}
+
+		case "ALERT":
+			actions.ActionType = types.StringValue("ALERT")
+			if HasValue(config.Action.Alert.GetEventSeverity()) {
+				actions.EventSeverity = types.StringValue(string(config.Action.Alert.GetEventSeverity()))
+			}
+		
+		case "BLOCK":
+			actions.ActionType = types.StringValue("BLOCK")
+			if HasValue(config.Action.Block.GetEventSeverity()) {
+				actions.EventSeverity = types.StringValue(string(config.Action.Block.GetEventSeverity()))
+				if HasValue(config.Action.Block.GetDuration()) {
+					actions.Duration = types.StringValue(*config.Action.Block.GetDuration())
+				}
+			}
+		}
+		model.Action = actions
+	}
+
+	return &model, nil
 }
 
-func getDataLossPreventionRequestBasedRateLimitingRuleId(ruleName string, ctx context.Context, r graphql.Client) (string, error) {
-	category := []*generated.RateLimitingRuleCategory{}
-	enumeration := generated.RateLimitingRuleCategoryDataExfiltration
-	category = append(category, &enumeration)
 
-	response, err := generated.GetRateLimitingRulesName(ctx, r, category, nil)
-	if err != nil {
-		return "", err
+func convertToDlpRequestBasedRuleStatus(data *models.DataLossPreventionRequestBasedRuleModel) (*generated.InputRateLimitingRuleStatus, error) {
+	var internal = false
+	var status *generated.InputRateLimitingRuleStatus
+	status = &generated.InputRateLimitingRuleStatus{
+		Internal: &internal,
 	}
-	for _, rule := range response.RateLimitingRules.Results {
-		if rule.Name == ruleName {
-			return rule.GetId(), nil
-		}
-	}
-	return "", nil
-
+	return status, nil
 }
-func convertDataLossPreventionRequestBasedRateLimitingModelToCreateInput(ctx context.Context, data *models.RateLimitingRuleModel, client *graphql.Client) (*generated.InputRateLimitingRuleData, error) {
+
+func convertToDlpRequestBasedTransactionActionConfigType(data *models.DataLossPreventionRequestBasedRuleModel) (*generated.InputRateLimitingTransactionActionConfig, error) {
+	configTypes := generated.InputRateLimitingTransactionActionConfig{}
+	actions := generated.InputRateLimitingRuleAction{}
+	if HasValue(data.Action) {
+		if HasValue(data.Action.ActionType) {
+			switch data.Action.ActionType.ValueString() {
+			case "ALERT":
+				if HasValue(data.Action.Duration) {
+					return nil, utils.NewInvalidError("action duration", "duration not required with action_type alert")
+				}
+
+				if !HasValue(data.Action.EventSeverity) {
+					return nil, utils.NewInvalidError("action event_severity", "event_severity must present and must not be empty")
+				}
+				eventSeverity, ok := RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()]
+				if !ok {
+					return nil, utils.NewInvalidError("action event_severity", fmt.Sprintf("%s, is not a valid type of event_severity", data.Action.EventSeverity.ValueString()))
+				}
+				actions = generated.InputRateLimitingRuleAction{
+					ActionType: generated.RateLimitingRuleActionTypeAlert,
+					Alert: &generated.InputRateLimitingRuleAlertAction{
+						EventSeverity: eventSeverity,
+					},
+				}
+			case "BLOCK":
+				if !HasValue(data.Action.EventSeverity) {
+					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity must present and must not be empty")
+				}
+				duration := data.Action.Duration.ValueString()
+				if HasValue(duration){
+					actions = generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeBlock,
+						Block: &generated.InputRateLimitingRuleBlockAction{
+							EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
+							Duration:      &duration,
+						},
+					}
+				}else{
+					actions = generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeBlock,
+						Block: &generated.InputRateLimitingRuleBlockAction{
+							EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
+						},
+					}
+				}
+			case "ALLOW":
+				if HasValue(data.Action.EventSeverity) {
+					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity not required with action_type ALLOW")
+				}
+				duration := data.Action.Duration.ValueString()
+				if HasValue(duration){
+					actions = generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeAllow,
+						Allow: &generated.InputRateLimitingRuleAllowAction{
+							Duration: &duration,
+						},
+					}
+				}else{
+					actions = generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeAllow,
+					}
+				}
+			default:
+				return nil, utils.NewInvalidError("Action ActionType", fmt.Sprintf("%s is not a valid action datatype", data.Action.ActionType.ValueString()))
+			}
+
+		} else {
+			return nil, utils.NewInvalidError("Action ActionType", "must be present and must not be empty")
+		}
+
+	} else {
+		return nil, utils.NewInvalidError("Action ", "Action must be present and not be empty")
+	}
+
+	configTypes = generated.InputRateLimitingTransactionActionConfig{
+		Action:          actions,
+	}
+
+	return &configTypes, nil
+}
+
+func convertDLPRequestBasedModelToCreateInput(ctx context.Context, data *models.DataLossPreventionRequestBasedRuleModel, client *graphql.Client) (*generated.InputRateLimitingRuleData, error) {
 	var input = generated.InputRateLimitingRuleData{}
 	if HasValue(data.Name) {
 		name := data.Name.ValueString()
@@ -259,35 +504,303 @@ func convertDataLossPreventionRequestBasedRateLimitingModelToCreateInput(ctx con
 	} else {
 		input.RuleConfigScope = scope
 	}
-	status, err := convertToRateLimitingRuleStatus(data)
+	status, err := convertToDlpRequestBasedRuleStatus(data)
 	if err != nil {
 		return nil, err
 	} else {
 		input.RuleStatus = status
 	}
-	thresholdActionConfigs, err := convertToRateLimitingRuleThresholdActionConfigType(data)
+	transactionActionConfigs, err := convertToDlpRequestBasedTransactionActionConfigType(data)
 	if err != nil {
 		return nil, err
 	} else {
-		input.ThresholdActionConfigs = thresholdActionConfigs
+		input.TransactionActionConfigs = transactionActionConfigs
 	}
-	conditions, err := convertToRateLimitingRuleCondition(ctx, data, client)
+	conditions, err := convertToDlpRequestBasedCondition(ctx, data, client)
 	if err != nil {
 		return nil, err
 	} else {
 		input.Conditions = conditions
 	}
 
-	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
-		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
-	}
-
 	return &input, nil
 }
 
-func convertDataLossPreventionRequestBasedRateLimitingModelToUpdateInput(ctx context.Context, data *models.RateLimitingRuleModel, id string, client *graphql.Client) (*generated.InputRateLimitingRule, error) {
-	input := generated.InputRateLimitingRule{}
+func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLossPreventionRequestBasedRuleModel, client *graphql.Client) ([]*generated.InputRateLimitingRuleCondition, error) {
+	conditions := []*generated.InputRateLimitingRuleCondition{}
 
+	if HasValue(data.Sources.IpLocationType) {
+		if !HasValue(data.Sources.IpLocationType.IpLocationTypes) {
+			return nil, utils.NewInvalidError("sources ip_location_type ip_location_types", " Must be present and not empty")
+		}
+		
+		ipLocationTypes := []*generated.RateLimitingRuleIpLocationType{}
+		for _, ipLocationType := range data.Sources.IpLocationType.IpLocationTypes.Elements() {
+			if locationType, ok := ipLocationType.(types.String); ok {
+
+				ipLocationType, exist := RateLimitingRuleIpLocationTypeMap[locationType.ValueString()]
+				if !exist {
+					return nil, utils.NewInvalidError("sources ip_location_types", fmt.Sprintf("%s Invalid Ip location Type", locationType.ValueString()))
+				}
+				ipLocationTypes = append(ipLocationTypes, &ipLocationType)
+			}
+		}
+		exclude := false
+
+		var input = generated.InputRateLimitingRuleCondition{
+			LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+				ConditionType: generated.RateLimitingRuleLeafConditionTypeIpLocationType,
+				IpLocationTypeCondition: &generated.InputRateLimitingRuleIpLocationTypeCondition{
+					IpLocationTypes: ipLocationTypes,
+					Exclude:         &exclude,
+				},
+			},
+		}
+		conditions = append(conditions, &input)
+	}
+
+	if HasValue(data.Sources.IpAddress) {
+
+		if !HasValue(data.Sources.IpAddress.IpAddressList) {
+			return nil, utils.NewInvalidError("sources ip_address ip_address_list", " Must be present and not empty")
+		}
+		ipAddresses := []*string{}
+		for _, ipAddress := range data.Sources.IpAddress.IpAddressList.Elements() {
+			if ip, ok := ipAddress.(types.String); ok {
+				ipAddr := ip.ValueString()
+				ipAddresses = append(ipAddresses, &ipAddr)
+			}
+		}
+		exclude := false
+		var input = generated.InputRateLimitingRuleCondition{
+			LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+				ConditionType: generated.RateLimitingRuleLeafConditionTypeIpAddress,
+				IpAddressCondition: &generated.InputRateLimitingRuleIpAddressCondition{
+					RawInputIpData: ipAddresses,
+					IpAddresses:    ipAddresses,
+					Exclude:        &exclude,
+				},
+			},
+		}
+		conditions = append(conditions, &input)
+	}
+
+	if HasValue(data.Sources.Regions) {
+		
+		if !HasValue(data.Sources.Regions.RegionIds) {
+			return nil, utils.NewInvalidError("sources regions region_ids", " Must be present and not empty")
+		}
+		regionIdentifieres := []*generated.InputRateLimitingRegionIdentifier{}
+
+		regions, err := utils.ConvertSetToStrPointer(data.Sources.Regions.RegionIds)
+		if err != nil {
+			return nil, fmt.Errorf("converting regions to string pointer fails")
+		}
+		_, err = GetCountriesId(regions, ctx, *client)
+		if err != nil {
+			return nil, err
+		}
+		for _, region := range regions {
+			identifiers := &generated.InputRateLimitingRegionIdentifier{
+				CountryIsoCode: *region,
+			}
+			regionIdentifieres = append(regionIdentifieres, identifiers)
+		}
+		exclude := false
+		var input = generated.InputRateLimitingRuleCondition{
+			LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+				ConditionType: generated.RateLimitingRuleLeafConditionTypeRegion,
+				RegionCondition: &generated.InputRateLimitingRuleRegionCondition{
+					RegionIdentifiers: regionIdentifieres,
+					Exclude:           &exclude,
+				},
+			},
+		}
+		conditions = append(conditions, &input)
+	}
+
+	if HasValue(data.Sources.ServiceScope){
+	
+		if !HasValue(data.Sources.ServiceScope.ServiceIds) {
+			return nil, utils.NewInvalidError("sources service_scope service_ids", " Must be present and not empty")
+		}
+		serviceIds := []*string{}
+		for _, serviceId := range data.Sources.ServiceScope.ServiceIds.Elements() {
+			if serviceId, ok := serviceId.(types.String); ok {
+				serviceIdStr := serviceId.ValueString()
+				serviceIds = append(serviceIds, &serviceIdStr)
+			}
+		}
+		var input = generated.InputRateLimitingRuleCondition{
+			LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+				ConditionType: generated.RateLimitingRuleLeafConditionTypeScope,
+				ScopeCondition: &generated.InputRateLimitingRuleScopeCondition{
+					EntityScope: &generated.InputRateLimitingRuleEntityScope{
+						EntityIds: serviceIds,
+						EntityType: generated.RateLimitingRuleEntityTypeService,
+					},
+				},
+			},
+		}
+		conditions = append(conditions, &input)
+	}
+
+	if HasValue(data.Sources.UrlScope) {
+		if !HasValue(data.Sources.UrlScope.UrlRegexes) {
+			return nil, utils.NewInvalidError("sources url_regex_scope url_regexes", " Must be present and not empty")
+		}
+		urlRegexes := []*string{}
+		for _, urlRegex := range data.Sources.UrlScope.UrlRegexes.Elements() {
+			if urlRegex, ok := urlRegex.(types.String); ok {
+				urlRegexStr := urlRegex.ValueString()
+				urlRegexes = append(urlRegexes, &urlRegexStr)
+			}
+		}
+		var input = generated.InputRateLimitingRuleCondition{
+			LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+				ConditionType: generated.RateLimitingRuleLeafConditionTypeScope,
+				ScopeCondition: &generated.InputRateLimitingRuleScopeCondition{
+					UrlScope: &generated.InputRateLimitingRuleUrlScope{
+						UrlRegexes: urlRegexes,
+					},
+				},
+			},
+		}
+		conditions = append(conditions, &input)
+	}
+
+	if HasValue(data.Sources.RequestPayload) {
+		requestPayloadElement := []models.DlpRequestBasedRequestPayloadScope{}
+		err := utils.ConvertElementsSet(data.Sources.RequestPayload, &requestPayloadElement)
+		if err != nil {
+			return nil, fmt.Errorf("converting request payload set to slice fails")
+		}
+
+		for _, requestPayload := range requestPayloadElement {
+			keyValueCondition := generated.InputRateLimitingRuleKeyValueCondition{}
+				if !HasValue(requestPayload.MetadataType) {
+					return nil, utils.NewInvalidError("sources request_payload metadata_type", " Must be present and not empty")
+				}
+				metadataType, exists := DlpRequestBasedRequestPayloadMetadataTypeMap[requestPayload.MetadataType.ValueString()]
+				if !exists {
+					return nil, utils.NewInvalidError("sources request_payload metadata_type", fmt.Sprintf(" %s Invalid MetadataType", requestPayload.MetadataType.ValueString()))
+				}
+				keyValueCondition.MetadataType = &metadataType
+
+				if HasValue(requestPayload.KeyValue) && HasValue(requestPayload.KeyOperator) {
+					keyConditionValue := requestPayload.KeyValue.ValueString()
+					keyConditionOperator, exist := DlpRequestBasedRequestPayloadKeyOperatorMap[requestPayload.KeyOperator.ValueString()]
+
+					if !exist {
+						return nil, utils.NewInvalidError("sources request_payload key_operator", fmt.Sprintf(" %s Invalid keyOperator", requestPayload.KeyOperator.ValueString()))
+					}
+
+					keyValueCondition.KeyCondition = &generated.InputRateLimitingRuleStringCondition{
+						Operator: keyConditionOperator,
+						Value:    keyConditionValue,
+					}
+				}
+
+				if HasValue(requestPayload.ValueOperator) && HasValue(requestPayload.Value) {
+					valueConditionValue := requestPayload.Value.ValueString()
+					valueConditionOperator, exist := RateLimitingKeyValueMatchOperatorMap[requestPayload.ValueOperator.ValueString()]
+
+					if !exist {
+						return nil, utils.NewInvalidError("sources request_payload value_operator", fmt.Sprintf(" %s Invalid keyOperator", requestPayload.ValueOperator.ValueString()))
+					}
+
+					keyValueCondition.ValueCondition = &generated.InputRateLimitingRuleStringCondition{
+						Operator: valueConditionOperator,
+						Value:    valueConditionValue,
+					}
+				}
+				var input = generated.InputRateLimitingRuleCondition{
+					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+						ConditionType:     generated.RateLimitingRuleLeafConditionTypeKeyValue,
+						KeyValueCondition: &keyValueCondition,
+					},
+				}
+			conditions = append(conditions, &input)
+		}
+	}
+
+	if HasValue(data.Sources.DataSetDataType) {
+		var input = generated.InputRateLimitingRuleCondition{}
+		dataSetIds := []*string{}
+		if !HasValue(data.Sources.DataSetDataType.DataSetDataTypeIds.DataSetsIds) {
+			for _, dataSetId := range data.Sources.DataSetDataType.DataSetDataTypeIds.DataSetsIds.Elements() {
+				if dataSetId, ok := dataSetId.(types.String); ok {
+					dataSetIdStr := dataSetId.ValueString()
+					dataSetIds = append(dataSetIds, &dataSetIdStr)
+				}
+			}
+		}
+		dataTypeIds := []*string{}
+		if !HasValue(data.Sources.DataSetDataType.DataSetDataTypeIds.DataTypesIds) {
+			for _, dataTypeId := range data.Sources.DataSetDataType.DataSetDataTypeIds.DataTypesIds.Elements() {
+				if dataTypeId, ok := dataTypeId.(types.String); ok {
+					dataTypeIdStr := dataTypeId.ValueString()
+					dataTypeIds = append(dataTypeIds, &dataTypeIdStr)
+				}
+			}
+		}
+		if len(dataSetIds)==0 && len(dataTypeIds)==0{
+			return nil,utils.NewInvalidError("data_sets_ids or data_types_ids", " Must be present and not empty")
+		}
+		dataLocation := generated.RateLimitingRuleDataLocationRequest
+		if HasValue(data.Sources.DataSetDataType.DataTypeMatching) {
+			metadataType,ok := DlpRequestBasedDatatypeMatchingMetadataTypeMap[data.Sources.DataSetDataType.DataTypeMatching.MetadataType.String()]
+			if !ok {
+				return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching metadata_type",fmt.Sprintf("Invalid metadata_type %s", data.Sources.DataSetDataType.DataTypeMatching.MetadataType.String()))
+			}
+			datatypeMatchingType := generated.RateLimitingRuleDatatypeMatchingTypeRegexBasedMatching
+			operator,ok := DlpRequestBasedDatatypeMatchingKeyOperatorMap[data.Sources.DataSetDataType.DataTypeMatching.Operator.String()]
+			if !ok {
+				return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching operator",fmt.Sprintf("Invalid operator %s", data.Sources.DataSetDataType.DataTypeMatching.Operator.String()))
+			}
+			value := data.Sources.DataSetDataType.DataTypeMatching.Value.String()
+			input = generated.InputRateLimitingRuleCondition{
+				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+					ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
+					DatatypeCondition: &generated.InputRateLimitingRuleDatatypeCondition{
+						DataLocation: &dataLocation,
+						DatasetIds: dataSetIds,
+						DatatypeIds: dataTypeIds,
+						DatatypeMatching: &generated.InputRateLimitingRuleDatatypeMatching{
+							DatatypeMatchingType : &datatypeMatchingType,
+							RegexBasedMatching : &generated.InputRateLimitingRuleRegexBasedMatching{
+								CustomMatchingLocation : &generated.InputRateLimitingRuleKeyValueCondition{
+									MetadataType : &metadataType,
+									KeyCondition: &generated.InputRateLimitingRuleStringCondition{
+										Operator: operator,
+										Value: value,
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+		}else{
+			input = generated.InputRateLimitingRuleCondition{
+				LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
+					ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
+					DatatypeCondition: &generated.InputRateLimitingRuleDatatypeCondition{
+						DataLocation: &dataLocation,
+						DatasetIds: dataSetIds,
+						DatatypeIds: dataTypeIds,
+					},
+				},
+			}
+		}
+		conditions = append(conditions, &input)
+	}
+	return conditions, nil
+}
+
+
+func convertDLPRequestBasedModelToUpdateInput(ctx context.Context, data *models.DataLossPreventionRequestBasedRuleModel, id string, client *graphql.Client) (*generated.InputRateLimitingRule, error) {
+	var input = generated.InputRateLimitingRule{}
 	if id != "" {
 		input.Id = id
 	} else {
@@ -315,29 +828,24 @@ func convertDataLossPreventionRequestBasedRateLimitingModelToUpdateInput(ctx con
 	} else {
 		input.RuleConfigScope = scope
 	}
-	status, err := convertToRateLimitingRuleStatus(data)
+	status, err := convertToDlpRequestBasedRuleStatus(data)
 	if err != nil {
 		return nil, err
 	} else {
 		input.RuleStatus = status
 	}
-	thresholdActionConfigs, err := convertToRateLimitingRuleThresholdActionConfigType(data)
+	transactionActionConfigs, err := convertToDlpRequestBasedTransactionActionConfigType(data)
 	if err != nil {
 		return nil, err
 	} else {
-		input.ThresholdActionConfigs = thresholdActionConfigs
+		input.TransactionActionConfigs = transactionActionConfigs
 	}
-	conditions, err := convertToRateLimitingRuleCondition(ctx, data, client)
+	conditions, err := convertToDlpRequestBasedCondition(ctx, data, client)
 	if err != nil {
 		return nil, err
 	} else {
 		input.Conditions = conditions
 	}
 
-	if HasValue(data.Sources.EndpointLabels) && HasValue(data.Sources.Endpoints) {
-		return nil, utils.NewInvalidError("sources.endpoint", "endpoint_labels field must not be present at same time ")
-	}
-
 	return &input, nil
-
 }

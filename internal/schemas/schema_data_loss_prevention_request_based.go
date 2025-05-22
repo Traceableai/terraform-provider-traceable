@@ -41,127 +41,59 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 				MarkdownDescription: "Enable the Rate Limiting Rule",
 				Required:            true,
 			},
-			"threshold_configs": schema.SetNestedAttribute{
-				MarkdownDescription: "Threshold configs for the rule",
-				Optional:            true,
-				NestedObject: schema.NestedAttributeObject{
-					Attributes: map[string]schema.Attribute{
-						"api_aggregate_type": schema.StringAttribute{
-							MarkdownDescription: "API aggregate type",
-							Optional:            true,
-						},
-						"user_aggregate_type": schema.StringAttribute{
-							MarkdownDescription: "User aggregate type",
-							Optional:            true,
-						},
-						"rolling_window_count_allowed": schema.Int64Attribute{
-							MarkdownDescription: "Rolling window count allowed",
-							Optional:            true,
-						},
-						"rolling_window_duration": schema.StringAttribute{
-							MarkdownDescription: "Rolling window duration",
-							Optional:            true,
-							Validators: []validator.String{
-								validators.ValidDurationFormat(),
-							},
-							PlanModifiers: []planmodifier.String{
-								modifiers.MatchStateIfDurationEqual(),
-							},
-						},
-						"threshold_config_type": schema.StringAttribute{
-							MarkdownDescription: "Threshold config type",
-							Required:            true,
-						},
-						"dynamic_mean_calculation_duration": schema.StringAttribute{
-							MarkdownDescription: "Dynamic mean calculation duration",
-							Optional:            true,
-							Validators: []validator.String{
-								validators.ValidDurationFormat(),
-							},
-							PlanModifiers: []planmodifier.String{
-								modifiers.MatchStateIfDurationEqual(),
-							},
-						},
-						"dynamic_duration": schema.StringAttribute{
-							MarkdownDescription: "Dynamic duration",
-							Optional:            true,
-							Validators: []validator.String{
-								validators.ValidDurationFormat(),
-							},
-							PlanModifiers: []planmodifier.String{
-								modifiers.MatchStateIfDurationEqual(),
-							},
-						},
-						"dynamic_percentage_exceding_mean_allowed": schema.Int64Attribute{
-							MarkdownDescription: "Dynamic percentage exceeding mean allowed",
-							Optional:            true,
-						},
-						"value_type": schema.StringAttribute{
-							MarkdownDescription: "Value type",
-							Optional:            true,
-						},
-						"unique_values_allowed": schema.Int64Attribute{
-							MarkdownDescription: "Unique values allowed",
-							Optional:            true,
-						},
-						"sensitive_params_evaluation_type": schema.StringAttribute{
-							MarkdownDescription: "Sensitive params evaluation type",
-							Optional:            true,
-						},
-						"duration": schema.StringAttribute{
-							MarkdownDescription: "Duration",
-							Optional:            true,
-							Validators: []validator.String{
-								validators.ValidDurationFormat(),
-							},
-							PlanModifiers: []planmodifier.String{
-								modifiers.MatchStateIfDurationEqual(),
-							},
-						},
-					},
-				},
-			},
 			"action": schema.SingleNestedAttribute{
 				Required: true,
 				Attributes: map[string]schema.Attribute{
 					"action_type": schema.StringAttribute{
-						MarkdownDescription: "ALERT , BLOCK , ALLOW ,MARK FOR TESTING",
+						MarkdownDescription: "ALERT , BLOCK , ALLOW",
 						Required:            true,
 					},
 					"duration": schema.StringAttribute{
-						MarkdownDescription: "how much time the action work",
+						MarkdownDescription: "how much time the action work (only allowed with ALLOW and BLOCK)",
 						Optional:            true,
+						Validators: []validator.String{
+							validators.ValidDurationFormat(),
+						},
+						PlanModifiers: []planmodifier.String{
+							modifiers.MatchStateIfDurationEqual(),
+						},
 					},
 					"event_severity": schema.StringAttribute{
-						MarkdownDescription: "LOW,MEDIUM,HIGH",
+						MarkdownDescription: "LOW,MEDIUM,HIGH,CRITICAL only allowed with BLOCK and ALERT",
 						Optional:            true,
-					},
-					"header_injections": schema.SetNestedAttribute{
-						MarkdownDescription: "Header fields to be injected",
-						Optional:            true,
-						NestedObject: schema.NestedAttributeObject{
-							Attributes: map[string]schema.Attribute{
-								"key": schema.StringAttribute{
-									MarkdownDescription: "The header field name to inject (e.g., 'X-Custom-Header')",
-									Optional:            true, // Make key optional
-								},
-								"value": schema.StringAttribute{
-									MarkdownDescription: "The value to set for the header field",
-									Optional:            true,
-								},
-							},
-						},
 					},
 				},
 			},
 			"sources": schema.SingleNestedAttribute{
 				Optional: true,
 				Attributes: map[string]schema.Attribute{	
+					"service_scope": schema.SingleNestedAttribute{
+						MarkdownDescription: "Service id where the rule will get applied",
+						Optional:            true,
+						Attributes: map[string]schema.Attribute{
+							"service_ids": schema.SetAttribute{
+								MarkdownDescription: "It will be a list of service ids",
+								Required:            true,
+								ElementType:         types.StringType,
+							},
+						},
+					},
+					"url_regex_scope": schema.SingleNestedAttribute{
+						MarkdownDescription: "URL regex where the rule will get applied",
+						Required:            true,
+						Attributes: map[string]schema.Attribute{
+							"url_regexes": schema.SetAttribute{
+								MarkdownDescription: "It will be a list of url regexes",
+								Required:            true,
+								ElementType:         types.StringType,
+							},
+						},
+					},
 					"regions": schema.SingleNestedAttribute{
 						MarkdownDescription: "Regions as source, It will be a list region ids (AX,DZ)",
 						Optional:            true,
 						Attributes: map[string]schema.Attribute{
-							"regions_ids": schema.SetAttribute{
+							"region_ids": schema.SetAttribute{
 								MarkdownDescription: "It will be a list of regions ids in countryIsoCode",
 								Required:            true,
 								ElementType:         types.StringType,
@@ -238,17 +170,23 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 									},
 								},
 							},
-							"data_type_matching_metadata_type": schema.StringAttribute{
-								MarkdownDescription: "It can be (QUERY_PARAMETER/REQUEST_HEADER,REQUEST_COOKIE/REQUEST_BODY_PARAMETER/REQUEST_BODY)",
+							"data_type_matching": schema.SingleNestedAttribute{
+								MarkdownDescription: "Datasets or datatypes ids",
 								Optional:            true,
-							},
-							"data_type_matching_operator": schema.StringAttribute{
-								MarkdownDescription: "It Can be (EQUALS/MATCHES_REGEX)",
-								Optional:            true,
-							},
-							"data_type_matching_value": schema.StringAttribute{
-								MarkdownDescription: "Value to match",
-								Optional:            true,
+								Attributes: map[string]schema.Attribute{
+									"metadata_type": schema.StringAttribute{
+										MarkdownDescription: "It can be (QUERY_PARAMETER/REQUEST_HEADER,REQUEST_COOKIE/REQUEST_BODY_PARAMETER/REQUEST_BODY)",
+										Required:            true,
+									},
+									"operator": schema.StringAttribute{
+										MarkdownDescription: "It Can be (EQUALS/MATCHES_REGEX)",
+										Required:            true,
+									},
+									"value": schema.StringAttribute{
+										MarkdownDescription: "Value to match",
+										Required:            true,
+									},
+								},
 							},
 						},
 					},

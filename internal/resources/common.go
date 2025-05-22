@@ -315,6 +315,7 @@ var RateLimitingActionMap = map[string]generated.RateLimitingRuleActionType{
 	"MARK_FOR_TESTING": generated.RateLimitingRuleActionTypeMarkForTesting,
 }
 
+
 var RateLimitingRuleThresholdConfigMap = map[string]generated.RateLimitingRuleThresholdConfigType{
 	"ROLLING_WINDOW": generated.RateLimitingRuleThresholdConfigTypeRollingWindow,
 	"VALUE_BASED":    generated.RateLimitingRuleThresholdConfigTypeValueBased,
@@ -398,6 +399,13 @@ var DlpRequestBasedRequestPayloadMetadataTypeMap = map[string]generated.RateLimi
 	"QUERY_PARAMS_COUNT":      generated.RateLimitingRuleKeyValueConditionMetadataTypeQueryParamsCount,
 	"REQUEST_COOKIES_COUNT":   generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestCookiesCount,
 	"REQUEST_HEADERS_COUNT":   generated.RateLimitingRuleKeyValueConditionMetadataTypeRequestHeadersCount,
+}
+
+var DlpRequestBasedRequestPayloadKeyOperatorMap = map[string]generated.RateLimitingRuleKeyValueMatchOperator{
+	"EQUALS":          generated.RateLimitingRuleKeyValueMatchOperatorEquals,
+	"NOT_EQUAL":       generated.RateLimitingRuleKeyValueMatchOperatorNotEqual,
+	"MATCHES_REGEX":   generated.RateLimitingRuleKeyValueMatchOperatorMatchesRegex,
+	"NOT_MATCH_REGEX": generated.RateLimitingRuleKeyValueMatchOperatorNotMatchRegex,
 }
 
 var DlpRequestBasedDatatypeMatchingKeyOperatorMap = map[string]generated.RateLimitingRuleKeyValueMatchOperator{
