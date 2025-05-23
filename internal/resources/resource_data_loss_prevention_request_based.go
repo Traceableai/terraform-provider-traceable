@@ -196,7 +196,6 @@ func (r *DataLossPreventionRequestBasedResource) ImportState(ctx context.Context
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
 }
 
 func convertDLPRequestBasedRuleFieldsToModel(ctx context.Context, data *generated.RateLimitingRuleFields) (*models.DataLossPreventionRequestBasedRuleModel, error){
@@ -776,6 +775,7 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 				if !ok {
 					return nil,utils.NewInvalidError("dateset_datatype_filter data_type_matching operator",fmt.Sprintf("Invalid operator %s", data.Sources.DataSetDataType.DataTypeMatching.Operator.ValueString()))
 				}
+				
 				value := data.Sources.DataSetDataType.DataTypeMatching.Value.ValueString()
 				input = generated.InputRateLimitingRuleCondition{
 					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
@@ -800,6 +800,7 @@ func convertToDlpRequestBasedCondition(ctx context.Context, data *models.DataLos
 					},
 				}
 			}else{
+				log.Printf("going here")
 				input = generated.InputRateLimitingRuleCondition{
 					LeafCondition: &generated.InputRateLimitingRuleLeafCondition{
 						ConditionType: generated.RateLimitingRuleLeafConditionTypeDatatype,
