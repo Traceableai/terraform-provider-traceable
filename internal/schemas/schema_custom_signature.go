@@ -118,7 +118,7 @@ func CustomSignatureResourceSchema() schema.Schema {
 						Required:            true,
 					},
 					"duration": schema.StringAttribute{
-						MarkdownDescription: "how much time the action work",
+						MarkdownDescription: "how much time the action work (PT1M,PT5M)",
 						Optional:            true,
 						Validators: []validator.String{
 							validators.ValidDurationFormat(),
@@ -128,7 +128,7 @@ func CustomSignatureResourceSchema() schema.Schema {
 						},
 					},
 					"event_severity": schema.StringAttribute{
-						MarkdownDescription: "LOW,MEDIUM,HIGH",
+						MarkdownDescription: "LOW,MEDIUM,HIGH,CRITICAL",
 						Optional:            true,
 					},
 				},

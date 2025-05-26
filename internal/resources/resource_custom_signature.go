@@ -381,9 +381,6 @@ func convertCustomSignatureModelToUpdateInput(ctx context.Context, data *models.
 		duration := data.Action.Duration.ValueString()
 		input.BlockingExpirationDuration = &duration
 	}
-	if HasValue(data.PayloadCriteria.Attributes) && data.Action.ActionType == types.StringValue("ALLOW") {
-		return nil, utils.NewInvalidError("action_type", "action_type ALLOW is not valid with payload_criteria attributes")
-	}
 	return &input, nil
 }
 
@@ -449,9 +446,7 @@ func convertCustomSignatureModelToCreateInput(ctx context.Context, data *models.
 		duration := data.Action.Duration.ValueString()
 		input.BlockingExpirationDuration = &duration
 	}
-	if HasValue(data.PayloadCriteria.Attributes) && data.Action.ActionType == types.StringValue("ALLOW") {
-		return nil, utils.NewInvalidError("action_type", "action_type ALLOW is not valid with payload_criteria attributes")
-	}
+	
 	return &input, nil
 }
 
@@ -692,6 +687,12 @@ func checkInputCondition(data *models.CustomSignatureModel) (error) {
 	}
 	if data.Action.ActionType.ValueString() == "NORMAL_DETECTION" && !HasValue(data.Action.EventSeverity) {
 		return utils.NewInvalidError("event_severity required with action_type", fmt.Sprintf("event_severity required with action_type %s", data.Action.ActionType.ValueString()))
+	}
+	if HasValue(data.PayloadCriteria.Attributes) && data.Action.ActionType.ValueString() == "ALLOW" {
+		return utils.NewInvalidError("action_type", "action_type ALLOW is not valid with payload_criteria attributes")
+	}
+	if HasValue(data.PayloadCriteria.Attributes) && data.Action.ActionType.ValueString() == "DETECTION_AND_BLOCKING" {
+		return utils.NewInvalidError("action_type", "action_type DETECTION_AND_BLOCKING is not valid with payload_criteria attributes")
 	}
 	return nil
 }

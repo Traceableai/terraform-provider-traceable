@@ -46,9 +46,7 @@ resource "traceable_enumeration" "sample"{
         duration ="PT1M"
         threshold_config_type = "VALUE_BASED"
         user_aggregate_type = "PER_USER"
-    },
-   
-
+    }
     ]
     action = {
        action_type = "ALERT"
