@@ -84,3 +84,11 @@ mutation UpdateAnomalyRuleConfig($input: InputScopedAnomalyRuleConfigUpdate!) {
     ruleId
   }
 }
+
+mutation DeleteScopedAnomalyDetectionConfig($input: InputAnomalyDetectionConfigDelete!) {
+  deleteScopedAnomalyDetectionConfig(delete: $input) {
+    anomalyScope{
+      scopeType
+    }
+  }
+}

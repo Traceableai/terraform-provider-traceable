@@ -9,6 +9,59 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+type AccountTakeoverAnomalyDetectionConfigName string
+
+const (
+	// CREDENTIAL_STUFFING_ANOMALY_CONFIG
+	AccountTakeoverAnomalyDetectionConfigNameCredentialStuffingAnomalyConfig AccountTakeoverAnomalyDetectionConfigName = "CREDENTIAL_STUFFING_ANOMALY_CONFIG"
+)
+
+var AllAccountTakeoverAnomalyDetectionConfigName = []AccountTakeoverAnomalyDetectionConfigName{
+	AccountTakeoverAnomalyDetectionConfigNameCredentialStuffingAnomalyConfig,
+}
+
+// Abuse Velocity
+type AnomalyConfigAbuseVelocity string
+
+const (
+	// LOW
+	AnomalyConfigAbuseVelocityLow AnomalyConfigAbuseVelocity = "LOW"
+	// MEDIUM
+	AnomalyConfigAbuseVelocityMedium AnomalyConfigAbuseVelocity = "MEDIUM"
+	// HIGH
+	AnomalyConfigAbuseVelocityHigh AnomalyConfigAbuseVelocity = "HIGH"
+)
+
+var AllAnomalyConfigAbuseVelocity = []AnomalyConfigAbuseVelocity{
+	AnomalyConfigAbuseVelocityLow,
+	AnomalyConfigAbuseVelocityMedium,
+	AnomalyConfigAbuseVelocityHigh,
+}
+
+// IpType
+type AnomalyConfigIpType string
+
+const (
+	// IP_TYPE_VPN
+	AnomalyConfigIpTypeIpTypeVpn AnomalyConfigIpType = "IP_TYPE_VPN"
+	// IP_TYPE_PUBLIC_PROXY
+	AnomalyConfigIpTypeIpTypePublicProxy AnomalyConfigIpType = "IP_TYPE_PUBLIC_PROXY"
+	// IP_TYPE_HOSTING_PROVIDER
+	AnomalyConfigIpTypeIpTypeHostingProvider AnomalyConfigIpType = "IP_TYPE_HOSTING_PROVIDER"
+	// IP_TYPE_TOR
+	AnomalyConfigIpTypeIpTypeTor AnomalyConfigIpType = "IP_TYPE_TOR"
+	// IP_TYPE_BOT
+	AnomalyConfigIpTypeIpTypeBot AnomalyConfigIpType = "IP_TYPE_BOT"
+)
+
+var AllAnomalyConfigIpType = []AnomalyConfigIpType{
+	AnomalyConfigIpTypeIpTypeVpn,
+	AnomalyConfigIpTypeIpTypePublicProxy,
+	AnomalyConfigIpTypeIpTypeHostingProvider,
+	AnomalyConfigIpTypeIpTypeTor,
+	AnomalyConfigIpTypeIpTypeBot,
+}
+
 type AnomalyDetectionConfigType string
 
 const (
@@ -214,6 +267,20 @@ func (v *AnomalyDetectionRuleConfigsResponse) GetAnomalyDetectionRuleConfigs() A
 	return v.AnomalyDetectionRuleConfigs
 }
 
+type AnomalyDetectionType string
+
+const (
+	// API_PROTECTION
+	AnomalyDetectionTypeApiProtection AnomalyDetectionType = "API_PROTECTION"
+	// WAF
+	AnomalyDetectionTypeWaf AnomalyDetectionType = "WAF"
+)
+
+var AllAnomalyDetectionType = []AnomalyDetectionType{
+	AnomalyDetectionTypeApiProtection,
+	AnomalyDetectionTypeWaf,
+}
+
 type AnomalyEventFamily string
 
 const (
@@ -250,6 +317,26 @@ var AllAnomalyEventFamily = []AnomalyEventFamily{
 	AnomalyEventFamilyRateLimit,
 	AnomalyEventFamilyCustomSignature,
 	AnomalyEventFamilyMaliciousSources,
+}
+
+type AnomalyEventScoreCategory string
+
+const (
+	// LOW
+	AnomalyEventScoreCategoryLow AnomalyEventScoreCategory = "LOW"
+	// MEDIUM
+	AnomalyEventScoreCategoryMedium AnomalyEventScoreCategory = "MEDIUM"
+	// HIGH
+	AnomalyEventScoreCategoryHigh AnomalyEventScoreCategory = "HIGH"
+	// CRITICAL
+	AnomalyEventScoreCategoryCritical AnomalyEventScoreCategory = "CRITICAL"
+)
+
+var AllAnomalyEventScoreCategory = []AnomalyEventScoreCategory{
+	AnomalyEventScoreCategoryLow,
+	AnomalyEventScoreCategoryMedium,
+	AnomalyEventScoreCategoryHigh,
+	AnomalyEventScoreCategoryCritical,
 }
 
 type AnomalyParamInfoType string
@@ -789,6 +876,23 @@ var AllAnomalyScopeType = []AnomalyScopeType{
 	AnomalyScopeTypeDefault,
 }
 
+type AnomalySecurityEventCategory string
+
+const (
+	// LATENT
+	AnomalySecurityEventCategoryLatent AnomalySecurityEventCategory = "LATENT"
+	// MALICIOUS
+	AnomalySecurityEventCategoryMalicious AnomalySecurityEventCategory = "MALICIOUS"
+	// TAGGED
+	AnomalySecurityEventCategoryTagged AnomalySecurityEventCategory = "TAGGED"
+)
+
+var AllAnomalySecurityEventCategory = []AnomalySecurityEventCategory{
+	AnomalySecurityEventCategoryLatent,
+	AnomalySecurityEventCategoryMalicious,
+	AnomalySecurityEventCategoryTagged,
+}
+
 type AnomalySubRuleAction string
 
 const (
@@ -824,6 +928,79 @@ var AllAnomalySubRuleType = []AnomalySubRuleType{
 	AnomalySubRuleTypeRegular,
 	AnomalySubRuleTypeSafe,
 	AnomalySubRuleTypeBlock,
+}
+
+type ApiDefinitionMetadataAnomalyDetectionConfigName string
+
+const (
+	// MISSING_PARAM_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameMissingParamAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "MISSING_PARAM_ANOMALY_CONFIG"
+	// ENUMERATIONS_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameEnumerationsAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "ENUMERATIONS_ANOMALY_CONFIG"
+	// TYPE_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameTypeAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "TYPE_ANOMALY_CONFIG"
+	// INTEGER_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameIntegerAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "INTEGER_ANOMALY_CONFIG"
+	// DEVICE_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameDeviceAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "DEVICE_ANOMALY_CONFIG"
+	// HTTP_STATUS_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameHttpStatusAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "HTTP_STATUS_ANOMALY_CONFIG"
+	// CONTENT_TYPE_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameContentTypeAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "CONTENT_TYPE_ANOMALY_CONFIG"
+	// CONTENT_SIZE_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameContentSizeAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "CONTENT_SIZE_ANOMALY_CONFIG"
+	// PAYLOAD_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNamePayloadAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "PAYLOAD_ANOMALY_CONFIG"
+	// SSRF_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameSsrfAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "SSRF_ANOMALY_CONFIG"
+	// UNKNOWN_PARAM_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameUnknownParamAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "UNKNOWN_PARAM_ANOMALY_CONFIG"
+	// BFLA_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameBflaAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "BFLA_ANOMALY_CONFIG"
+	// JWT_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameJwtAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "JWT_ANOMALY_CONFIG"
+	// SPECIAL_CHARACTER_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameSpecialCharacterAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "SPECIAL_CHARACTER_ANOMALY_CONFIG"
+	// CONTENT_EXPLOSION_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameContentExplosionAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "CONTENT_EXPLOSION_ANOMALY_CONFIG"
+)
+
+var AllApiDefinitionMetadataAnomalyDetectionConfigName = []ApiDefinitionMetadataAnomalyDetectionConfigName{
+	ApiDefinitionMetadataAnomalyDetectionConfigNameMissingParamAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameEnumerationsAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameTypeAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameIntegerAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameDeviceAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameHttpStatusAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameContentTypeAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameContentSizeAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNamePayloadAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameSsrfAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameUnknownParamAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameBflaAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameJwtAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameSpecialCharacterAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameContentExplosionAnomalyConfig,
+}
+
+type ApiStateBasedAnomalyDetectionConfigName string
+
+const (
+	// UNKNOWN_API_ANOMALY_CONFIG
+	ApiStateBasedAnomalyDetectionConfigNameUnknownApiAnomalyConfig ApiStateBasedAnomalyDetectionConfigName = "UNKNOWN_API_ANOMALY_CONFIG"
+	// UNDER_DISCOVERY_API_ANOMALY_CONFIG
+	ApiStateBasedAnomalyDetectionConfigNameUnderDiscoveryApiAnomalyConfig ApiStateBasedAnomalyDetectionConfigName = "UNDER_DISCOVERY_API_ANOMALY_CONFIG"
+	// UNDER_THRESHOLD_LEARNING_API_ANOMALY_CONFIG
+	ApiStateBasedAnomalyDetectionConfigNameUnderThresholdLearningApiAnomalyConfig ApiStateBasedAnomalyDetectionConfigName = "UNDER_THRESHOLD_LEARNING_API_ANOMALY_CONFIG"
+	// LEARNT_API_ANOMALY_CONFIG
+	ApiStateBasedAnomalyDetectionConfigNameLearntApiAnomalyConfig ApiStateBasedAnomalyDetectionConfigName = "LEARNT_API_ANOMALY_CONFIG"
+)
+
+var AllApiStateBasedAnomalyDetectionConfigName = []ApiStateBasedAnomalyDetectionConfigName{
+	ApiStateBasedAnomalyDetectionConfigNameUnknownApiAnomalyConfig,
+	ApiStateBasedAnomalyDetectionConfigNameUnderDiscoveryApiAnomalyConfig,
+	ApiStateBasedAnomalyDetectionConfigNameUnderThresholdLearningApiAnomalyConfig,
+	ApiStateBasedAnomalyDetectionConfigNameLearntApiAnomalyConfig,
 }
 
 type AttributeScope string
@@ -868,6 +1045,38 @@ var AllAttributeScope = []AttributeScope{
 	AttributeScopeDomain,
 	AttributeScopeDomainEvent,
 	AttributeScopeBackendApi,
+}
+
+type BlockingMetadataAnomalyDetectionConfigName string
+
+const (
+	// CUSTOM_IP
+	BlockingMetadataAnomalyDetectionConfigNameCustomIp BlockingMetadataAnomalyDetectionConfigName = "CUSTOM_IP"
+	// CUSTOM_REGION
+	BlockingMetadataAnomalyDetectionConfigNameCustomRegion BlockingMetadataAnomalyDetectionConfigName = "CUSTOM_REGION"
+	// MALICIOUS_SOURCES
+	BlockingMetadataAnomalyDetectionConfigNameMaliciousSources BlockingMetadataAnomalyDetectionConfigName = "MALICIOUS_SOURCES"
+	// CUSTOM_SIGNATURE
+	BlockingMetadataAnomalyDetectionConfigNameCustomSignature BlockingMetadataAnomalyDetectionConfigName = "CUSTOM_SIGNATURE"
+	// RATE_LIMIT
+	BlockingMetadataAnomalyDetectionConfigNameRateLimit BlockingMetadataAnomalyDetectionConfigName = "RATE_LIMIT"
+	// THREAT_ACTOR
+	BlockingMetadataAnomalyDetectionConfigNameThreatActor BlockingMetadataAnomalyDetectionConfigName = "THREAT_ACTOR"
+	// SAFE_CRS
+	BlockingMetadataAnomalyDetectionConfigNameSafeCrs BlockingMetadataAnomalyDetectionConfigName = "SAFE_CRS"
+	// IN_AGENT_VULNERABLE_LIBRARY
+	BlockingMetadataAnomalyDetectionConfigNameInAgentVulnerableLibrary BlockingMetadataAnomalyDetectionConfigName = "IN_AGENT_VULNERABLE_LIBRARY"
+)
+
+var AllBlockingMetadataAnomalyDetectionConfigName = []BlockingMetadataAnomalyDetectionConfigName{
+	BlockingMetadataAnomalyDetectionConfigNameCustomIp,
+	BlockingMetadataAnomalyDetectionConfigNameCustomRegion,
+	BlockingMetadataAnomalyDetectionConfigNameMaliciousSources,
+	BlockingMetadataAnomalyDetectionConfigNameCustomSignature,
+	BlockingMetadataAnomalyDetectionConfigNameRateLimit,
+	BlockingMetadataAnomalyDetectionConfigNameThreatActor,
+	BlockingMetadataAnomalyDetectionConfigNameSafeCrs,
+	BlockingMetadataAnomalyDetectionConfigNameInAgentVulnerableLibrary,
 }
 
 // CreateCustomSignatureCreateCustomSignatureRule includes the requested fields of the GraphQL type CustomSignatureRule.
@@ -1612,6 +1821,31 @@ type CreateRateLimitingRuleResponse struct {
 // GetCreateRateLimitingRule returns CreateRateLimitingRuleResponse.CreateRateLimitingRule, and is useful for accessing the field via an interface.
 func (v *CreateRateLimitingRuleResponse) GetCreateRateLimitingRule() CreateRateLimitingRuleCreateRateLimitingRule {
 	return v.CreateRateLimitingRule
+}
+
+type CredentialStuffingAnomalyDetectionConfigName string
+
+const (
+	// CREDENTIAL_STUFFING_ANOMALY_CONFIG
+	CredentialStuffingAnomalyDetectionConfigNameCredentialStuffingAnomalyConfig CredentialStuffingAnomalyDetectionConfigName = "CREDENTIAL_STUFFING_ANOMALY_CONFIG"
+)
+
+var AllCredentialStuffingAnomalyDetectionConfigName = []CredentialStuffingAnomalyDetectionConfigName{
+	CredentialStuffingAnomalyDetectionConfigNameCredentialStuffingAnomalyConfig,
+}
+
+type CustomRulesAnomalyDetectionConfigName string
+
+const (
+	// MALICIOUS_SOURCES
+	CustomRulesAnomalyDetectionConfigNameMaliciousSources CustomRulesAnomalyDetectionConfigName = "MALICIOUS_SOURCES"
+	// CUSTOM_SIGNATURE
+	CustomRulesAnomalyDetectionConfigNameCustomSignature CustomRulesAnomalyDetectionConfigName = "CUSTOM_SIGNATURE"
+)
+
+var AllCustomRulesAnomalyDetectionConfigName = []CustomRulesAnomalyDetectionConfigName{
+	CustomRulesAnomalyDetectionConfigNameMaliciousSources,
+	CustomRulesAnomalyDetectionConfigNameCustomSignature,
 }
 
 // CustomSignatureFields includes the GraphQL fields of CustomSignatureRule requested by the fragment CustomSignatureFields.
@@ -2638,6 +2872,58 @@ type DeleteRateLimitingRuleResponse struct {
 // GetDeleteRateLimitingRule returns DeleteRateLimitingRuleResponse.DeleteRateLimitingRule, and is useful for accessing the field via an interface.
 func (v *DeleteRateLimitingRuleResponse) GetDeleteRateLimitingRule() DeleteRateLimitingRuleDeleteRateLimitingRuleDeleteRateLimitingRuleResponse {
 	return v.DeleteRateLimitingRule
+}
+
+// DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfig includes the requested fields of the GraphQL type ScopedAnomalyDetectionConfig.
+type DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfig struct {
+	AnomalyScope DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfigAnomalyScope `json:"anomalyScope"`
+}
+
+// GetAnomalyScope returns DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfig.AnomalyScope, and is useful for accessing the field via an interface.
+func (v *DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfig) GetAnomalyScope() DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfigAnomalyScope {
+	return v.AnomalyScope
+}
+
+// DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfigAnomalyScope includes the requested fields of the GraphQL type AnomalyScope.
+// The GraphQL type's documentation follows.
+//
+// Scope for anomaly configs
+type DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfigAnomalyScope struct {
+	// Scope Type
+	ScopeType AnomalyScopeType `json:"scopeType"`
+}
+
+// GetScopeType returns DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfigAnomalyScope.ScopeType, and is useful for accessing the field via an interface.
+func (v *DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfigAnomalyScope) GetScopeType() AnomalyScopeType {
+	return v.ScopeType
+}
+
+// DeleteScopedAnomalyDetectionConfigResponse is returned by DeleteScopedAnomalyDetectionConfig on success.
+type DeleteScopedAnomalyDetectionConfigResponse struct {
+	DeleteScopedAnomalyDetectionConfig DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfig `json:"deleteScopedAnomalyDetectionConfig"`
+}
+
+// GetDeleteScopedAnomalyDetectionConfig returns DeleteScopedAnomalyDetectionConfigResponse.DeleteScopedAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *DeleteScopedAnomalyDetectionConfigResponse) GetDeleteScopedAnomalyDetectionConfig() DeleteScopedAnomalyDetectionConfigDeleteScopedAnomalyDetectionConfig {
+	return v.DeleteScopedAnomalyDetectionConfig
+}
+
+// User ID source type
+type DetectionUserIdSourceType string
+
+const (
+	// USER_ATTRIBUTION_EXTRACTED_ID
+	DetectionUserIdSourceTypeUserAttributionExtractedId DetectionUserIdSourceType = "USER_ATTRIBUTION_EXTRACTED_ID"
+	// USER_ATTRIBUTION_EXTRACTED_ID_FROM_JWT
+	DetectionUserIdSourceTypeUserAttributionExtractedIdFromJwt DetectionUserIdSourceType = "USER_ATTRIBUTION_EXTRACTED_ID_FROM_JWT"
+	// USER_ID_CUSTOM_ATTRIBUTE
+	DetectionUserIdSourceTypeUserIdCustomAttribute DetectionUserIdSourceType = "USER_ID_CUSTOM_ATTRIBUTE"
+)
+
+var AllDetectionUserIdSourceType = []DetectionUserIdSourceType{
+	DetectionUserIdSourceTypeUserAttributionExtractedId,
+	DetectionUserIdSourceTypeUserAttributionExtractedIdFromJwt,
+	DetectionUserIdSourceTypeUserIdCustomAttribute,
 }
 
 type EntityType string
@@ -4101,6 +4387,25 @@ func (v *GetRateLimitingRulesNameResponse) GetRateLimitingRules() GetRateLimitin
 	return v.RateLimitingRules
 }
 
+type InputAccountTakeoverAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	Name          AccountTakeoverAnomalyDetectionConfigName  `json:"name"`
+	RuleId        *string                                    `json:"ruleId"`
+}
+
+// GetKeyValuePairs returns InputAccountTakeoverAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputAccountTakeoverAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputAccountTakeoverAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputAccountTakeoverAnomalyDetectionConfig) GetName() AccountTakeoverAnomalyDetectionConfigName {
+	return v.Name
+}
+
+// GetRuleId returns InputAccountTakeoverAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputAccountTakeoverAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
+
 type InputAggregatableOrder struct {
 	Aggregation   *MetricAggregationType    `json:"aggregation"`
 	Direction     *OrderDirection           `json:"direction"`
@@ -4199,6 +4504,21 @@ func (v *InputAnomalyBackendScope) GetEnvironmentScope() *InputAnomalyEnvironmen
 // GetId returns InputAnomalyBackendScope.Id, and is useful for accessing the field via an interface.
 func (v *InputAnomalyBackendScope) GetId() string { return v.Id }
 
+type InputAnomalyCategoryConfig struct {
+	EventScoreCategory    *AnomalyEventScoreCategory    `json:"eventScoreCategory"`
+	SecurityEventCategory *AnomalySecurityEventCategory `json:"securityEventCategory"`
+}
+
+// GetEventScoreCategory returns InputAnomalyCategoryConfig.EventScoreCategory, and is useful for accessing the field via an interface.
+func (v *InputAnomalyCategoryConfig) GetEventScoreCategory() *AnomalyEventScoreCategory {
+	return v.EventScoreCategory
+}
+
+// GetSecurityEventCategory returns InputAnomalyCategoryConfig.SecurityEventCategory, and is useful for accessing the field via an interface.
+func (v *InputAnomalyCategoryConfig) GetSecurityEventCategory() *AnomalySecurityEventCategory {
+	return v.SecurityEventCategory
+}
+
 type InputAnomalyConfigStatusChange struct {
 	Disabled *bool `json:"disabled"`
 	Internal *bool `json:"internal"`
@@ -4209,6 +4529,235 @@ func (v *InputAnomalyConfigStatusChange) GetDisabled() *bool { return v.Disabled
 
 // GetInternal returns InputAnomalyConfigStatusChange.Internal, and is useful for accessing the field via an interface.
 func (v *InputAnomalyConfigStatusChange) GetInternal() *bool { return v.Internal }
+
+type InputAnomalyDetectionConfig struct {
+	// AnomalyDetectionConfig for Account Takeover Anomaly Detection
+	AccountTakeoverAnomalyDetectionConfig *InputAccountTakeoverAnomalyDetectionConfig `json:"accountTakeoverAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for API Definition Metadata
+	ApiDefinitionMetadataAnomalyDetectionConfig *InputApiDefinitionMetadataAnomalyDetectionConfig `json:"apiDefinitionMetadataAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for API State Based detections
+	ApiStateBasedAnomalyDetectionConfig *InputApiStateBasedAnomalyDetectionConfig `json:"apiStateBasedAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for Blocking Metadata
+	BlockingMetadataAnomalyDetectionConfig *InputBlockingMetadataAnomalyDetectionConfig `json:"blockingMetadataAnomalyDetectionConfig"`
+	// Anomaly Config Category
+	Category *InputAnomalyCategoryConfig `json:"category"`
+	// Type for AnomalyDetectionConfig
+	ConfigType AnomalyDetectionConfigType `json:"configType"`
+	// AnomalyDetectionConfig for Credential Stuffing Anomaly Detection
+	CredentialStuffingAnomalyDetectionConfig *InputCredentialStuffingAnomalyDetectionConfig `json:"credentialStuffingAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for Custom Rules
+	CustomRulesAnomalyDetectionConfig *InputCustomRulesAnomalyDetectionConfig `json:"customRulesAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for modsecurity
+	ModSecurityAnomalyDetectionConfig *InputModsecurityAnomalyDetectionConfig `json:"modSecurityAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for Session Definition Metadata
+	SessionDefinitionMetadataAnomalyDetectionConfig *InputSessionDefinitionMetadataAnomalyDetectionConfig `json:"sessionDefinitionMetadataAnomalyDetectionConfig"`
+	// Anomaly Config status
+	Status *InputAnomalyConfigStatusChange `json:"status"`
+	// AnomalyDetectionConfig for Volumetric Anomaly Detection
+	VolumetricAnomalyDetectionConfig *InputVolumetricAnomalyDetectionConfig `json:"volumetricAnomalyDetectionConfig"`
+}
+
+// GetAccountTakeoverAnomalyDetectionConfig returns InputAnomalyDetectionConfig.AccountTakeoverAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetAccountTakeoverAnomalyDetectionConfig() *InputAccountTakeoverAnomalyDetectionConfig {
+	return v.AccountTakeoverAnomalyDetectionConfig
+}
+
+// GetApiDefinitionMetadataAnomalyDetectionConfig returns InputAnomalyDetectionConfig.ApiDefinitionMetadataAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetApiDefinitionMetadataAnomalyDetectionConfig() *InputApiDefinitionMetadataAnomalyDetectionConfig {
+	return v.ApiDefinitionMetadataAnomalyDetectionConfig
+}
+
+// GetApiStateBasedAnomalyDetectionConfig returns InputAnomalyDetectionConfig.ApiStateBasedAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetApiStateBasedAnomalyDetectionConfig() *InputApiStateBasedAnomalyDetectionConfig {
+	return v.ApiStateBasedAnomalyDetectionConfig
+}
+
+// GetBlockingMetadataAnomalyDetectionConfig returns InputAnomalyDetectionConfig.BlockingMetadataAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetBlockingMetadataAnomalyDetectionConfig() *InputBlockingMetadataAnomalyDetectionConfig {
+	return v.BlockingMetadataAnomalyDetectionConfig
+}
+
+// GetCategory returns InputAnomalyDetectionConfig.Category, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetCategory() *InputAnomalyCategoryConfig { return v.Category }
+
+// GetConfigType returns InputAnomalyDetectionConfig.ConfigType, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetConfigType() AnomalyDetectionConfigType { return v.ConfigType }
+
+// GetCredentialStuffingAnomalyDetectionConfig returns InputAnomalyDetectionConfig.CredentialStuffingAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetCredentialStuffingAnomalyDetectionConfig() *InputCredentialStuffingAnomalyDetectionConfig {
+	return v.CredentialStuffingAnomalyDetectionConfig
+}
+
+// GetCustomRulesAnomalyDetectionConfig returns InputAnomalyDetectionConfig.CustomRulesAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetCustomRulesAnomalyDetectionConfig() *InputCustomRulesAnomalyDetectionConfig {
+	return v.CustomRulesAnomalyDetectionConfig
+}
+
+// GetModSecurityAnomalyDetectionConfig returns InputAnomalyDetectionConfig.ModSecurityAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetModSecurityAnomalyDetectionConfig() *InputModsecurityAnomalyDetectionConfig {
+	return v.ModSecurityAnomalyDetectionConfig
+}
+
+// GetSessionDefinitionMetadataAnomalyDetectionConfig returns InputAnomalyDetectionConfig.SessionDefinitionMetadataAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetSessionDefinitionMetadataAnomalyDetectionConfig() *InputSessionDefinitionMetadataAnomalyDetectionConfig {
+	return v.SessionDefinitionMetadataAnomalyDetectionConfig
+}
+
+// GetStatus returns InputAnomalyDetectionConfig.Status, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetStatus() *InputAnomalyConfigStatusChange { return v.Status }
+
+// GetVolumetricAnomalyDetectionConfig returns InputAnomalyDetectionConfig.VolumetricAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetVolumetricAnomalyDetectionConfig() *InputVolumetricAnomalyDetectionConfig {
+	return v.VolumetricAnomalyDetectionConfig
+}
+
+type InputAnomalyDetectionConfigDelete struct {
+	AnomalyDetectionConfigs []*InputAnomalyDetectionConfig `json:"anomalyDetectionConfigs"`
+	// anomaly detection type
+	AnomalyDetectionType *AnomalyDetectionType `json:"anomalyDetectionType"`
+	AnomalyScope         InputAnomalyScope     `json:"anomalyScope"`
+}
+
+// GetAnomalyDetectionConfigs returns InputAnomalyDetectionConfigDelete.AnomalyDetectionConfigs, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigDelete) GetAnomalyDetectionConfigs() []*InputAnomalyDetectionConfig {
+	return v.AnomalyDetectionConfigs
+}
+
+// GetAnomalyDetectionType returns InputAnomalyDetectionConfigDelete.AnomalyDetectionType, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigDelete) GetAnomalyDetectionType() *AnomalyDetectionType {
+	return v.AnomalyDetectionType
+}
+
+// GetAnomalyScope returns InputAnomalyDetectionConfigDelete.AnomalyScope, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigDelete) GetAnomalyScope() InputAnomalyScope {
+	return v.AnomalyScope
+}
+
+type InputAnomalyDetectionConfigKeyValuePair struct {
+	ConfigKey   string                           `json:"configKey"`
+	ConfigValue InputAnomalyDetectionConfigValue `json:"configValue"`
+}
+
+// GetConfigKey returns InputAnomalyDetectionConfigKeyValuePair.ConfigKey, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigKeyValuePair) GetConfigKey() string { return v.ConfigKey }
+
+// GetConfigValue returns InputAnomalyDetectionConfigKeyValuePair.ConfigValue, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigKeyValuePair) GetConfigValue() InputAnomalyDetectionConfigValue {
+	return v.ConfigValue
+}
+
+type InputAnomalyDetectionConfigValue struct {
+	// API Call Spike tuning config list
+	ApiCallSpikeTuningConfigList []*InputApiCallSpikeTuningConfig `json:"apiCallSpikeTuningConfigList"`
+	// Credential Stuffing tuning config list
+	CredentialStuffingTuningConfigList []*InputCredentialStuffingTuningConfig `json:"credentialStuffingTuningConfigList"`
+	// Anomaly Config for Email Domain
+	EmailDomainAnomalyConfig *InputEmailDomainAnomalyConfig `json:"emailDomainAnomalyConfig"`
+	// Anomaly Config for Ip Type
+	IpTypeAnomalyConfig *InputIpTypeAnomalyConfig `json:"ipTypeAnomalyConfig"`
+	// Anomaly Config for Land Speed Violation
+	LandSpeedViolationConfig *InputLandSpeedViolationConfig `json:"landSpeedViolationConfig"`
+	// Multi valued string param rule list
+	MultiValuedStringParamRuleList []*InputMultiValuedStringParamRule `json:"multiValuedStringParamRuleList"`
+	// Param value type excluded by modsec
+	ParamValueTypeModsecExcludes []*InputParamValueTypeModsecExclude `json:"paramValueTypeModsecExcludes"`
+	// Config for predecessor successor API sequence
+	PredecessorSuccessorApiSequenceConfig *InputPredecessorSuccessorApiSequenceConfig `json:"predecessorSuccessorApiSequenceConfig"`
+	// Anomaly Config for Session Expiry
+	SessionExpiryConfig *InputSessionExpiryConfig `json:"sessionExpiryConfig"`
+	// Anomaly Detection Config value as string list
+	StringList []*string `json:"stringList"`
+	// Sub rule config list
+	SubRuleConfigList []*InputAnomalyDetectionSubRuleConfig `json:"subRuleConfigList"`
+	// User ID data config list
+	UserIdDataConfigList []*InputDetectionUserIdDataConfig `json:"userIdDataConfigList"`
+	// Anomaly Detection Config string value
+	Value *string `json:"value"`
+}
+
+// GetApiCallSpikeTuningConfigList returns InputAnomalyDetectionConfigValue.ApiCallSpikeTuningConfigList, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetApiCallSpikeTuningConfigList() []*InputApiCallSpikeTuningConfig {
+	return v.ApiCallSpikeTuningConfigList
+}
+
+// GetCredentialStuffingTuningConfigList returns InputAnomalyDetectionConfigValue.CredentialStuffingTuningConfigList, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetCredentialStuffingTuningConfigList() []*InputCredentialStuffingTuningConfig {
+	return v.CredentialStuffingTuningConfigList
+}
+
+// GetEmailDomainAnomalyConfig returns InputAnomalyDetectionConfigValue.EmailDomainAnomalyConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetEmailDomainAnomalyConfig() *InputEmailDomainAnomalyConfig {
+	return v.EmailDomainAnomalyConfig
+}
+
+// GetIpTypeAnomalyConfig returns InputAnomalyDetectionConfigValue.IpTypeAnomalyConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetIpTypeAnomalyConfig() *InputIpTypeAnomalyConfig {
+	return v.IpTypeAnomalyConfig
+}
+
+// GetLandSpeedViolationConfig returns InputAnomalyDetectionConfigValue.LandSpeedViolationConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetLandSpeedViolationConfig() *InputLandSpeedViolationConfig {
+	return v.LandSpeedViolationConfig
+}
+
+// GetMultiValuedStringParamRuleList returns InputAnomalyDetectionConfigValue.MultiValuedStringParamRuleList, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetMultiValuedStringParamRuleList() []*InputMultiValuedStringParamRule {
+	return v.MultiValuedStringParamRuleList
+}
+
+// GetParamValueTypeModsecExcludes returns InputAnomalyDetectionConfigValue.ParamValueTypeModsecExcludes, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetParamValueTypeModsecExcludes() []*InputParamValueTypeModsecExclude {
+	return v.ParamValueTypeModsecExcludes
+}
+
+// GetPredecessorSuccessorApiSequenceConfig returns InputAnomalyDetectionConfigValue.PredecessorSuccessorApiSequenceConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetPredecessorSuccessorApiSequenceConfig() *InputPredecessorSuccessorApiSequenceConfig {
+	return v.PredecessorSuccessorApiSequenceConfig
+}
+
+// GetSessionExpiryConfig returns InputAnomalyDetectionConfigValue.SessionExpiryConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetSessionExpiryConfig() *InputSessionExpiryConfig {
+	return v.SessionExpiryConfig
+}
+
+// GetStringList returns InputAnomalyDetectionConfigValue.StringList, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetStringList() []*string { return v.StringList }
+
+// GetSubRuleConfigList returns InputAnomalyDetectionConfigValue.SubRuleConfigList, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetSubRuleConfigList() []*InputAnomalyDetectionSubRuleConfig {
+	return v.SubRuleConfigList
+}
+
+// GetUserIdDataConfigList returns InputAnomalyDetectionConfigValue.UserIdDataConfigList, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetUserIdDataConfigList() []*InputDetectionUserIdDataConfig {
+	return v.UserIdDataConfigList
+}
+
+// GetValue returns InputAnomalyDetectionConfigValue.Value, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetValue() *string { return v.Value }
+
+type InputAnomalyDetectionSubRuleConfig struct {
+	BlockingEnabled *bool                           `json:"blockingEnabled"`
+	Category        *InputAnomalyCategoryConfig     `json:"category"`
+	Status          *InputAnomalyConfigStatusChange `json:"status"`
+	SubRuleId       string                          `json:"subRuleId"`
+}
+
+// GetBlockingEnabled returns InputAnomalyDetectionSubRuleConfig.BlockingEnabled, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionSubRuleConfig) GetBlockingEnabled() *bool { return v.BlockingEnabled }
+
+// GetCategory returns InputAnomalyDetectionSubRuleConfig.Category, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionSubRuleConfig) GetCategory() *InputAnomalyCategoryConfig {
+	return v.Category
+}
+
+// GetStatus returns InputAnomalyDetectionSubRuleConfig.Status, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionSubRuleConfig) GetStatus() *InputAnomalyConfigStatusChange {
+	return v.Status
+}
+
+// GetSubRuleId returns InputAnomalyDetectionSubRuleConfig.SubRuleId, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionSubRuleConfig) GetSubRuleId() string { return v.SubRuleId }
 
 // Environment scope for anomaly configs
 type InputAnomalyEnvironmentScope struct {
@@ -4359,6 +4908,58 @@ func (v *InputAnomalySubRuleConfigUpdate) GetConfigStatus() *InputAnomalyConfigS
 // GetSubRuleId returns InputAnomalySubRuleConfigUpdate.SubRuleId, and is useful for accessing the field via an interface.
 func (v *InputAnomalySubRuleConfigUpdate) GetSubRuleId() string { return v.SubRuleId }
 
+type InputApiCallSpikeTuningConfig struct {
+	// The detection config would be applied on the endpoints identified by this config
+	DetectionScopeConfig InputDetectionScopeConfig `json:"detectionScopeConfig"`
+	// Minimum span count for the API to be present during the detection run for the
+	// API data to be qualified to be run through the detector
+	EndpointSpanCountDetectionThreshold int64 `json:"endpointSpanCountDetectionThreshold"`
+}
+
+// GetDetectionScopeConfig returns InputApiCallSpikeTuningConfig.DetectionScopeConfig, and is useful for accessing the field via an interface.
+func (v *InputApiCallSpikeTuningConfig) GetDetectionScopeConfig() InputDetectionScopeConfig {
+	return v.DetectionScopeConfig
+}
+
+// GetEndpointSpanCountDetectionThreshold returns InputApiCallSpikeTuningConfig.EndpointSpanCountDetectionThreshold, and is useful for accessing the field via an interface.
+func (v *InputApiCallSpikeTuningConfig) GetEndpointSpanCountDetectionThreshold() int64 {
+	return v.EndpointSpanCountDetectionThreshold
+}
+
+type InputApiDefinitionMetadataAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair      `json:"keyValuePairs"`
+	Name          ApiDefinitionMetadataAnomalyDetectionConfigName `json:"name"`
+	RuleId        *string                                         `json:"ruleId"`
+}
+
+// GetKeyValuePairs returns InputApiDefinitionMetadataAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputApiDefinitionMetadataAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputApiDefinitionMetadataAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputApiDefinitionMetadataAnomalyDetectionConfig) GetName() ApiDefinitionMetadataAnomalyDetectionConfigName {
+	return v.Name
+}
+
+// GetRuleId returns InputApiDefinitionMetadataAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputApiDefinitionMetadataAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
+
+type InputApiStateBasedAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	Name          ApiStateBasedAnomalyDetectionConfigName    `json:"name"`
+}
+
+// GetKeyValuePairs returns InputApiStateBasedAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputApiStateBasedAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputApiStateBasedAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputApiStateBasedAnomalyDetectionConfig) GetName() ApiStateBasedAnomalyDetectionConfigName {
+	return v.Name
+}
+
 type InputAttributeExpression struct {
 	Key     string  `json:"key"`
 	Subpath *string `json:"subpath"`
@@ -4369,6 +4970,94 @@ func (v *InputAttributeExpression) GetKey() string { return v.Key }
 
 // GetSubpath returns InputAttributeExpression.Subpath, and is useful for accessing the field via an interface.
 func (v *InputAttributeExpression) GetSubpath() *string { return v.Subpath }
+
+type InputBlockingMetadataAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	Name          BlockingMetadataAnomalyDetectionConfigName `json:"name"`
+}
+
+// GetKeyValuePairs returns InputBlockingMetadataAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputBlockingMetadataAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputBlockingMetadataAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputBlockingMetadataAnomalyDetectionConfig) GetName() BlockingMetadataAnomalyDetectionConfigName {
+	return v.Name
+}
+
+type InputCredentialStuffingAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair   `json:"keyValuePairs"`
+	Name          CredentialStuffingAnomalyDetectionConfigName `json:"name"`
+	RuleId        *string                                      `json:"ruleId"`
+}
+
+// GetKeyValuePairs returns InputCredentialStuffingAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputCredentialStuffingAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingAnomalyDetectionConfig) GetName() CredentialStuffingAnomalyDetectionConfigName {
+	return v.Name
+}
+
+// GetRuleId returns InputCredentialStuffingAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
+
+type InputCredentialStuffingTuningConfig struct {
+	// The detection config would be applied on the endpoints identified by this config
+	DetectionScopeConfig InputDetectionScopeConfig `json:"detectionScopeConfig"`
+	// Percentage threshold for the failed attempts to be considered as credntial stuffing attack
+	FailedLoginPercentageThreshold int64 `json:"failedLoginPercentageThreshold"`
+	// Look back duration for the detector
+	LookBackDuration string `json:"lookBackDuration"`
+	// Threshold for the number of user accounts attacked per IP to be considered as credential stuffing attack
+	UniqueUsersThreshold int64 `json:"uniqueUsersThreshold"`
+	// Config for extracting the username from the API
+	UsernameExtractionConfig InputParameterExtractionConfig `json:"usernameExtractionConfig"`
+}
+
+// GetDetectionScopeConfig returns InputCredentialStuffingTuningConfig.DetectionScopeConfig, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingTuningConfig) GetDetectionScopeConfig() InputDetectionScopeConfig {
+	return v.DetectionScopeConfig
+}
+
+// GetFailedLoginPercentageThreshold returns InputCredentialStuffingTuningConfig.FailedLoginPercentageThreshold, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingTuningConfig) GetFailedLoginPercentageThreshold() int64 {
+	return v.FailedLoginPercentageThreshold
+}
+
+// GetLookBackDuration returns InputCredentialStuffingTuningConfig.LookBackDuration, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingTuningConfig) GetLookBackDuration() string { return v.LookBackDuration }
+
+// GetUniqueUsersThreshold returns InputCredentialStuffingTuningConfig.UniqueUsersThreshold, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingTuningConfig) GetUniqueUsersThreshold() int64 {
+	return v.UniqueUsersThreshold
+}
+
+// GetUsernameExtractionConfig returns InputCredentialStuffingTuningConfig.UsernameExtractionConfig, and is useful for accessing the field via an interface.
+func (v *InputCredentialStuffingTuningConfig) GetUsernameExtractionConfig() InputParameterExtractionConfig {
+	return v.UsernameExtractionConfig
+}
+
+// AnomalyDetectionConfig for Custom Rules
+type InputCustomRulesAnomalyDetectionConfig struct {
+	// AnomalyDetectionConfig key value pair list
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	// CustomRulesAnomalyDetectionConfig name
+	Name CustomRulesAnomalyDetectionConfigName `json:"name"`
+}
+
+// GetKeyValuePairs returns InputCustomRulesAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputCustomRulesAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputCustomRulesAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputCustomRulesAnomalyDetectionConfig) GetName() CustomRulesAnomalyDetectionConfigName {
+	return v.Name
+}
 
 type InputCustomSignatureEnvironmentScope struct {
 	EnvironmentIds []*string `json:"environmentIds"`
@@ -5278,6 +5967,52 @@ func (v *InputDataSetUpdate) GetName() string { return v.Name }
 // GetSensitivity returns InputDataSetUpdate.Sensitivity, and is useful for accessing the field via an interface.
 func (v *InputDataSetUpdate) GetSensitivity() *DataSensitivity { return v.Sensitivity }
 
+type InputDetectionScopeConfig struct {
+	EndpointIds    []*string `json:"endpointIds"`
+	EndpointLabels []*string `json:"endpointLabels"`
+	UrlRegexes     []*string `json:"urlRegexes"`
+}
+
+// GetEndpointIds returns InputDetectionScopeConfig.EndpointIds, and is useful for accessing the field via an interface.
+func (v *InputDetectionScopeConfig) GetEndpointIds() []*string { return v.EndpointIds }
+
+// GetEndpointLabels returns InputDetectionScopeConfig.EndpointLabels, and is useful for accessing the field via an interface.
+func (v *InputDetectionScopeConfig) GetEndpointLabels() []*string { return v.EndpointLabels }
+
+// GetUrlRegexes returns InputDetectionScopeConfig.UrlRegexes, and is useful for accessing the field via an interface.
+func (v *InputDetectionScopeConfig) GetUrlRegexes() []*string { return v.UrlRegexes }
+
+type InputDetectionUserIdDataConfig struct {
+	// User attribution extracted ID
+	UserAttributionExtractedId *bool `json:"userAttributionExtractedId"`
+	// User attribution extracted ID from JWT
+	UserAttributionExtractedIdFromJwt *bool `json:"userAttributionExtractedIdFromJwt"`
+	// User ID custom attribute
+	UserIdCustomAttribute *string `json:"userIdCustomAttribute"`
+	// User ID source type
+	UserIdSourceType DetectionUserIdSourceType `json:"userIdSourceType"`
+}
+
+// GetUserAttributionExtractedId returns InputDetectionUserIdDataConfig.UserAttributionExtractedId, and is useful for accessing the field via an interface.
+func (v *InputDetectionUserIdDataConfig) GetUserAttributionExtractedId() *bool {
+	return v.UserAttributionExtractedId
+}
+
+// GetUserAttributionExtractedIdFromJwt returns InputDetectionUserIdDataConfig.UserAttributionExtractedIdFromJwt, and is useful for accessing the field via an interface.
+func (v *InputDetectionUserIdDataConfig) GetUserAttributionExtractedIdFromJwt() *bool {
+	return v.UserAttributionExtractedIdFromJwt
+}
+
+// GetUserIdCustomAttribute returns InputDetectionUserIdDataConfig.UserIdCustomAttribute, and is useful for accessing the field via an interface.
+func (v *InputDetectionUserIdDataConfig) GetUserIdCustomAttribute() *string {
+	return v.UserIdCustomAttribute
+}
+
+// GetUserIdSourceType returns InputDetectionUserIdDataConfig.UserIdSourceType, and is useful for accessing the field via an interface.
+func (v *InputDetectionUserIdDataConfig) GetUserIdSourceType() DetectionUserIdSourceType {
+	return v.UserIdSourceType
+}
+
 // Threshold config which specifies percentage allowed exceeding a mean countwhich
 // is calculated over the specified duration for the given time range
 type InputDynamicThresholdConfig struct {
@@ -5300,6 +6035,28 @@ func (v *InputDynamicThresholdConfig) GetMeanCalculationDuration() string {
 // GetPercentageExceedingMeanAllowed returns InputDynamicThresholdConfig.PercentageExceedingMeanAllowed, and is useful for accessing the field via an interface.
 func (v *InputDynamicThresholdConfig) GetPercentageExceedingMeanAllowed() int64 {
 	return v.PercentageExceedingMeanAllowed
+}
+
+type InputEmailDomainAnomalyConfig struct {
+	// Minimum threshold for critical email fraud score
+	CriticalEmailFraudScoreMinThreshold int64 `json:"criticalEmailFraudScoreMinThreshold"`
+	// Is disabled or not
+	Disabled bool `json:"disabled"`
+	// Minimum threshold for high email fraud score
+	HighEmailFraudScoreMinThreshold int64 `json:"highEmailFraudScoreMinThreshold"`
+}
+
+// GetCriticalEmailFraudScoreMinThreshold returns InputEmailDomainAnomalyConfig.CriticalEmailFraudScoreMinThreshold, and is useful for accessing the field via an interface.
+func (v *InputEmailDomainAnomalyConfig) GetCriticalEmailFraudScoreMinThreshold() int64 {
+	return v.CriticalEmailFraudScoreMinThreshold
+}
+
+// GetDisabled returns InputEmailDomainAnomalyConfig.Disabled, and is useful for accessing the field via an interface.
+func (v *InputEmailDomainAnomalyConfig) GetDisabled() bool { return v.Disabled }
+
+// GetHighEmailFraudScoreMinThreshold returns InputEmailDomainAnomalyConfig.HighEmailFraudScoreMinThreshold, and is useful for accessing the field via an interface.
+func (v *InputEmailDomainAnomalyConfig) GetHighEmailFraudScoreMinThreshold() int64 {
+	return v.HighEmailFraudScoreMinThreshold
 }
 
 // Environment scope applicable for rate limit rule
@@ -5524,6 +6281,23 @@ type InputIpRangeRulesFilter struct {
 // GetRuleScope returns InputIpRangeRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRulesFilter) GetRuleScope() InputIpRangeRuleScope { return v.RuleScope }
 
+type InputIpTypeAnomalyConfig struct {
+	// Minimum threshold for Abuse Velocity score for generating events
+	AbuseVelocityMinThreshold AnomalyConfigAbuseVelocity `json:"abuseVelocityMinThreshold"`
+	// Minimum threshold for Ip reputation score for generating events
+	IpReputationScoreMinThreshold int64 `json:"ipReputationScoreMinThreshold"`
+}
+
+// GetAbuseVelocityMinThreshold returns InputIpTypeAnomalyConfig.AbuseVelocityMinThreshold, and is useful for accessing the field via an interface.
+func (v *InputIpTypeAnomalyConfig) GetAbuseVelocityMinThreshold() AnomalyConfigAbuseVelocity {
+	return v.AbuseVelocityMinThreshold
+}
+
+// GetIpReputationScoreMinThreshold returns InputIpTypeAnomalyConfig.IpReputationScoreMinThreshold, and is useful for accessing the field via an interface.
+func (v *InputIpTypeAnomalyConfig) GetIpReputationScoreMinThreshold() int64 {
+	return v.IpReputationScoreMinThreshold
+}
+
 type InputJsonExtractTransformationFunction struct {
 	// Attribute expression
 	Attribute InputAttributeExpression `json:"attribute"`
@@ -5538,6 +6312,42 @@ func (v *InputJsonExtractTransformationFunction) GetAttribute() InputAttributeEx
 
 // GetJsonPath returns InputJsonExtractTransformationFunction.JsonPath, and is useful for accessing the field via an interface.
 func (v *InputJsonExtractTransformationFunction) GetJsonPath() string { return v.JsonPath }
+
+type InputLandSpeedViolationConfig struct {
+	// List of IpTypes (AND) to belong to for an ip to be considered
+	IpTypes []*AnomalyConfigIpType `json:"ipTypes"`
+	// Minimum threshold for Abuse Velocity for ips to be considered
+	MinIpAbuseVelocity *AnomalyConfigAbuseVelocity `json:"minIpAbuseVelocity"`
+	// Minimum threshold for Ip reputation score for ips to be considered
+	MinIpReputationScore *int64 `json:"minIpReputationScore"`
+	// Minimum threshold for external ip addresses for generating events
+	UniqueExternalIpAddressesMinCount *int64 `json:"uniqueExternalIpAddressesMinCount"`
+	// Minimum threshold for unique user cities for generating events
+	UniqueUserCitiesMinCount *int64 `json:"uniqueUserCitiesMinCount"`
+}
+
+// GetIpTypes returns InputLandSpeedViolationConfig.IpTypes, and is useful for accessing the field via an interface.
+func (v *InputLandSpeedViolationConfig) GetIpTypes() []*AnomalyConfigIpType { return v.IpTypes }
+
+// GetMinIpAbuseVelocity returns InputLandSpeedViolationConfig.MinIpAbuseVelocity, and is useful for accessing the field via an interface.
+func (v *InputLandSpeedViolationConfig) GetMinIpAbuseVelocity() *AnomalyConfigAbuseVelocity {
+	return v.MinIpAbuseVelocity
+}
+
+// GetMinIpReputationScore returns InputLandSpeedViolationConfig.MinIpReputationScore, and is useful for accessing the field via an interface.
+func (v *InputLandSpeedViolationConfig) GetMinIpReputationScore() *int64 {
+	return v.MinIpReputationScore
+}
+
+// GetUniqueExternalIpAddressesMinCount returns InputLandSpeedViolationConfig.UniqueExternalIpAddressesMinCount, and is useful for accessing the field via an interface.
+func (v *InputLandSpeedViolationConfig) GetUniqueExternalIpAddressesMinCount() *int64 {
+	return v.UniqueExternalIpAddressesMinCount
+}
+
+// GetUniqueUserCitiesMinCount returns InputLandSpeedViolationConfig.UniqueUserCitiesMinCount, and is useful for accessing the field via an interface.
+func (v *InputLandSpeedViolationConfig) GetUniqueUserCitiesMinCount() *int64 {
+	return v.UniqueUserCitiesMinCount
+}
 
 // Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
 type InputMaliciousSourcesRule struct {
@@ -5984,6 +6794,94 @@ type InputMaliciousSourcesRulesFilter struct {
 // GetRuleScope returns InputMaliciousSourcesRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputMaliciousSourcesRulesFilter) GetRuleScope() InputMaliciousSourcesRuleScope {
 	return v.RuleScope
+}
+
+type InputModsecurityAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	Name          ModsecurityAnomalyDetectionConfigName      `json:"name"`
+	RuleId        *string                                    `json:"ruleId"`
+}
+
+// GetKeyValuePairs returns InputModsecurityAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputModsecurityAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputModsecurityAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputModsecurityAnomalyDetectionConfig) GetName() ModsecurityAnomalyDetectionConfigName {
+	return v.Name
+}
+
+// GetRuleId returns InputModsecurityAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputModsecurityAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
+
+type InputMultiValuedStringParamRule struct {
+	KeyRegex       string  `json:"keyRegex"`
+	ValueDelimiter string  `json:"valueDelimiter"`
+	ValueRegex     *string `json:"valueRegex"`
+}
+
+// GetKeyRegex returns InputMultiValuedStringParamRule.KeyRegex, and is useful for accessing the field via an interface.
+func (v *InputMultiValuedStringParamRule) GetKeyRegex() string { return v.KeyRegex }
+
+// GetValueDelimiter returns InputMultiValuedStringParamRule.ValueDelimiter, and is useful for accessing the field via an interface.
+func (v *InputMultiValuedStringParamRule) GetValueDelimiter() string { return v.ValueDelimiter }
+
+// GetValueRegex returns InputMultiValuedStringParamRule.ValueRegex, and is useful for accessing the field via an interface.
+func (v *InputMultiValuedStringParamRule) GetValueRegex() *string { return v.ValueRegex }
+
+type InputParamValueTypeModsecExclude struct {
+	ExcludedModsecRuleIds []*string      `json:"excludedModsecRuleIds"`
+	ParamValueType        ParamValueType `json:"paramValueType"`
+}
+
+// GetExcludedModsecRuleIds returns InputParamValueTypeModsecExclude.ExcludedModsecRuleIds, and is useful for accessing the field via an interface.
+func (v *InputParamValueTypeModsecExclude) GetExcludedModsecRuleIds() []*string {
+	return v.ExcludedModsecRuleIds
+}
+
+// GetParamValueType returns InputParamValueTypeModsecExclude.ParamValueType, and is useful for accessing the field via an interface.
+func (v *InputParamValueTypeModsecExclude) GetParamValueType() ParamValueType {
+	return v.ParamValueType
+}
+
+type InputParameterExtractionConfig struct {
+	// Extract the parameter labelled with one of the specified data type ids as per
+	// the data classification rules. Priority will be given to the data type id
+	// appearing first in the list.
+	DataTypeIds []*string `json:"dataTypeIds"`
+	// The logic to extract the parameter. Example: "get_json_object(request_body,
+	// '$.email')". This doesn't have any checks - whether the syntax is correct, the
+	// function is supported, etc.
+	ExtractionLogic string `json:"extractionLogic"`
+}
+
+// GetDataTypeIds returns InputParameterExtractionConfig.DataTypeIds, and is useful for accessing the field via an interface.
+func (v *InputParameterExtractionConfig) GetDataTypeIds() []*string { return v.DataTypeIds }
+
+// GetExtractionLogic returns InputParameterExtractionConfig.ExtractionLogic, and is useful for accessing the field via an interface.
+func (v *InputParameterExtractionConfig) GetExtractionLogic() string { return v.ExtractionLogic }
+
+type InputPredecessorSuccessorApiConfig struct {
+	PredecessorApiIds []*string `json:"predecessorApiIds"`
+	SuccessorApiId    string    `json:"successorApiId"`
+}
+
+// GetPredecessorApiIds returns InputPredecessorSuccessorApiConfig.PredecessorApiIds, and is useful for accessing the field via an interface.
+func (v *InputPredecessorSuccessorApiConfig) GetPredecessorApiIds() []*string {
+	return v.PredecessorApiIds
+}
+
+// GetSuccessorApiId returns InputPredecessorSuccessorApiConfig.SuccessorApiId, and is useful for accessing the field via an interface.
+func (v *InputPredecessorSuccessorApiConfig) GetSuccessorApiId() string { return v.SuccessorApiId }
+
+type InputPredecessorSuccessorApiSequenceConfig struct {
+	PredecessorSuccessorApiConfigs []*InputPredecessorSuccessorApiConfig `json:"predecessorSuccessorApiConfigs"`
+}
+
+// GetPredecessorSuccessorApiConfigs returns InputPredecessorSuccessorApiSequenceConfig.PredecessorSuccessorApiConfigs, and is useful for accessing the field via an interface.
+func (v *InputPredecessorSuccessorApiSequenceConfig) GetPredecessorSuccessorApiConfigs() []*InputPredecessorSuccessorApiConfig {
+	return v.PredecessorSuccessorApiConfigs
 }
 
 // Region identifier schema for rate limit region condition
@@ -7297,6 +8195,35 @@ func (v *InputScopedAnomalyRuleConfigUpdate) GetRuleConfig() InputAnomalyRuleCon
 	return v.RuleConfig
 }
 
+type InputSessionDefinitionMetadataAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair          `json:"keyValuePairs"`
+	Name          SessionDefinitionMetadataAnomalyDetectionConfigName `json:"name"`
+	RuleId        *string                                             `json:"ruleId"`
+}
+
+// GetKeyValuePairs returns InputSessionDefinitionMetadataAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputSessionDefinitionMetadataAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputSessionDefinitionMetadataAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputSessionDefinitionMetadataAnomalyDetectionConfig) GetName() SessionDefinitionMetadataAnomalyDetectionConfigName {
+	return v.Name
+}
+
+// GetRuleId returns InputSessionDefinitionMetadataAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputSessionDefinitionMetadataAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
+
+type InputSessionExpiryConfig struct {
+	// Allowed buffer of time difference for session expiry
+	TimeDifferenceBufferMillis *int64 `json:"timeDifferenceBufferMillis"`
+}
+
+// GetTimeDifferenceBufferMillis returns InputSessionExpiryConfig.TimeDifferenceBufferMillis, and is useful for accessing the field via an interface.
+func (v *InputSessionExpiryConfig) GetTimeDifferenceBufferMillis() *int64 {
+	return v.TimeDifferenceBufferMillis
+}
+
 type InputTimeRange struct {
 	EndTime   string `json:"endTime"`
 	StartTime string `json:"startTime"`
@@ -7345,6 +8272,25 @@ func (v *InputValueBasedThresholdConfig) GetUniqueValuesAllowed() int64 { return
 func (v *InputValueBasedThresholdConfig) GetValueType() ValueBasedThresholdConfigType {
 	return v.ValueType
 }
+
+type InputVolumetricAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	Name          VolumetricAnomalyDetectionConfigName       `json:"name"`
+	RuleId        *string                                    `json:"ruleId"`
+}
+
+// GetKeyValuePairs returns InputVolumetricAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputVolumetricAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputVolumetricAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputVolumetricAnomalyDetectionConfig) GetName() VolumetricAnomalyDetectionConfigName {
+	return v.Name
+}
+
+// GetRuleId returns InputVolumetricAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputVolumetricAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
 
 type IpRangeEventSeverity string
 
@@ -9173,6 +10119,20 @@ var AllMetricAggregationType = []MetricAggregationType{
 	MetricAggregationTypeAnyValue,
 }
 
+type ModsecurityAnomalyDetectionConfigName string
+
+const (
+	// MODSEC_ALL_DETECTION
+	ModsecurityAnomalyDetectionConfigNameModsecAllDetection ModsecurityAnomalyDetectionConfigName = "MODSEC_ALL_DETECTION"
+	// MODSEC_ANOMALY_RULE
+	ModsecurityAnomalyDetectionConfigNameModsecAnomalyRule ModsecurityAnomalyDetectionConfigName = "MODSEC_ANOMALY_RULE"
+)
+
+var AllModsecurityAnomalyDetectionConfigName = []ModsecurityAnomalyDetectionConfigName{
+	ModsecurityAnomalyDetectionConfigNameModsecAllDetection,
+	ModsecurityAnomalyDetectionConfigNameModsecAnomalyRule,
+}
+
 type OrderDirection string
 
 const (
@@ -9185,6 +10145,23 @@ const (
 var AllOrderDirection = []OrderDirection{
 	OrderDirectionAsc,
 	OrderDirectionDesc,
+}
+
+type ParamValueType string
+
+const (
+	// HTML
+	ParamValueTypeHtml ParamValueType = "HTML"
+	// RICH_TEXT_HTML
+	ParamValueTypeRichTextHtml ParamValueType = "RICH_TEXT_HTML"
+	// FREE_TEXT
+	ParamValueTypeFreeText ParamValueType = "FREE_TEXT"
+)
+
+var AllParamValueType = []ParamValueType{
+	ParamValueTypeHtml,
+	ParamValueTypeRichTextHtml,
+	ParamValueTypeFreeText,
 }
 
 type RateLimitingRuleActionType string
@@ -10398,6 +11375,26 @@ const (
 var AllSensitiveParamsEvaluationType = []SensitiveParamsEvaluationType{
 	SensitiveParamsEvaluationTypeAll,
 	SensitiveParamsEvaluationTypeSelectedDataTypes,
+}
+
+type SessionDefinitionMetadataAnomalyDetectionConfigName string
+
+const (
+	// OBJECT_BOLA_ANOMALY_CONFIG
+	SessionDefinitionMetadataAnomalyDetectionConfigNameObjectBolaAnomalyConfig SessionDefinitionMetadataAnomalyDetectionConfigName = "OBJECT_BOLA_ANOMALY_CONFIG"
+	// USER_ID_BOLA_ANOMALY_CONFIG
+	SessionDefinitionMetadataAnomalyDetectionConfigNameUserIdBolaAnomalyConfig SessionDefinitionMetadataAnomalyDetectionConfigName = "USER_ID_BOLA_ANOMALY_CONFIG"
+	// SEQUENCE_ANOMALY_CONFIG
+	SessionDefinitionMetadataAnomalyDetectionConfigNameSequenceAnomalyConfig SessionDefinitionMetadataAnomalyDetectionConfigName = "SEQUENCE_ANOMALY_CONFIG"
+	// SESSION_VIOLATION_CONFIG
+	SessionDefinitionMetadataAnomalyDetectionConfigNameSessionViolationConfig SessionDefinitionMetadataAnomalyDetectionConfigName = "SESSION_VIOLATION_CONFIG"
+)
+
+var AllSessionDefinitionMetadataAnomalyDetectionConfigName = []SessionDefinitionMetadataAnomalyDetectionConfigName{
+	SessionDefinitionMetadataAnomalyDetectionConfigNameObjectBolaAnomalyConfig,
+	SessionDefinitionMetadataAnomalyDetectionConfigNameUserIdBolaAnomalyConfig,
+	SessionDefinitionMetadataAnomalyDetectionConfigNameSequenceAnomalyConfig,
+	SessionDefinitionMetadataAnomalyDetectionConfigNameSessionViolationConfig,
 }
 
 // Fragment for thresholdActionConfigs
@@ -11690,6 +12687,17 @@ var AllValueBasedThresholdConfigType = []ValueBasedThresholdConfigType{
 	ValueBasedThresholdConfigTypePathParams,
 }
 
+type VolumetricAnomalyDetectionConfigName string
+
+const (
+	// API_CALL_SPIKE_ANOMALY_CONFIG
+	VolumetricAnomalyDetectionConfigNameApiCallSpikeAnomalyConfig VolumetricAnomalyDetectionConfigName = "API_CALL_SPIKE_ANOMALY_CONFIG"
+)
+
+var AllVolumetricAnomalyDetectionConfigName = []VolumetricAnomalyDetectionConfigName{
+	VolumetricAnomalyDetectionConfigNameApiCallSpikeAnomalyConfig,
+}
+
 // __AnomalyDetectionRuleConfigsInput is used internally by genqlient
 type __AnomalyDetectionRuleConfigsInput struct {
 	Input InputAnomalyScope `json:"input"`
@@ -11813,6 +12821,16 @@ type __DeleteRateLimitingRuleInput struct {
 
 // GetId returns __DeleteRateLimitingRuleInput.Id, and is useful for accessing the field via an interface.
 func (v *__DeleteRateLimitingRuleInput) GetId() string { return v.Id }
+
+// __DeleteScopedAnomalyDetectionConfigInput is used internally by genqlient
+type __DeleteScopedAnomalyDetectionConfigInput struct {
+	Input InputAnomalyDetectionConfigDelete `json:"input"`
+}
+
+// GetInput returns __DeleteScopedAnomalyDetectionConfigInput.Input, and is useful for accessing the field via an interface.
+func (v *__DeleteScopedAnomalyDetectionConfigInput) GetInput() InputAnomalyDetectionConfigDelete {
+	return v.Input
+}
 
 // __GetCustomSignatureIdInput is used internally by genqlient
 type __GetCustomSignatureIdInput struct {
@@ -13065,6 +14083,42 @@ func DeleteRateLimitingRule(
 	}
 
 	data_ = &DeleteRateLimitingRuleResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by DeleteScopedAnomalyDetectionConfig.
+const DeleteScopedAnomalyDetectionConfig_Operation = `
+mutation DeleteScopedAnomalyDetectionConfig ($input: InputAnomalyDetectionConfigDelete!) {
+	deleteScopedAnomalyDetectionConfig(delete: $input) {
+		anomalyScope {
+			scopeType
+		}
+	}
+}
+`
+
+func DeleteScopedAnomalyDetectionConfig(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputAnomalyDetectionConfigDelete,
+) (data_ *DeleteScopedAnomalyDetectionConfigResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteScopedAnomalyDetectionConfig",
+		Query:  DeleteScopedAnomalyDetectionConfig_Operation,
+		Variables: &__DeleteScopedAnomalyDetectionConfigInput{
+			Input: input,
+		},
+	}
+
+	data_ = &DeleteScopedAnomalyDetectionConfigResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
