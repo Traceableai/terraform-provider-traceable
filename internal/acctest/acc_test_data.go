@@ -201,6 +201,40 @@ const ENUMERATION_RESOURCE=`resource "traceable_enumeration" "test"{
     }
 }`
 
+const WAAP_CONFIG=`resource "traceable_waap_config" "test" {
+  environment = "%s"
+  rule_configs=[
+    { 
+      rule_name="XSS"
+      enabled=true
+      subrules=[
+        {
+          name="IE XSS Filters - Attack (Base href)"
+          action="BLOCK"
+        },
+        {
+          name="IE XSS Filters - Attack (Applet Tag)"
+          action="BLOCK"
+        }
+      ]
+    },
+    { 
+      rule_name="HTTPProtocolAttack"
+      enabled=true
+      subrules=[
+        {
+          name="HTTP Header Injection Attack via headers"
+          action="MONITOR"
+        },
+        {
+          name="IIS 6.0 WebDAV buffer overflow: (CVE-2017-7269)"
+          action="DISABLE"
+        }
+      ]
+    }
+  ]
+}`
+
 const CUSTOM_SIGNATURE_RESOURCE = `resource "traceable_custom_signature" "test" {
   name         = "%s"         
   disabled     = false                       

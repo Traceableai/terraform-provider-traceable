@@ -6,12 +6,12 @@ resource "traceable_waap_config" "waap" {
       enabled=true
       subrules=[
         {
-          name="IE XSS Filters - Attack (A href with a link)"
+          name="IE XSS Filters - Attack (Base href)"
           action="BLOCK"
         },
         {
           name="IE XSS Filters - Attack (Applet Tag)"
-          action="MONITOR"
+          action="BLOCK"
         }
       ]
     },

@@ -14,6 +14,6 @@ type WaapRuleConfigModel struct {
 }
 
 type WaapSubRuleConfigModel struct {
-	SubRuleName   types.String `tfsdk:"name"`
-	SubRuleAction types.String `tfsdk:"action"`
+	Name   types.String `tfsdk:"name"`
+	Action types.String `tfsdk:"action"`
 }
