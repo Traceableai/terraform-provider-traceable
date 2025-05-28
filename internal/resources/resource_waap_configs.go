@@ -3,6 +3,7 @@ package resources
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -55,9 +56,7 @@ func (r *WaapConfigResource) Create(ctx context.Context, req resource.CreateRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	if resp.Diagnostics.HasError() {
-		return
-	}
+	
 	err := getUpdateRules(ctx, data, r.client)
 	if err != nil {
 		resp.Diagnostics.AddError("Error in Updating waap config", err.Error())
@@ -79,6 +78,7 @@ func (r *WaapConfigResource) Read(ctx context.Context, req resource.ReadRequest,
 	response, err := getRuleConfigAnomalyState(data, ctx, *r.client)
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
+		log.Printf("this is the error %s",err.Error())
 		return
 	}
 
@@ -86,6 +86,7 @@ func (r *WaapConfigResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
+		log.Printf("this is the error %s",err.Error())
 		return
 	}
 
@@ -120,6 +121,22 @@ func (r *WaapConfigResource) Update(ctx context.Context, req resource.UpdateRequ
 }
 
 func (r *WaapConfigResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *models.WaapConfigModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	errInResttingModsec := resetToDefault(ctx, data, r.client,generated.AnomalyDetectionTypeWaf)
+	if errInResttingModsec != nil {
+		resp.Diagnostics.AddError("Error in Deleting waap config", errInResttingModsec.Error())
+		return
+	} 
+	       
+	errInResttingAPIProtection := resetToDefault(ctx, data, r.client,generated.AnomalyDetectionTypeApiProtection)
+	if errInResttingAPIProtection != nil {
+		resp.Diagnostics.AddError("Error in Deleting waap config", errInResttingAPIProtection.Error())
+		return
+	}
 	resp.State.RemoveResource(ctx)
 	if resp.Diagnostics.HasError() {
 		return
@@ -150,13 +167,13 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel, ctx cont
 		}
 		var finalSubRuleModel []models.WaapSubRuleConfigModel
 		for _, subRule := range subRules {
-			fetchedSubruleConfig, err := findSubRuleConfigsWithSubRuleName(subRule.SubRuleName.ValueString(), fetchedRuleConfig.SubRuleConfigs)
+			fetchedSubruleConfig, err := findSubRuleConfigsWithSubRuleName(subRule.Name.ValueString(), fetchedRuleConfig.SubRuleConfigs)
 			if err != nil {
 				return nil, err
 			}
 			finalSubRuleModel = append(finalSubRuleModel, models.WaapSubRuleConfigModel{
-				SubRuleName:   types.StringValue(subRule.SubRuleName.ValueString()),
-				SubRuleAction: types.StringValue(string(fetchedSubruleConfig.AnomalySubRuleAction)),
+				Name:   types.StringValue(subRule.Name.ValueString()),
+				Action: types.StringValue(string(fetchedSubruleConfig.AnomalySubRuleAction)),
 			})
 		}
 		waapConfigSubRuleConfigsObjectType := types.ObjectType{
@@ -192,7 +209,7 @@ func convertWaapConfigsFieldsToModel(currState *models.WaapConfigModel, ctx cont
 	waapConfigRuleConfigsObjectType := types.ObjectType{
 		AttrTypes: map[string]attr.Type{
 			"rule_name": types.StringType,
-			"disabled":  types.BoolType,
+			"enabled":  types.BoolType,
 			"subrules": types.SetType{ElemType: types.ObjectType{
 				AttrTypes: map[string]attr.Type{
 					"name":   types.StringType,
@@ -261,6 +278,25 @@ func getRuleConfigAnomalyState(data *models.WaapConfigModel, ctx context.Context
 	}
 
 	return response.AnomalyDetectionRuleConfigs.Results, nil
+} 
+
+func resetToDefault(ctx context.Context, data *models.WaapConfigModel, r *graphql.Client,anomalyType generated.AnomalyDetectionType) error {
+	inputFilter := generated.InputAnomalyDetectionConfigDelete{}
+	inputFilter.AnomalyScope.ScopeType = generated.AnomalyScopeTypeEnvironment
+	if HasValue(data.Environment) {
+		environment := data.Environment.ValueString()
+		inputFilter.AnomalyScope.EnvironmentScope = &generated.InputAnomalyEnvironmentScope{
+			Id: environment,
+		}
+	} else {
+		inputFilter.AnomalyScope.ScopeType = generated.AnomalyScopeTypeCustomer
+	}
+	inputFilter.AnomalyDetectionType = &anomalyType
+	_, err := generated.DeleteScopedAnomalyDetectionConfig(ctx, *r, inputFilter)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func getUpdateRules(ctx context.Context, data *models.WaapConfigModel, r *graphql.Client) error {
@@ -272,6 +308,14 @@ func getUpdateRules(ctx context.Context, data *models.WaapConfigModel, r *graphq
 	if conversionError != nil {
 		return conversionError
 	}
+	errInResttingModsec := resetToDefault(ctx, data, r,generated.AnomalyDetectionTypeWaf)
+	if errInResttingModsec != nil {
+		return errInResttingModsec
+	}
+	errInResttingAPIProtection := resetToDefault(ctx, data, r,generated.AnomalyDetectionTypeApiProtection)
+	if errInResttingAPIProtection != nil {
+		return errInResttingAPIProtection
+	}
 	for _, ruleConfig := range ruleConfigs {
 		diags := ruleConfig.Subrules.ElementsAs(ctx, &subruleConfigs, false)
 		if diags.HasError() {
@@ -282,10 +326,10 @@ func getUpdateRules(ctx context.Context, data *models.WaapConfigModel, r *graphq
 		}
 		if len(subruleConfigs) > 0 {
 			for _, subruleConfig := range subruleConfigs {
-				if !HasValue(subruleConfig.SubRuleAction) || !HasValue(subruleConfig.SubRuleName) {
+				if !HasValue(subruleConfig.Action) || !HasValue(subruleConfig.Name) {
 					return utils.NewInvalidError("subrules", "field must be present and must not be empty")
 				}
-				input, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig, subruleConfig.SubRuleName.ValueString(), subruleConfig.SubRuleAction.ValueString())
+				input, err := convertWaapConfigModelToUpdateInput(ctx, data, &ruleConfig, subruleConfig.Name.ValueString(), subruleConfig.Action.ValueString())
 				if err != nil {
 					return err
 				}
