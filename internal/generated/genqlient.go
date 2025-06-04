@@ -2243,10 +2243,13 @@ type CustomSignatureRuleClauseOperator string
 const (
 	// AND
 	CustomSignatureRuleClauseOperatorAnd CustomSignatureRuleClauseOperator = "AND"
+	// OR
+	CustomSignatureRuleClauseOperatorOr CustomSignatureRuleClauseOperator = "OR"
 )
 
 var AllCustomSignatureRuleClauseOperator = []CustomSignatureRuleClauseOperator{
 	CustomSignatureRuleClauseOperatorAnd,
+	CustomSignatureRuleClauseOperatorOr,
 }
 
 type CustomSignatureRuleClauseType string
@@ -2286,6 +2289,10 @@ const (
 	CustomSignatureRuleClauseTypeRequestScannerTypeExpression CustomSignatureRuleClauseType = "REQUEST_SCANNER_TYPE_EXPRESSION"
 	// SCOPE_EXPRESSION
 	CustomSignatureRuleClauseTypeScopeExpression CustomSignatureRuleClauseType = "SCOPE_EXPRESSION"
+	// CLAUSE_GROUP
+	CustomSignatureRuleClauseTypeClauseGroup CustomSignatureRuleClauseType = "CLAUSE_GROUP"
+	// LHS_RHS_KEYS_EXPRESSION
+	CustomSignatureRuleClauseTypeLhsRhsKeysExpression CustomSignatureRuleClauseType = "LHS_RHS_KEYS_EXPRESSION"
 )
 
 var AllCustomSignatureRuleClauseType = []CustomSignatureRuleClauseType{
@@ -2306,6 +2313,8 @@ var AllCustomSignatureRuleClauseType = []CustomSignatureRuleClauseType{
 	CustomSignatureRuleClauseTypeUserAgentExpression,
 	CustomSignatureRuleClauseTypeRequestScannerTypeExpression,
 	CustomSignatureRuleClauseTypeScopeExpression,
+	CustomSignatureRuleClauseTypeClauseGroup,
+	CustomSignatureRuleClauseTypeLhsRhsKeysExpression,
 }
 
 type CustomSignatureRuleEffectModificationType string
@@ -2331,6 +2340,23 @@ const (
 var AllCustomSignatureRuleEntityType = []CustomSignatureRuleEntityType{
 	CustomSignatureRuleEntityTypeApi,
 	CustomSignatureRuleEntityTypeService,
+}
+
+type CustomSignatureRuleEvaluationPoint string
+
+const (
+	// EDGE
+	CustomSignatureRuleEvaluationPointEdge CustomSignatureRuleEvaluationPoint = "EDGE"
+	// INLINE_TRACING_AGENT
+	CustomSignatureRuleEvaluationPointInlineTracingAgent CustomSignatureRuleEvaluationPoint = "INLINE_TRACING_AGENT"
+	// PLATFORM
+	CustomSignatureRuleEvaluationPointPlatform CustomSignatureRuleEvaluationPoint = "PLATFORM"
+)
+
+var AllCustomSignatureRuleEvaluationPoint = []CustomSignatureRuleEvaluationPoint{
+	CustomSignatureRuleEvaluationPointEdge,
+	CustomSignatureRuleEvaluationPointInlineTracingAgent,
+	CustomSignatureRuleEvaluationPointPlatform,
 }
 
 type CustomSignatureRuleEventSeverity string
@@ -5126,7 +5152,9 @@ func (v *InputCustomSignatureRuleClauseGroup) GetClauses() []*InputCustomSignatu
 
 type InputCustomSignatureRuleClauseRequest struct {
 	AttributeKeyValueExpression *InputCustomSignatureRuleAttributeKeyValueExpression `json:"attributeKeyValueExpression"`
-	ClauseType                  CustomSignatureRuleClauseType                        `json:"clauseType"`
+	// Nested clause group schema for a custom signature rule
+	ClauseGroup *InputCustomSignatureRuleClauseGroup `json:"clauseGroup"`
+	ClauseType  CustomSignatureRuleClauseType        `json:"clauseType"`
 	// Custom sec rule
 	CustomSecRule *InputCustomSignatureSecRule `json:"customSecRule"`
 	// Email domain expression applicable on a custom signature rule
@@ -5146,7 +5174,9 @@ type InputCustomSignatureRuleClauseRequest struct {
 	// IP type expression applicable on a custom signature rule
 	IpTypeExpression   *InputCustomSignatureRuleIpTypeExpression   `json:"ipTypeExpression"`
 	KeyValueExpression *InputCustomSignatureRuleKeyValueExpression `json:"keyValueExpression"`
-	MatchExpression    *InputCustomSignatureRuleMatchExpression    `json:"matchExpression"`
+	// LHS and RHS keys expression for dynamic matching applicable on a custom signature rule
+	LhsRhsKeysExpression *InputCustomSignatureRuleLhsRhsKeysExpression `json:"lhsRhsKeysExpression"`
+	MatchExpression      *InputCustomSignatureRuleMatchExpression      `json:"matchExpression"`
 	// Region expression applicable on a custom signature rule
 	RegionExpression *InputCustomSignatureRuleRegionExpression `json:"regionExpression"`
 	// Request scanner type expression applicable on a custom signature rule
@@ -5162,6 +5192,11 @@ type InputCustomSignatureRuleClauseRequest struct {
 // GetAttributeKeyValueExpression returns InputCustomSignatureRuleClauseRequest.AttributeKeyValueExpression, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleClauseRequest) GetAttributeKeyValueExpression() *InputCustomSignatureRuleAttributeKeyValueExpression {
 	return v.AttributeKeyValueExpression
+}
+
+// GetClauseGroup returns InputCustomSignatureRuleClauseRequest.ClauseGroup, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetClauseGroup() *InputCustomSignatureRuleClauseGroup {
+	return v.ClauseGroup
 }
 
 // GetClauseType returns InputCustomSignatureRuleClauseRequest.ClauseType, and is useful for accessing the field via an interface.
@@ -5217,6 +5252,11 @@ func (v *InputCustomSignatureRuleClauseRequest) GetIpTypeExpression() *InputCust
 // GetKeyValueExpression returns InputCustomSignatureRuleClauseRequest.KeyValueExpression, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleClauseRequest) GetKeyValueExpression() *InputCustomSignatureRuleKeyValueExpression {
 	return v.KeyValueExpression
+}
+
+// GetLhsRhsKeysExpression returns InputCustomSignatureRuleClauseRequest.LhsRhsKeysExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetLhsRhsKeysExpression() *InputCustomSignatureRuleLhsRhsKeysExpression {
+	return v.LhsRhsKeysExpression
 }
 
 // GetMatchExpression returns InputCustomSignatureRuleClauseRequest.MatchExpression, and is useful for accessing the field via an interface.
@@ -5321,9 +5361,10 @@ func (v *InputCustomSignatureRuleDescriptor) GetRuleSource() *CustomSignatureRul
 }
 
 type InputCustomSignatureRuleEffect struct {
-	Effects       []*InputCustomSignatureRuleEffectWithModification `json:"effects"`
-	EventSeverity *CustomSignatureRuleEventSeverity                 `json:"eventSeverity"`
-	EventType     CustomSignatureRuleEventType                      `json:"eventType"`
+	Effects              []*InputCustomSignatureRuleEffectWithModification `json:"effects"`
+	EventSeverity        *CustomSignatureRuleEventSeverity                 `json:"eventSeverity"`
+	EventType            CustomSignatureRuleEventType                      `json:"eventType"`
+	RuleEvaluationPoints []*CustomSignatureRuleEvaluationPoint             `json:"ruleEvaluationPoints"`
 }
 
 // GetEffects returns InputCustomSignatureRuleEffect.Effects, and is useful for accessing the field via an interface.
@@ -5339,6 +5380,11 @@ func (v *InputCustomSignatureRuleEffect) GetEventSeverity() *CustomSignatureRule
 // GetEventType returns InputCustomSignatureRuleEffect.EventType, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleEffect) GetEventType() CustomSignatureRuleEventType {
 	return v.EventType
+}
+
+// GetRuleEvaluationPoints returns InputCustomSignatureRuleEffect.RuleEvaluationPoints, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEffect) GetRuleEvaluationPoints() []*CustomSignatureRuleEvaluationPoint {
+	return v.RuleEvaluationPoints
 }
 
 type InputCustomSignatureRuleEffectWithModification struct {
@@ -5586,11 +5632,33 @@ func (v *InputCustomSignatureRuleLabelScopeExpression) GetLabelType() CustomSign
 	return v.LabelType
 }
 
+type InputCustomSignatureRuleLhsRhsKeysExpression struct {
+	LhsKeyExpression InputCustomSignatureRuleMatchExpression `json:"lhsKeyExpression"`
+	MatchOperator    CustomSignatureRuleMatchOperator        `json:"matchOperator"`
+	RhsKeyExpression InputCustomSignatureRuleMatchExpression `json:"rhsKeyExpression"`
+}
+
+// GetLhsKeyExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.LhsKeyExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetLhsKeyExpression() InputCustomSignatureRuleMatchExpression {
+	return v.LhsKeyExpression
+}
+
+// GetMatchOperator returns InputCustomSignatureRuleLhsRhsKeysExpression.MatchOperator, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetMatchOperator() CustomSignatureRuleMatchOperator {
+	return v.MatchOperator
+}
+
+// GetRhsKeyExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.RhsKeyExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetRhsKeyExpression() InputCustomSignatureRuleMatchExpression {
+	return v.RhsKeyExpression
+}
+
 type InputCustomSignatureRuleMatchExpression struct {
 	MatchCategory *CustomSignatureRuleMatchCategory `json:"matchCategory"`
 	MatchKey      CustomSignatureRuleMatchKey       `json:"matchKey"`
 	MatchOperator CustomSignatureRuleMatchOperator  `json:"matchOperator"`
 	MatchValue    *string                           `json:"matchValue"`
+	Value         *interface{}                      `json:"value"`
 }
 
 // GetMatchCategory returns InputCustomSignatureRuleMatchExpression.MatchCategory, and is useful for accessing the field via an interface.
@@ -5610,6 +5678,9 @@ func (v *InputCustomSignatureRuleMatchExpression) GetMatchOperator() CustomSigna
 
 // GetMatchValue returns InputCustomSignatureRuleMatchExpression.MatchValue, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleMatchExpression) GetMatchValue() *string { return v.MatchValue }
+
+// GetValue returns InputCustomSignatureRuleMatchExpression.Value, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleMatchExpression) GetValue() *interface{} { return v.Value }
 
 type InputCustomSignatureRuleRegionExpression struct {
 	// Boolean denoting exclude condition
@@ -6842,6 +6913,8 @@ type InputRateLimitingRule struct {
 	RateLimitingRuleCondition *InputRateLimitingRuleCondition `json:"rateLimitingRuleCondition"`
 	// Rate limit rule scope
 	RuleConfigScope *InputRuleConfigScope `json:"ruleConfigScope"`
+	// Rate limit rule evaluation points
+	RuleEvaluationPoints []*RateLimitingRuleEvaluationPoint `json:"ruleEvaluationPoints"`
 	// Rate limit rule status
 	RuleStatus *InputRateLimitingRuleStatus `json:"ruleStatus"`
 	// List of configs containing thresholds and actions for a rate limit rule
@@ -6880,6 +6953,11 @@ func (v *InputRateLimitingRule) GetRateLimitingRuleCondition() *InputRateLimitin
 
 // GetRuleConfigScope returns InputRateLimitingRule.RuleConfigScope, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRule) GetRuleConfigScope() *InputRuleConfigScope { return v.RuleConfigScope }
+
+// GetRuleEvaluationPoints returns InputRateLimitingRule.RuleEvaluationPoints, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRule) GetRuleEvaluationPoints() []*RateLimitingRuleEvaluationPoint {
+	return v.RuleEvaluationPoints
+}
 
 // GetRuleStatus returns InputRateLimitingRule.RuleStatus, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRule) GetRuleStatus() *InputRateLimitingRuleStatus { return v.RuleStatus }
@@ -7047,6 +7125,8 @@ type InputRateLimitingRuleData struct {
 	RateLimitingRuleCondition *InputRateLimitingRuleCondition `json:"rateLimitingRuleCondition"`
 	// Rate limit rule scope
 	RuleConfigScope *InputRuleConfigScope `json:"ruleConfigScope"`
+	// Rate limit rule evaluation points
+	RuleEvaluationPoints []*RateLimitingRuleEvaluationPoint `json:"ruleEvaluationPoints"`
 	// Rate limit rule status
 	RuleStatus *InputRateLimitingRuleStatus `json:"ruleStatus"`
 	// List of configs containing thresholds and actions for a rate limit rule
@@ -7085,6 +7165,11 @@ func (v *InputRateLimitingRuleData) GetRuleConfigScope() *InputRuleConfigScope {
 	return v.RuleConfigScope
 }
 
+// GetRuleEvaluationPoints returns InputRateLimitingRuleData.RuleEvaluationPoints, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleData) GetRuleEvaluationPoints() []*RateLimitingRuleEvaluationPoint {
+	return v.RuleEvaluationPoints
+}
+
 // GetRuleStatus returns InputRateLimitingRuleData.RuleStatus, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRuleData) GetRuleStatus() *InputRateLimitingRuleStatus { return v.RuleStatus }
 
@@ -7102,24 +7187,19 @@ func (v *InputRateLimitingRuleData) GetTransactionActionConfigs() *InputRateLimi
 type InputRateLimitingRuleDatatypeCondition struct {
 	// data location type
 	DataLocation *RateLimitingRuleDataLocation `json:"dataLocation"`
-	// List of data sensitivity levels
-	DataSensitivityLevels []*RateLimitingRuleDataSensitivityLevel `json:"dataSensitivityLevels"`
 	// List of dataset ids applicable
 	DatasetIds []*string `json:"datasetIds"`
 	// List of datatype ids applicable
 	DatatypeIds []*string `json:"datatypeIds"`
 	// datatype matching
 	DatatypeMatching *InputRateLimitingRuleDatatypeMatching `json:"datatypeMatching"`
+	// Minimum Data sensitivity level
+	MinDataSensitivityLevel *RateLimitingRuleDataSensitivityLevel `json:"minDataSensitivityLevel"`
 }
 
 // GetDataLocation returns InputRateLimitingRuleDatatypeCondition.DataLocation, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRuleDatatypeCondition) GetDataLocation() *RateLimitingRuleDataLocation {
 	return v.DataLocation
-}
-
-// GetDataSensitivityLevels returns InputRateLimitingRuleDatatypeCondition.DataSensitivityLevels, and is useful for accessing the field via an interface.
-func (v *InputRateLimitingRuleDatatypeCondition) GetDataSensitivityLevels() []*RateLimitingRuleDataSensitivityLevel {
-	return v.DataSensitivityLevels
 }
 
 // GetDatasetIds returns InputRateLimitingRuleDatatypeCondition.DatasetIds, and is useful for accessing the field via an interface.
@@ -7131,6 +7211,11 @@ func (v *InputRateLimitingRuleDatatypeCondition) GetDatatypeIds() []*string { re
 // GetDatatypeMatching returns InputRateLimitingRuleDatatypeCondition.DatatypeMatching, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRuleDatatypeCondition) GetDatatypeMatching() *InputRateLimitingRuleDatatypeMatching {
 	return v.DatatypeMatching
+}
+
+// GetMinDataSensitivityLevel returns InputRateLimitingRuleDatatypeCondition.MinDataSensitivityLevel, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRuleDatatypeCondition) GetMinDataSensitivityLevel() *RateLimitingRuleDataSensitivityLevel {
+	return v.MinDataSensitivityLevel
 }
 
 // Rate limiting datatype matching
@@ -10218,6 +10303,24 @@ const (
 var AllRateLimitingRuleEntityType = []RateLimitingRuleEntityType{
 	RateLimitingRuleEntityTypeApi,
 	RateLimitingRuleEntityTypeService,
+}
+
+// Rule evaluation points for rate limiting rules
+type RateLimitingRuleEvaluationPoint string
+
+const (
+	// EDGE
+	RateLimitingRuleEvaluationPointEdge RateLimitingRuleEvaluationPoint = "EDGE"
+	// INLINE_TRACING_AGENT
+	RateLimitingRuleEvaluationPointInlineTracingAgent RateLimitingRuleEvaluationPoint = "INLINE_TRACING_AGENT"
+	// PLATFORM
+	RateLimitingRuleEvaluationPointPlatform RateLimitingRuleEvaluationPoint = "PLATFORM"
+)
+
+var AllRateLimitingRuleEvaluationPoint = []RateLimitingRuleEvaluationPoint{
+	RateLimitingRuleEvaluationPointEdge,
+	RateLimitingRuleEvaluationPointInlineTracingAgent,
+	RateLimitingRuleEvaluationPointPlatform,
 }
 
 type RateLimitingRuleEventSeverity string
