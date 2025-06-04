@@ -1,27 +1,15 @@
-data "traceable_endpoint_labels" "sample"{
-    labels = ["CDE","Login APIs","test-anish"]
-}
+resource "traceable_data_loss_prevention_user_based" "example" {
+  name         = "example_dlp_user_rule_2"
+  description  = "Example DLP user-based rule"
+  enabled      = true
+  environments = ["dev", "prod"]
 
-data "traceable_datasets" "sample"{
-    data_sets = ["dlp-automation-dataset","exclude-dlp-automation-dataset"]
-}
-
-data "traceable_data_types" "sample"{
-    data_types = ["exclude-dlp-automation-datatype","dlp_automation_datatype_23"]
-}
-
-
-data "traceable_endpoints" "sample"{
-    endpoints = ["GET /precedence_check_test","GET /test-call-from-dev-random-user"]
-}
-
-
-resource "traceable_enumeration" "sample"{
-    name = "enumerationrule"
-    description = "rule-description"
-    enabled = true
-    environments = ["env2","env1"]
-    threshold_configs=[
+  action = {
+    action_type    = "BLOCK"   # ALERT | BLOCK | ALLOW
+    event_severity = "LOW"     # LOW | MEDIUM | HIGH | CRITICAL (only BLOCK / ALERT)
+    # duration     = "PT60S"   # Allowed only with ALLOW / BLOCK
+  }
+     threshold_configs=[
       {
         api_aggregate_type = "PER_ENDPOINT"
         value_type ="SENSITIVE_PARAMS"
@@ -48,15 +36,7 @@ resource "traceable_enumeration" "sample"{
         user_aggregate_type = "PER_USER"
     }
     ]
-    action = {
-       action_type = "ALERT"
-        duration = "PT1M"
-        event_severity = "LOW"    
-    }
-
-    sources = {
-        endpoints = data.traceable_endpoints.sample3.endpoint_ids 
-
+  sources = {
         ip_asn = {
             ip_asn_regexes = ["vmv"]
             exclude = true  
@@ -69,7 +49,7 @@ resource "traceable_enumeration" "sample"{
             user_ids = ["123"]
             exclude = true  
         }
-        endpoint_labels = data.traceable_endpoint_labels.sample1.label_ids
+        endpoint_labels = ["External"]
        
         ip_reputation = "LOW"
         ip_location_type = {
@@ -121,35 +101,20 @@ resource "traceable_enumeration" "sample"{
             }
 
         ]
-        data_set = [
-          {
-            data_sets_ids=data.traceable_datasets.sample2.data_set_ids
-            data_location = "REQUEST"
 
-          },
-            {
-            data_sets_ids=data.traceable_datasets.sample2.data_set_ids
-            data_location = "RESPONSE"
-          },
-           {
-            data_sets_ids=data.traceable_datasets.sample2.data_set_ids
-           }
-        ] 
+     data_set = [
+        {
+        data_sets_ids=["test-data-set"]
+        data_location = "REQUEST"
 
-        data_type = [
-          {
-            data_types_ids=data.traceable_data_types.sample.data_type_ids
-            data_location = "REQUEST"
+        }
+    ] 
 
-          },
-           {
-            data_types_ids=data.traceable_data_types.sample.data_type_ids
-            data_location = "RESPONSE"
-          },
-          {
-            data_types_ids=data.traceable_data_types.sample.data_type_ids
-          }
-        ]
-    }
-    depends_on = ["data.traceable_endpoint_labels.sample","data.traceable_endpoints.sample","data.traceable_datasets.sample","data.traceable_data_types.sample"]
+    data_type = [
+        {
+        data_types_ids=["test-data-type"]
+        data_location = "REQUEST"
+        }
+    ]
+  }
 }

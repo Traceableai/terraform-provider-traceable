@@ -896,37 +896,55 @@ func convertToRateLimitingRuleThresholdActionConfigType(data *models.RateLimitin
 				if !HasValue(data.Action.EventSeverity) {
 					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity must present and must not be empty")
 				}
-				if !HasValue(data.Action.Duration) {
-					return nil, utils.NewInvalidError("Action Duration", "Duration must be present and must not be empty")
-				}
-
+				
 				duration := data.Action.Duration.ValueString()
-				action := &generated.InputRateLimitingRuleAction{
-					ActionType: generated.RateLimitingRuleActionTypeBlock,
-					Block: &generated.InputRateLimitingRuleBlockAction{
-						EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
-						Duration:      &duration,
-					},
+				if duration!=""{
+					action := generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeBlock,
+						Block: &generated.InputRateLimitingRuleBlockAction{
+							EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
+							Duration:      &duration,
+						},
+					}
+					actions = append(actions, &action)
+				}else{
+					action := generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeBlock,
+						Block: &generated.InputRateLimitingRuleBlockAction{
+							EventSeverity: RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()],
+						},
+					}
+					actions = append(actions, &action)
 				}
-				actions = append(actions, action)
 
 			case "ALLOW":
+				if HasValue(data.Action.EventSeverity) {
+					return nil, utils.NewInvalidError("Action EventSeverity", "EventSeverity not required")
+				}
 				if !HasValue(data.Action.Duration) {
 					return nil, utils.NewInvalidError("Action Duration", "Duration must be present and must not be empty")
 				}
 				duration := data.Action.Duration.ValueString()
-				action := &generated.InputRateLimitingRuleAction{
-					ActionType: generated.RateLimitingRuleActionTypeAllow,
-					Allow: &generated.InputRateLimitingRuleAllowAction{
-						Duration: &duration,
-					},
+				if duration!=""{
+					action := generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeAllow,
+						Allow: &generated.InputRateLimitingRuleAllowAction{
+							Duration:      &duration,
+						},
+					}
+					actions = append(actions, &action)
+				}else{
+					action := generated.InputRateLimitingRuleAction{
+						ActionType: generated.RateLimitingRuleActionTypeAllow,
+						Allow: &generated.InputRateLimitingRuleAllowAction{},
+					}
+					actions = append(actions, &action)
 				}
-				actions = append(actions, action)
 
 			case "MARK_FOR_TESTING":
 
 				if !HasValue(data.Action.EventSeverity) {
-					return configTypes, fmt.Errorf("Event Severity should present")
+					return configTypes, fmt.Errorf("event severity should present")
 				}
 				eventSeverity, ok := RateLimitingRuleEventSeverityMap[data.Action.EventSeverity.ValueString()]
 				if !ok {
