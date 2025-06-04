@@ -60,7 +60,7 @@ func RateLimitingResourceSchema() schema.Schema {
 							Optional:            true,
 						},
 						"rolling_window_duration": schema.StringAttribute{
-							MarkdownDescription: "Rolling window duration",
+							MarkdownDescription: "Rolling window duration (PT60S/PT1M)",
 							Optional:            true,
 							Validators: []validator.String{
 								validators.ValidDurationFormat(),
@@ -74,7 +74,7 @@ func RateLimitingResourceSchema() schema.Schema {
 							Required:            true,
 						},
 						"dynamic_mean_calculation_duration": schema.StringAttribute{
-							MarkdownDescription: "Dynamic mean calculation duration",
+							MarkdownDescription: "Dynamic mean calculation duration (PT60S/PT1M)",
 							Optional:            true,
 							Validators: []validator.String{
 								validators.ValidDurationFormat(),
@@ -84,7 +84,7 @@ func RateLimitingResourceSchema() schema.Schema {
 							},
 						},
 						"dynamic_duration": schema.StringAttribute{
-							MarkdownDescription: "Dynamic duration",
+							MarkdownDescription: "Dynamic duration (PT60S/PT1M)",
 							Optional:            true,
 							Validators: []validator.String{
 								validators.ValidDurationFormat(),
@@ -98,7 +98,7 @@ func RateLimitingResourceSchema() schema.Schema {
 							Optional:            true,
 						},
 						"value_type": schema.StringAttribute{
-							MarkdownDescription: "Value type",
+							MarkdownDescription: "Value type (REQUEST_BODY/SENSITIVE_PARAMS/PATH_PARAMS)",
 							Optional:            true,
 						},
 						"unique_values_allowed": schema.Int64Attribute{
@@ -106,11 +106,11 @@ func RateLimitingResourceSchema() schema.Schema {
 							Optional:            true,
 						},
 						"sensitive_params_evaluation_type": schema.StringAttribute{
-							MarkdownDescription: "Sensitive params evaluation type",
+							MarkdownDescription: "Sensitive params evaluation type (ALL/SELECTED_DATA_TYPES)",
 							Optional:            true,
 						},
 						"duration": schema.StringAttribute{
-							MarkdownDescription: "Duration",
+							MarkdownDescription: "Duration for the rule (PT60S/PT1M)",
 							Optional:            true,
 							Validators: []validator.String{
 								validators.ValidDurationFormat(),
@@ -130,7 +130,7 @@ func RateLimitingResourceSchema() schema.Schema {
 						Required:            true,
 					},
 					"duration": schema.StringAttribute{
-						MarkdownDescription: "how much time the action work",
+						MarkdownDescription: "Duration for the action (PT60S/PT1M)",
 						Optional:            true,
 						Validators: []validator.String{
 							validators.ValidDurationFormat(),

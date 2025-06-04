@@ -15,14 +15,14 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 		MarkdownDescription: "Traceable Data Loss Prevention Request Based Resource",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				MarkdownDescription: "Identifier of the Rate Limiting Rule",
+				MarkdownDescription: "Identifier of the DLP request based rule",
 				Computed:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				MarkdownDescription: "Name of the Rate Limiting Rule.",
+				MarkdownDescription: "Name of the DLP request based rule.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -34,11 +34,11 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 				ElementType:         types.StringType,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Description of the Rate Limiting Rule",
+				MarkdownDescription: "Description of the DLP request based rule",
 				Optional:            true,
 			},
 			"enabled": schema.BoolAttribute{
-				MarkdownDescription: "Enable the Rate Limiting Rule",
+				MarkdownDescription: "Enable or Disable the DLP request based rule",
 				Required:            true,
 			},
 			"action": schema.SingleNestedAttribute{
@@ -59,7 +59,7 @@ func DataLossPreventionRequestBasedResourceSchema() schema.Schema {
 						},
 					},
 					"event_severity": schema.StringAttribute{
-						MarkdownDescription: "LOW,MEDIUM,HIGH,CRITICAL only allowed with BLOCK and ALERT",
+						MarkdownDescription: "LOW,MEDIUM,HIGH,CRITICAL (only allowed with BLOCK and ALERT)",
 						Optional:            true,
 					},
 				},

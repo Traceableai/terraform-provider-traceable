@@ -34,11 +34,11 @@ func MaliciousRegionResourceSchema() schema.Schema {
 				ElementType:         types.StringType,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Description of the Rate Limiting Rule",
+				MarkdownDescription: "Description of the Malicious region rule",
 				Optional:            true,
 			},
 			"enabled": schema.BoolAttribute{
-				MarkdownDescription: "Enable the Rate Limiting Rule",
+				MarkdownDescription: "Enable the Malicious region rule",
 				Required:            true,
 			},
 
