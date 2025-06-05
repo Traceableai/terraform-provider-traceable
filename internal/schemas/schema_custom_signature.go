@@ -51,23 +51,23 @@ func CustomSignatureResourceSchema() schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"key_value_tag": schema.StringAttribute{
-									MarkdownDescription: "Which Metadatype to include",
+									MarkdownDescription: "Which multi valued api attribute to include it can be (HEADER/PARAMETER/COOKIE)",
 									Optional:            true,
 								},
 								"match_category": schema.StringAttribute{
-									MarkdownDescription: "Which operator to use",
+									MarkdownDescription: "Where to find api attribute (REQUEST/RESPONSE)",
 									Required:            true,
 								},
 								"key_match_operator": schema.StringAttribute{
-									MarkdownDescription: "Value to match",
+									MarkdownDescription: "Operator to use for key match with key_value_tag (EQUALS/NOT_EQUAL/MATCHES_REGEX/NOT_MATCH_REGEX/CONTAINS/NOT_CONTAIN/GREATER_THAN/LESS_THAN). All operarots are not valid with certain metadeta type.",
 									Optional:            true,
 								},
 								"match_key": schema.StringAttribute{
-									MarkdownDescription: "Which operator to use",
+									MarkdownDescription: "Which single valued api attribute to include (URL/HEADER_NAME/HEADER_VALUE/PARAMETER_NAME/PARAMETER_VALUE/HTTP_METHOD/HOST/USER_AGENT/STATUS_CODE/BODY/BODY_SIZE/COOKIE_NAME/COOKIE_VALUE/QUERY_PARAMS_COUNT/HEADERS_COUNT/COOKIES_COUNT)",
 									Required:            true,
 								},
 								"value_match_operator": schema.StringAttribute{
-									MarkdownDescription: "Value to match",
+									MarkdownDescription: "Operator to use for value match. Accepts same operators as key_match_operator",
 									Required:            true,
 								},
 								"match_value": schema.StringAttribute{
@@ -78,7 +78,7 @@ func CustomSignatureResourceSchema() schema.Schema {
 						},
 					},
 					"custom_sec_rule": schema.StringAttribute{
-						MarkdownDescription: "custom sec rule string",
+						MarkdownDescription: "Custom security rule string",
 						Optional:            true,
 						PlanModifiers: []planmodifier.String{
 							modifiers.SuppressDiffIfCustomSecRuleEqual(),
@@ -90,7 +90,7 @@ func CustomSignatureResourceSchema() schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"key_condition_operator": schema.StringAttribute{
-									MarkdownDescription: "Which operator to include",
+									MarkdownDescription: "Which operator to include. Same operators as other feilds.",
 									Required:            true,
 								},
 								"key_condition_value": schema.StringAttribute{

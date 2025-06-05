@@ -34,11 +34,11 @@ func MaliciousIPRangeResourceSchema() schema.Schema {
 				ElementType:         types.StringType,
 			},
 			"description": schema.StringAttribute{
-				MarkdownDescription: "Description of the Rate Limiting Rule",
+				MarkdownDescription: "Description of the Malicious Ip range",
 				Optional:            true,
 			},
 			"enabled": schema.BoolAttribute{
-				MarkdownDescription: "Enable the Rate Limiting Rule",
+				MarkdownDescription: "Enable the Malicious Ip range",
 				Required:            true,
 			},
 

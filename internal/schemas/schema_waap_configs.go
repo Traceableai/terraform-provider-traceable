@@ -35,7 +35,7 @@ func WaapConfigResourceSchema() schema.Schema {
 										Required:            true,
 									},
 									"action": schema.StringAttribute{
-										MarkdownDescription: "Whether the sub rule is enabled/disabled/monitor.",
+										MarkdownDescription: "Whether the sub rule is MONITOR/DISABLED/BLOCK.",
 										Required:            true,
 									},
 								},
