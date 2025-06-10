@@ -93,7 +93,7 @@ func (r *AgentTokenResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	updatedData, err := convertCustomSignatureFieldsToModel(ctx, response)
+	updatedData, err := convertAgentTokenFieldsToModel(ctx, response)
 
 	if err != nil {
 		utils.AddError(ctx, &resp.Diagnostics, err)
@@ -118,7 +118,6 @@ func (r *AgentTokenResource) Update(ctx context.Context, req resource.UpdateRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	
 	
 	input, err := convertAgentTokenModelToUpdateInput(ctx, data, dataState.Id.ValueString())
 	if err != nil {
@@ -189,6 +188,29 @@ func convertAgentTokenModelToUpdateInput(ctx context.Context,data *models.AgentT
 	return &input,nil
 }
 
-func getAgentToken(id string, ctx context.Context, client *graphql.Client) (*generated.AgentTokenMetadata, error) {
-	
+func getAgentToken(id string, ctx context.Context, client *graphql.Client) (*generated.GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata, error) {
+	agentTokenFeilds := generated.GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata{}
+	response, err := generated.GetAgentToken(ctx, *client)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, rule := range response.AgentTokenMetadata.Results {
+		if *rule.Id == id {
+			agentTokenFeilds = *rule
+			return &agentTokenFeilds, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func convertAgentTokenFieldsToModel(ctx context.Context, fields *generated.GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata) (*models.AgentTokenModel, error) {
+	if fields == nil {
+		return nil, fmt.Errorf("fields model is nil")
+	}
+	var data = models.AgentTokenModel{}
+	data.Id = types.StringValue(*fields.Id)
+	data.Name = types.StringValue(fields.Name)
+	return &data, nil
 }
