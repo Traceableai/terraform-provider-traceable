@@ -97,7 +97,7 @@ const RATE_LIMIT_CREATE = `resource "traceable_rate_limiting" "test"{
     }
 }`
 
-const ENUMERATION_RESOURCE=`resource "traceable_enumeration" "test"{
+const ENUMERATION_RESOURCE = `resource "traceable_enumeration" "test"{
     name = "%s"
     description = "rule-description"
     enabled = true
@@ -202,7 +202,7 @@ const ENUMERATION_RESOURCE=`resource "traceable_enumeration" "test"{
     }
 }`
 
-const WAAP_CONFIG=`resource "traceable_waap_config" "test" {
+const WAAP_CONFIG = `resource "traceable_waap_config" "test" {
   environment = "%s"
   rule_configs=[
     { 
@@ -273,7 +273,7 @@ const CUSTOM_SIGNATURE_RESOURCE = `resource "traceable_custom_signature" "test" 
   }
 }`
 
-const IP_TYPE_RESOURCE=`resource "traceable_malicious_ip_type" "test"{
+const IP_TYPE_RESOURCE = `resource "traceable_malicious_ip_type" "test"{
     name = "%s"
     description = "terraform unit test"
     enabled = true
@@ -284,7 +284,7 @@ const IP_TYPE_RESOURCE=`resource "traceable_malicious_ip_type" "test"{
     ip_type = ["ANONYMOUS_VPN","BOT"]
 }`
 
-const EMAIL_DOMAIN=`resource "traceable_malicious_email_domain" "test" {
+const EMAIL_DOMAIN = `resource "traceable_malicious_email_domain" "test" {
     name = "%s"
     description = "example rule"
     enabled = true
@@ -299,13 +299,13 @@ const EMAIL_DOMAIN=`resource "traceable_malicious_email_domain" "test" {
     apply_rule_to_disposable_email_domains = true
 }`
 
-const DATA_SET=`resource "traceable_data_set" "test" {
+const DATA_SET = `resource "traceable_data_set" "test" {
     name = "%s"
     description = "%s"
     icon_type = "Protect"
 }`
 
-const DLP_USER_BASED=`resource "traceable_data_loss_prevention_user_based" "test" {
+const DLP_USER_BASED = `resource "traceable_data_loss_prevention_user_based" "test" {
   name         = "%s"
   description  = "Example DLP user-based rule"
   enabled      = true
@@ -317,30 +317,27 @@ const DLP_USER_BASED=`resource "traceable_data_loss_prevention_user_based" "test
     event_severity = "%s"    
   }
      threshold_configs=[
+         {
+        api_aggregate_type = "PER_ENDPOINT"
+        threshold_config_type = "ROLLING_WINDOW"
+        rolling_window_count_allowed = 10
+        rolling_window_duration = "PT1M"
+        user_aggregate_type = "PER_USER"
+     },
      {
         api_aggregate_type = "PER_ENDPOINT"
+        user_aggregate_type = "PER_USER"
+        threshold_config_type = "VALUE_BASED"
         value_type ="SENSITIVE_PARAMS"
         unique_values_allowed = 10
         duration ="PT1M"
-        threshold_config_type = "VALUE_BASED"
-        user_aggregate_type = "PER_USER"
         sensitive_params_evaluation_type = "ALL"
     },
     {
-        api_aggregate_type = "PER_ENDPOINT"
-        value_type ="REQUEST_BODY"
-        unique_values_allowed = 10
-        duration ="PT1M"
-        threshold_config_type = "VALUE_BASED"
-        user_aggregate_type = "PER_USER"
-    },
-    {
-        api_aggregate_type = "PER_ENDPOINT"
-        value_type ="PATH_PARAMS"
-        unique_values_allowed = 10
-        duration ="PT1M"
-        threshold_config_type = "VALUE_BASED"
-        user_aggregate_type = "PER_USER"
+        threshold_config_type="DYNAMIC"
+        dynamic_mean_calculation_duration = "PT1M"
+        dynamic_duration = "PT1M"
+        dynamic_percentage_exceding_mean_allowed = 10   
     }
     ]
   sources = {
@@ -427,7 +424,7 @@ const DLP_USER_BASED=`resource "traceable_data_loss_prevention_user_based" "test
   }
 }`
 
-const DLP_REQ_BASED=`resource "traceable_data_loss_prevention_request_based" "test" {
+const DLP_REQ_BASED = `resource "traceable_data_loss_prevention_request_based" "test" {
   name         = "%s"
   description  = "Example DLP request-based rule"
   enabled      = true
