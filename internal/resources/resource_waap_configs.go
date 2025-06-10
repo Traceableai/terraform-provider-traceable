@@ -425,6 +425,6 @@ func convertWaapConfigModelToUpdateInput(ctx context.Context, data *models.WaapC
 	if ruleConfigBuildError != nil {
 		return nil, ruleConfigBuildError
 	}
-	input.RuleConfig = inputRuleConfig
+	input.RuleConfig = &inputRuleConfig
 	return &input, nil
 }
