@@ -68,6 +68,7 @@ func (r *AgentTokenResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	data.Id = types.StringValue(*agentToken.CreateAgentToken.Id)
+	data.Token = types.StringValue(agentToken.CreateAgentToken.Token)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return

@@ -24,6 +24,10 @@ func AgentTokenResourceSchema() schema.Schema {
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
+			"token": schema.StringAttribute{
+				MarkdownDescription: "The agent token value",
+				Computed:            true,
+			},
 		},
 	}
 }

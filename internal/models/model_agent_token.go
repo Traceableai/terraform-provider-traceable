@@ -7,5 +7,6 @@ import (
 type AgentTokenModel struct {
 	Id              types.String         `tfsdk:"id"`
 	Name            types.String         `tfsdk:"name"`
+	Token           types.String         `tfsdk:"token"`
 }
 
