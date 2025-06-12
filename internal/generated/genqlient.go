@@ -20,6 +20,42 @@ var AllAccountTakeoverAnomalyDetectionConfigName = []AccountTakeoverAnomalyDetec
 	AccountTakeoverAnomalyDetectionConfigNameCredentialStuffingAnomalyConfig,
 }
 
+// AgentTokenCreateFields includes the GraphQL fields of AgentToken requested by the fragment AgentTokenCreateFields.
+type AgentTokenCreateFields struct {
+	Id                *string `json:"id"`
+	Name              string  `json:"name"`
+	Token             string  `json:"token"`
+	CreatedBy         string  `json:"createdBy"`
+	CreationTimestamp string  `json:"creationTimestamp"`
+}
+
+// GetId returns AgentTokenCreateFields.Id, and is useful for accessing the field via an interface.
+func (v *AgentTokenCreateFields) GetId() *string { return v.Id }
+
+// GetName returns AgentTokenCreateFields.Name, and is useful for accessing the field via an interface.
+func (v *AgentTokenCreateFields) GetName() string { return v.Name }
+
+// GetToken returns AgentTokenCreateFields.Token, and is useful for accessing the field via an interface.
+func (v *AgentTokenCreateFields) GetToken() string { return v.Token }
+
+// GetCreatedBy returns AgentTokenCreateFields.CreatedBy, and is useful for accessing the field via an interface.
+func (v *AgentTokenCreateFields) GetCreatedBy() string { return v.CreatedBy }
+
+// GetCreationTimestamp returns AgentTokenCreateFields.CreationTimestamp, and is useful for accessing the field via an interface.
+func (v *AgentTokenCreateFields) GetCreationTimestamp() string { return v.CreationTimestamp }
+
+// AgentTokenUpdateFields includes the GraphQL fields of AgentTokenMetadata requested by the fragment AgentTokenUpdateFields.
+type AgentTokenUpdateFields struct {
+	Id   *string `json:"id"`
+	Name string  `json:"name"`
+}
+
+// GetId returns AgentTokenUpdateFields.Id, and is useful for accessing the field via an interface.
+func (v *AgentTokenUpdateFields) GetId() *string { return v.Id }
+
+// GetName returns AgentTokenUpdateFields.Name, and is useful for accessing the field via an interface.
+func (v *AgentTokenUpdateFields) GetName() string { return v.Name }
+
 // Abuse Velocity
 type AnomalyConfigAbuseVelocity string
 
@@ -1077,6 +1113,96 @@ var AllBlockingMetadataAnomalyDetectionConfigName = []BlockingMetadataAnomalyDet
 	BlockingMetadataAnomalyDetectionConfigNameThreatActor,
 	BlockingMetadataAnomalyDetectionConfigNameSafeCrs,
 	BlockingMetadataAnomalyDetectionConfigNameInAgentVulnerableLibrary,
+}
+
+// CreateAgentTokenCreateAgentToken includes the requested fields of the GraphQL type AgentToken.
+type CreateAgentTokenCreateAgentToken struct {
+	AgentTokenCreateFields `json:"-"`
+}
+
+// GetId returns CreateAgentTokenCreateAgentToken.Id, and is useful for accessing the field via an interface.
+func (v *CreateAgentTokenCreateAgentToken) GetId() *string { return v.AgentTokenCreateFields.Id }
+
+// GetName returns CreateAgentTokenCreateAgentToken.Name, and is useful for accessing the field via an interface.
+func (v *CreateAgentTokenCreateAgentToken) GetName() string { return v.AgentTokenCreateFields.Name }
+
+// GetToken returns CreateAgentTokenCreateAgentToken.Token, and is useful for accessing the field via an interface.
+func (v *CreateAgentTokenCreateAgentToken) GetToken() string { return v.AgentTokenCreateFields.Token }
+
+// GetCreatedBy returns CreateAgentTokenCreateAgentToken.CreatedBy, and is useful for accessing the field via an interface.
+func (v *CreateAgentTokenCreateAgentToken) GetCreatedBy() string {
+	return v.AgentTokenCreateFields.CreatedBy
+}
+
+// GetCreationTimestamp returns CreateAgentTokenCreateAgentToken.CreationTimestamp, and is useful for accessing the field via an interface.
+func (v *CreateAgentTokenCreateAgentToken) GetCreationTimestamp() string {
+	return v.AgentTokenCreateFields.CreationTimestamp
+}
+
+func (v *CreateAgentTokenCreateAgentToken) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CreateAgentTokenCreateAgentToken
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CreateAgentTokenCreateAgentToken = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AgentTokenCreateFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCreateAgentTokenCreateAgentToken struct {
+	Id *string `json:"id"`
+
+	Name string `json:"name"`
+
+	Token string `json:"token"`
+
+	CreatedBy string `json:"createdBy"`
+
+	CreationTimestamp string `json:"creationTimestamp"`
+}
+
+func (v *CreateAgentTokenCreateAgentToken) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CreateAgentTokenCreateAgentToken) __premarshalJSON() (*__premarshalCreateAgentTokenCreateAgentToken, error) {
+	var retval __premarshalCreateAgentTokenCreateAgentToken
+
+	retval.Id = v.AgentTokenCreateFields.Id
+	retval.Name = v.AgentTokenCreateFields.Name
+	retval.Token = v.AgentTokenCreateFields.Token
+	retval.CreatedBy = v.AgentTokenCreateFields.CreatedBy
+	retval.CreationTimestamp = v.AgentTokenCreateFields.CreationTimestamp
+	return &retval, nil
+}
+
+// CreateAgentTokenResponse is returned by CreateAgentToken on success.
+type CreateAgentTokenResponse struct {
+	CreateAgentToken *CreateAgentTokenCreateAgentToken `json:"createAgentToken"`
+}
+
+// GetCreateAgentToken returns CreateAgentTokenResponse.CreateAgentToken, and is useful for accessing the field via an interface.
+func (v *CreateAgentTokenResponse) GetCreateAgentToken() *CreateAgentTokenCreateAgentToken {
+	return v.CreateAgentToken
 }
 
 // CreateCustomSignatureCreateCustomSignatureRule includes the requested fields of the GraphQL type CustomSignatureRule.
@@ -2736,6 +2862,24 @@ var AllDataSuppression = []DataSuppression{
 	DataSuppressionObfuscate,
 }
 
+// DeleteAgentTokenDeleteAgentTokenIdentifiable includes the requested fields of the GraphQL type Identifiable.
+type DeleteAgentTokenDeleteAgentTokenIdentifiable struct {
+	Id string `json:"id"`
+}
+
+// GetId returns DeleteAgentTokenDeleteAgentTokenIdentifiable.Id, and is useful for accessing the field via an interface.
+func (v *DeleteAgentTokenDeleteAgentTokenIdentifiable) GetId() string { return v.Id }
+
+// DeleteAgentTokenResponse is returned by DeleteAgentToken on success.
+type DeleteAgentTokenResponse struct {
+	DeleteAgentToken *DeleteAgentTokenDeleteAgentTokenIdentifiable `json:"deleteAgentToken"`
+}
+
+// GetDeleteAgentToken returns DeleteAgentTokenResponse.DeleteAgentToken, and is useful for accessing the field via an interface.
+func (v *DeleteAgentTokenResponse) GetDeleteAgentToken() *DeleteAgentTokenDeleteAgentTokenIdentifiable {
+	return v.DeleteAgentToken
+}
+
 // DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse includes the requested fields of the GraphQL type DeleteCustomSignatureRuleResponse.
 type DeleteCustomSignatureDeleteCustomSignatureRuleDeleteCustomSignatureRuleResponse struct {
 	Success bool `json:"success"`
@@ -3008,6 +3152,66 @@ const (
 var AllFilterType = []FilterType{
 	FilterTypeAttribute,
 	FilterTypeId,
+}
+
+// GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet includes the requested fields of the GraphQL type AgentTokenMetadataResultSet.
+type GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet struct {
+	Results []*GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata `json:"results"`
+	Total   *int64                                                                                 `json:"total"`
+}
+
+// GetResults returns GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet.Results, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet) GetResults() []*GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata {
+	return v.Results
+}
+
+// GetTotal returns GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet.Total, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet) GetTotal() *int64 {
+	return v.Total
+}
+
+// GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata includes the requested fields of the GraphQL type AgentTokenMetadata.
+type GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata struct {
+	Id                *string `json:"id"`
+	Name              string  `json:"name"`
+	CreatedBy         string  `json:"createdBy"`
+	CreationTimestamp string  `json:"creationTimestamp"`
+	LastUsedTimestamp *string `json:"lastUsedTimestamp"`
+}
+
+// GetId returns GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata.Id, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata) GetId() *string {
+	return v.Id
+}
+
+// GetName returns GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata.Name, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata) GetName() string {
+	return v.Name
+}
+
+// GetCreatedBy returns GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata.CreatedBy, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata) GetCreatedBy() string {
+	return v.CreatedBy
+}
+
+// GetCreationTimestamp returns GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata.CreationTimestamp, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata) GetCreationTimestamp() string {
+	return v.CreationTimestamp
+}
+
+// GetLastUsedTimestamp returns GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata.LastUsedTimestamp, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSetResultsAgentTokenMetadata) GetLastUsedTimestamp() *string {
+	return v.LastUsedTimestamp
+}
+
+// GetAgentTokenResponse is returned by GetAgentToken on success.
+type GetAgentTokenResponse struct {
+	AgentTokenMetadata *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet `json:"agentTokenMetadata"`
+}
+
+// GetAgentTokenMetadata returns GetAgentTokenResponse.AgentTokenMetadata, and is useful for accessing the field via an interface.
+func (v *GetAgentTokenResponse) GetAgentTokenMetadata() *GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet {
+	return v.AgentTokenMetadata
 }
 
 // GetCountriesCountriesRegionResultSet includes the requested fields of the GraphQL type RegionResultSet.
@@ -4986,6 +5190,13 @@ func (v *InputBlockingMetadataAnomalyDetectionConfig) GetName() BlockingMetadata
 	return v.Name
 }
 
+type InputCreateAgentTokenInput struct {
+	Name string `json:"name"`
+}
+
+// GetName returns InputCreateAgentTokenInput.Name, and is useful for accessing the field via an interface.
+func (v *InputCreateAgentTokenInput) GetName() string { return v.Name }
+
 type InputCredentialStuffingAnomalyDetectionConfig struct {
 	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair   `json:"keyValuePairs"`
 	Name          CredentialStuffingAnomalyDetectionConfigName `json:"name"`
@@ -5966,6 +6177,17 @@ func (v *InputDataSetUpdate) GetName() string { return v.Name }
 
 // GetSensitivity returns InputDataSetUpdate.Sensitivity, and is useful for accessing the field via an interface.
 func (v *InputDataSetUpdate) GetSensitivity() *DataSensitivity { return v.Sensitivity }
+
+type InputDeleteAgentTokenInput struct {
+	ForceDelete *bool  `json:"forceDelete"`
+	Id          string `json:"id"`
+}
+
+// GetForceDelete returns InputDeleteAgentTokenInput.ForceDelete, and is useful for accessing the field via an interface.
+func (v *InputDeleteAgentTokenInput) GetForceDelete() *bool { return v.ForceDelete }
+
+// GetId returns InputDeleteAgentTokenInput.Id, and is useful for accessing the field via an interface.
+func (v *InputDeleteAgentTokenInput) GetId() string { return v.Id }
 
 type InputDetectionScopeConfig struct {
 	EndpointIds    []*string `json:"endpointIds"`
@@ -8181,8 +8403,9 @@ func (v *InputRuleConfigScope) GetEnvironmentScope() *InputEnvironmentScope {
 }
 
 type InputScopedAnomalyRuleConfigUpdate struct {
-	AnomalyScope InputAnomalyScope            `json:"anomalyScope"`
-	RuleConfig   InputAnomalyRuleConfigUpdate `json:"ruleConfig"`
+	AnomalyScope InputAnomalyScope               `json:"anomalyScope"`
+	RuleConfig   *InputAnomalyRuleConfigUpdate   `json:"ruleConfig"`
+	RuleConfigs  []*InputAnomalyRuleConfigUpdate `json:"ruleConfigs"`
 }
 
 // GetAnomalyScope returns InputScopedAnomalyRuleConfigUpdate.AnomalyScope, and is useful for accessing the field via an interface.
@@ -8191,8 +8414,13 @@ func (v *InputScopedAnomalyRuleConfigUpdate) GetAnomalyScope() InputAnomalyScope
 }
 
 // GetRuleConfig returns InputScopedAnomalyRuleConfigUpdate.RuleConfig, and is useful for accessing the field via an interface.
-func (v *InputScopedAnomalyRuleConfigUpdate) GetRuleConfig() InputAnomalyRuleConfigUpdate {
+func (v *InputScopedAnomalyRuleConfigUpdate) GetRuleConfig() *InputAnomalyRuleConfigUpdate {
 	return v.RuleConfig
+}
+
+// GetRuleConfigs returns InputScopedAnomalyRuleConfigUpdate.RuleConfigs, and is useful for accessing the field via an interface.
+func (v *InputScopedAnomalyRuleConfigUpdate) GetRuleConfigs() []*InputAnomalyRuleConfigUpdate {
+	return v.RuleConfigs
 }
 
 type InputSessionDefinitionMetadataAnomalyDetectionConfig struct {
@@ -8244,6 +8472,17 @@ type InputTransformationFunction struct {
 func (v *InputTransformationFunction) GetJsonExtract() *InputJsonExtractTransformationFunction {
 	return v.JsonExtract
 }
+
+type InputUpdateAgentTokenMetadataInput struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// GetId returns InputUpdateAgentTokenMetadataInput.Id, and is useful for accessing the field via an interface.
+func (v *InputUpdateAgentTokenMetadataInput) GetId() string { return v.Id }
+
+// GetName returns InputUpdateAgentTokenMetadataInput.Name, and is useful for accessing the field via an interface.
+func (v *InputUpdateAgentTokenMetadataInput) GetName() string { return v.Name }
 
 // Threshold config which specifies unique values allowed over the given time range
 type InputValueBasedThresholdConfig struct {
@@ -11905,6 +12144,78 @@ func (v *TransactionActionConfigFieldsActionRateLimitingRuleActionBlockRateLimit
 	return v.EventSeverity
 }
 
+// UpdateAgentTokenResponse is returned by UpdateAgentToken on success.
+type UpdateAgentTokenResponse struct {
+	UpdateAgentTokenMetadata *UpdateAgentTokenUpdateAgentTokenMetadata `json:"updateAgentTokenMetadata"`
+}
+
+// GetUpdateAgentTokenMetadata returns UpdateAgentTokenResponse.UpdateAgentTokenMetadata, and is useful for accessing the field via an interface.
+func (v *UpdateAgentTokenResponse) GetUpdateAgentTokenMetadata() *UpdateAgentTokenUpdateAgentTokenMetadata {
+	return v.UpdateAgentTokenMetadata
+}
+
+// UpdateAgentTokenUpdateAgentTokenMetadata includes the requested fields of the GraphQL type AgentTokenMetadata.
+type UpdateAgentTokenUpdateAgentTokenMetadata struct {
+	AgentTokenUpdateFields `json:"-"`
+}
+
+// GetId returns UpdateAgentTokenUpdateAgentTokenMetadata.Id, and is useful for accessing the field via an interface.
+func (v *UpdateAgentTokenUpdateAgentTokenMetadata) GetId() *string {
+	return v.AgentTokenUpdateFields.Id
+}
+
+// GetName returns UpdateAgentTokenUpdateAgentTokenMetadata.Name, and is useful for accessing the field via an interface.
+func (v *UpdateAgentTokenUpdateAgentTokenMetadata) GetName() string {
+	return v.AgentTokenUpdateFields.Name
+}
+
+func (v *UpdateAgentTokenUpdateAgentTokenMetadata) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*UpdateAgentTokenUpdateAgentTokenMetadata
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.UpdateAgentTokenUpdateAgentTokenMetadata = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.AgentTokenUpdateFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalUpdateAgentTokenUpdateAgentTokenMetadata struct {
+	Id *string `json:"id"`
+
+	Name string `json:"name"`
+}
+
+func (v *UpdateAgentTokenUpdateAgentTokenMetadata) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *UpdateAgentTokenUpdateAgentTokenMetadata) __premarshalJSON() (*__premarshalUpdateAgentTokenUpdateAgentTokenMetadata, error) {
+	var retval __premarshalUpdateAgentTokenUpdateAgentTokenMetadata
+
+	retval.Id = v.AgentTokenUpdateFields.Id
+	retval.Name = v.AgentTokenUpdateFields.Name
+	return &retval, nil
+}
+
 // UpdateAnomalyRuleConfigResponse is returned by UpdateAnomalyRuleConfig on success.
 type UpdateAnomalyRuleConfigResponse struct {
 	UpdateAnomalyRuleConfig UpdateAnomalyRuleConfigUpdateAnomalyRuleConfigAnomalyRuleConfigUpdate `json:"updateAnomalyRuleConfig"`
@@ -12706,6 +13017,14 @@ type __AnomalyDetectionRuleConfigsInput struct {
 // GetInput returns __AnomalyDetectionRuleConfigsInput.Input, and is useful for accessing the field via an interface.
 func (v *__AnomalyDetectionRuleConfigsInput) GetInput() InputAnomalyScope { return v.Input }
 
+// __CreateAgentTokenInput is used internally by genqlient
+type __CreateAgentTokenInput struct {
+	Input InputCreateAgentTokenInput `json:"input"`
+}
+
+// GetInput returns __CreateAgentTokenInput.Input, and is useful for accessing the field via an interface.
+func (v *__CreateAgentTokenInput) GetInput() InputCreateAgentTokenInput { return v.Input }
+
 // __CreateCustomSignatureInput is used internally by genqlient
 type __CreateCustomSignatureInput struct {
 	Input InputCustomSignatureRuleDescriptor `json:"input"`
@@ -12763,6 +13082,14 @@ type __CreateRateLimitingRuleInput struct {
 
 // GetInput returns __CreateRateLimitingRuleInput.Input, and is useful for accessing the field via an interface.
 func (v *__CreateRateLimitingRuleInput) GetInput() InputRateLimitingRuleData { return v.Input }
+
+// __DeleteAgentTokenInput is used internally by genqlient
+type __DeleteAgentTokenInput struct {
+	Input InputDeleteAgentTokenInput `json:"input"`
+}
+
+// GetInput returns __DeleteAgentTokenInput.Input, and is useful for accessing the field via an interface.
+func (v *__DeleteAgentTokenInput) GetInput() InputDeleteAgentTokenInput { return v.Input }
 
 // __DeleteCustomSignatureInput is used internally by genqlient
 type __DeleteCustomSignatureInput struct {
@@ -12990,6 +13317,14 @@ func (v *__GetRateLimitingRulesNameInput) GetRateLimitingRulesFilter() *InputRat
 	return v.RateLimitingRulesFilter
 }
 
+// __UpdateAgentTokenInput is used internally by genqlient
+type __UpdateAgentTokenInput struct {
+	Input InputUpdateAgentTokenMetadataInput `json:"input"`
+}
+
+// GetInput returns __UpdateAgentTokenInput.Input, and is useful for accessing the field via an interface.
+func (v *__UpdateAgentTokenInput) GetInput() InputUpdateAgentTokenMetadataInput { return v.Input }
+
 // __UpdateAnomalyRuleConfigInput is used internally by genqlient
 type __UpdateAnomalyRuleConfigInput struct {
 	Input InputScopedAnomalyRuleConfigUpdate `json:"input"`
@@ -13154,6 +13489,47 @@ func AnomalyDetectionRuleConfigs(
 	}
 
 	data_ = &AnomalyDetectionRuleConfigsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by CreateAgentToken.
+const CreateAgentToken_Operation = `
+mutation CreateAgentToken ($input: InputCreateAgentTokenInput!) {
+	createAgentToken(input: $input) {
+		... AgentTokenCreateFields
+	}
+}
+fragment AgentTokenCreateFields on AgentToken {
+	id
+	name
+	token
+	createdBy
+	creationTimestamp
+}
+`
+
+func CreateAgentToken(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputCreateAgentTokenInput,
+) (data_ *CreateAgentTokenResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CreateAgentToken",
+		Query:  CreateAgentToken_Operation,
+		Variables: &__CreateAgentTokenInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CreateAgentTokenResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -13858,6 +14234,40 @@ func DataSets(
 	return data_, err_
 }
 
+// The mutation executed by DeleteAgentToken.
+const DeleteAgentToken_Operation = `
+mutation DeleteAgentToken ($input: InputDeleteAgentTokenInput!) {
+	deleteAgentToken(input: $input) {
+		id
+	}
+}
+`
+
+func DeleteAgentToken(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputDeleteAgentTokenInput,
+) (data_ *DeleteAgentTokenResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "DeleteAgentToken",
+		Query:  DeleteAgentToken_Operation,
+		Variables: &__DeleteAgentTokenInput{
+			Input: input,
+		},
+	}
+
+	data_ = &DeleteAgentTokenResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by DeleteCustomSignature.
 const DeleteCustomSignature_Operation = `
 mutation DeleteCustomSignature ($input: InputCustomSignatureRuleDelete!) {
@@ -14119,6 +14529,43 @@ func DeleteScopedAnomalyDetectionConfig(
 	}
 
 	data_ = &DeleteScopedAnomalyDetectionConfigResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by GetAgentToken.
+const GetAgentToken_Operation = `
+query GetAgentToken {
+	agentTokenMetadata {
+		results {
+			id
+			name
+			createdBy
+			creationTimestamp
+			lastUsedTimestamp
+		}
+		total
+	}
+}
+`
+
+func GetAgentToken(
+	ctx_ context.Context,
+	client_ graphql.Client,
+) (data_ *GetAgentTokenResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "GetAgentToken",
+		Query:  GetAgentToken_Operation,
+	}
+
+	data_ = &GetAgentTokenResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
@@ -15194,6 +15641,44 @@ func GetRateLimitingRulesName(
 	}
 
 	data_ = &GetRateLimitingRulesNameResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by UpdateAgentToken.
+const UpdateAgentToken_Operation = `
+mutation UpdateAgentToken ($input: InputUpdateAgentTokenMetadataInput!) {
+	updateAgentTokenMetadata(input: $input) {
+		... AgentTokenUpdateFields
+	}
+}
+fragment AgentTokenUpdateFields on AgentTokenMetadata {
+	id
+	name
+}
+`
+
+func UpdateAgentToken(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input InputUpdateAgentTokenMetadataInput,
+) (data_ *UpdateAgentTokenResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "UpdateAgentToken",
+		Query:  UpdateAgentToken_Operation,
+		Variables: &__UpdateAgentTokenInput{
+			Input: input,
+		},
+	}
+
+	data_ = &UpdateAgentTokenResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(
