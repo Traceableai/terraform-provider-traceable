@@ -1,0 +1,261 @@
+# Fragment for leafCondition
+fragment LeafConditionFields on RateLimitingRuleLeafCondition {
+  conditionType
+  datatypeCondition {
+    datasetIds
+    datatypeIds
+    dataLocation
+    datatypeMatching {
+      datatypeMatchingType
+      regexBasedMatching {
+        customMatchingLocation {
+          metadataType
+          keyCondition {
+            operator
+            value
+          }
+        }
+      }
+    }
+  }
+  ipAddressCondition {
+    cidrIpRanges
+    ipAddresses
+    rawInputIpData
+    exclude
+    ipAddressConditionType
+  }
+  ipReputationCondition {
+    minIpReputationSeverity
+  }
+  ipLocationTypeCondition {
+    ipLocationTypes
+    exclude
+  }
+  emailDomainCondition {
+    emailRegexes
+    exclude
+  }
+  ipOrganisationCondition {
+    ipOrganisationRegexes
+    exclude
+  }
+  ipAsnCondition {
+    ipAsnRegexes
+    exclude
+  }
+  userIdCondition {
+    userIdRegexes
+    userIds
+    exclude
+  }
+  userAgentCondition {
+    userAgentRegexes
+    exclude
+  }
+  ipConnectionTypeCondition {
+    ipConnectionTypes
+    exclude
+  }
+  ipAbuseVelocityCondition {
+    minIpAbuseVelocity
+  }
+  keyValueCondition {
+    keyCondition {
+      operator
+      value
+    }
+    metadataType
+    valueCondition {
+      operator
+      value
+    }
+  }
+  regionCondition {
+    regionIdentifiers {
+      countryIsoCode
+    }
+    exclude
+  }
+  requestScannerTypeCondition {
+    scannerTypes
+    exclude
+  }
+  scopeCondition {
+    entityScope {
+      entityIds
+      entityType
+    }
+    labelScope {
+      labelIds
+      labelType
+    }
+    scopeType
+    urlScope {
+      urlRegexes
+    }
+  }
+}
+
+# Fragment for thresholdActionConfigs
+fragment ThresholdActionConfigFields on RateLimitingRuleThresholdActionConfig {
+  actions {
+    actionType
+    alert {
+      eventSeverity
+      agentEffect {
+        agentModifications {
+          agentModificationType
+          headerInjection {
+            key
+            value
+            headerCategory
+          }
+        }
+      }
+    }
+    block {
+      duration
+      eventSeverity
+      useThresholdDuration
+    }
+    markForTesting {
+      eventSeverity
+      agentEffect {
+        agentModifications {
+          agentModificationType
+          headerInjection {
+            key
+            value
+            headerCategory
+          }
+        }
+      }
+    }
+  }
+  thresholdConfigs {
+    apiAggregateType
+    rollingWindowThresholdConfig {
+      countAllowed
+      duration
+    }
+    dynamicThresholdConfig {
+      percentageExceedingMeanAllowed
+      meanCalculationDuration
+      duration
+    }
+    valueBasedThresholdConfig {
+      valueType
+      uniqueValuesAllowed
+      duration
+      sensitiveParamsEvaluationType
+    }
+    thresholdConfigType
+    userAggregateType
+  }
+}
+
+# Fragment for transactionActionConfigs
+fragment TransactionActionConfigFields on RateLimitingTransactionActionConfig {
+  action {
+    actionType
+    alert {
+      eventSeverity
+    }
+    allow {
+      duration
+    }
+    block {
+      duration
+      eventSeverity
+    }
+  }
+  expirationTimestamp
+}
+
+# Fragment for ruleConfigScope
+fragment RuleConfigScopeFields on RuleConfigScope {
+  environmentScope {
+    environmentIds
+  }
+}
+
+# Fragment for ruleStatus
+fragment RuleStatusFields on RateLimitingRuleStatus {
+  internal
+  ruleCreationSource
+}
+
+# Fragment for rateLimitingRules
+fragment RateLimitingRuleFields on RateLimitingRule {
+  category
+  description
+  enabled
+  id
+  name
+  labels {
+    key
+    value
+  }
+  thresholdActionConfigs {
+    ...ThresholdActionConfigFields
+  }
+  transactionActionConfigs {
+    ...TransactionActionConfigFields
+  }
+  ruleConfigScope {
+    ...RuleConfigScopeFields
+  }
+  ruleStatus {
+    ...RuleStatusFields
+  }
+  conditions {
+    leafCondition {
+      ...LeafConditionFields
+    }
+  }
+}
+
+
+query GetRateLimitingRulesName($category: [RateLimitingRuleCategory], $rateLimitingRulesFilter: InputRateLimitingRulesFilter) {
+  rateLimitingRules(category: $category, rateLimitingRulesFilter: $rateLimitingRulesFilter) {
+    count
+    total
+    results {
+      name
+      id
+    }
+  }
+}
+
+query GetRateLimitingDetails($category: [RateLimitingRuleCategory], $rateLimitingRulesFilter: InputRateLimitingRulesFilter) {
+  rateLimitingRules(category: $category, rateLimitingRulesFilter: $rateLimitingRulesFilter) {
+    count
+    total
+    results {
+      ...RateLimitingRuleFields
+    }
+  }
+}
+
+
+mutation CreateRateLimitingRule($input: InputRateLimitingRuleData!) {
+  createRateLimitingRule(rateLimitingRuleData: $input) {
+    ...RateLimitingRuleFields
+  }
+}
+
+mutation DeleteRateLimitingRule($id: String!){
+    deleteRateLimitingRule(id: $id){
+      success
+    }
+}
+
+mutation UpdateRateLimitingRule($input: InputRateLimitingRule!){
+  updateRateLimitingRule(rateLimitingRule: $input) {
+    ...RateLimitingRuleFields
+  } 
+}
+
+
+
