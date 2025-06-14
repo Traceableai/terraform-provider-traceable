@@ -21,12 +21,6 @@ func NewMaliciousIpTypeResource() resource.Resource {
 type MaliciousIpTypeResource struct {
 	client *graphql.Client
 }
-type MaliciousIpTypeResourceModel struct {
-	Id          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	IconType    types.String `tfsdk:"icon_type"`
-}
 
 func (r *MaliciousIpTypeResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_malicious_ip_type"
