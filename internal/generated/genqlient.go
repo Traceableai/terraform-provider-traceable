@@ -995,8 +995,8 @@ var AllApiNamingRuleConfigType = []ApiNamingRuleConfigType{
 	ApiNamingRuleConfigTypeSegmentMatching,
 }
 
-// ApiNamingRuleFeilds includes the GraphQL fields of ApiNamingRule requested by the fragment ApiNamingRuleFeilds.
-type ApiNamingRuleFeilds struct {
+// ApiNamingRuleFields includes the GraphQL fields of ApiNamingRule requested by the fragment ApiNamingRuleFields.
+type ApiNamingRuleFields struct {
 	Id string `json:"id"`
 	// Name of the api naming rule
 	Name string `json:"name"`
@@ -1007,140 +1007,140 @@ type ApiNamingRuleFeilds struct {
 	// Says if api naming rule is disabled
 	Disabled bool `json:"disabled"`
 	// Api naming rule config
-	ApiNamingRuleConfig ApiNamingRuleFeildsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
+	ApiNamingRuleConfig ApiNamingRuleFieldsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
 	// Filter to match the spans to apply the api naming rule
-	SpanFilter ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
+	SpanFilter ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
 }
 
-// GetId returns ApiNamingRuleFeilds.Id, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeilds) GetId() string { return v.Id }
+// GetId returns ApiNamingRuleFields.Id, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFields) GetId() string { return v.Id }
 
-// GetName returns ApiNamingRuleFeilds.Name, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeilds) GetName() string { return v.Name }
+// GetName returns ApiNamingRuleFields.Name, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFields) GetName() string { return v.Name }
 
-// GetCreationTime returns ApiNamingRuleFeilds.CreationTime, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeilds) GetCreationTime() string { return v.CreationTime }
+// GetCreationTime returns ApiNamingRuleFields.CreationTime, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFields) GetCreationTime() string { return v.CreationTime }
 
-// GetLastUpdatedTime returns ApiNamingRuleFeilds.LastUpdatedTime, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeilds) GetLastUpdatedTime() string { return v.LastUpdatedTime }
+// GetLastUpdatedTime returns ApiNamingRuleFields.LastUpdatedTime, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFields) GetLastUpdatedTime() string { return v.LastUpdatedTime }
 
-// GetDisabled returns ApiNamingRuleFeilds.Disabled, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeilds) GetDisabled() bool { return v.Disabled }
+// GetDisabled returns ApiNamingRuleFields.Disabled, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFields) GetDisabled() bool { return v.Disabled }
 
-// GetApiNamingRuleConfig returns ApiNamingRuleFeilds.ApiNamingRuleConfig, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeilds) GetApiNamingRuleConfig() ApiNamingRuleFeildsApiNamingRuleConfig {
+// GetApiNamingRuleConfig returns ApiNamingRuleFields.ApiNamingRuleConfig, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFields) GetApiNamingRuleConfig() ApiNamingRuleFieldsApiNamingRuleConfig {
 	return v.ApiNamingRuleConfig
 }
 
-// GetSpanFilter returns ApiNamingRuleFeilds.SpanFilter, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeilds) GetSpanFilter() ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter {
+// GetSpanFilter returns ApiNamingRuleFields.SpanFilter, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFields) GetSpanFilter() ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter {
 	return v.SpanFilter
 }
 
-// ApiNamingRuleFeildsApiNamingRuleConfig includes the requested fields of the GraphQL type ApiNamingRuleConfig.
+// ApiNamingRuleFieldsApiNamingRuleConfig includes the requested fields of the GraphQL type ApiNamingRuleConfig.
 // The GraphQL type's documentation follows.
 //
 // Api naming rule config. There may be multiple configs, but only the one
 // corresponding to the api naming rule config type would be non null
-type ApiNamingRuleFeildsApiNamingRuleConfig struct {
+type ApiNamingRuleFieldsApiNamingRuleConfig struct {
 	// Specifies the api naming rule config type
 	ApiNamingRuleConfigType ApiNamingRuleConfigType `json:"apiNamingRuleConfigType"`
 	// Segment matching based api naming rule config
-	SegmentMatchingBasedRuleConfig *ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig `json:"segmentMatchingBasedRuleConfig"`
+	SegmentMatchingBasedRuleConfig *ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig `json:"segmentMatchingBasedRuleConfig"`
 }
 
-// GetApiNamingRuleConfigType returns ApiNamingRuleFeildsApiNamingRuleConfig.ApiNamingRuleConfigType, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsApiNamingRuleConfig) GetApiNamingRuleConfigType() ApiNamingRuleConfigType {
+// GetApiNamingRuleConfigType returns ApiNamingRuleFieldsApiNamingRuleConfig.ApiNamingRuleConfigType, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsApiNamingRuleConfig) GetApiNamingRuleConfigType() ApiNamingRuleConfigType {
 	return v.ApiNamingRuleConfigType
 }
 
-// GetSegmentMatchingBasedRuleConfig returns ApiNamingRuleFeildsApiNamingRuleConfig.SegmentMatchingBasedRuleConfig, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsApiNamingRuleConfig) GetSegmentMatchingBasedRuleConfig() *ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig {
+// GetSegmentMatchingBasedRuleConfig returns ApiNamingRuleFieldsApiNamingRuleConfig.SegmentMatchingBasedRuleConfig, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsApiNamingRuleConfig) GetSegmentMatchingBasedRuleConfig() *ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig {
 	return v.SegmentMatchingBasedRuleConfig
 }
 
-// ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig includes the requested fields of the GraphQL type SegmentMatchingBasedRuleConfig.
+// ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig includes the requested fields of the GraphQL type SegmentMatchingBasedRuleConfig.
 // The GraphQL type's documentation follows.
 //
 // Segment matching based api naming rule config
-type ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig struct {
+type ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig struct {
 	// Regex patterns to be matched against
 	Regexes []*string `json:"regexes"`
 	// Values with which the corresponding regexes are to be replaces with
 	Values []*string `json:"values"`
 }
 
-// GetRegexes returns ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig.Regexes, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig) GetRegexes() []*string {
+// GetRegexes returns ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig.Regexes, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig) GetRegexes() []*string {
 	return v.Regexes
 }
 
-// GetValues returns ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig.Values, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsApiNamingRuleConfigSegmentMatchingBasedRuleConfig) GetValues() []*string {
+// GetValues returns ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig.Values, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsApiNamingRuleConfigSegmentMatchingBasedRuleConfig) GetValues() []*string {
 	return v.Values
 }
 
-// ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter includes the requested fields of the GraphQL type TraceableSpanProcessingRuleFilter.
-type ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter struct {
-	LogicalSpanFilter *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter `json:"logicalSpanFilter"`
+// ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter includes the requested fields of the GraphQL type TraceableSpanProcessingRuleFilter.
+type ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter struct {
+	LogicalSpanFilter *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter `json:"logicalSpanFilter"`
 }
 
-// GetLogicalSpanFilter returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter.LogicalSpanFilter, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter) GetLogicalSpanFilter() *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter {
+// GetLogicalSpanFilter returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter.LogicalSpanFilter, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter) GetLogicalSpanFilter() *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter {
 	return v.LogicalSpanFilter
 }
 
-// ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter includes the requested fields of the GraphQL type TraceableSpanProcessingLogicalFilter.
-type ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter struct {
+// ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter includes the requested fields of the GraphQL type TraceableSpanProcessingLogicalFilter.
+type ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter struct {
 	LogicalOperator LogicalOperator                                                                                                                                                    `json:"logicalOperator"`
-	SpanFilters     []*ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter `json:"spanFilters"`
+	SpanFilters     []*ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter `json:"spanFilters"`
 }
 
-// GetLogicalOperator returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter.LogicalOperator, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter) GetLogicalOperator() LogicalOperator {
+// GetLogicalOperator returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter.LogicalOperator, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter) GetLogicalOperator() LogicalOperator {
 	return v.LogicalOperator
 }
 
-// GetSpanFilters returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter.SpanFilters, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter) GetSpanFilters() []*ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter {
+// GetSpanFilters returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter.SpanFilters, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilter) GetSpanFilters() []*ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter {
 	return v.SpanFilters
 }
 
-// ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter includes the requested fields of the GraphQL type TraceableSpanProcessingRuleFilter.
-type ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter struct {
-	RelationalSpanFilter *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter `json:"relationalSpanFilter"`
+// ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter includes the requested fields of the GraphQL type TraceableSpanProcessingRuleFilter.
+type ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter struct {
+	RelationalSpanFilter *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter `json:"relationalSpanFilter"`
 }
 
-// GetRelationalSpanFilter returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter.RelationalSpanFilter, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter) GetRelationalSpanFilter() *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter {
+// GetRelationalSpanFilter returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter.RelationalSpanFilter, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilter) GetRelationalSpanFilter() *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter {
 	return v.RelationalSpanFilter
 }
 
-// ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter includes the requested fields of the GraphQL type TraceableSpanProcessingRelationalFilter.
-type ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter struct {
+// ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter includes the requested fields of the GraphQL type TraceableSpanProcessingRelationalFilter.
+type ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter struct {
 	RelationalOperator TraceableSpanProcessingRelationalOperator `json:"relationalOperator"`
 	Key                *string                                   `json:"key"`
 	Value              interface{}                               `json:"value"`
 	Field              *TraceableSpanProcessingFilterField       `json:"field"`
 }
 
-// GetRelationalOperator returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.RelationalOperator, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetRelationalOperator() TraceableSpanProcessingRelationalOperator {
+// GetRelationalOperator returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.RelationalOperator, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetRelationalOperator() TraceableSpanProcessingRelationalOperator {
 	return v.RelationalOperator
 }
 
-// GetKey returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.Key, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetKey() *string {
+// GetKey returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.Key, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetKey() *string {
 	return v.Key
 }
 
-// GetValue returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.Value, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetValue() interface{} {
+// GetValue returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.Value, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetValue() interface{} {
 	return v.Value
 }
 
-// GetField returns ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.Field, and is useful for accessing the field via an interface.
-func (v *ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetField() *TraceableSpanProcessingFilterField {
+// GetField returns ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter.Field, and is useful for accessing the field via an interface.
+func (v *ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilterLogicalSpanFilterTraceableSpanProcessingLogicalFilterSpanFiltersTraceableSpanProcessingRuleFilterRelationalSpanFilterTraceableSpanProcessingRelationalFilter) GetField() *TraceableSpanProcessingFilterField {
 	return v.Field
 }
 
@@ -1242,38 +1242,38 @@ var AllBlockingMetadataAnomalyDetectionConfigName = []BlockingMetadataAnomalyDet
 
 // CreateApiNamingRuleCreateApiNamingRule includes the requested fields of the GraphQL type ApiNamingRule.
 type CreateApiNamingRuleCreateApiNamingRule struct {
-	ApiNamingRuleFeilds `json:"-"`
+	ApiNamingRuleFields `json:"-"`
 }
 
 // GetId returns CreateApiNamingRuleCreateApiNamingRule.Id, and is useful for accessing the field via an interface.
-func (v *CreateApiNamingRuleCreateApiNamingRule) GetId() string { return v.ApiNamingRuleFeilds.Id }
+func (v *CreateApiNamingRuleCreateApiNamingRule) GetId() string { return v.ApiNamingRuleFields.Id }
 
 // GetName returns CreateApiNamingRuleCreateApiNamingRule.Name, and is useful for accessing the field via an interface.
-func (v *CreateApiNamingRuleCreateApiNamingRule) GetName() string { return v.ApiNamingRuleFeilds.Name }
+func (v *CreateApiNamingRuleCreateApiNamingRule) GetName() string { return v.ApiNamingRuleFields.Name }
 
 // GetCreationTime returns CreateApiNamingRuleCreateApiNamingRule.CreationTime, and is useful for accessing the field via an interface.
 func (v *CreateApiNamingRuleCreateApiNamingRule) GetCreationTime() string {
-	return v.ApiNamingRuleFeilds.CreationTime
+	return v.ApiNamingRuleFields.CreationTime
 }
 
 // GetLastUpdatedTime returns CreateApiNamingRuleCreateApiNamingRule.LastUpdatedTime, and is useful for accessing the field via an interface.
 func (v *CreateApiNamingRuleCreateApiNamingRule) GetLastUpdatedTime() string {
-	return v.ApiNamingRuleFeilds.LastUpdatedTime
+	return v.ApiNamingRuleFields.LastUpdatedTime
 }
 
 // GetDisabled returns CreateApiNamingRuleCreateApiNamingRule.Disabled, and is useful for accessing the field via an interface.
 func (v *CreateApiNamingRuleCreateApiNamingRule) GetDisabled() bool {
-	return v.ApiNamingRuleFeilds.Disabled
+	return v.ApiNamingRuleFields.Disabled
 }
 
 // GetApiNamingRuleConfig returns CreateApiNamingRuleCreateApiNamingRule.ApiNamingRuleConfig, and is useful for accessing the field via an interface.
-func (v *CreateApiNamingRuleCreateApiNamingRule) GetApiNamingRuleConfig() ApiNamingRuleFeildsApiNamingRuleConfig {
-	return v.ApiNamingRuleFeilds.ApiNamingRuleConfig
+func (v *CreateApiNamingRuleCreateApiNamingRule) GetApiNamingRuleConfig() ApiNamingRuleFieldsApiNamingRuleConfig {
+	return v.ApiNamingRuleFields.ApiNamingRuleConfig
 }
 
 // GetSpanFilter returns CreateApiNamingRuleCreateApiNamingRule.SpanFilter, and is useful for accessing the field via an interface.
-func (v *CreateApiNamingRuleCreateApiNamingRule) GetSpanFilter() ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter {
-	return v.ApiNamingRuleFeilds.SpanFilter
+func (v *CreateApiNamingRuleCreateApiNamingRule) GetSpanFilter() ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter {
+	return v.ApiNamingRuleFields.SpanFilter
 }
 
 func (v *CreateApiNamingRuleCreateApiNamingRule) UnmarshalJSON(b []byte) error {
@@ -1294,7 +1294,7 @@ func (v *CreateApiNamingRuleCreateApiNamingRule) UnmarshalJSON(b []byte) error {
 	}
 
 	err = json.Unmarshal(
-		b, &v.ApiNamingRuleFeilds)
+		b, &v.ApiNamingRuleFields)
 	if err != nil {
 		return err
 	}
@@ -1312,9 +1312,9 @@ type __premarshalCreateApiNamingRuleCreateApiNamingRule struct {
 
 	Disabled bool `json:"disabled"`
 
-	ApiNamingRuleConfig ApiNamingRuleFeildsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
+	ApiNamingRuleConfig ApiNamingRuleFieldsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
 
-	SpanFilter ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
+	SpanFilter ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
 }
 
 func (v *CreateApiNamingRuleCreateApiNamingRule) MarshalJSON() ([]byte, error) {
@@ -1328,13 +1328,13 @@ func (v *CreateApiNamingRuleCreateApiNamingRule) MarshalJSON() ([]byte, error) {
 func (v *CreateApiNamingRuleCreateApiNamingRule) __premarshalJSON() (*__premarshalCreateApiNamingRuleCreateApiNamingRule, error) {
 	var retval __premarshalCreateApiNamingRuleCreateApiNamingRule
 
-	retval.Id = v.ApiNamingRuleFeilds.Id
-	retval.Name = v.ApiNamingRuleFeilds.Name
-	retval.CreationTime = v.ApiNamingRuleFeilds.CreationTime
-	retval.LastUpdatedTime = v.ApiNamingRuleFeilds.LastUpdatedTime
-	retval.Disabled = v.ApiNamingRuleFeilds.Disabled
-	retval.ApiNamingRuleConfig = v.ApiNamingRuleFeilds.ApiNamingRuleConfig
-	retval.SpanFilter = v.ApiNamingRuleFeilds.SpanFilter
+	retval.Id = v.ApiNamingRuleFields.Id
+	retval.Name = v.ApiNamingRuleFields.Name
+	retval.CreationTime = v.ApiNamingRuleFields.CreationTime
+	retval.LastUpdatedTime = v.ApiNamingRuleFields.LastUpdatedTime
+	retval.Disabled = v.ApiNamingRuleFields.Disabled
+	retval.ApiNamingRuleConfig = v.ApiNamingRuleFields.ApiNamingRuleConfig
+	retval.SpanFilter = v.ApiNamingRuleFields.SpanFilter
 	return &retval, nil
 }
 
@@ -3314,42 +3314,42 @@ func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSet) GetResults() []*G
 
 // GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule includes the requested fields of the GraphQL type ApiNamingRule.
 type GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule struct {
-	ApiNamingRuleFeilds `json:"-"`
+	ApiNamingRuleFields `json:"-"`
 }
 
 // GetId returns GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule.Id, and is useful for accessing the field via an interface.
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetId() string {
-	return v.ApiNamingRuleFeilds.Id
+	return v.ApiNamingRuleFields.Id
 }
 
 // GetName returns GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule.Name, and is useful for accessing the field via an interface.
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetName() string {
-	return v.ApiNamingRuleFeilds.Name
+	return v.ApiNamingRuleFields.Name
 }
 
 // GetCreationTime returns GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule.CreationTime, and is useful for accessing the field via an interface.
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetCreationTime() string {
-	return v.ApiNamingRuleFeilds.CreationTime
+	return v.ApiNamingRuleFields.CreationTime
 }
 
 // GetLastUpdatedTime returns GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule.LastUpdatedTime, and is useful for accessing the field via an interface.
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetLastUpdatedTime() string {
-	return v.ApiNamingRuleFeilds.LastUpdatedTime
+	return v.ApiNamingRuleFields.LastUpdatedTime
 }
 
 // GetDisabled returns GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule.Disabled, and is useful for accessing the field via an interface.
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetDisabled() bool {
-	return v.ApiNamingRuleFeilds.Disabled
+	return v.ApiNamingRuleFields.Disabled
 }
 
 // GetApiNamingRuleConfig returns GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule.ApiNamingRuleConfig, and is useful for accessing the field via an interface.
-func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetApiNamingRuleConfig() ApiNamingRuleFeildsApiNamingRuleConfig {
-	return v.ApiNamingRuleFeilds.ApiNamingRuleConfig
+func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetApiNamingRuleConfig() ApiNamingRuleFieldsApiNamingRuleConfig {
+	return v.ApiNamingRuleFields.ApiNamingRuleConfig
 }
 
 // GetSpanFilter returns GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule.SpanFilter, and is useful for accessing the field via an interface.
-func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetSpanFilter() ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter {
-	return v.ApiNamingRuleFeilds.SpanFilter
+func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) GetSpanFilter() ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter {
+	return v.ApiNamingRuleFields.SpanFilter
 }
 
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) UnmarshalJSON(b []byte) error {
@@ -3370,7 +3370,7 @@ func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRul
 	}
 
 	err = json.Unmarshal(
-		b, &v.ApiNamingRuleFeilds)
+		b, &v.ApiNamingRuleFields)
 	if err != nil {
 		return err
 	}
@@ -3388,9 +3388,9 @@ type __premarshalGetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiN
 
 	Disabled bool `json:"disabled"`
 
-	ApiNamingRuleConfig ApiNamingRuleFeildsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
+	ApiNamingRuleConfig ApiNamingRuleFieldsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
 
-	SpanFilter ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
+	SpanFilter ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
 }
 
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) MarshalJSON() ([]byte, error) {
@@ -3404,13 +3404,13 @@ func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRul
 func (v *GetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule) __premarshalJSON() (*__premarshalGetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule, error) {
 	var retval __premarshalGetApiNamingRuleApiNamingRulesApiNamingRuleResultSetResultsApiNamingRule
 
-	retval.Id = v.ApiNamingRuleFeilds.Id
-	retval.Name = v.ApiNamingRuleFeilds.Name
-	retval.CreationTime = v.ApiNamingRuleFeilds.CreationTime
-	retval.LastUpdatedTime = v.ApiNamingRuleFeilds.LastUpdatedTime
-	retval.Disabled = v.ApiNamingRuleFeilds.Disabled
-	retval.ApiNamingRuleConfig = v.ApiNamingRuleFeilds.ApiNamingRuleConfig
-	retval.SpanFilter = v.ApiNamingRuleFeilds.SpanFilter
+	retval.Id = v.ApiNamingRuleFields.Id
+	retval.Name = v.ApiNamingRuleFields.Name
+	retval.CreationTime = v.ApiNamingRuleFields.CreationTime
+	retval.LastUpdatedTime = v.ApiNamingRuleFields.LastUpdatedTime
+	retval.Disabled = v.ApiNamingRuleFields.Disabled
+	retval.ApiNamingRuleConfig = v.ApiNamingRuleFields.ApiNamingRuleConfig
+	retval.SpanFilter = v.ApiNamingRuleFields.SpanFilter
 	return &retval, nil
 }
 
@@ -12600,38 +12600,38 @@ func (v *UpdateApiNamingRuleResponse) GetUpdateApiNamingRule() UpdateApiNamingRu
 
 // UpdateApiNamingRuleUpdateApiNamingRule includes the requested fields of the GraphQL type ApiNamingRule.
 type UpdateApiNamingRuleUpdateApiNamingRule struct {
-	ApiNamingRuleFeilds `json:"-"`
+	ApiNamingRuleFields `json:"-"`
 }
 
 // GetId returns UpdateApiNamingRuleUpdateApiNamingRule.Id, and is useful for accessing the field via an interface.
-func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetId() string { return v.ApiNamingRuleFeilds.Id }
+func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetId() string { return v.ApiNamingRuleFields.Id }
 
 // GetName returns UpdateApiNamingRuleUpdateApiNamingRule.Name, and is useful for accessing the field via an interface.
-func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetName() string { return v.ApiNamingRuleFeilds.Name }
+func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetName() string { return v.ApiNamingRuleFields.Name }
 
 // GetCreationTime returns UpdateApiNamingRuleUpdateApiNamingRule.CreationTime, and is useful for accessing the field via an interface.
 func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetCreationTime() string {
-	return v.ApiNamingRuleFeilds.CreationTime
+	return v.ApiNamingRuleFields.CreationTime
 }
 
 // GetLastUpdatedTime returns UpdateApiNamingRuleUpdateApiNamingRule.LastUpdatedTime, and is useful for accessing the field via an interface.
 func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetLastUpdatedTime() string {
-	return v.ApiNamingRuleFeilds.LastUpdatedTime
+	return v.ApiNamingRuleFields.LastUpdatedTime
 }
 
 // GetDisabled returns UpdateApiNamingRuleUpdateApiNamingRule.Disabled, and is useful for accessing the field via an interface.
 func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetDisabled() bool {
-	return v.ApiNamingRuleFeilds.Disabled
+	return v.ApiNamingRuleFields.Disabled
 }
 
 // GetApiNamingRuleConfig returns UpdateApiNamingRuleUpdateApiNamingRule.ApiNamingRuleConfig, and is useful for accessing the field via an interface.
-func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetApiNamingRuleConfig() ApiNamingRuleFeildsApiNamingRuleConfig {
-	return v.ApiNamingRuleFeilds.ApiNamingRuleConfig
+func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetApiNamingRuleConfig() ApiNamingRuleFieldsApiNamingRuleConfig {
+	return v.ApiNamingRuleFields.ApiNamingRuleConfig
 }
 
 // GetSpanFilter returns UpdateApiNamingRuleUpdateApiNamingRule.SpanFilter, and is useful for accessing the field via an interface.
-func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetSpanFilter() ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter {
-	return v.ApiNamingRuleFeilds.SpanFilter
+func (v *UpdateApiNamingRuleUpdateApiNamingRule) GetSpanFilter() ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter {
+	return v.ApiNamingRuleFields.SpanFilter
 }
 
 func (v *UpdateApiNamingRuleUpdateApiNamingRule) UnmarshalJSON(b []byte) error {
@@ -12652,7 +12652,7 @@ func (v *UpdateApiNamingRuleUpdateApiNamingRule) UnmarshalJSON(b []byte) error {
 	}
 
 	err = json.Unmarshal(
-		b, &v.ApiNamingRuleFeilds)
+		b, &v.ApiNamingRuleFields)
 	if err != nil {
 		return err
 	}
@@ -12670,9 +12670,9 @@ type __premarshalUpdateApiNamingRuleUpdateApiNamingRule struct {
 
 	Disabled bool `json:"disabled"`
 
-	ApiNamingRuleConfig ApiNamingRuleFeildsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
+	ApiNamingRuleConfig ApiNamingRuleFieldsApiNamingRuleConfig `json:"apiNamingRuleConfig"`
 
-	SpanFilter ApiNamingRuleFeildsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
+	SpanFilter ApiNamingRuleFieldsSpanFilterTraceableSpanProcessingRuleFilter `json:"spanFilter"`
 }
 
 func (v *UpdateApiNamingRuleUpdateApiNamingRule) MarshalJSON() ([]byte, error) {
@@ -12686,13 +12686,13 @@ func (v *UpdateApiNamingRuleUpdateApiNamingRule) MarshalJSON() ([]byte, error) {
 func (v *UpdateApiNamingRuleUpdateApiNamingRule) __premarshalJSON() (*__premarshalUpdateApiNamingRuleUpdateApiNamingRule, error) {
 	var retval __premarshalUpdateApiNamingRuleUpdateApiNamingRule
 
-	retval.Id = v.ApiNamingRuleFeilds.Id
-	retval.Name = v.ApiNamingRuleFeilds.Name
-	retval.CreationTime = v.ApiNamingRuleFeilds.CreationTime
-	retval.LastUpdatedTime = v.ApiNamingRuleFeilds.LastUpdatedTime
-	retval.Disabled = v.ApiNamingRuleFeilds.Disabled
-	retval.ApiNamingRuleConfig = v.ApiNamingRuleFeilds.ApiNamingRuleConfig
-	retval.SpanFilter = v.ApiNamingRuleFeilds.SpanFilter
+	retval.Id = v.ApiNamingRuleFields.Id
+	retval.Name = v.ApiNamingRuleFields.Name
+	retval.CreationTime = v.ApiNamingRuleFields.CreationTime
+	retval.LastUpdatedTime = v.ApiNamingRuleFields.LastUpdatedTime
+	retval.Disabled = v.ApiNamingRuleFields.Disabled
+	retval.ApiNamingRuleConfig = v.ApiNamingRuleFields.ApiNamingRuleConfig
+	retval.SpanFilter = v.ApiNamingRuleFields.SpanFilter
 	return &retval, nil
 }
 
@@ -13964,10 +13964,10 @@ func AnomalyDetectionRuleConfigs(
 const CreateApiNamingRule_Operation = `
 mutation CreateApiNamingRule ($input: InputApiNamingRuleCreate!) {
 	createApiNamingRule(input: $input) {
-		... ApiNamingRuleFeilds
+		... ApiNamingRuleFields
 	}
 }
-fragment ApiNamingRuleFeilds on ApiNamingRule {
+fragment ApiNamingRuleFields on ApiNamingRule {
 	id
 	name
 	creationTime
@@ -15025,11 +15025,11 @@ const GetApiNamingRule_Operation = `
 query GetApiNamingRule {
 	apiNamingRules {
 		results {
-			... ApiNamingRuleFeilds
+			... ApiNamingRuleFields
 		}
 	}
 }
-fragment ApiNamingRuleFeilds on ApiNamingRule {
+fragment ApiNamingRuleFields on ApiNamingRule {
 	id
 	name
 	creationTime
@@ -16225,10 +16225,10 @@ func UpdateAnomalyRuleConfig(
 const UpdateApiNamingRule_Operation = `
 mutation UpdateApiNamingRule ($input: InputApiNamingRuleUpdate!) {
 	updateApiNamingRule(input: $input) {
-		... ApiNamingRuleFeilds
+		... ApiNamingRuleFields
 	}
 }
-fragment ApiNamingRuleFeilds on ApiNamingRule {
+fragment ApiNamingRuleFields on ApiNamingRule {
 	id
 	name
 	creationTime

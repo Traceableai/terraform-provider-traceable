@@ -1,4 +1,4 @@
-fragment ApiNamingRuleFeilds on ApiNamingRule{
+fragment ApiNamingRuleFields on ApiNamingRule{
       id
       name
       creationTime
@@ -41,19 +41,19 @@ query GetApiNamingRuleId {
 query GetApiNamingRule {
   apiNamingRules {
     results{
-      ...ApiNamingRuleFeilds
+      ...ApiNamingRuleFields
     }
   }
 }
 
 mutation CreateApiNamingRule($input: InputApiNamingRuleCreate!) {
   createApiNamingRule(input: $input) {
-    ...ApiNamingRuleFeilds
+    ...ApiNamingRuleFields
   }
 }
 mutation UpdateApiNamingRule($input: InputApiNamingRuleUpdate!) {
   updateApiNamingRule(input: $input) {
-    ...ApiNamingRuleFeilds
+    ...ApiNamingRuleFields
   }
 }
 
