@@ -199,7 +199,9 @@ func convertApiNamingModelToCreateInput(ctx context.Context, data *models.ApiNam
 	if errInSpanFilter != nil {
 		return nil, errInSpanFilter
 	}
-	input.SpanFilter = *spanFilter
+	if spanFilter!=nil{
+		input.SpanFilter=*spanFilter
+	}
 
 	apiNamingConfig,errInApiNamingConfig := buildApiNamingRuleConfig(ctx,data)
 	if errInApiNamingConfig != nil {
@@ -213,7 +215,7 @@ func convertApiNamingModelToCreateInput(ctx context.Context, data *models.ApiNam
 
 func buildSpanFilter(ctx context.Context, data *models.ApiNamingModel) (*generated.InputTraceableSpanProcessingRuleFilter,error){
 	var spanFilter = generated.InputTraceableSpanProcessingRuleFilter{}
-	if HasValue(data.EnvironmentNames) && HasValue(data.ServiceNames) {
+	if HasValue(data.EnvironmentNames) || HasValue(data.ServiceNames) {
 		environments, _ := utils.ConvertSetToStrPointer(data.EnvironmentNames)
 		services, _ := utils.ConvertSetToStrPointer(data.ServiceNames)
 		spanFilters:=[]*generated.InputTraceableSpanProcessingRuleFilter{}
@@ -272,7 +274,9 @@ func convertApiNamingModelToUpdateInput(ctx context.Context, data *models.ApiNam
 	if errInSpanFilter != nil {
 		return nil, errInSpanFilter
 	}
-	input.SpanFilter = *spanFilter
+	if spanFilter!=nil{
+		input.SpanFilter=*spanFilter
+	}
 
 	apiNamingConfig,errInApiNamingConfig := buildApiNamingRuleConfig(ctx,data)
 	if errInApiNamingConfig != nil {
@@ -283,92 +287,75 @@ func convertApiNamingModelToUpdateInput(ctx context.Context, data *models.ApiNam
 }
 
 func buildApiNamingRuleConfig(ctx context.Context, data *models.ApiNamingModel) (*generated.InputApiNamingRuleConfig, error) {
-	if HasValue(data.Regexes) && HasValue(data.Values) {
-		regexes, _ := utils.ConvertSetToStrPointer(data.Regexes)
-		values, _ := utils.ConvertSetToStrPointer(data.Values)
-		if len(regexes)==0 || len(values)==0{
-			return nil,utils.NewInvalidError("regexes values","both must be non empty")
-		}
-		if len(regexes) != len(values) {
-			return nil,utils.NewInvalidError("regexes values","both must be of equal lengths")
-		}
-		ruleConfigType := generated.ApiNamingRuleConfigTypeSegmentMatching
-		return &generated.InputApiNamingRuleConfig{
-			ApiNamingRuleConfigType: ruleConfigType,
-			SegmentMatchingBasedRuleConfig : &generated.InputSegmentMatchingBasedRuleConfig{
-				Regexes: regexes,
-				Values: values,
-			},
-		}, nil
+	regexes, _ := utils.ConvertSetToStrPointer(data.Regexes)
+	values, _ := utils.ConvertSetToStrPointer(data.Values)
+	if len(regexes)==0 || len(values)==0{
+		return nil,utils.NewInvalidError("regexes values","both must be non empty")
 	}
-	return nil, nil
+	if len(regexes) != len(values) {
+		return nil,utils.NewInvalidError("regexes values","both must be of equal lengths")
+	}
+	ruleConfigType := generated.ApiNamingRuleConfigTypeSegmentMatching
+	return &generated.InputApiNamingRuleConfig{
+		ApiNamingRuleConfigType: ruleConfigType,
+		SegmentMatchingBasedRuleConfig : &generated.InputSegmentMatchingBasedRuleConfig{
+			Regexes: regexes,
+			Values: values,
+		},
+	}, nil
 }
 
-func getApiNamingRuleById(ruleId string, ctx context.Context, r graphql.Client) (*generated.ApiNamingRuleFeilds, error) {
+func getApiNamingRuleById(ruleId string, ctx context.Context, r graphql.Client) (*generated. ApiNamingRuleFields, error) {
 	response, err := generated.GetApiNamingRule(ctx, r)
 	if err != nil {
 		return nil, err
 	}
 	for _, rule := range response.ApiNamingRules.Results {
 		if rule.Id == ruleId {
-			return &rule.ApiNamingRuleFeilds, nil
+			return &rule.ApiNamingRuleFields, nil
 		}
 	}
 	return nil, nil
 }
 
-func convertApiNamingFieldsToModel(ctx context.Context,data *generated.ApiNamingRuleFeilds) (*models.ApiNamingModel, error) {
+func convertApiNamingFieldsToModel(ctx context.Context,data *generated.ApiNamingRuleFields) (*models.ApiNamingModel, error) {
 	finalModel := &models.ApiNamingModel{}
-	fmt.Printf("this is data %s",data)
 	finalModel.Name=types.StringValue(data.Name)
 	finalModel.Id=types.StringValue(data.Id)
 	finalModel.Disabled=types.BoolValue(data.Disabled)
+	emptyArray:=[]*string{}
 	if HasValue(data.SpanFilter){
 		serviceNameFeild := generated.TraceableSpanProcessingFilterFieldServiceName
 		envNameFeild := generated.TraceableSpanProcessingFilterFieldEnvironmentName
-		spanFilters:=data.SpanFilter.LogicalSpanFilter.GetSpanFilters()
-		for _, spanFilterObj := range spanFilters{
-			field := spanFilterObj.RelationalSpanFilter.GetField()
-			if field == &serviceNameFeild {
-				interfaceSlice := spanFilterObj.RelationalSpanFilter.Value.([]interface{})
-				fmt.Printf("interace %v",interfaceSlice)
-
+		if HasValue(data.SpanFilter.LogicalSpanFilter) {
+			spanFilters:=data.SpanFilter.LogicalSpanFilter.GetSpanFilters()
+			for _, spanFilterObj := range spanFilters{
+				field := *spanFilterObj.RelationalSpanFilter.GetField()
+				interfaceSlice := spanFilterObj.RelationalSpanFilter.GetValue().([]interface{})
 				var stringPtrs []*string
 				for _, item := range interfaceSlice {
-					strPtr, ok := item.(*string)
+					strPtr, ok := item.(string)
 					if !ok {
-						return nil, fmt.Errorf("expected *string in slice but got %T", item)
+						return nil, fmt.Errorf("expected string in slice but got %T", item)
 					}
-					stringPtrs = append(stringPtrs, strPtr)
+					stringPtrs = append(stringPtrs, &strPtr)
 				}
-				fmt.Printf("this is svc name %v",stringPtrs)
-				svc, err := utils.ConvertStringPtrToTerraformSet(stringPtrs)
+				finalValue, err := utils.ConvertStringPtrToTerraformSet(stringPtrs)
 				if err != nil {
 					return nil, fmt.Errorf("failed to convert service names: %w", err)
 				}
-				finalModel.ServiceNames=svc
-			}else if field == &envNameFeild {
-				interfaceSlice := spanFilterObj.RelationalSpanFilter.Value.([]interface{})
-				fmt.Printf("interace %v",interfaceSlice)
-
-				var stringPtrs []*string
-				for _, item := range interfaceSlice {
-					strPtr, ok := item.(*string)
-					if !ok {
-						return nil, fmt.Errorf("expected *string in slice but got %T", item)
-					}
-					stringPtrs = append(stringPtrs, strPtr)
+				if field == serviceNameFeild {
+					finalModel.ServiceNames=finalValue
+					finalModel.EnvironmentNames,_ = utils.ConvertCustomStringPtrsToTerraformSet(emptyArray)
+				}else if field == envNameFeild {
+					finalModel.EnvironmentNames=finalValue
+					finalModel.ServiceNames,_ = utils.ConvertCustomStringPtrsToTerraformSet(emptyArray)
 				}
-				env, err := utils.ConvertStringPtrToTerraformSet(stringPtrs)
-				if err != nil {
-					return nil, fmt.Errorf("failed to convert service names: %w", err)
-				}
-				finalModel.EnvironmentNames=env
 			}
+		}else{
+			finalModel.ServiceNames,_ = utils.ConvertCustomStringPtrsToTerraformSet(emptyArray)
+			finalModel.EnvironmentNames,_ = utils.ConvertCustomStringPtrsToTerraformSet(emptyArray)
 		}
-	}else{
-		finalModel.ServiceNames=types.SetNull(types.StringType)
-		finalModel.EnvironmentNames=types.SetNull(types.StringType)
 	}
 	if HasValue(data.ApiNamingRuleConfig){
 		regex := data.ApiNamingRuleConfig.SegmentMatchingBasedRuleConfig.GetRegexes()
