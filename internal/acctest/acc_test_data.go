@@ -484,3 +484,13 @@ const DLP_REQ_BASED = `resource "traceable_data_loss_prevention_request_based" "
     }
   }
 }`
+
+
+const API_NAMING=`resource "traceable_api_naming" "test" {
+  name = "%s"
+  disabled = %t
+  service_names=["nginx"]
+  environment_names=[] #empty for all env
+  values=["someval"]
+  regexes=["namedep"]
+}`
