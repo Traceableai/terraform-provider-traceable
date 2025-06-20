@@ -3,4 +3,3 @@ terraform.tfstate*
 .terraform*
 dist/
 .env
-main.tf
