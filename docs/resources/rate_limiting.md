@@ -10,7 +10,7 @@ description: |-
 
 Traceable Rate Limiting Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_rate_limiting" "test"{
     name = "test-rule"

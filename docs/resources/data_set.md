@@ -10,7 +10,7 @@ description: |-
 
 Traceable DataSet
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_data_set" "test" {
   name        = "test-dataset"

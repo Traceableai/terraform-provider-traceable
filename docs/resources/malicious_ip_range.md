@@ -10,7 +10,7 @@ description: |-
 
 Traceable Malicious IP Range Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_malicious_ip_range" "block_sample"{
     name = "traceable-source"

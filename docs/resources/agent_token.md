@@ -10,7 +10,7 @@ description: |-
 
 Traceable Agent Token Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_agent_token" "example" {
   name = "test-token"

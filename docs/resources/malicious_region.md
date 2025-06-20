@@ -10,7 +10,7 @@ description: |-
 
 Traceable Malicious Region Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_malicious_region" "sample"{
     name = "mal_region"

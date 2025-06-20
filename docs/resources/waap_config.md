@@ -10,7 +10,7 @@ description: |-
 
 Manages a waap config to enable/disable
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_waap_config" "test" {
   environment = "test-env"

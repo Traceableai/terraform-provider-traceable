@@ -10,7 +10,7 @@ description: |-
 
 Traceable Data Loss Prevention Request Based Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_data_loss_prevention_request_based" "test" {
   name         = "test-rule"
