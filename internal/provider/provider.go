@@ -128,6 +128,7 @@ func (p *traceableProvider) Resources(ctx context.Context) []func() resource.Res
 		resources.NewWaapConfigResource,
 		resources.NewMaliciousEmailDomainResource,
 		resources.NewApiNamingResource,
+		resources.NewAgentTokenResource,
 	}
 }
 

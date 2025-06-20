@@ -1,0 +1,43 @@
+fragment AgentTokenCreateFields on AgentToken {
+  id
+  name
+  token
+  createdBy
+  creationTimestamp
+}
+
+fragment AgentTokenUpdateFields on AgentTokenMetadata {
+  id
+  name
+}
+
+query GetAgentToken {
+  agentTokenMetadata {
+    results {
+      id
+      name
+      createdBy
+      creationTimestamp
+      lastUsedTimestamp
+    }
+    total
+  }
+}
+
+mutation CreateAgentToken($input: InputCreateAgentTokenInput!) {
+  createAgentToken(input: $input) {
+    ...AgentTokenCreateFields
+  }
+}
+
+mutation UpdateAgentToken($input: InputUpdateAgentTokenMetadataInput!) {
+  updateAgentTokenMetadata(input: $input) {
+    ...AgentTokenUpdateFields
+  }
+}
+
+mutation DeleteAgentToken($input: InputDeleteAgentTokenInput!) {
+  deleteAgentToken(input: $input) {
+    id
+  }
+}
