@@ -1,0 +1,64 @@
+fragment ApiNamingRuleFields on ApiNamingRule{
+      id
+      name
+      creationTime
+      lastUpdatedTime
+      disabled
+      apiNamingRuleConfig {
+        apiNamingRuleConfigType
+        segmentMatchingBasedRuleConfig {
+          regexes
+          values
+        }
+      }
+      spanFilter {
+        logicalSpanFilter {
+          logicalOperator
+          spanFilters {
+            relationalSpanFilter {
+              relationalOperator
+              key
+              value
+              field
+              
+            }
+          }
+        }
+      }
+}
+
+
+
+query GetApiNamingRuleId {
+  apiNamingRules {
+    results{
+      id
+      name
+    }
+  }
+}
+
+query GetApiNamingRule {
+  apiNamingRules {
+    results{
+      ...ApiNamingRuleFields
+    }
+  }
+}
+
+mutation CreateApiNamingRule($input: InputApiNamingRuleCreate!) {
+  createApiNamingRule(input: $input) {
+    ...ApiNamingRuleFields
+  }
+}
+mutation UpdateApiNamingRule($input: InputApiNamingRuleUpdate!) {
+  updateApiNamingRule(input: $input) {
+    ...ApiNamingRuleFields
+  }
+}
+
+mutation DeleteApiNamingRule($input: InputApiNamingRuleDelete!) {
+  deleteApiNamingRule(input: $input) {
+    success
+  }
+}

@@ -10,7 +10,7 @@ description: |-
 
 Traceable Malicious Email Domain Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_malicious_email_domain" "test" {
     name = "testrule"

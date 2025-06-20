@@ -10,7 +10,7 @@ description: |-
 
 Traceable Enumeration Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_enumeration" "test"{
     name = "enumeration-test-rule"

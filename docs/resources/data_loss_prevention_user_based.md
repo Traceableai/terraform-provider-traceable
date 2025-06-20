@@ -10,18 +10,18 @@ description: |-
 
 Traceable DLP User Based
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_data_loss_prevention_user_based" "test" {
-  name         = "%s"
+  name         = "sample-dlp-user-based-rule"
   description  = "Example DLP user-based rule"
   enabled      = true
   environments = ["dev", "prod"]
 
   action = {
     action_type    = "BLOCK"  
-    duration     = "%s"
-    event_severity = "%s"    
+    duration     = "PT60S"
+    event_severity = "MEDIUM"    
   }
      threshold_configs=[
          {

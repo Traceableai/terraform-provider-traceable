@@ -10,7 +10,7 @@ description: |-
 
 Traceable Malicious IP Type Resource
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_malicious_ip_type" "sample"{
     name = "mal_ip_type"

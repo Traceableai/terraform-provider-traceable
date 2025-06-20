@@ -10,7 +10,7 @@ description: |-
 
 Manages a custom signature rule
 
-##Example Usage
+## Example Usage
 ```
 resource "traceable_custom_signature" "test" {
   name         = "test-rule"         
@@ -27,19 +27,6 @@ resource "traceable_custom_signature" "test" {
         match_value          = "secret"          
       }
     ]
-    custom_sec_rule = <<EOF
-    SecRule REQUEST_HEADERS:key-sec "@rx val-sec" \
-    "id:92100120,\
-    phase:2,\
-    block,\
-    msg:'Test sec Rule',\
-    tag:'attack-protocol',\
-    tag:'traceable/labels/OWASP_2021:A4,CWE:444,OWASP_API_2019:API8',\
-    tag:'traceable/severity/HIGH',\
-    tag:'traceable/type/safe,block',\
-    severity:'CRITICAL',\
-    setvar:'tx.anomaly_score_pl1=+tx.critical_anomaly_score'"
-    EOF
   }
 
   action = {
