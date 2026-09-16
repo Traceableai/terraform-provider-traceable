@@ -2,10 +2,13 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/Khan/genqlient/graphql"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 type InvalidFieldError struct {
@@ -46,7 +49,8 @@ func AddError(ctx context.Context, resp *diag.Diagnostics, err error) {
 			return
 
 		default:
-			resp.AddError("Internal provider error", "An unexpected error occurred. Please contact support or upgrade to the latest version.")
+			resp.AddError("API error", gqlErr.Error())
+			return
 
 		}
 	}
@@ -56,8 +60,33 @@ func AddError(ctx context.Context, resp *diag.Diagnostics, err error) {
 		return
 	}
 
-	resp.AddError("Internal provider error", "An unexpected error occurred. Please contact support or upgrade to the latest version.")
+	var gqlErrs gqlerror.List
+	if errors.As(err, &gqlErrs) {
+		resp.AddError("API error", formatGqlErrors(gqlErrs))
+		return
+	}
+
+	resp.AddError("API error", err.Error())
 
 	return
 
+}
+
+// formatGqlErrors renders each GraphQL error's message plus any extensions
+// (e.g. classification, code) the API attached, since gqlerror.List.Error()
+// discards Extensions entirely.
+func formatGqlErrors(errs gqlerror.List) string {
+	var lines []string
+	for _, e := range errs {
+		line := e.Message
+		if len(e.Extensions) > 0 {
+			var extParts []string
+			for k, v := range e.Extensions {
+				extParts = append(extParts, fmt.Sprintf("%s=%v", k, v))
+			}
+			line = fmt.Sprintf("%s (%s)", line, strings.Join(extParts, ", "))
+		}
+		lines = append(lines, line)
+	}
+	return strings.Join(lines, "\n")
 }
