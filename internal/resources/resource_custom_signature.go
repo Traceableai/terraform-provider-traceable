@@ -246,7 +246,7 @@ func convertCustomSignatureFieldsToModel(ctx context.Context, data *generated.Cu
 				requestReponseModel = append(requestReponseModel, models.RequestResponseModel{
 					MatchCategory:      types.StringValue(string(*matchCategory)),
 					MatchKey:           types.StringValue(string(matchKey)),
-					ValueMatchOperator: types.StringValue(string(valueMatchOperator)),
+					ValueMatchOperator: types.StringValue(string(*valueMatchOperator)),
 					MatchValue:         types.StringValue(*matchValue),
 					KeyValueTag:        types.StringNull(),
 					KeyMatchOperator:   types.StringNull(),
@@ -552,7 +552,7 @@ func convertToCustomSignatureRuleDefination(data *models.CustomSignatureModel) (
 							MatchCategory: &matchCategory,
 							MatchValue:    &matchValue,
 							MatchKey:      matchKey,
-							MatchOperator: valueMatchOperator,
+							MatchOperator: &valueMatchOperator,
 						},
 					}
 				} else {

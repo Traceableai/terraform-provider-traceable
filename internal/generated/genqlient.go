@@ -119,6 +119,10 @@ const (
 	AnomalyDetectionConfigTypeCustomRules AnomalyDetectionConfigType = "CUSTOM_RULES"
 	// VOLUMETRIC
 	AnomalyDetectionConfigTypeVolumetric AnomalyDetectionConfigType = "VOLUMETRIC"
+	// GEN_AI
+	AnomalyDetectionConfigTypeGenAi AnomalyDetectionConfigType = "GEN_AI"
+	// API_PROTECTION
+	AnomalyDetectionConfigTypeApiProtection AnomalyDetectionConfigType = "API_PROTECTION"
 )
 
 var AllAnomalyDetectionConfigType = []AnomalyDetectionConfigType{
@@ -131,6 +135,8 @@ var AllAnomalyDetectionConfigType = []AnomalyDetectionConfigType{
 	AnomalyDetectionConfigTypeBlockingMetadata,
 	AnomalyDetectionConfigTypeCustomRules,
 	AnomalyDetectionConfigTypeVolumetric,
+	AnomalyDetectionConfigTypeGenAi,
+	AnomalyDetectionConfigTypeApiProtection,
 }
 
 // AnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsAnomalyDetectionRuleConfigsResultSet includes the requested fields of the GraphQL type AnomalyDetectionRuleConfigsResultSet.
@@ -310,11 +316,14 @@ const (
 	AnomalyDetectionTypeApiProtection AnomalyDetectionType = "API_PROTECTION"
 	// WAF
 	AnomalyDetectionTypeWaf AnomalyDetectionType = "WAF"
+	// AI_APPLICATION_PROTECTION
+	AnomalyDetectionTypeAiApplicationProtection AnomalyDetectionType = "AI_APPLICATION_PROTECTION"
 )
 
 var AllAnomalyDetectionType = []AnomalyDetectionType{
 	AnomalyDetectionTypeApiProtection,
 	AnomalyDetectionTypeWaf,
+	AnomalyDetectionTypeAiApplicationProtection,
 }
 
 type AnomalyEventFamily string
@@ -340,6 +349,8 @@ const (
 	AnomalyEventFamilyCustomSignature AnomalyEventFamily = "CUSTOM_SIGNATURE"
 	// MALICIOUS_SOURCES
 	AnomalyEventFamilyMaliciousSources AnomalyEventFamily = "MALICIOUS_SOURCES"
+	// GEN_AI
+	AnomalyEventFamilyGenAi AnomalyEventFamily = "GEN_AI"
 )
 
 var AllAnomalyEventFamily = []AnomalyEventFamily{
@@ -353,6 +364,7 @@ var AllAnomalyEventFamily = []AnomalyEventFamily{
 	AnomalyEventFamilyRateLimit,
 	AnomalyEventFamilyCustomSignature,
 	AnomalyEventFamilyMaliciousSources,
+	AnomalyEventFamilyGenAi,
 }
 
 type AnomalyEventScoreCategory string
@@ -940,6 +952,8 @@ const (
 	AnomalySubRuleActionMonitor AnomalySubRuleAction = "MONITOR"
 	// BLOCK
 	AnomalySubRuleActionBlock AnomalySubRuleAction = "BLOCK"
+	// TESTING
+	AnomalySubRuleActionTesting AnomalySubRuleAction = "TESTING"
 )
 
 var AllAnomalySubRuleAction = []AnomalySubRuleAction{
@@ -947,6 +961,7 @@ var AllAnomalySubRuleAction = []AnomalySubRuleAction{
 	AnomalySubRuleActionDisable,
 	AnomalySubRuleActionMonitor,
 	AnomalySubRuleActionBlock,
+	AnomalySubRuleActionTesting,
 }
 
 type AnomalySubRuleType string
@@ -997,6 +1012,8 @@ const (
 	ApiDefinitionMetadataAnomalyDetectionConfigNameJwtAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "JWT_ANOMALY_CONFIG"
 	// SPECIAL_CHARACTER_ANOMALY_CONFIG
 	ApiDefinitionMetadataAnomalyDetectionConfigNameSpecialCharacterAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "SPECIAL_CHARACTER_ANOMALY_CONFIG"
+	// GQLA_ANOMALY_CONFIG
+	ApiDefinitionMetadataAnomalyDetectionConfigNameGqlaAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "GQLA_ANOMALY_CONFIG"
 	// CONTENT_EXPLOSION_ANOMALY_CONFIG
 	ApiDefinitionMetadataAnomalyDetectionConfigNameContentExplosionAnomalyConfig ApiDefinitionMetadataAnomalyDetectionConfigName = "CONTENT_EXPLOSION_ANOMALY_CONFIG"
 )
@@ -1016,6 +1033,7 @@ var AllApiDefinitionMetadataAnomalyDetectionConfigName = []ApiDefinitionMetadata
 	ApiDefinitionMetadataAnomalyDetectionConfigNameBflaAnomalyConfig,
 	ApiDefinitionMetadataAnomalyDetectionConfigNameJwtAnomalyConfig,
 	ApiDefinitionMetadataAnomalyDetectionConfigNameSpecialCharacterAnomalyConfig,
+	ApiDefinitionMetadataAnomalyDetectionConfigNameGqlaAnomalyConfig,
 	ApiDefinitionMetadataAnomalyDetectionConfigNameContentExplosionAnomalyConfig,
 }
 
@@ -1023,12 +1041,15 @@ var AllApiDefinitionMetadataAnomalyDetectionConfigName = []ApiDefinitionMetadata
 type ApiNamingRuleConfigType string
 
 const (
-	// Specifies segment matching based api naming rule
+	// SEGMENT_MATCHING
 	ApiNamingRuleConfigTypeSegmentMatching ApiNamingRuleConfigType = "SEGMENT_MATCHING"
+	// API_SPEC
+	ApiNamingRuleConfigTypeApiSpec ApiNamingRuleConfigType = "API_SPEC"
 )
 
 var AllApiNamingRuleConfigType = []ApiNamingRuleConfigType{
 	ApiNamingRuleConfigTypeSegmentMatching,
+	ApiNamingRuleConfigTypeApiSpec,
 }
 
 // ApiNamingRuleFields includes the GraphQL fields of ApiNamingRule requested by the fragment ApiNamingRuleFields.
@@ -1076,8 +1097,7 @@ func (v *ApiNamingRuleFields) GetSpanFilter() ApiNamingRuleFieldsSpanFilterTrace
 // ApiNamingRuleFieldsApiNamingRuleConfig includes the requested fields of the GraphQL type ApiNamingRuleConfig.
 // The GraphQL type's documentation follows.
 //
-// Api naming rule config. There may be multiple configs, but only the one
-// corresponding to the api naming rule config type would be non null
+// Api naming rule config. There may be multiple configs, but only the one corresponding to the api naming rule config type would be non null
 type ApiNamingRuleFieldsApiNamingRuleConfig struct {
 	// Specifies the api naming rule config type
 	ApiNamingRuleConfigType ApiNamingRuleConfigType `json:"apiNamingRuleConfigType"`
@@ -1227,6 +1247,34 @@ const (
 	AttributeScopeDomainEvent AttributeScope = "DOMAIN_EVENT"
 	// BACKEND_API
 	AttributeScopeBackendApi AttributeScope = "BACKEND_API"
+	// APPLICATION_ASSET
+	AttributeScopeApplicationAsset AttributeScope = "APPLICATION_ASSET"
+	// THIRDPARTY_APPLICATION_ASSET
+	AttributeScopeThirdpartyApplicationAsset AttributeScope = "THIRDPARTY_APPLICATION_ASSET"
+	// AGENT_V2
+	AttributeScopeAgentV2 AttributeScope = "AGENT_V2"
+	// AGENT_MODULE_V2
+	AttributeScopeAgentModuleV2 AttributeScope = "AGENT_MODULE_V2"
+	// SECURITY_AGENT
+	AttributeScopeSecurityAgent AttributeScope = "SECURITY_AGENT"
+	// APPLICATION_GROUP
+	AttributeScopeApplicationGroup AttributeScope = "APPLICATION_GROUP"
+	// TOTAL_HEAD_SPAN_COUNT
+	AttributeScopeTotalHeadSpanCount AttributeScope = "TOTAL_HEAD_SPAN_COUNT"
+	// TOTAL_DETECTION_EVENT_SPAN_DISTINCT_COUNT
+	AttributeScopeTotalDetectionEventSpanDistinctCount AttributeScope = "TOTAL_DETECTION_EVENT_SPAN_DISTINCT_COUNT"
+	// TOTAL_DOMAIN_EVENT_SPAN_COUNT
+	AttributeScopeTotalDomainEventSpanCount AttributeScope = "TOTAL_DOMAIN_EVENT_SPAN_COUNT"
+	// TOTAL_DOMAIN_EVENT_COUNT
+	AttributeScopeTotalDomainEventCount AttributeScope = "TOTAL_DOMAIN_EVENT_COUNT"
+	// TOTAL_THREAT_ACTIVITY_OPENED_COUNT
+	AttributeScopeTotalThreatActivityOpenedCount AttributeScope = "TOTAL_THREAT_ACTIVITY_OPENED_COUNT"
+	// TOTAL_THREAT_ACTIVITY_CLOSED_COUNT
+	AttributeScopeTotalThreatActivityClosedCount AttributeScope = "TOTAL_THREAT_ACTIVITY_CLOSED_COUNT"
+	// THREAT_ACTIVITY_MAX_OPENED_COUNT
+	AttributeScopeThreatActivityMaxOpenedCount AttributeScope = "THREAT_ACTIVITY_MAX_OPENED_COUNT"
+	// THREAT_ACTIVITY_MIN_CLOSED_COUNT
+	AttributeScopeThreatActivityMinClosedCount AttributeScope = "THREAT_ACTIVITY_MIN_CLOSED_COUNT"
 )
 
 var AllAttributeScope = []AttributeScope{
@@ -1242,6 +1290,20 @@ var AllAttributeScope = []AttributeScope{
 	AttributeScopeDomain,
 	AttributeScopeDomainEvent,
 	AttributeScopeBackendApi,
+	AttributeScopeApplicationAsset,
+	AttributeScopeThirdpartyApplicationAsset,
+	AttributeScopeAgentV2,
+	AttributeScopeAgentModuleV2,
+	AttributeScopeSecurityAgent,
+	AttributeScopeApplicationGroup,
+	AttributeScopeTotalHeadSpanCount,
+	AttributeScopeTotalDetectionEventSpanDistinctCount,
+	AttributeScopeTotalDomainEventSpanCount,
+	AttributeScopeTotalDomainEventCount,
+	AttributeScopeTotalThreatActivityOpenedCount,
+	AttributeScopeTotalThreatActivityClosedCount,
+	AttributeScopeThreatActivityMaxOpenedCount,
+	AttributeScopeThreatActivityMinClosedCount,
 }
 
 type BlockingMetadataAnomalyDetectionConfigName string
@@ -2475,7 +2537,7 @@ func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseG
 // CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression includes the requested fields of the GraphQL type CustomSignatureRuleMatchExpression.
 type CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression struct {
 	MatchKey      CustomSignatureRuleMatchKey       `json:"matchKey"`
-	MatchOperator CustomSignatureRuleMatchOperator  `json:"matchOperator"`
+	MatchOperator *CustomSignatureRuleMatchOperator `json:"matchOperator"`
 	MatchValue    *string                           `json:"matchValue"`
 	MatchCategory *CustomSignatureRuleMatchCategory `json:"matchCategory"`
 }
@@ -2486,7 +2548,7 @@ func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseG
 }
 
 // GetMatchOperator returns CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression.MatchOperator, and is useful for accessing the field via an interface.
-func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression) GetMatchOperator() CustomSignatureRuleMatchOperator {
+func (v *CustomSignatureFieldsRuleDefinitionCustomSignatureRuleDefinitionClauseGroupCustomSignatureRuleClauseGroupClausesCustomSignatureRuleClauseRequestMatchExpressionCustomSignatureRuleMatchExpression) GetMatchOperator() *CustomSignatureRuleMatchOperator {
 	return v.MatchOperator
 }
 
@@ -2634,6 +2696,18 @@ var AllCustomSignatureRuleAgentModificationType = []CustomSignatureRuleAgentModi
 	CustomSignatureRuleAgentModificationTypeHeaderInjection,
 }
 
+// Category of the rule
+type CustomSignatureRuleCategory string
+
+const (
+	// CUSTOM_SIGNATURE
+	CustomSignatureRuleCategoryCustomSignature CustomSignatureRuleCategory = "CUSTOM_SIGNATURE"
+)
+
+var AllCustomSignatureRuleCategory = []CustomSignatureRuleCategory{
+	CustomSignatureRuleCategoryCustomSignature,
+}
+
 type CustomSignatureRuleClauseOperator string
 
 const (
@@ -2689,6 +2763,8 @@ const (
 	CustomSignatureRuleClauseTypeClauseGroup CustomSignatureRuleClauseType = "CLAUSE_GROUP"
 	// LHS_RHS_KEYS_EXPRESSION
 	CustomSignatureRuleClauseTypeLhsRhsKeysExpression CustomSignatureRuleClauseType = "LHS_RHS_KEYS_EXPRESSION"
+	// EVENT_CONDITION
+	CustomSignatureRuleClauseTypeEventCondition CustomSignatureRuleClauseType = "EVENT_CONDITION"
 )
 
 var AllCustomSignatureRuleClauseType = []CustomSignatureRuleClauseType{
@@ -2711,6 +2787,7 @@ var AllCustomSignatureRuleClauseType = []CustomSignatureRuleClauseType{
 	CustomSignatureRuleClauseTypeScopeExpression,
 	CustomSignatureRuleClauseTypeClauseGroup,
 	CustomSignatureRuleClauseTypeLhsRhsKeysExpression,
+	CustomSignatureRuleClauseTypeEventCondition,
 }
 
 type CustomSignatureRuleEffectModificationType string
@@ -2947,10 +3024,14 @@ const (
 	CustomSignatureRuleMatchKeyUrl CustomSignatureRuleMatchKey = "URL"
 	// HEADER_NAME
 	CustomSignatureRuleMatchKeyHeaderName CustomSignatureRuleMatchKey = "HEADER_NAME"
+	// HEADER
+	CustomSignatureRuleMatchKeyHeader CustomSignatureRuleMatchKey = "HEADER"
 	// HEADER_VALUE
 	CustomSignatureRuleMatchKeyHeaderValue CustomSignatureRuleMatchKey = "HEADER_VALUE"
 	// PARAMETER_NAME
 	CustomSignatureRuleMatchKeyParameterName CustomSignatureRuleMatchKey = "PARAMETER_NAME"
+	// PARAMETER
+	CustomSignatureRuleMatchKeyParameter CustomSignatureRuleMatchKey = "PARAMETER"
 	// PARAMETER_VALUE
 	CustomSignatureRuleMatchKeyParameterValue CustomSignatureRuleMatchKey = "PARAMETER_VALUE"
 	// HTTP_METHOD
@@ -2967,6 +3048,8 @@ const (
 	CustomSignatureRuleMatchKeyBodySize CustomSignatureRuleMatchKey = "BODY_SIZE"
 	// COOKIE_NAME
 	CustomSignatureRuleMatchKeyCookieName CustomSignatureRuleMatchKey = "COOKIE_NAME"
+	// COOKIE
+	CustomSignatureRuleMatchKeyCookie CustomSignatureRuleMatchKey = "COOKIE"
 	// COOKIE_VALUE
 	CustomSignatureRuleMatchKeyCookieValue CustomSignatureRuleMatchKey = "COOKIE_VALUE"
 	// QUERY_PARAMS_COUNT
@@ -2975,13 +3058,19 @@ const (
 	CustomSignatureRuleMatchKeyHeadersCount CustomSignatureRuleMatchKey = "HEADERS_COUNT"
 	// COOKIES_COUNT
 	CustomSignatureRuleMatchKeyCookiesCount CustomSignatureRuleMatchKey = "COOKIES_COUNT"
+	// BODY_PARAMETER_NAME
+	CustomSignatureRuleMatchKeyBodyParameterName CustomSignatureRuleMatchKey = "BODY_PARAMETER_NAME"
+	// QUERY_PARAMETER_NAME
+	CustomSignatureRuleMatchKeyQueryParameterName CustomSignatureRuleMatchKey = "QUERY_PARAMETER_NAME"
 )
 
 var AllCustomSignatureRuleMatchKey = []CustomSignatureRuleMatchKey{
 	CustomSignatureRuleMatchKeyUrl,
 	CustomSignatureRuleMatchKeyHeaderName,
+	CustomSignatureRuleMatchKeyHeader,
 	CustomSignatureRuleMatchKeyHeaderValue,
 	CustomSignatureRuleMatchKeyParameterName,
+	CustomSignatureRuleMatchKeyParameter,
 	CustomSignatureRuleMatchKeyParameterValue,
 	CustomSignatureRuleMatchKeyHttpMethod,
 	CustomSignatureRuleMatchKeyHost,
@@ -2990,10 +3079,13 @@ var AllCustomSignatureRuleMatchKey = []CustomSignatureRuleMatchKey{
 	CustomSignatureRuleMatchKeyBody,
 	CustomSignatureRuleMatchKeyBodySize,
 	CustomSignatureRuleMatchKeyCookieName,
+	CustomSignatureRuleMatchKeyCookie,
 	CustomSignatureRuleMatchKeyCookieValue,
 	CustomSignatureRuleMatchKeyQueryParamsCount,
 	CustomSignatureRuleMatchKeyHeadersCount,
 	CustomSignatureRuleMatchKeyCookiesCount,
+	CustomSignatureRuleMatchKeyBodyParameterName,
+	CustomSignatureRuleMatchKeyQueryParameterName,
 }
 
 type CustomSignatureRuleMatchOperator string
@@ -3028,6 +3120,23 @@ var AllCustomSignatureRuleMatchOperator = []CustomSignatureRuleMatchOperator{
 	CustomSignatureRuleMatchOperatorLessThan,
 }
 
+type CustomSignatureRuleRegionIdentifierType string
+
+const (
+	// COUNTRY
+	CustomSignatureRuleRegionIdentifierTypeCountry CustomSignatureRuleRegionIdentifierType = "COUNTRY"
+	// STATE
+	CustomSignatureRuleRegionIdentifierTypeState CustomSignatureRuleRegionIdentifierType = "STATE"
+	// CITY
+	CustomSignatureRuleRegionIdentifierTypeCity CustomSignatureRuleRegionIdentifierType = "CITY"
+)
+
+var AllCustomSignatureRuleRegionIdentifierType = []CustomSignatureRuleRegionIdentifierType{
+	CustomSignatureRuleRegionIdentifierTypeCountry,
+	CustomSignatureRuleRegionIdentifierTypeState,
+	CustomSignatureRuleRegionIdentifierTypeCity,
+}
+
 // The source of the rule, or who created the rule
 type CustomSignatureRuleSource string
 
@@ -3038,12 +3147,57 @@ const (
 	CustomSignatureRuleSourceTraceable CustomSignatureRuleSource = "TRACEABLE"
 	// Rule created by the Traceable system
 	CustomSignatureRuleSourceSystem CustomSignatureRuleSource = "SYSTEM"
+	// Rule created by default
+	CustomSignatureRuleSourceDefault CustomSignatureRuleSource = "DEFAULT"
 )
 
 var AllCustomSignatureRuleSource = []CustomSignatureRuleSource{
 	CustomSignatureRuleSourceCustomer,
 	CustomSignatureRuleSourceTraceable,
 	CustomSignatureRuleSourceSystem,
+	CustomSignatureRuleSourceDefault,
+}
+
+// The family of a system-defined event used in a virtual-patch EventCondition
+type CustomSignatureRuleSystemDefinedEventFamily string
+
+const (
+	// ModSecurity CRS rules
+	CustomSignatureRuleSystemDefinedEventFamilyModsec CustomSignatureRuleSystemDefinedEventFamily = "MODSEC"
+)
+
+var AllCustomSignatureRuleSystemDefinedEventFamily = []CustomSignatureRuleSystemDefinedEventFamily{
+	CustomSignatureRuleSystemDefinedEventFamilyModsec,
+}
+
+// Discriminator for a system-defined event type id
+type CustomSignatureRuleSystemDefinedEventTypeIdType string
+
+const (
+	// References a threat-type category
+	CustomSignatureRuleSystemDefinedEventTypeIdTypeType CustomSignatureRuleSystemDefinedEventTypeIdType = "TYPE"
+	// References a specific rule within a category
+	CustomSignatureRuleSystemDefinedEventTypeIdTypeSubType CustomSignatureRuleSystemDefinedEventTypeIdType = "SUB_TYPE"
+)
+
+var AllCustomSignatureRuleSystemDefinedEventTypeIdType = []CustomSignatureRuleSystemDefinedEventTypeIdType{
+	CustomSignatureRuleSystemDefinedEventTypeIdTypeType,
+	CustomSignatureRuleSystemDefinedEventTypeIdTypeSubType,
+}
+
+// The origin of the custom signature rule
+type CustomSignatureSource string
+
+const (
+	// Rule created via custom policies
+	CustomSignatureSourceCustomPolicies CustomSignatureSource = "CUSTOM_POLICIES"
+	// Rule created as a virtual patch from a DAST scan
+	CustomSignatureSourceVirtualPatch CustomSignatureSource = "VIRTUAL_PATCH"
+)
+
+var AllCustomSignatureSource = []CustomSignatureSource{
+	CustomSignatureSourceCustomPolicies,
+	CustomSignatureSourceVirtualPatch,
 }
 
 type DataSensitivity string
@@ -3401,6 +3555,8 @@ const (
 	FilterOperatorTypeGreaterThanOrEqualTo FilterOperatorType = "GREATER_THAN_OR_EQUAL_TO"
 	// LIKE
 	FilterOperatorTypeLike FilterOperatorType = "LIKE"
+	// NOT_LIKE
+	FilterOperatorTypeNotLike FilterOperatorType = "NOT_LIKE"
 	// IN
 	FilterOperatorTypeIn FilterOperatorType = "IN"
 	// NOT_IN
@@ -3413,6 +3569,10 @@ const (
 	FilterOperatorTypeContainsKeyLike FilterOperatorType = "CONTAINS_KEY_LIKE"
 	// NOT_CONTAINS_KEY
 	FilterOperatorTypeNotContainsKey FilterOperatorType = "NOT_CONTAINS_KEY"
+	// MATCH_ALL
+	FilterOperatorTypeMatchAll FilterOperatorType = "MATCH_ALL"
+	// MATCH_EXACTLY_ONE
+	FilterOperatorTypeMatchExactlyOne FilterOperatorType = "MATCH_EXACTLY_ONE"
 )
 
 var AllFilterOperatorType = []FilterOperatorType{
@@ -3423,12 +3583,15 @@ var AllFilterOperatorType = []FilterOperatorType{
 	FilterOperatorTypeGreaterThan,
 	FilterOperatorTypeGreaterThanOrEqualTo,
 	FilterOperatorTypeLike,
+	FilterOperatorTypeNotLike,
 	FilterOperatorTypeIn,
 	FilterOperatorTypeNotIn,
 	FilterOperatorTypeContainsKey,
 	FilterOperatorTypeContainsKeyValue,
 	FilterOperatorTypeContainsKeyLike,
 	FilterOperatorTypeNotContainsKey,
+	FilterOperatorTypeMatchAll,
+	FilterOperatorTypeMatchExactlyOne,
 }
 
 type FilterType string
@@ -3443,6 +3606,35 @@ const (
 var AllFilterType = []FilterType{
 	FilterTypeAttribute,
 	FilterTypeId,
+}
+
+type GenAiAnomalyDetectionConfigName string
+
+const (
+	// PROMPT_TEXT_EVASION_AND_MISDIRECTION
+	GenAiAnomalyDetectionConfigNamePromptTextEvasionAndMisdirection GenAiAnomalyDetectionConfigName = "PROMPT_TEXT_EVASION_AND_MISDIRECTION"
+	// PROMPT_INJECTION
+	GenAiAnomalyDetectionConfigNamePromptInjection GenAiAnomalyDetectionConfigName = "PROMPT_INJECTION"
+	// LLM_RATE_LIMITING
+	GenAiAnomalyDetectionConfigNameLlmRateLimiting GenAiAnomalyDetectionConfigName = "LLM_RATE_LIMITING"
+	// PII_DETECTED_IN_PROMPT
+	GenAiAnomalyDetectionConfigNamePiiDetectedInPrompt GenAiAnomalyDetectionConfigName = "PII_DETECTED_IN_PROMPT"
+	// LLM_INPUT_EXPLOSION
+	GenAiAnomalyDetectionConfigNameLlmInputExplosion GenAiAnomalyDetectionConfigName = "LLM_INPUT_EXPLOSION"
+	// LLM_MODEL_GOVERNANCE
+	GenAiAnomalyDetectionConfigNameLlmModelGovernance GenAiAnomalyDetectionConfigName = "LLM_MODEL_GOVERNANCE"
+	// CODE_DETECTED_IN_PROMPT
+	GenAiAnomalyDetectionConfigNameCodeDetectedInPrompt GenAiAnomalyDetectionConfigName = "CODE_DETECTED_IN_PROMPT"
+)
+
+var AllGenAiAnomalyDetectionConfigName = []GenAiAnomalyDetectionConfigName{
+	GenAiAnomalyDetectionConfigNamePromptTextEvasionAndMisdirection,
+	GenAiAnomalyDetectionConfigNamePromptInjection,
+	GenAiAnomalyDetectionConfigNameLlmRateLimiting,
+	GenAiAnomalyDetectionConfigNamePiiDetectedInPrompt,
+	GenAiAnomalyDetectionConfigNameLlmInputExplosion,
+	GenAiAnomalyDetectionConfigNameLlmModelGovernance,
+	GenAiAnomalyDetectionConfigNameCodeDetectedInPrompt,
 }
 
 // GetAgentTokenAgentTokenMetadataAgentTokenMetadataResultSet includes the requested fields of the GraphQL type AgentTokenMetadataResultSet.
@@ -5193,6 +5385,8 @@ type InputAnomalyDetectionConfig struct {
 	AccountTakeoverAnomalyDetectionConfig *InputAccountTakeoverAnomalyDetectionConfig `json:"accountTakeoverAnomalyDetectionConfig"`
 	// AnomalyDetectionConfig for API Definition Metadata
 	ApiDefinitionMetadataAnomalyDetectionConfig *InputApiDefinitionMetadataAnomalyDetectionConfig `json:"apiDefinitionMetadataAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for API Protection
+	ApiProtectAnomalyDetectionConfig *InputApiProtectAnomalyDetectionConfig `json:"apiProtectAnomalyDetectionConfig"`
 	// AnomalyDetectionConfig for API State Based detections
 	ApiStateBasedAnomalyDetectionConfig *InputApiStateBasedAnomalyDetectionConfig `json:"apiStateBasedAnomalyDetectionConfig"`
 	// AnomalyDetectionConfig for Blocking Metadata
@@ -5205,6 +5399,8 @@ type InputAnomalyDetectionConfig struct {
 	CredentialStuffingAnomalyDetectionConfig *InputCredentialStuffingAnomalyDetectionConfig `json:"credentialStuffingAnomalyDetectionConfig"`
 	// AnomalyDetectionConfig for Custom Rules
 	CustomRulesAnomalyDetectionConfig *InputCustomRulesAnomalyDetectionConfig `json:"customRulesAnomalyDetectionConfig"`
+	// AnomalyDetectionConfig for GenAI Detection
+	GenAiAnomalyDetectionConfig *InputGenAiAnomalyDetectionConfig `json:"genAiAnomalyDetectionConfig"`
 	// AnomalyDetectionConfig for modsecurity
 	ModSecurityAnomalyDetectionConfig *InputModsecurityAnomalyDetectionConfig `json:"modSecurityAnomalyDetectionConfig"`
 	// AnomalyDetectionConfig for Session Definition Metadata
@@ -5223,6 +5419,11 @@ func (v *InputAnomalyDetectionConfig) GetAccountTakeoverAnomalyDetectionConfig()
 // GetApiDefinitionMetadataAnomalyDetectionConfig returns InputAnomalyDetectionConfig.ApiDefinitionMetadataAnomalyDetectionConfig, and is useful for accessing the field via an interface.
 func (v *InputAnomalyDetectionConfig) GetApiDefinitionMetadataAnomalyDetectionConfig() *InputApiDefinitionMetadataAnomalyDetectionConfig {
 	return v.ApiDefinitionMetadataAnomalyDetectionConfig
+}
+
+// GetApiProtectAnomalyDetectionConfig returns InputAnomalyDetectionConfig.ApiProtectAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetApiProtectAnomalyDetectionConfig() *InputApiProtectAnomalyDetectionConfig {
+	return v.ApiProtectAnomalyDetectionConfig
 }
 
 // GetApiStateBasedAnomalyDetectionConfig returns InputAnomalyDetectionConfig.ApiStateBasedAnomalyDetectionConfig, and is useful for accessing the field via an interface.
@@ -5249,6 +5450,11 @@ func (v *InputAnomalyDetectionConfig) GetCredentialStuffingAnomalyDetectionConfi
 // GetCustomRulesAnomalyDetectionConfig returns InputAnomalyDetectionConfig.CustomRulesAnomalyDetectionConfig, and is useful for accessing the field via an interface.
 func (v *InputAnomalyDetectionConfig) GetCustomRulesAnomalyDetectionConfig() *InputCustomRulesAnomalyDetectionConfig {
 	return v.CustomRulesAnomalyDetectionConfig
+}
+
+// GetGenAiAnomalyDetectionConfig returns InputAnomalyDetectionConfig.GenAiAnomalyDetectionConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfig) GetGenAiAnomalyDetectionConfig() *InputGenAiAnomalyDetectionConfig {
+	return v.GenAiAnomalyDetectionConfig
 }
 
 // GetModSecurityAnomalyDetectionConfig returns InputAnomalyDetectionConfig.ModSecurityAnomalyDetectionConfig, and is useful for accessing the field via an interface.
@@ -5304,11 +5510,30 @@ func (v *InputAnomalyDetectionConfigKeyValuePair) GetConfigValue() InputAnomalyD
 	return v.ConfigValue
 }
 
+type InputAnomalyDetectionConfigKeyValuePairForSubRule struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	SubRuleId     *string                                    `json:"subRuleId"`
+}
+
+// GetKeyValuePairs returns InputAnomalyDetectionConfigKeyValuePairForSubRule.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigKeyValuePairForSubRule) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetSubRuleId returns InputAnomalyDetectionConfigKeyValuePairForSubRule.SubRuleId, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigKeyValuePairForSubRule) GetSubRuleId() *string {
+	return v.SubRuleId
+}
+
 type InputAnomalyDetectionConfigValue struct {
 	// API Call Spike tuning config list
 	ApiCallSpikeTuningConfigList []*InputApiCallSpikeTuningConfig `json:"apiCallSpikeTuningConfigList"`
+	// BOLA family sub rules configs
+	BolaRuleConfig *InputBolaRuleConfig `json:"bolaRuleConfig"`
 	// Credential Stuffing tuning config list
 	CredentialStuffingTuningConfigList []*InputCredentialStuffingTuningConfig `json:"credentialStuffingTuningConfigList"`
+	// CSRF sub rule config
+	CsrfSubRuleConfig *InputCsrfSubRuleConfig `json:"csrfSubRuleConfig"`
 	// Anomaly Config for Email Domain
 	EmailDomainAnomalyConfig *InputEmailDomainAnomalyConfig `json:"emailDomainAnomalyConfig"`
 	// Anomaly Config for Ip Type
@@ -5338,9 +5563,19 @@ func (v *InputAnomalyDetectionConfigValue) GetApiCallSpikeTuningConfigList() []*
 	return v.ApiCallSpikeTuningConfigList
 }
 
+// GetBolaRuleConfig returns InputAnomalyDetectionConfigValue.BolaRuleConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetBolaRuleConfig() *InputBolaRuleConfig {
+	return v.BolaRuleConfig
+}
+
 // GetCredentialStuffingTuningConfigList returns InputAnomalyDetectionConfigValue.CredentialStuffingTuningConfigList, and is useful for accessing the field via an interface.
 func (v *InputAnomalyDetectionConfigValue) GetCredentialStuffingTuningConfigList() []*InputCredentialStuffingTuningConfig {
 	return v.CredentialStuffingTuningConfigList
+}
+
+// GetCsrfSubRuleConfig returns InputAnomalyDetectionConfigValue.CsrfSubRuleConfig, and is useful for accessing the field via an interface.
+func (v *InputAnomalyDetectionConfigValue) GetCsrfSubRuleConfig() *InputCsrfSubRuleConfig {
+	return v.CsrfSubRuleConfig
 }
 
 // GetEmailDomainAnomalyConfig returns InputAnomalyDetectionConfigValue.EmailDomainAnomalyConfig, and is useful for accessing the field via an interface.
@@ -5547,6 +5782,7 @@ type InputAnomalySubRuleConfigUpdate struct {
 	AnomalySubRuleAction *AnomalySubRuleAction           `json:"anomalySubRuleAction"`
 	BlockingEnabled      *bool                           `json:"blockingEnabled"`
 	ConfigStatus         *InputAnomalyConfigStatusChange `json:"configStatus"`
+	Internal             *bool                           `json:"internal"`
 	SubRuleId            string                          `json:"subRuleId"`
 }
 
@@ -5563,14 +5799,16 @@ func (v *InputAnomalySubRuleConfigUpdate) GetConfigStatus() *InputAnomalyConfigS
 	return v.ConfigStatus
 }
 
+// GetInternal returns InputAnomalySubRuleConfigUpdate.Internal, and is useful for accessing the field via an interface.
+func (v *InputAnomalySubRuleConfigUpdate) GetInternal() *bool { return v.Internal }
+
 // GetSubRuleId returns InputAnomalySubRuleConfigUpdate.SubRuleId, and is useful for accessing the field via an interface.
 func (v *InputAnomalySubRuleConfigUpdate) GetSubRuleId() string { return v.SubRuleId }
 
 type InputApiCallSpikeTuningConfig struct {
 	// The detection config would be applied on the endpoints identified by this config
 	DetectionScopeConfig InputDetectionScopeConfig `json:"detectionScopeConfig"`
-	// Minimum span count for the API to be present during the detection run for the
-	// API data to be qualified to be run through the detector
+	// Minimum span count for the API to be present during the detection run for the API data to be qualified to be run through the detector
 	EndpointSpanCountDetectionThreshold int64 `json:"endpointSpanCountDetectionThreshold"`
 }
 
@@ -5603,8 +5841,7 @@ func (v *InputApiDefinitionMetadataAnomalyDetectionConfig) GetName() ApiDefiniti
 // GetRuleId returns InputApiDefinitionMetadataAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
 func (v *InputApiDefinitionMetadataAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
 
-// Api naming rule config. There may be multiple configs, but only the one
-// corresponding to the api naming rule config type would be non null
+// Api naming rule config. There may be multiple configs, but only the one corresponding to the api naming rule config type would be non null
 type InputApiNamingRuleConfig struct {
 	// Specifies the api naming rule config type
 	ApiNamingRuleConfigType ApiNamingRuleConfigType `json:"apiNamingRuleConfigType"`
@@ -5686,6 +5923,19 @@ func (v *InputApiNamingRuleUpdate) GetSpanFilter() InputTraceableSpanProcessingR
 	return v.SpanFilter
 }
 
+type InputApiProtectAnomalyDetectionConfig struct {
+	KeyValuePairsForSubRules []*InputAnomalyDetectionConfigKeyValuePairForSubRule `json:"keyValuePairsForSubRules"`
+	RuleId                   *string                                              `json:"ruleId"`
+}
+
+// GetKeyValuePairsForSubRules returns InputApiProtectAnomalyDetectionConfig.KeyValuePairsForSubRules, and is useful for accessing the field via an interface.
+func (v *InputApiProtectAnomalyDetectionConfig) GetKeyValuePairsForSubRules() []*InputAnomalyDetectionConfigKeyValuePairForSubRule {
+	return v.KeyValuePairsForSubRules
+}
+
+// GetRuleId returns InputApiProtectAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputApiProtectAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
+
 type InputApiStateBasedAnomalyDetectionConfig struct {
 	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
 	Name          ApiStateBasedAnomalyDetectionConfigName    `json:"name"`
@@ -5712,6 +5962,46 @@ func (v *InputAttributeExpression) GetKey() string { return v.Key }
 // GetSubpath returns InputAttributeExpression.Subpath, and is useful for accessing the field via an interface.
 func (v *InputAttributeExpression) GetSubpath() *string { return v.Subpath }
 
+// Audit information for a rule including creation and update details
+type InputAuditDetails struct {
+	// Details about when and by whom the rule was created
+	CreationDetails *InputCreationDetails `json:"creationDetails"`
+	// Details about when and by whom the rule was last updated
+	LastUpdateDetails *InputLastUpdateDetails `json:"lastUpdateDetails"`
+}
+
+// GetCreationDetails returns InputAuditDetails.CreationDetails, and is useful for accessing the field via an interface.
+func (v *InputAuditDetails) GetCreationDetails() *InputCreationDetails { return v.CreationDetails }
+
+// GetLastUpdateDetails returns InputAuditDetails.LastUpdateDetails, and is useful for accessing the field via an interface.
+func (v *InputAuditDetails) GetLastUpdateDetails() *InputLastUpdateDetails {
+	return v.LastUpdateDetails
+}
+
+// Filter for rules based on audit properties
+type InputAuditFilter struct {
+	// Filter by partial match on creator's email (case-insensitive)
+	CreatedByContains *string `json:"createdByContains"`
+	// Filter by creation timestamp range
+	CreatedRange *InputTimestampRange `json:"createdRange"`
+	// Filter by partial match on last updater's email (case-insensitive)
+	LastUpdatedByUserContains *string `json:"lastUpdatedByUserContains"`
+	// Filter by last update timestamp range
+	UpdatedRange *InputTimestampRange `json:"updatedRange"`
+}
+
+// GetCreatedByContains returns InputAuditFilter.CreatedByContains, and is useful for accessing the field via an interface.
+func (v *InputAuditFilter) GetCreatedByContains() *string { return v.CreatedByContains }
+
+// GetCreatedRange returns InputAuditFilter.CreatedRange, and is useful for accessing the field via an interface.
+func (v *InputAuditFilter) GetCreatedRange() *InputTimestampRange { return v.CreatedRange }
+
+// GetLastUpdatedByUserContains returns InputAuditFilter.LastUpdatedByUserContains, and is useful for accessing the field via an interface.
+func (v *InputAuditFilter) GetLastUpdatedByUserContains() *string { return v.LastUpdatedByUserContains }
+
+// GetUpdatedRange returns InputAuditFilter.UpdatedRange, and is useful for accessing the field via an interface.
+func (v *InputAuditFilter) GetUpdatedRange() *InputTimestampRange { return v.UpdatedRange }
+
 type InputBlockingMetadataAnomalyDetectionConfig struct {
 	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
 	Name          BlockingMetadataAnomalyDetectionConfigName `json:"name"`
@@ -5727,12 +6017,51 @@ func (v *InputBlockingMetadataAnomalyDetectionConfig) GetName() BlockingMetadata
 	return v.Name
 }
 
+// Bola subrule configs
+type InputBolaRuleConfig struct {
+	// OBola sub rule param key config
+	ObolaParamKeyConfig *InputParamKeyConfig `json:"obolaParamKeyConfig"`
+	// OBola sub rule param value config
+	ObolaParamValueConfig *InputParamValueConfig `json:"obolaParamValueConfig"`
+	// OBola sub rule user role span filter config
+	ObolaUserRoleSpanFilterConfig *InputUserRoleSpanFilterConfig `json:"obolaUserRoleSpanFilterConfig"`
+}
+
+// GetObolaParamKeyConfig returns InputBolaRuleConfig.ObolaParamKeyConfig, and is useful for accessing the field via an interface.
+func (v *InputBolaRuleConfig) GetObolaParamKeyConfig() *InputParamKeyConfig {
+	return v.ObolaParamKeyConfig
+}
+
+// GetObolaParamValueConfig returns InputBolaRuleConfig.ObolaParamValueConfig, and is useful for accessing the field via an interface.
+func (v *InputBolaRuleConfig) GetObolaParamValueConfig() *InputParamValueConfig {
+	return v.ObolaParamValueConfig
+}
+
+// GetObolaUserRoleSpanFilterConfig returns InputBolaRuleConfig.ObolaUserRoleSpanFilterConfig, and is useful for accessing the field via an interface.
+func (v *InputBolaRuleConfig) GetObolaUserRoleSpanFilterConfig() *InputUserRoleSpanFilterConfig {
+	return v.ObolaUserRoleSpanFilterConfig
+}
+
 type InputCreateAgentTokenInput struct {
 	Name string `json:"name"`
 }
 
 // GetName returns InputCreateAgentTokenInput.Name, and is useful for accessing the field via an interface.
 func (v *InputCreateAgentTokenInput) GetName() string { return v.Name }
+
+// Details about when and by whom a rule was created
+type InputCreationDetails struct {
+	// Timestamp when the rule was created
+	CreatedAt *string `json:"createdAt"`
+	// Email address of the user who created the rule
+	CreatedBy *string `json:"createdBy"`
+}
+
+// GetCreatedAt returns InputCreationDetails.CreatedAt, and is useful for accessing the field via an interface.
+func (v *InputCreationDetails) GetCreatedAt() *string { return v.CreatedAt }
+
+// GetCreatedBy returns InputCreationDetails.CreatedBy, and is useful for accessing the field via an interface.
+func (v *InputCreationDetails) GetCreatedBy() *string { return v.CreatedBy }
 
 type InputCredentialStuffingAnomalyDetectionConfig struct {
 	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair   `json:"keyValuePairs"`
@@ -5787,6 +6116,16 @@ func (v *InputCredentialStuffingTuningConfig) GetUniqueUsersThreshold() int64 {
 // GetUsernameExtractionConfig returns InputCredentialStuffingTuningConfig.UsernameExtractionConfig, and is useful for accessing the field via an interface.
 func (v *InputCredentialStuffingTuningConfig) GetUsernameExtractionConfig() InputParameterExtractionConfig {
 	return v.UsernameExtractionConfig
+}
+
+type InputCsrfSubRuleConfig struct {
+	// URL regex to required param regex list
+	UrlRegexToReqdParamRegexList []*InputUrlRegexToReqdParamRegex `json:"urlRegexToReqdParamRegexList"`
+}
+
+// GetUrlRegexToReqdParamRegexList returns InputCsrfSubRuleConfig.UrlRegexToReqdParamRegexList, and is useful for accessing the field via an interface.
+func (v *InputCsrfSubRuleConfig) GetUrlRegexToReqdParamRegexList() []*InputUrlRegexToReqdParamRegex {
+	return v.UrlRegexToReqdParamRegexList
 }
 
 // AnomalyDetectionConfig for Custom Rules
@@ -5883,6 +6222,26 @@ func (v *InputCustomSignatureRuleAttributeKeyValueExpression) GetValueMatchOpera
 	return v.ValueMatchOperator
 }
 
+type InputCustomSignatureRuleCityRegionIdentifier struct {
+	// Exact city name
+	Name *string `json:"name"`
+	// Regex pattern for city name matching
+	NameRegex *string `json:"nameRegex"`
+	// Optional parent state for hierarchical region matching
+	State *InputCustomSignatureRuleStateRegionIdentifier `json:"state"`
+}
+
+// GetName returns InputCustomSignatureRuleCityRegionIdentifier.Name, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleCityRegionIdentifier) GetName() *string { return v.Name }
+
+// GetNameRegex returns InputCustomSignatureRuleCityRegionIdentifier.NameRegex, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleCityRegionIdentifier) GetNameRegex() *string { return v.NameRegex }
+
+// GetState returns InputCustomSignatureRuleCityRegionIdentifier.State, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleCityRegionIdentifier) GetState() *InputCustomSignatureRuleStateRegionIdentifier {
+	return v.State
+}
+
 type InputCustomSignatureRuleClauseGroup struct {
 	ClauseOperator CustomSignatureRuleClauseOperator        `json:"clauseOperator"`
 	Clauses        []*InputCustomSignatureRuleClauseRequest `json:"clauses"`
@@ -5907,6 +6266,8 @@ type InputCustomSignatureRuleClauseRequest struct {
 	CustomSecRule *InputCustomSignatureSecRule `json:"customSecRule"`
 	// Email domain expression applicable on a custom signature rule
 	EmailDomainExpression *InputCustomSignatureRuleEmailDomainExpression `json:"emailDomainExpression"`
+	// Event condition referencing system-defined events matched by this rule
+	EventCondition *InputCustomSignatureRuleEventCondition `json:"eventCondition"`
 	// Ip abuse velocity expression applicable on a custom signature rule
 	IpAbuseVelocityExpression *InputCustomSignatureRuleIpAbuseVelocityExpression `json:"ipAbuseVelocityExpression"`
 	// IP address expression applicable on a custom signature rule
@@ -5960,6 +6321,11 @@ func (v *InputCustomSignatureRuleClauseRequest) GetCustomSecRule() *InputCustomS
 // GetEmailDomainExpression returns InputCustomSignatureRuleClauseRequest.EmailDomainExpression, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleClauseRequest) GetEmailDomainExpression() *InputCustomSignatureRuleEmailDomainExpression {
 	return v.EmailDomainExpression
+}
+
+// GetEventCondition returns InputCustomSignatureRuleClauseRequest.EventCondition, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleClauseRequest) GetEventCondition() *InputCustomSignatureRuleEventCondition {
+	return v.EventCondition
 }
 
 // GetIpAbuseVelocityExpression returns InputCustomSignatureRuleClauseRequest.IpAbuseVelocityExpression, and is useful for accessing the field via an interface.
@@ -6037,6 +6403,14 @@ func (v *InputCustomSignatureRuleClauseRequest) GetUserIdExpression() *InputCust
 	return v.UserIdExpression
 }
 
+type InputCustomSignatureRuleCountryRegionIdentifier struct {
+	// Country ISO code
+	IsoCode string `json:"isoCode"`
+}
+
+// GetIsoCode returns InputCustomSignatureRuleCountryRegionIdentifier.IsoCode, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleCountryRegionIdentifier) GetIsoCode() string { return v.IsoCode }
+
 type InputCustomSignatureRuleDefinition struct {
 	ClauseGroup InputCustomSignatureRuleClauseGroup `json:"clauseGroup"`
 	Labels      []*InputCustomSignatureRuleLabel    `json:"labels"`
@@ -6065,6 +6439,7 @@ type InputCustomSignatureRuleDescriptor struct {
 	Disabled                   *bool                              `json:"disabled"`
 	Internal                   *bool                              `json:"internal"`
 	Name                       string                             `json:"name"`
+	RuleCategory               *CustomSignatureRuleCategory       `json:"ruleCategory"`
 	RuleDefinition             InputCustomSignatureRuleDefinition `json:"ruleDefinition"`
 	RuleEffect                 InputCustomSignatureRuleEffect     `json:"ruleEffect"`
 	RuleScope                  *InputCustomSignatureRuleScope     `json:"ruleScope"`
@@ -6087,6 +6462,11 @@ func (v *InputCustomSignatureRuleDescriptor) GetInternal() *bool { return v.Inte
 
 // GetName returns InputCustomSignatureRuleDescriptor.Name, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleDescriptor) GetName() string { return v.Name }
+
+// GetRuleCategory returns InputCustomSignatureRuleDescriptor.RuleCategory, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleDescriptor) GetRuleCategory() *CustomSignatureRuleCategory {
+	return v.RuleCategory
+}
 
 // GetRuleDefinition returns InputCustomSignatureRuleDescriptor.RuleDefinition, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleDescriptor) GetRuleDefinition() InputCustomSignatureRuleDefinition {
@@ -6186,6 +6566,17 @@ func (v *InputCustomSignatureRuleEntityScopeExpression) GetEntityIds() []*string
 // GetEntityType returns InputCustomSignatureRuleEntityScopeExpression.EntityType, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleEntityScopeExpression) GetEntityType() CustomSignatureRuleEntityType {
 	return v.EntityType
+}
+
+// An event condition clause referencing system-defined events matched by this rule
+type InputCustomSignatureRuleEventCondition struct {
+	// The list of system-defined events this condition references
+	SystemDefinedEvents []*InputCustomSignatureRuleSystemDefinedEvent `json:"systemDefinedEvents"`
+}
+
+// GetSystemDefinedEvents returns InputCustomSignatureRuleEventCondition.SystemDefinedEvents, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleEventCondition) GetSystemDefinedEvents() []*InputCustomSignatureRuleSystemDefinedEvent {
+	return v.SystemDefinedEvents
 }
 
 type InputCustomSignatureRuleHeaderInjection struct {
@@ -6381,13 +6772,44 @@ func (v *InputCustomSignatureRuleLabelScopeExpression) GetLabelType() CustomSign
 }
 
 type InputCustomSignatureRuleLhsRhsKeysExpression struct {
-	LhsKeyExpression InputCustomSignatureRuleMatchExpression `json:"lhsKeyExpression"`
-	MatchOperator    CustomSignatureRuleMatchOperator        `json:"matchOperator"`
-	RhsKeyExpression InputCustomSignatureRuleMatchExpression `json:"rhsKeyExpression"`
+	// Either of attributeLhsExpression or keyLhsExpression needs to be present
+	AttributeLhsExpression *InputCustomSignatureStringMatchCondition `json:"attributeLhsExpression"`
+	// Either of attributeRhsExpression or keyRhsExpression needs to be present
+	AttributeRhsExpression *InputCustomSignatureStringMatchCondition `json:"attributeRhsExpression"`
+	// Either of keyLhsExpression or attributeLhsExpression needs to be present
+	KeyLhsExpression *InputCustomSignatureRuleMatchExpression `json:"keyLhsExpression"`
+	// Either of keyRhsExpression or attributeRhsExpression needs to be present
+	KeyRhsExpression *InputCustomSignatureRuleMatchExpression `json:"keyRhsExpression"`
+	// The now-deprecated lhs component of the LhsRhsKeysExpression
+	LhsKeyExpression *InputCustomSignatureRuleMatchExpression `json:"lhsKeyExpression"`
+	// This is the outer level match operator between the lhs and the rhs expressions
+	MatchOperator CustomSignatureRuleMatchOperator `json:"matchOperator"`
+	// The now-deprecated rhs component of the LhsRhsKeysExpression
+	RhsKeyExpression *InputCustomSignatureRuleMatchExpression `json:"rhsKeyExpression"`
+}
+
+// GetAttributeLhsExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.AttributeLhsExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetAttributeLhsExpression() *InputCustomSignatureStringMatchCondition {
+	return v.AttributeLhsExpression
+}
+
+// GetAttributeRhsExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.AttributeRhsExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetAttributeRhsExpression() *InputCustomSignatureStringMatchCondition {
+	return v.AttributeRhsExpression
+}
+
+// GetKeyLhsExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.KeyLhsExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetKeyLhsExpression() *InputCustomSignatureRuleMatchExpression {
+	return v.KeyLhsExpression
+}
+
+// GetKeyRhsExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.KeyRhsExpression, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetKeyRhsExpression() *InputCustomSignatureRuleMatchExpression {
+	return v.KeyRhsExpression
 }
 
 // GetLhsKeyExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.LhsKeyExpression, and is useful for accessing the field via an interface.
-func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetLhsKeyExpression() InputCustomSignatureRuleMatchExpression {
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetLhsKeyExpression() *InputCustomSignatureRuleMatchExpression {
 	return v.LhsKeyExpression
 }
 
@@ -6397,14 +6819,14 @@ func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetMatchOperator() Custom
 }
 
 // GetRhsKeyExpression returns InputCustomSignatureRuleLhsRhsKeysExpression.RhsKeyExpression, and is useful for accessing the field via an interface.
-func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetRhsKeyExpression() InputCustomSignatureRuleMatchExpression {
+func (v *InputCustomSignatureRuleLhsRhsKeysExpression) GetRhsKeyExpression() *InputCustomSignatureRuleMatchExpression {
 	return v.RhsKeyExpression
 }
 
 type InputCustomSignatureRuleMatchExpression struct {
 	MatchCategory *CustomSignatureRuleMatchCategory `json:"matchCategory"`
 	MatchKey      CustomSignatureRuleMatchKey       `json:"matchKey"`
-	MatchOperator CustomSignatureRuleMatchOperator  `json:"matchOperator"`
+	MatchOperator *CustomSignatureRuleMatchOperator `json:"matchOperator"`
 	MatchValue    *string                           `json:"matchValue"`
 	Value         *interface{}                      `json:"value"`
 }
@@ -6420,7 +6842,7 @@ func (v *InputCustomSignatureRuleMatchExpression) GetMatchKey() CustomSignatureR
 }
 
 // GetMatchOperator returns InputCustomSignatureRuleMatchExpression.MatchOperator, and is useful for accessing the field via an interface.
-func (v *InputCustomSignatureRuleMatchExpression) GetMatchOperator() CustomSignatureRuleMatchOperator {
+func (v *InputCustomSignatureRuleMatchExpression) GetMatchOperator() *CustomSignatureRuleMatchOperator {
 	return v.MatchOperator
 }
 
@@ -6446,13 +6868,41 @@ func (v *InputCustomSignatureRuleRegionExpression) GetRegionIdentifiers() []*Inp
 }
 
 type InputCustomSignatureRuleRegionIdentifier struct {
-	// Country ISO code for region identifier
-	CountryIsoCode string `json:"countryIsoCode"`
+	// City region identifier, set when regionIdentifierType is CITY
+	CityRegionIdentifier *InputCustomSignatureRuleCityRegionIdentifier `json:"cityRegionIdentifier"`
+	// Country ISO code for region identifier. Deprecated - Use countryRegionIdentifier instead
+	CountryIsoCode *string `json:"countryIsoCode"`
+	// Country region identifier, set when regionIdentifierType is COUNTRY
+	CountryRegionIdentifier *InputCustomSignatureRuleCountryRegionIdentifier `json:"countryRegionIdentifier"`
+	// Type of region identifier: COUNTRY, STATE, or CITY
+	RegionIdentifierType *CustomSignatureRuleRegionIdentifierType `json:"regionIdentifierType"`
+	// State region identifier, set when regionIdentifierType is STATE
+	StateRegionIdentifier *InputCustomSignatureRuleStateRegionIdentifier `json:"stateRegionIdentifier"`
+}
+
+// GetCityRegionIdentifier returns InputCustomSignatureRuleRegionIdentifier.CityRegionIdentifier, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRegionIdentifier) GetCityRegionIdentifier() *InputCustomSignatureRuleCityRegionIdentifier {
+	return v.CityRegionIdentifier
 }
 
 // GetCountryIsoCode returns InputCustomSignatureRuleRegionIdentifier.CountryIsoCode, and is useful for accessing the field via an interface.
-func (v *InputCustomSignatureRuleRegionIdentifier) GetCountryIsoCode() string {
+func (v *InputCustomSignatureRuleRegionIdentifier) GetCountryIsoCode() *string {
 	return v.CountryIsoCode
+}
+
+// GetCountryRegionIdentifier returns InputCustomSignatureRuleRegionIdentifier.CountryRegionIdentifier, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRegionIdentifier) GetCountryRegionIdentifier() *InputCustomSignatureRuleCountryRegionIdentifier {
+	return v.CountryRegionIdentifier
+}
+
+// GetRegionIdentifierType returns InputCustomSignatureRuleRegionIdentifier.RegionIdentifierType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRegionIdentifier) GetRegionIdentifierType() *CustomSignatureRuleRegionIdentifierType {
+	return v.RegionIdentifierType
+}
+
+// GetStateRegionIdentifier returns InputCustomSignatureRuleRegionIdentifier.StateRegionIdentifier, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleRegionIdentifier) GetStateRegionIdentifier() *InputCustomSignatureRuleStateRegionIdentifier {
+	return v.StateRegionIdentifier
 }
 
 type InputCustomSignatureRuleRequestScannerTypeExpression struct {
@@ -6508,6 +6958,69 @@ func (v *InputCustomSignatureRuleScopeExpression) GetUrlScope() *InputCustomSign
 	return v.UrlScope
 }
 
+type InputCustomSignatureRuleStateRegionIdentifier struct {
+	// Optional parent country for hierarchical region matching
+	Country *InputCustomSignatureRuleCountryRegionIdentifier `json:"country"`
+	// Exact state name
+	Name *string `json:"name"`
+	// Regex pattern for state name matching
+	NameRegex *string `json:"nameRegex"`
+}
+
+// GetCountry returns InputCustomSignatureRuleStateRegionIdentifier.Country, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleStateRegionIdentifier) GetCountry() *InputCustomSignatureRuleCountryRegionIdentifier {
+	return v.Country
+}
+
+// GetName returns InputCustomSignatureRuleStateRegionIdentifier.Name, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleStateRegionIdentifier) GetName() *string { return v.Name }
+
+// GetNameRegex returns InputCustomSignatureRuleStateRegionIdentifier.NameRegex, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleStateRegionIdentifier) GetNameRegex() *string { return v.NameRegex }
+
+// A system-defined event reference in an EventCondition
+type InputCustomSignatureRuleSystemDefinedEvent struct {
+	// The event family (e.g. MODSEC)
+	SystemDefinedEventFamily CustomSignatureRuleSystemDefinedEventFamily `json:"systemDefinedEventFamily"`
+	// The type id identifying either a threat-type category or a specific rule
+	TypeId InputCustomSignatureRuleSystemDefinedEventTypeId `json:"typeId"`
+}
+
+// GetSystemDefinedEventFamily returns InputCustomSignatureRuleSystemDefinedEvent.SystemDefinedEventFamily, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleSystemDefinedEvent) GetSystemDefinedEventFamily() CustomSignatureRuleSystemDefinedEventFamily {
+	return v.SystemDefinedEventFamily
+}
+
+// GetTypeId returns InputCustomSignatureRuleSystemDefinedEvent.TypeId, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleSystemDefinedEvent) GetTypeId() InputCustomSignatureRuleSystemDefinedEventTypeId {
+	return v.TypeId
+}
+
+// Identifies a threat-type category (TYPE) or a specific rule (SUB_TYPE)
+type InputCustomSignatureRuleSystemDefinedEventTypeId struct {
+	// Specific rule id within a category (set when typeIdType is SUB_TYPE)
+	EventSubTypeId *string `json:"eventSubTypeId"`
+	// Threat-type category id (set when typeIdType is TYPE)
+	EventTypeId *string `json:"eventTypeId"`
+	// Discriminator: TYPE for a threat-type category, SUB_TYPE for a specific rule
+	TypeIdType CustomSignatureRuleSystemDefinedEventTypeIdType `json:"typeIdType"`
+}
+
+// GetEventSubTypeId returns InputCustomSignatureRuleSystemDefinedEventTypeId.EventSubTypeId, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleSystemDefinedEventTypeId) GetEventSubTypeId() *string {
+	return v.EventSubTypeId
+}
+
+// GetEventTypeId returns InputCustomSignatureRuleSystemDefinedEventTypeId.EventTypeId, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleSystemDefinedEventTypeId) GetEventTypeId() *string {
+	return v.EventTypeId
+}
+
+// GetTypeIdType returns InputCustomSignatureRuleSystemDefinedEventTypeId.TypeIdType, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleSystemDefinedEventTypeId) GetTypeIdType() CustomSignatureRuleSystemDefinedEventTypeIdType {
+	return v.TypeIdType
+}
+
 type InputCustomSignatureRuleUpdate struct {
 	BlockingExpirationDuration *string                            `json:"blockingExpirationDuration"`
 	Description                string                             `json:"description"`
@@ -6515,6 +7028,7 @@ type InputCustomSignatureRuleUpdate struct {
 	Id                         string                             `json:"id"`
 	Internal                   *bool                              `json:"internal"`
 	Name                       string                             `json:"name"`
+	RuleCategory               *CustomSignatureRuleCategory       `json:"ruleCategory"`
 	RuleDefinition             InputCustomSignatureRuleDefinition `json:"ruleDefinition"`
 	RuleEffect                 InputCustomSignatureRuleEffect     `json:"ruleEffect"`
 	RuleScope                  *InputCustomSignatureRuleScope     `json:"ruleScope"`
@@ -6540,6 +7054,11 @@ func (v *InputCustomSignatureRuleUpdate) GetInternal() *bool { return v.Internal
 
 // GetName returns InputCustomSignatureRuleUpdate.Name, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleUpdate) GetName() string { return v.Name }
+
+// GetRuleCategory returns InputCustomSignatureRuleUpdate.RuleCategory, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRuleUpdate) GetRuleCategory() *CustomSignatureRuleCategory {
+	return v.RuleCategory
+}
 
 // GetRuleDefinition returns InputCustomSignatureRuleUpdate.RuleDefinition, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRuleUpdate) GetRuleDefinition() InputCustomSignatureRuleDefinition {
@@ -6602,13 +7121,33 @@ func (v *InputCustomSignatureRuleUserIdExpression) GetUserIdRegexes() []*string 
 func (v *InputCustomSignatureRuleUserIdExpression) GetUserIds() []*string { return v.UserIds }
 
 type InputCustomSignatureRulesFilter struct {
-	RuleScope InputCustomSignatureRuleScope `json:"ruleScope"`
+	AuditFilter *InputAuditFilter                `json:"auditFilter"`
+	Categories  []*CustomSignatureRuleCategory   `json:"categories"`
+	Labels      []*InputCustomSignatureRuleLabel `json:"labels"`
+	RuleScope   InputCustomSignatureRuleScope    `json:"ruleScope"`
+	Sources     []*CustomSignatureSource         `json:"sources"`
+}
+
+// GetAuditFilter returns InputCustomSignatureRulesFilter.AuditFilter, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRulesFilter) GetAuditFilter() *InputAuditFilter { return v.AuditFilter }
+
+// GetCategories returns InputCustomSignatureRulesFilter.Categories, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRulesFilter) GetCategories() []*CustomSignatureRuleCategory {
+	return v.Categories
+}
+
+// GetLabels returns InputCustomSignatureRulesFilter.Labels, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRulesFilter) GetLabels() []*InputCustomSignatureRuleLabel {
+	return v.Labels
 }
 
 // GetRuleScope returns InputCustomSignatureRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputCustomSignatureRulesFilter) GetRuleScope() InputCustomSignatureRuleScope {
 	return v.RuleScope
 }
+
+// GetSources returns InputCustomSignatureRulesFilter.Sources, and is useful for accessing the field via an interface.
+func (v *InputCustomSignatureRulesFilter) GetSources() []*CustomSignatureSource { return v.Sources }
 
 type InputCustomSignatureSecRule struct {
 	// Input sec rule string
@@ -6772,8 +7311,7 @@ func (v *InputDetectionUserIdDataConfig) GetUserIdSourceType() DetectionUserIdSo
 	return v.UserIdSourceType
 }
 
-// Threshold config which specifies percentage allowed exceeding a mean countwhich
-// is calculated over the specified duration for the given time range
+// Threshold config which specifies percentage allowed exceeding a mean countwhich is calculated over the specified duration for the given time range
 type InputDynamicThresholdConfig struct {
 	// Time range over which mean and counts are calculated
 	Duration string `json:"duration"`
@@ -6864,6 +7402,23 @@ func (v *InputFilter) GetType() FilterType { return v.Type }
 
 // GetValue returns InputFilter.Value, and is useful for accessing the field via an interface.
 func (v *InputFilter) GetValue() interface{} { return v.Value }
+
+type InputGenAiAnomalyDetectionConfig struct {
+	KeyValuePairs []*InputAnomalyDetectionConfigKeyValuePair `json:"keyValuePairs"`
+	Name          GenAiAnomalyDetectionConfigName            `json:"name"`
+	RuleId        *string                                    `json:"ruleId"`
+}
+
+// GetKeyValuePairs returns InputGenAiAnomalyDetectionConfig.KeyValuePairs, and is useful for accessing the field via an interface.
+func (v *InputGenAiAnomalyDetectionConfig) GetKeyValuePairs() []*InputAnomalyDetectionConfigKeyValuePair {
+	return v.KeyValuePairs
+}
+
+// GetName returns InputGenAiAnomalyDetectionConfig.Name, and is useful for accessing the field via an interface.
+func (v *InputGenAiAnomalyDetectionConfig) GetName() GenAiAnomalyDetectionConfigName { return v.Name }
+
+// GetRuleId returns InputGenAiAnomalyDetectionConfig.RuleId, and is useful for accessing the field via an interface.
+func (v *InputGenAiAnomalyDetectionConfig) GetRuleId() *string { return v.RuleId }
 
 type InputIpRangeEnvironmentScope struct {
 	EnvironmentIds []*string `json:"environmentIds"`
@@ -7034,8 +7589,12 @@ func (v *InputIpRangeRuleUpdate) GetRuleDetails() InputIpRangeRuleDetailsRequest
 func (v *InputIpRangeRuleUpdate) GetRuleScope() *InputIpRangeRuleScope { return v.RuleScope }
 
 type InputIpRangeRulesFilter struct {
-	RuleScope InputIpRangeRuleScope `json:"ruleScope"`
+	AuditFilter *InputAuditFilter     `json:"auditFilter"`
+	RuleScope   InputIpRangeRuleScope `json:"ruleScope"`
 }
+
+// GetAuditFilter returns InputIpRangeRulesFilter.AuditFilter, and is useful for accessing the field via an interface.
+func (v *InputIpRangeRulesFilter) GetAuditFilter() *InputAuditFilter { return v.AuditFilter }
 
 // GetRuleScope returns InputIpRangeRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputIpRangeRulesFilter) GetRuleScope() InputIpRangeRuleScope { return v.RuleScope }
@@ -7108,10 +7667,26 @@ func (v *InputLandSpeedViolationConfig) GetUniqueUserCitiesMinCount() *int64 {
 	return v.UniqueUserCitiesMinCount
 }
 
+// Details about when and by whom a rule was last updated
+type InputLastUpdateDetails struct {
+	// Timestamp of the last update
+	UpdatedAt *string `json:"updatedAt"`
+	// Email address of the user who last updated the rule
+	UpdatedBy *string `json:"updatedBy"`
+}
+
+// GetUpdatedAt returns InputLastUpdateDetails.UpdatedAt, and is useful for accessing the field via an interface.
+func (v *InputLastUpdateDetails) GetUpdatedAt() *string { return v.UpdatedAt }
+
+// GetUpdatedBy returns InputLastUpdateDetails.UpdatedBy, and is useful for accessing the field via an interface.
+func (v *InputLastUpdateDetails) GetUpdatedBy() *string { return v.UpdatedBy }
+
 // Custom Rule to identify malicious sources like IP addresses, IP regions, IP location types and IP reputation
 type InputMaliciousSourcesRule struct {
 	// Rule ID
 	Id string `json:"id"`
+	// Audit details including creation and last update information
+	AuditDetails *InputAuditDetails `json:"auditDetails"`
 	// Malicious Sources rule information
 	Info InputMaliciousSourcesRuleInfo `json:"info"`
 	// Malicious Sources rule scope
@@ -7122,6 +7697,9 @@ type InputMaliciousSourcesRule struct {
 
 // GetId returns InputMaliciousSourcesRule.Id, and is useful for accessing the field via an interface.
 func (v *InputMaliciousSourcesRule) GetId() string { return v.Id }
+
+// GetAuditDetails returns InputMaliciousSourcesRule.AuditDetails, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRule) GetAuditDetails() *InputAuditDetails { return v.AuditDetails }
 
 // GetInfo returns InputMaliciousSourcesRule.Info, and is useful for accessing the field via an interface.
 func (v *InputMaliciousSourcesRule) GetInfo() InputMaliciousSourcesRuleInfo { return v.Info }
@@ -7546,9 +8124,14 @@ func (v *InputMaliciousSourcesRuleUpdate) GetRule() InputMaliciousSourcesRule { 
 
 // Filter to fetch malicious source rule
 type InputMaliciousSourcesRulesFilter struct {
+	// Filter by audit details like created/updated time and user
+	AuditFilter *InputAuditFilter `json:"auditFilter"`
 	// Rule Scope
 	RuleScope InputMaliciousSourcesRuleScope `json:"ruleScope"`
 }
+
+// GetAuditFilter returns InputMaliciousSourcesRulesFilter.AuditFilter, and is useful for accessing the field via an interface.
+func (v *InputMaliciousSourcesRulesFilter) GetAuditFilter() *InputAuditFilter { return v.AuditFilter }
 
 // GetRuleScope returns InputMaliciousSourcesRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputMaliciousSourcesRulesFilter) GetRuleScope() InputMaliciousSourcesRuleScope {
@@ -7589,6 +8172,34 @@ func (v *InputMultiValuedStringParamRule) GetValueDelimiter() string { return v.
 // GetValueRegex returns InputMultiValuedStringParamRule.ValueRegex, and is useful for accessing the field via an interface.
 func (v *InputMultiValuedStringParamRule) GetValueRegex() *string { return v.ValueRegex }
 
+// Param key regex config
+type InputParamKeyConfig struct {
+	// Filter mode for param key config
+	FilterMode *ParamFilterMode `json:"filterMode"`
+	// List of param key regexes
+	ParamKeyRegexes []*string `json:"paramKeyRegexes"`
+}
+
+// GetFilterMode returns InputParamKeyConfig.FilterMode, and is useful for accessing the field via an interface.
+func (v *InputParamKeyConfig) GetFilterMode() *ParamFilterMode { return v.FilterMode }
+
+// GetParamKeyRegexes returns InputParamKeyConfig.ParamKeyRegexes, and is useful for accessing the field via an interface.
+func (v *InputParamKeyConfig) GetParamKeyRegexes() []*string { return v.ParamKeyRegexes }
+
+// Param value regex config
+type InputParamValueConfig struct {
+	// Filter mode for param value config
+	FilterMode *ParamFilterMode `json:"filterMode"`
+	// List of param value regexes
+	ParamValueRegexes []*string `json:"paramValueRegexes"`
+}
+
+// GetFilterMode returns InputParamValueConfig.FilterMode, and is useful for accessing the field via an interface.
+func (v *InputParamValueConfig) GetFilterMode() *ParamFilterMode { return v.FilterMode }
+
+// GetParamValueRegexes returns InputParamValueConfig.ParamValueRegexes, and is useful for accessing the field via an interface.
+func (v *InputParamValueConfig) GetParamValueRegexes() []*string { return v.ParamValueRegexes }
+
 type InputParamValueTypeModsecExclude struct {
 	ExcludedModsecRuleIds []*string      `json:"excludedModsecRuleIds"`
 	ParamValueType        ParamValueType `json:"paramValueType"`
@@ -7605,13 +8216,9 @@ func (v *InputParamValueTypeModsecExclude) GetParamValueType() ParamValueType {
 }
 
 type InputParameterExtractionConfig struct {
-	// Extract the parameter labelled with one of the specified data type ids as per
-	// the data classification rules. Priority will be given to the data type id
-	// appearing first in the list.
+	// Extract the parameter labelled with one of the specified data type ids as per the data classification rules. Priority will be given to the data type id appearing first in the list.
 	DataTypeIds []*string `json:"dataTypeIds"`
-	// The logic to extract the parameter. Example: "get_json_object(request_body,
-	// '$.email')". This doesn't have any checks - whether the syntax is correct, the
-	// function is supported, etc.
+	// The logic to extract the parameter. Example: "get_json_object(request_body, '$.email')". This doesn't have any checks - whether the syntax is correct, the function is supported, etc.
 	ExtractionLogic string `json:"extractionLogic"`
 }
 
@@ -7656,6 +8263,8 @@ func (v *InputRateLimitingRegionIdentifier) GetCountryIsoCode() string { return 
 type InputRateLimitingRule struct {
 	// Rate limit rule ID
 	Id string `json:"id"`
+	// Audit details including creation and last update information
+	AuditDetails *InputAuditDetails `json:"auditDetails"`
 	// Rate limit rule category
 	Category RateLimitingRuleCategory `json:"category"`
 	// List of rate limit rule conditions
@@ -7684,6 +8293,9 @@ type InputRateLimitingRule struct {
 
 // GetId returns InputRateLimitingRule.Id, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRule) GetId() string { return v.Id }
+
+// GetAuditDetails returns InputRateLimitingRule.AuditDetails, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRule) GetAuditDetails() *InputAuditDetails { return v.AuditDetails }
 
 // GetCategory returns InputRateLimitingRule.Category, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRule) GetCategory() RateLimitingRuleCategory { return v.Category }
@@ -8707,14 +9319,23 @@ func (v *InputRateLimitingRuleUserIdCondition) GetUserIdRegexes() []*string { re
 func (v *InputRateLimitingRuleUserIdCondition) GetUserIds() []*string { return v.UserIds }
 
 type InputRateLimitingRulesFilter struct {
-	Categories []*RateLimitingRuleCategory `json:"categories"`
-	Scope      *InputRuleConfigScope       `json:"scope"`
+	// Filter by audit details like created/updated time and user
+	AuditFilter *InputAuditFilter             `json:"auditFilter"`
+	Categories  []*RateLimitingRuleCategory   `json:"categories"`
+	Labels      []*InputRateLimitingRuleLabel `json:"labels"`
+	Scope       *InputRuleConfigScope         `json:"scope"`
 }
+
+// GetAuditFilter returns InputRateLimitingRulesFilter.AuditFilter, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRulesFilter) GetAuditFilter() *InputAuditFilter { return v.AuditFilter }
 
 // GetCategories returns InputRateLimitingRulesFilter.Categories, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRulesFilter) GetCategories() []*RateLimitingRuleCategory {
 	return v.Categories
 }
+
+// GetLabels returns InputRateLimitingRulesFilter.Labels, and is useful for accessing the field via an interface.
+func (v *InputRateLimitingRulesFilter) GetLabels() []*InputRateLimitingRuleLabel { return v.Labels }
 
 // GetScope returns InputRateLimitingRulesFilter.Scope, and is useful for accessing the field via an interface.
 func (v *InputRateLimitingRulesFilter) GetScope() *InputRuleConfigScope { return v.Scope }
@@ -8908,8 +9529,13 @@ func (v *InputRegionRuleUpdate) GetRuleScope() *InputRegionRuleScope { return v.
 func (v *InputRegionRuleUpdate) GetType() RegionRuleActionType { return v.Type }
 
 type InputRegionRulesFilter struct {
-	RuleScope InputRegionRuleScope `json:"ruleScope"`
+	// Filter by audit details like created/updated time and user
+	AuditFilter *InputAuditFilter    `json:"auditFilter"`
+	RuleScope   InputRegionRuleScope `json:"ruleScope"`
 }
+
+// GetAuditFilter returns InputRegionRulesFilter.AuditFilter, and is useful for accessing the field via an interface.
+func (v *InputRegionRulesFilter) GetAuditFilter() *InputAuditFilter { return v.AuditFilter }
 
 // GetRuleScope returns InputRegionRulesFilter.RuleScope, and is useful for accessing the field via an interface.
 func (v *InputRegionRulesFilter) GetRuleScope() InputRegionRuleScope { return v.RuleScope }
@@ -9014,6 +9640,20 @@ func (v *InputTimeRange) GetEndTime() string { return v.EndTime }
 // GetStartTime returns InputTimeRange.StartTime, and is useful for accessing the field via an interface.
 func (v *InputTimeRange) GetStartTime() string { return v.StartTime }
 
+// A time range with optional start and end bounds
+type InputTimestampRange struct {
+	// Inclusive end of the range
+	End *string `json:"end"`
+	// Inclusive start of the range
+	Start *string `json:"start"`
+}
+
+// GetEnd returns InputTimestampRange.End, and is useful for accessing the field via an interface.
+func (v *InputTimestampRange) GetEnd() *string { return v.End }
+
+// GetStart returns InputTimestampRange.Start, and is useful for accessing the field via an interface.
+func (v *InputTimestampRange) GetStart() *string { return v.Start }
+
 type InputTraceableSpanProcessingLogicalFilter struct {
 	LogicalOperator LogicalOperator                           `json:"logicalOperator"`
 	SpanFilters     []*InputTraceableSpanProcessingRuleFilter `json:"spanFilters"`
@@ -9087,6 +9727,40 @@ func (v *InputUpdateAgentTokenMetadataInput) GetId() string { return v.Id }
 
 // GetName returns InputUpdateAgentTokenMetadataInput.Name, and is useful for accessing the field via an interface.
 func (v *InputUpdateAgentTokenMetadataInput) GetName() string { return v.Name }
+
+type InputUrlRegexToReqdParamRegex struct {
+	// Required param regex
+	ReqdParamRegex *string `json:"reqdParamRegex"`
+	// Url Regex
+	UrlRegex *string `json:"urlRegex"`
+}
+
+// GetReqdParamRegex returns InputUrlRegexToReqdParamRegex.ReqdParamRegex, and is useful for accessing the field via an interface.
+func (v *InputUrlRegexToReqdParamRegex) GetReqdParamRegex() *string { return v.ReqdParamRegex }
+
+// GetUrlRegex returns InputUrlRegexToReqdParamRegex.UrlRegex, and is useful for accessing the field via an interface.
+func (v *InputUrlRegexToReqdParamRegex) GetUrlRegex() *string { return v.UrlRegex }
+
+// User role span filter config for OBola sub rule
+type InputUserRoleSpanFilterConfig struct {
+	// Filter mode for user roles, applicable only for SPECIFIED_ROLES
+	FilterMode *UserRoleFilterMode `json:"filterMode"`
+	// Mode that determines how spans are filtered based on user roles
+	SpanFilteringMode *UserRoleSpanFilteringMode `json:"spanFilteringMode"`
+	// List of user roles, applicable only for SPECIFIED_ROLES
+	UserRoles []*string `json:"userRoles"`
+}
+
+// GetFilterMode returns InputUserRoleSpanFilterConfig.FilterMode, and is useful for accessing the field via an interface.
+func (v *InputUserRoleSpanFilterConfig) GetFilterMode() *UserRoleFilterMode { return v.FilterMode }
+
+// GetSpanFilteringMode returns InputUserRoleSpanFilterConfig.SpanFilteringMode, and is useful for accessing the field via an interface.
+func (v *InputUserRoleSpanFilterConfig) GetSpanFilteringMode() *UserRoleSpanFilteringMode {
+	return v.SpanFilteringMode
+}
+
+// GetUserRoles returns InputUserRoleSpanFilterConfig.UserRoles, and is useful for accessing the field via an interface.
+func (v *InputUserRoleSpanFilterConfig) GetUserRoles() []*string { return v.UserRoles }
 
 // Threshold config which specifies unique values allowed over the given time range
 type InputValueBasedThresholdConfig struct {
@@ -10990,6 +11664,24 @@ var AllOrderDirection = []OrderDirection{
 	OrderDirectionDesc,
 }
 
+// Filter mode to be applied on config
+type ParamFilterMode string
+
+const (
+	// PARAM_FILTER_MODE_UNSPECIFIED
+	ParamFilterModeParamFilterModeUnspecified ParamFilterMode = "PARAM_FILTER_MODE_UNSPECIFIED"
+	// PARAM_FILTER_MODE_INCLUDE
+	ParamFilterModeParamFilterModeInclude ParamFilterMode = "PARAM_FILTER_MODE_INCLUDE"
+	// PARAM_FILTER_MODE_EXCLUDE
+	ParamFilterModeParamFilterModeExclude ParamFilterMode = "PARAM_FILTER_MODE_EXCLUDE"
+)
+
+var AllParamFilterMode = []ParamFilterMode{
+	ParamFilterModeParamFilterModeUnspecified,
+	ParamFilterModeParamFilterModeInclude,
+	ParamFilterModeParamFilterModeExclude,
+}
+
 type ParamValueType string
 
 const (
@@ -12541,8 +13233,7 @@ func (v *ThresholdActionConfigFieldsThresholdConfigsRateLimitingRuleThresholdCon
 // ThresholdActionConfigFieldsThresholdConfigsRateLimitingRuleThresholdConfigDynamicThresholdConfig includes the requested fields of the GraphQL type DynamicThresholdConfig.
 // The GraphQL type's documentation follows.
 //
-// Threshold config which specifies percentage allowed exceeding a mean countwhich
-// is calculated over the specified duration for the given time range
+// Threshold config which specifies percentage allowed exceeding a mean countwhich is calculated over the specified duration for the given time range
 type ThresholdActionConfigFieldsThresholdConfigsRateLimitingRuleThresholdConfigDynamicThresholdConfig struct {
 	// Allowed percentage exceeding mean
 	PercentageExceedingMeanAllowed int64 `json:"percentageExceedingMeanAllowed"`
@@ -13743,6 +14434,48 @@ func (v *UpdateRateLimitingRuleUpdateRateLimitingRule) __premarshalJSON() (*__pr
 	retval.RuleStatus = v.RateLimitingRuleFields.RuleStatus
 	retval.Conditions = v.RateLimitingRuleFields.Conditions
 	return &retval, nil
+}
+
+// Filter mode for user role config
+type UserRoleFilterMode string
+
+const (
+	// USER_ROLE_FILTER_MODE_UNSPECIFIED
+	UserRoleFilterModeUserRoleFilterModeUnspecified UserRoleFilterMode = "USER_ROLE_FILTER_MODE_UNSPECIFIED"
+	// USER_ROLE_FILTER_MODE_IN
+	UserRoleFilterModeUserRoleFilterModeIn UserRoleFilterMode = "USER_ROLE_FILTER_MODE_IN"
+	// USER_ROLE_FILTER_MODE_NOT_IN
+	UserRoleFilterModeUserRoleFilterModeNotIn UserRoleFilterMode = "USER_ROLE_FILTER_MODE_NOT_IN"
+)
+
+var AllUserRoleFilterMode = []UserRoleFilterMode{
+	UserRoleFilterModeUserRoleFilterModeUnspecified,
+	UserRoleFilterModeUserRoleFilterModeIn,
+	UserRoleFilterModeUserRoleFilterModeNotIn,
+}
+
+// Mode that determines how spans are filtered based on user roles
+type UserRoleSpanFilteringMode string
+
+const (
+	// USER_ROLE_SPAN_FILTERING_MODE_UNSPECIFIED
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeUnspecified UserRoleSpanFilteringMode = "USER_ROLE_SPAN_FILTERING_MODE_UNSPECIFIED"
+	// USER_ROLE_SPAN_FILTERING_MODE_ALL_SPANS
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeAllSpans UserRoleSpanFilteringMode = "USER_ROLE_SPAN_FILTERING_MODE_ALL_SPANS"
+	// USER_ROLE_SPAN_FILTERING_MODE_SPANS_WITH_SOME_ROLE
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeSpansWithSomeRole UserRoleSpanFilteringMode = "USER_ROLE_SPAN_FILTERING_MODE_SPANS_WITH_SOME_ROLE"
+	// USER_ROLE_SPAN_FILTERING_MODE_USER_DEFINED_ROLES
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeUserDefinedRoles UserRoleSpanFilteringMode = "USER_ROLE_SPAN_FILTERING_MODE_USER_DEFINED_ROLES"
+	// USER_ROLE_SPAN_FILTERING_MODE_SPECIFIED_ROLES
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeSpecifiedRoles UserRoleSpanFilteringMode = "USER_ROLE_SPAN_FILTERING_MODE_SPECIFIED_ROLES"
+)
+
+var AllUserRoleSpanFilteringMode = []UserRoleSpanFilteringMode{
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeUnspecified,
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeAllSpans,
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeSpansWithSomeRole,
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeUserDefinedRoles,
+	UserRoleSpanFilteringModeUserRoleSpanFilteringModeSpecifiedRoles,
 }
 
 // Type of value based threshold config
