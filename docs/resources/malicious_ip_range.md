@@ -45,3 +45,11 @@ resource "traceable_malicious_ip_range" "block_sample"{
 ### Read-Only
 
 - `id` (String) Identifier of the Malicious IP Range Rule
+
+## Import
+
+Import is supported using the following syntax. The import ID is the resource **name** (not its internal ID), so names must be unique.
+
+```shell
+terraform import traceable_malicious_ip_range.example "My Malicious IP Range Rule"
+```

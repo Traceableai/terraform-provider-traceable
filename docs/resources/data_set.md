@@ -34,3 +34,11 @@ resource "traceable_data_set" "test" {
 ### Read-Only
 
 - `id` (String) Identifier of the Data Set
+
+## Import
+
+Import is supported using the following syntax. The import ID is the resource **name** (not its internal ID), so names must be unique.
+
+```shell
+terraform import traceable_data_set.example "My Data Set"
+```
