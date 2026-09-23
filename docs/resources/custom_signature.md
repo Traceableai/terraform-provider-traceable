@@ -106,3 +106,11 @@ Optional:
 
 - `key_match_operator` (String) Operator to use for key match with key_value_tag (EQUALS/NOT_EQUAL/MATCHES_REGEX/NOT_MATCH_REGEX/CONTAINS/NOT_CONTAIN/GREATER_THAN/LESS_THAN). All operarots are not valid with certain metadeta type.
 - `key_value_tag` (String) Which multi valued api attribute to include it can be (HEADER/PARAMETER/COOKIE)
+
+## Import
+
+Import is supported using the following syntax. The import ID is the resource **name** (not its internal ID), so names must be unique.
+
+```shell
+terraform import traceable_custom_signature.example "My Custom Signature Rule"
+```

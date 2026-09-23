@@ -209,3 +209,11 @@ Optional:
 Required:
 
 - `service_ids` (Set of String) It will be a list of service ids
+
+## Import
+
+Import is supported using the following syntax. The import ID is the resource **name** (not its internal ID), so names must be unique.
+
+```shell
+terraform import traceable_data_loss_prevention_request_based.example "My DLP Request Based Rule"
+```

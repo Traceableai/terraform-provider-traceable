@@ -346,3 +346,11 @@ Optional:
 - `unique_values_allowed` (Number) Unique values allowed
 - `user_aggregate_type` (String) User aggregate type(PER_USER,ACROSS_USER)
 - `value_type` (String) Value type (REQUEST_BODY/SENSITIVE_PARAMS/PATH_PARAMS)
+
+## Import
+
+Import is supported using the following syntax. The import ID is the resource **name** (not its internal ID), so names must be unique.
+
+```shell
+terraform import traceable_data_loss_prevention_user_based.example "My DLP User Based Rule"
+```
